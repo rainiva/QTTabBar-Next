@@ -23,6 +23,8 @@
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Drawing" />
+    <!-- P0-2 IPC 认证测试:断言 NetNamedPipeBinding 的传输层安全所需 -->
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
 
 </Project>

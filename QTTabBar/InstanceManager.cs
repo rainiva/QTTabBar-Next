@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Security.Principal;
 using System.Threading;
 using QTTabBarLib.Interop;
 
@@ -352,6 +353,32 @@ namespace QTTabBarLib {
             }
         }
 
+        // P0-2: unified server-side authorization check point. WCF invokes
+        // CheckAccessCore before dispatching every ICommService operation, so this
+        // single gate covers Subscribe/Broadcast/Execute*/tray/etc. without touching
+        // any individual operation body (notably CommClient.Execute stays intact).
+        // Callers whose Windows SID differs from the server user's SID are rejected.
+        private class SameUserAuthorizationManager : ServiceAuthorizationManager {
+            protected override bool CheckAccessCore(OperationContext operationContext) {
+                SecurityIdentifier callerSid = null;
+                try {
+                    ServiceSecurityContext ctx = operationContext != null
+                            ? operationContext.ServiceSecurityContext : null;
+                    WindowsIdentity id = ctx != null ? ctx.WindowsIdentity : null;
+                    if (id != null) callerSid = id.User;
+                }
+                catch (Exception ex) {
+                    QTUtility2.MakeErrorLog(ex, "InstanceManager.SameUserAuthorizationManager");
+                }
+                if (IsAuthorizedCaller(callerSid)) {
+                    return true;
+                }
+                QTUtility2.MakeErrorLog("InstanceManager: rejected unauthorized IPC caller, sid="
+                        + (callerSid == null ? "<unknown>" : callerSid.Value));
+                return false;
+            }
+        }
+
         #endregion
 
         #region Utility Methods
@@ -366,6 +393,36 @@ namespace QTTabBarLib {
             if (v == null) { return null; }
             return ((SerializeDelegate)v).Delegate;
             // return BinaryPack.BinaryConverter.Deserialize<SerializeDelegate>(buf);
+        }
+
+        // P0-2: single factory for the IPC pipe binding, shared by the service host
+        // and the duplex client. Uses transport security (Windows identity carried on
+        // the named pipe) instead of the previous wide-open SecurityMode.None, while
+        // preserving the original large-message quotas used to carry serialized
+        // delegates between explorer instances.
+        internal static NetNamedPipeBinding CreatePipeBinding() {
+            return new NetNamedPipeBinding(NetNamedPipeSecurityMode.Transport) {
+                ReceiveTimeout = TimeSpan.MaxValue,
+                ReaderQuotas = { MaxArrayLength = int.MaxValue },
+                MaxBufferSize = int.MaxValue,
+                MaxReceivedMessageSize = int.MaxValue,
+            };
+        }
+
+        // P0-2: authorize an IPC caller by comparing its Windows SID with the SID of
+        // the user that owns this process. Only same-user callers pass; a null or
+        // otherwise indeterminate identity is treated as unauthorized.
+        internal static bool IsAuthorizedCaller(SecurityIdentifier callerSid) {
+            if (callerSid == null) return false;
+            try {
+                using (WindowsIdentity self = WindowsIdentity.GetCurrent()) {
+                    return self != null && self.User != null && self.User.Equals(callerSid);
+                }
+            }
+            catch (Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "InstanceManager.IsAuthorizedCaller");
+                return false;
+            }
         }
 
         #endregion
@@ -389,24 +446,19 @@ namespace QTTabBarLib {
                             new Uri[] { new Uri(address) });
                     serviceHost.AddServiceEndpoint(
                             typeof(ICommService),
-                            new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) {
-                                ReceiveTimeout = TimeSpan.MaxValue,
-                                ReaderQuotas = {MaxArrayLength = int.MaxValue},
-                                MaxBufferSize = int.MaxValue,
-                                MaxReceivedMessageSize = int.MaxValue,
-                            },
+                            CreatePipeBinding(),
                             new Uri(address));
+                    // P0-2: install the unified same-user authorization gate so that
+                    // only IPC callers running as the same Windows user as this server
+                    // are allowed to invoke any service operation.
+                    serviceHost.Authorization.ServiceAuthorizationManager =
+                            new SameUserAuthorizationManager();
                     serviceHost.Open();
                 }
                 
 
                 commClient = new DuplexClient(new InstanceContext(new CommClient()),
-                        new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) {
-                            ReceiveTimeout = TimeSpan.MaxValue,
-                            ReaderQuotas = { MaxArrayLength = int.MaxValue },
-                            MaxBufferSize = int.MaxValue,
-                            MaxReceivedMessageSize = int.MaxValue,
-                        },
+                        CreatePipeBinding(),
                         new EndpointAddress(address));
                 try {
                     commClient.Open();
