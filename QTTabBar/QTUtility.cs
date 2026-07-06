@@ -310,32 +310,7 @@ namespace QTTabBarLib {
 
 
         public static object ByteArrayToObject(byte[] arrBytes) {
-            if (arrBytes != null && arrBytes.Length > 0)
-            {
-                try
-                {
-                    using (MemoryStream memStream = new MemoryStream())
-                    {
-                        memStream.Write(arrBytes, 0, arrBytes.Length);
-                        memStream.Seek(0, SeekOrigin.Begin);
-                        BinaryFormatter binaryFormatter = new BinaryFormatter();
-                        binaryFormatter.Binder = new PreMergeToMergedDeserializationBinder(); // �޸��������л����� application ���߲����� assembly
-                        object obj = binaryFormatter.Deserialize(memStream);
-                        /*QTUtility2.log("ByteArrayToObject:" + Encoding.Default.GetString(arrBytes));
-                        if (obj != null)
-                        {
-                            QTUtility2.log("obj:" + obj.GetType());
-                        }*/
-                        // object obj = ser.Deserialize(memStream);
-                        return obj;
-                    }
-                }
-                catch (Exception exception)
-                {
-                    QTUtility2.MakeErrorLog(exception, "ByteArrayToObject:" + Encoding.Default.GetString(arrBytes));
-                }
-            }
-            return null;
+            return SerializationHelper.ByteArrayToObject(arrBytes);
         }
 
         private readonly static string[] strIconExt = new string[] { ".exe", ".lnk", ".ico", ".url", ".sln" };
@@ -685,26 +660,7 @@ namespace QTTabBarLib {
         }
 
         public static byte[] ObjectToByteArray(SerializeDelegate obj) {
-
-            /*var settings = new Settings()
-            {
-                CustomTypeSerializers = new NS.ITypeSerializer[] { new TriDimArrayCustomSerializer() },
-            };*/
-            /*if (ser == null)
-            {
-                var types = new[] { typeof(SerializeDelegate) };
-                ser = new Serializer(types);
-                // ser = new Serializer(GetSubclasses(typeof(SerializeDelegate)));
-            }*/
-            
-
-            if(obj == null) return null;
-            using(MemoryStream ms = new MemoryStream()) {
-                // ser.Serialize(ms, obj);
-                new BinaryFormatter().Serialize(ms, obj);
-                return ms.ToArray();
-            }
-            // return BinaryPack.BinaryConverter.Serialize(obj);
+            return SerializationHelper.ObjectToByteArray(obj);
         }
 
         private static Regex singleLinebreakAtStart = new Regex(@"^(\r\n)?");

@@ -40,9 +40,8 @@ using SHDocVw;
 namespace QTTabBarLib {
     public static class QTUtility2 {
         private const int THRESHOLD_ELLIPSIS = 40;
-        private static bool fConsoleAllocated;
-        // �ж��Ƿ�������־��������Ϊfalse�� ��������. Ĭ���ǹرյģ��ڳ���ѡ�����������������
-        public static bool ENABLE_LOGGER = false;
+                // �ж��Ƿ�������־��������Ϊfalse�� ��������. Ĭ���ǹرյģ��ڳ���ѡ�����������������
+        public static bool ENABLE_LOGGER { get { return Logger.ENABLE_LOGGER; } set { Logger.ENABLE_LOGGER = value; } }
 
         public static string ExplorerPath
         {
@@ -53,21 +52,7 @@ namespace QTTabBarLib {
             }
         }
 
-        public static void AllocDebugConsole() {
-            if(fConsoleAllocated) {
-                return;
-            }
-            const int STD_OUTPUT_HANDLE = -11;
-            const int MY_CODE_PAGE = 437;
-            PInvoke.AllocConsole();
-            IntPtr stdHandle = PInvoke.GetStdHandle(STD_OUTPUT_HANDLE);
-            SafeFileHandle safeFileHandle = new SafeFileHandle(stdHandle, true);
-            FileStream fileStream = new FileStream(safeFileHandle, FileAccess.Write);
-            Encoding encoding = Encoding.GetEncoding(MY_CODE_PAGE);
-            StreamWriter standardOutput = new StreamWriter(fileStream, encoding);
-            standardOutput.AutoFlush = true;
-            Console.SetOut(standardOutput);
-            fConsoleAllocated = true;
+        public static void AllocDebugConsole() { Logger.AllocDebugConsole();
         }
 
 
@@ -231,319 +216,33 @@ namespace QTTabBarLib {
          * force log
          */
         public static void flog(string optional)
-        {
-            StackTrace trace = new StackTrace();
-            Dictionary<String, String> dic = new Dictionary<String, String>();
-            if (trace != null)
-            {
-                StackFrame frame = trace.GetFrame(1);//1�����ϼ���2�������ϼ����Դ�����
-                if (frame != null)
-                {
-                    MethodBase method = frame.GetMethod();
-                    if (method != null)
-                    {
-                        dic.Add("methodName", method.Name);
-                        if (method.ReflectedType != null)
-                        {
-                            String className = method.ReflectedType.Name;
-                            dic.Add("className", className);
-                        }
-                    }
-                }
-            }
-            log("flog", optional, dic);
+        { Logger.flog(optional);
         }
 
         public static void log(string optional)
-        {
-            if (ENABLE_LOGGER)
-            {
-                StackTrace trace = new StackTrace();
-                Dictionary<String, String> dic = new Dictionary<String, String>();
-                if (trace == null)
-                {
-                    // trace = Environment.StackTrace;
-                }
-
-                if (trace != null)
-                {
-                    StackFrame frame = trace.GetFrame(1);//1�����ϼ���2�������ϼ����Դ�����
-                    if (frame != null)
-                    {
-                        MethodBase method = frame.GetMethod();
-                        if (method != null)
-                        {
-                            dic.Add( "methodName", method.Name);
-                            if (method.ReflectedType != null)
-                            {
-                                String className = method.ReflectedType.Name;
-                                dic.Add("className", className);
-                            }
-                        }
-                    }
-                }
-                log("log", optional, dic);
-            }
+        { Logger.log(optional);
         }
 
 
         public static void log2(string optional)
-        {
-            if (ENABLE_LOGGER)
-            {
-                log("log", optional);
-            }
+        { Logger.log2(optional);
         }
 
         public static void err(string optional)
-        {
-            if (ENABLE_LOGGER)
-            {
-                StackTrace trace = new StackTrace();
-                Dictionary<String, String> dic = new Dictionary<String, String>();
-                if (trace == null)
-                {
-                    // trace = Environment.StackTrace;
-                }
-
-                if (trace != null)
-                {
-                    StackFrame frame = trace.GetFrame(1);//1�����ϼ���2�������ϼ����Դ�����
-                    if (frame != null)
-                    {
-                        MethodBase method = frame.GetMethod();
-                        if (method != null)
-                        {
-                            dic.Add("methodName", method.Name);
-                            if (method.ReflectedType != null)
-                            {
-                                String className = method.ReflectedType.Name;
-                                dic.Add("className", className);
-                            }
-                        }
-                    }
-                }
-                log("err", optional, dic);
-            }
+        { Logger.err(optional);
         }
 
         // private static DateTime dateTime ;
-        private static Dictionary<int, DateTime> dictTime = new Dictionary<int, DateTime>();
-        // ����һЩ���� ��־
-        private static string[] IGNORES = { "ReleaseComObject" };
-        
+                // ����һЩ���� ��־
+                
         public static void log(string level, string optional,Dictionary<String, String> dic=null)
-        {
-            // ignore 
-            if (null != IGNORES && IGNORES.Length > 0)
-            {
-                foreach (var ignore in IGNORES)
-                {
-                    var lower1 = ignore.ToLower();
-                    var lower2 = optional.ToLower();
-                    if (lower2.Contains(lower1))
-                    {
-                        return; // ignore ;
-                    }
-                }
-            }
-
-            /*
-             var useTime = "";
-             if (null != dateTime)
-            {
-                DateTime oldTime = dateTime;
-                dateTime = DateTime.Now;
-                useTime = "" + ((dateTime - oldTime).TotalMilliseconds) + "����";
-            }
-            else
-            {
-                dateTime = DateTime.Now;
-            }*/
-            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string appdataQT = Path.Combine(appdata, "QTTabBar");
-            if (!Directory.Exists(appdataQT))
-            {
-                Directory.CreateDirectory(appdataQT);
-            }
-
-            Process process = Process.GetCurrentProcess();
-            var cThreadId = Thread.CurrentThread.ManagedThreadId;
-            var currentThreadId = AppDomain.GetCurrentThreadId();
-            if (null == cThreadId)
-            {
-                cThreadId = currentThreadId;
-            } 
-
-            var useTime = "";
-            if (null != cThreadId)
-            {
-                if (null != dictTime)
-                {
-                    if (!dictTime.ContainsKey(cThreadId))
-                    {
-                        dictTime[cThreadId] = DateTime.Now;
-                    }
-                    var oldTime = dictTime[cThreadId];
-                    if (null != oldTime)
-                    {
-                        useTime = "" + ((DateTime.Now - oldTime).TotalMilliseconds) + "����";
-                        dictTime[cThreadId] = DateTime.Now;
-                    }
-                }
-                else
-                {
-                    ;
-                    dictTime[cThreadId] = DateTime.Now;
-                }
-            } 
-
-            string path = Path.Combine(appdataQT, "QTTabBarException.log");
-            var line = new StringBuilder();
-            line
-                .Append("[")
-                .Append(level)
-                .Append("]");
-
-            // add className and methodName debug
-            if (null != dic && dic.Count > 0 && dic.ContainsKey("methodName") && dic.ContainsKey("className"))
-            {
-                // ��������ͷ�����
-                if (dic.ContainsKey("className"))
-                {
-                    var className = dic["className"];
-                    if (!string.IsNullOrEmpty(className))
-                    {
-                        line
-                            .Append("\tC:")
-                            .Append(className);
-                    }
-                }
-
-                if (dic.ContainsKey("methodName"))
-                {
-                    var methodName = dic["methodName"];
-                    if (!string.IsNullOrEmpty(methodName))
-                    {
-                        line
-                            .Append("\tM:")
-                            .Append(methodName);
-                    }
-                }
-            }
-            // ����ID
-            if (process != null)
-            {
-                line
-                    .Append("\tP:")
-                    .Append(process.Id);
-            }
-            // �߳� ID
-            if (cThreadId != null)
-            {
-                line
-                    .Append("\tT:")
-                    .Append(cThreadId);
-            }
-            else if (currentThreadId != null)
-            {
-                line
-                    .Append("\tT:")
-                    .Append(currentThreadId);
-            }
-
-            if (!string.IsNullOrEmpty(useTime))
-            {
-                line
-                    .Append("\tcost:")
-                    .Append( useTime );
-            }
-            line
-                .Append("\t")
-                .Append(DateTime.Now.ToString())
-                .Append("\t")
-                .Append(optional);
-            writeStr(path, line);
+        { Logger.log(level, optional, dic);
         }
 
 
-        public static void MakeErrorLog(Exception ex, string optional = null) {
-            try
-            {
-                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string appdataQT = Path.Combine(appdata, "QTTabBar");
-                if (!Directory.Exists(appdataQT))
-                {
-                    Directory.CreateDirectory(appdataQT);
-                }
-                string path = Path.Combine(appdataQT, "QTTabBarException.log");
-                var line = new StringBuilder();
-                line.AppendLine(DateTime.Now.ToString());
-                line.AppendLine(".NET �汾: " + Environment.Version);
-                line.AppendLine("����ϵͳ�汾: " + Environment.OSVersion.Version + 
-                                " Major: " + Environment.OSVersion.Version.Major +
-                                " ����: " + getEnv()
-                                );
-                line.AppendLine("QT �汾: " + MakeVersionString());
-                if (!String.IsNullOrEmpty(optional))
-                {
-                    line.AppendLine("������Ϣ: " + optional);
-                }
-                if (ex == null)
-                {
-                    line.AppendLine("Exception: None");
-                    if (Environment.StackTrace != null)
-                    {
-                        line.AppendLine(Environment.StackTrace);
-                    }
-                }
-                else
-                {
-                    line.AppendFormat("\nMessage ---\n{0}", ex.Message);
-                    line.AppendFormat(
-                        "\nHelpLink ---\n{0}", ex.HelpLink);
-                    line.AppendFormat("\nSource ---\n{0}", ex.Source);
-                    line.AppendFormat(
-                        "\nStackTrace ---\n{0}", ex.StackTrace);
-                    line.AppendFormat(
-                        "\nTargetSite ---\n{0}", ex.TargetSite);
-
-                    if (ex.InnerException != null)
-                    {
-                        line.AppendLine("****************InnnerExcetpion");
-                        line.AppendFormat("\n  InnerMessage ---\n{0}", ex.InnerException.Message);
-                        line.AppendFormat(
-                            "\n InnerHelpLink ---\n{0}", ex.InnerException.HelpLink);
-                        line.AppendFormat("\n  InnerSource ---\n{0}", ex.InnerException.Source);
-                        line.AppendFormat(
-                            "\n InnerStackTrace ---\n{0}", ex.InnerException.StackTrace);
-                        line.AppendFormat(
-                            "\n InnerTargetSite ---\n{0}", ex.InnerException.TargetSite);
-                    }
-                }
-                line.AppendLine("--------------");
-                line.AppendLine();
-
-                writeStr(path, line);
-            }
-            catch(Exception ex2) {
-                // Avoid recursive call to MakeErrorLog; write to debug output instead
-                System.Diagnostics.Debug.WriteLine("MakeErrorLog failed: " + ex2.Message);
-            }
+        public static void MakeErrorLog(Exception ex, string optional = null) { Logger.MakeErrorLog(ex, optional);
         }
-
-        private static string getEnv()
-        {
-            if (4 == IntPtr.Size)
-            {
-                return "32";
-            } else if (8 == IntPtr.Size)
-            {
-                return "64";
-            }
-            return "unknown";
-        }
-
+
         /*
         public static object lockObject = new object();
         //��д���������ļ�д��Ȩ�ޣ�ÿ���߳����εȴ��ϸ�д�����
@@ -561,77 +260,7 @@ namespace QTTabBarLib {
             ���ã�������ס���������ݣ�����ֹ�����߳̽���ô���飬ֱ���ô����������ɣ��ͷŸ�����
          * Mutex�����ǿ���ϵͳ����ģ������ǿ��Կ�Խ���̵ġ�
          */
-        private static readonly Mutex M_MUTEX = new Mutex();
-
-        private static void writeStr(string path, StringBuilder formatLogLine)
-        {
-            try
-            {
-                M_MUTEX.WaitOne();
-                //���ö�д��Ϊд��ģʽ��ռ��Դ
-                //��д��ģʽ�Ľ������ͷ���ͬһ��������ڣ��뱣֤�ڿ��ڽ���д��ģʽǰ���ᴥ���쳣���������Ϊ�������ͷŴ��������Ӷ������쳣
-                //����ʱ��ռ�ö�д������ᵼ�������̼߳�����
-                // LogWriteLock.EnterWriteLock();
-                // lock (lockObject) {
-
-                // �޸� ������һ����ʹ�ã���˸ý����޷����ʸ��ļ�
-                if (File.Exists(path)) {
-                    using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-                    {
-                        using (StreamWriter sr = new StreamWriter(fs))
-                        {
-                            sr.WriteLine(formatLogLine);
-                        }
-                    }
-                }
-                else
-                {
-                    using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                    {
-                        using (StreamWriter sr = new StreamWriter(fs))
-                        {
-                            sr.WriteLine(formatLogLine);
-                        }
-                    }
-                }
-
-                // �������� ������һ����ʹ�ã���˸ý����޷����ʸ��ļ�
-                    /*using (StreamWriter writer = new StreamWriter(path, true))
-                    {
-                        writer.WriteLine(formatLogLine);
-                    }
-                     */
-            }
-            finally
-            {
-                //�˳�д��ģʽ���ͷ���Դռ��
-                //ע���ͷ�����������ͬ����ᴥ���쳣
-                // LogWriteLock.ExitWriteLock();
-
-                M_MUTEX.ReleaseMutex();
-            }
-            /*if (File.Exists(path))
-            {
-                using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    StreamWriter writer = new StreamWriter(fs);
-                    writer.WriteLine(formatLogLine);
-                    // Close(writer);
-                    // Close(fs);
-                }
-            }
-            else
-            {
-                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    StreamWriter writer = new StreamWriter(fs);
-                    writer.WriteLine(formatLogLine);
-                    // Close(writer);
-                    // Close(fs);
-                }
-            }*/
-        }
-
+        
         public static void Close(TextReader sr)
         {
             if (sr == null)
@@ -660,33 +289,7 @@ namespace QTTabBarLib {
         }
 
         public static void MakeErrorLog( string optional = null)
-        {
-            try
-            {
-                string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string appdataQT = Path.Combine(appdata, "QTTabBar");
-                if (!Directory.Exists(appdataQT))
-                {
-                    Directory.CreateDirectory(appdataQT);
-                }
-                string path = Path.Combine(appdataQT, "QTTabBarException.log");
-                using (StreamWriter writer = new StreamWriter(path, true))
-                {
-
-                    if (!String.IsNullOrEmpty(optional))
-                    {
-                        writer.WriteLine("������Ϣ: " + optional);
-                    }
-                   
-                    writer.WriteLine("--------------");
-                    writer.WriteLine();
-                    Close( writer );
-                }
-                SystemSounds.Exclamation.Play();
-            }
-            catch
-            {
-            }
+        { Logger.MakeErrorLog(optional);
         }
 
         public static string MakeKeyString(Keys key) {
