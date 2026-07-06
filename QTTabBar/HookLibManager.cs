@@ -18,7 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Management;
+using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using QTTabBarLib.Interop;
@@ -151,23 +151,24 @@ namespace QTTabBarLib {
                     return;
                 }
                 
-                using(ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem")) {
-                    string sCPUSerialNumber = "";
-                    foreach(ManagementObject mo in searcher.Get()) {
-                        sCPUSerialNumber = mo["Name"].ToString().ToLower().Trim();
+                // Replace WMI query with registry query for OS detection
+                // WMI is slow and blocks startup; registry is faster
+                string productName = "";
+                using(RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion")) {
+                    if(key != null) {
+                        productName = (string)key.GetValue("ProductName", "") ?? "";
                     }
-
-                    var isServer = sCPUSerialNumber.Contains("windows server");
-                    if(isServer) {
-                        QTUtility2.log("can not hook in server by get server");
-                        LoadedHook = false;
-                        return;
-                    }
+                }
+                bool isServer = productName.ToLower().Contains("server");
+                if(isServer) {
+                    QTUtility2.log("can not hook in server by registry check");
+                    LoadedHook = false;
+                    return;
                 }
             }
             catch (Exception)
             {   
-                QTUtility2.log("can not hook in server by get server exception");
+                QTUtility2.log("can not hook in server by registry check exception");
                 LoadedHook = false;
                 return;
             }

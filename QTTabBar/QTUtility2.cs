@@ -818,6 +818,13 @@ namespace QTTabBarLib {
             return String.Equals(str1, str2, StringComparison.OrdinalIgnoreCase);
         }
 
+        public static bool IsValidExecutablePath(string path) {
+            if(String.IsNullOrEmpty(path)) return false;
+            if(!Path.IsPathRooted(path)) return false;
+            string ext = Path.GetExtension(path).ToLower();
+            return ext == ".exe" || ext == ".bat" || ext == ".cmd" || ext == ".msi";
+        }
+
         public static bool PathExists(string path) {
             if(String.IsNullOrEmpty(path)) {
                 return false;
