@@ -20,4 +20,9 @@
     <ProjectReference Include="..\..\QTTabBar\QTTabBar.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+
 </Project>
