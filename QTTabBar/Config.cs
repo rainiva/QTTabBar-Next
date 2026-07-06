@@ -236,6 +236,37 @@ namespace QTTabBarLib {
         public static _Lang Lang        { get { return ConfigManager.LoadedConfig.lang; } }		/*语言配置*/
         public static _Desktop Desktop { get { return ConfigManager.LoadedConfig.desktop; } }   /*关于信息*/
 
+        /// <summary>
+        /// Safely reads a registry value. If the sub-key does not exist, access is
+        /// denied/restricted, or any other error occurs, the supplied default value is
+        /// returned instead of throwing. All failures are logged with context.
+        /// </summary>
+        /// <param name="root">The base registry key (e.g. Registry.CurrentUser). Null returns the default.</param>
+        /// <param name="subKeyPath">The sub-key path to open.</param>
+        /// <param name="valueName">The value name to read.</param>
+        /// <param name="defaultValue">The value returned on missing key/value or error.</param>
+        public static object SafeGetRegistryValue(RegistryKey root, string subKeyPath, string valueName, object defaultValue) {
+            if(root == null) {
+                return defaultValue;
+            }
+            try {
+                using(RegistryKey key = root.OpenSubKey(subKeyPath)) {
+                    if(key == null) {
+                        return defaultValue;
+                    }
+                    return key.GetValue(valueName, defaultValue);
+                }
+            }
+            catch(UnauthorizedAccessException ex) {
+                QTUtility2.MakeErrorLog(ex, "SafeGetRegistryValue access denied. path=" + subKeyPath + " value=" + valueName);
+                return defaultValue;
+            }
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "SafeGetRegistryValue failed. path=" + subKeyPath + " value=" + valueName);
+                return defaultValue;
+            }
+        }
+
         public _Window window   { get; set; }
         public _Tabs tabs       { get; set; }
         public _Tweaks tweaks   { get; set; }

@@ -148,98 +148,115 @@ namespace QTTabBarLib {
                 {
                     return;
                 }
-                
-                // Replace WMI query with registry query for OS detection
-                // WMI is slow and blocks startup; registry is faster
-                string productName = "";
-                using(RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion")) {
-                    if(key != null) {
-                        productName = (string)key.GetValue("ProductName", "") ?? "";
-                    }
-                }
+
+                // Replace WMI query with registry query for OS detection.
+                // WMI is slow and blocks startup; registry is faster.
+                // Use the safe reader so a missing/restricted key degrades gracefully.
+                string productName = (Config.SafeGetRegistryValue(
+                        Registry.LocalMachine,
+                        @"SOFTWARE\Microsoft\Windows NT\CurrentVersion",
+                        "ProductName",
+                        "") as string) ?? "";
                 bool isServer = productName.ToLower().Contains("server");
                 if(isServer) {
                     QTUtility2.log("can not hook in server by registry check");
                     HookStateManager.SetLoaded(false);
                     return;
                 }
-            }
-            catch (Exception)
-            {   
-                QTUtility2.log("can not hook in server by registry check exception");
-                HookStateManager.SetLoaded(false);
-                return;
-            }
 
-            string installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar");
-            string filename = IntPtr.Size == 8 ? "QTHookLib64.dll" : "QTHookLib32.dll";
-            if (HookStateManager.Handle != IntPtr.Zero)
-            {
-                   if (!Config.Window.AutoHookWindow)
-                   {
-                        PInvoke.FreeLibrary(HookStateManager.Handle);
-                        HookStateManager.SetHandle(IntPtr.Zero);
-                   }
-                return;
-            }
+                string installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar");
+                string filename = IntPtr.Size == 8 ? "QTHookLib64.dll" : "QTHookLib32.dll";
+                if (HookStateManager.Handle != IntPtr.Zero)
+                {
+                       if (!Config.Window.AutoHookWindow)
+                       {
+                            PInvoke.FreeLibrary(HookStateManager.Handle);
+                            HookStateManager.SetHandle(IntPtr.Zero);
+                       }
+                    return;
+                }
 
-            if (!Config.Window.AutoHookWindow)
-            {
-                HookStateManager.SetLoaded(false);
-                return;
-            }
+                if (!Config.Window.AutoHookWindow)
+                {
+                    HookStateManager.SetLoaded(false);
+                    return;
+                }
 
-            if (!File.Exists(Path.Combine(installPath, filename)))
-            {
-                QTUtility2.flog("not exists file , close auto hook " + Path.Combine(installPath, filename));
-                HookStateManager.SetLoaded(false);
-                return;
-            }
-            QTUtility2.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
-            QTUtility2.flog("load library " + Path.Combine(installPath, filename) );
-            HookStateManager.SetHandle(PInvoke.LoadLibrary(Path.Combine(installPath, filename)));
-            QTUtility2.flog("load library hHookLib " + HookStateManager.Handle);
-            int retcode = -1;
-            if(HookStateManager.Handle == IntPtr.Zero) {
-                int error = Marshal.GetLastWin32Error();
-                QTUtility2.MakeErrorLog(null, "LoadLibrary error: " + error);
-            }
-            else {
-                IntPtr pFunc = PInvoke.GetProcAddress(HookStateManager.Handle, "Initialize");
-                if(pFunc != IntPtr.Zero) {
-                    InitHookLibDelegate initialize = (InitHookLibDelegate) 
-                        Marshal.GetDelegateForFunctionPointer(pFunc, typeof(InitHookLibDelegate));
-                        QTUtility2.flog("Win11Probe HookLibManager.Initialize.InvokeNativeInitialize");
-                    try {
-                        retcode = initialize(callbackStruct);
-                    }
-                    catch(Exception e) {
-                        QTUtility2.MakeErrorLog(e, "");
-                        HookStateManager.SetLoaded(false);
+                if (!File.Exists(Path.Combine(installPath, filename)))
+                {
+                    QTUtility2.flog("not exists file , close auto hook " + Path.Combine(installPath, filename));
+                    HookStateManager.SetLoaded(false);
+                    return;
+                }
+                QTUtility2.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
+                QTUtility2.flog("load library " + Path.Combine(installPath, filename) );
+                HookStateManager.SetHandle(PInvoke.LoadLibrary(Path.Combine(installPath, filename)));
+                QTUtility2.flog("load library hHookLib " + HookStateManager.Handle);
+                int retcode = -1;
+                if(HookStateManager.Handle == IntPtr.Zero) {
+                    int error = Marshal.GetLastWin32Error();
+                    QTUtility2.MakeErrorLog(null, "LoadLibrary error: " + error);
+                }
+                else {
+                    IntPtr pFunc = PInvoke.GetProcAddress(HookStateManager.Handle, "Initialize");
+                    if(pFunc != IntPtr.Zero) {
+                        InitHookLibDelegate initialize = (InitHookLibDelegate) 
+                            Marshal.GetDelegateForFunctionPointer(pFunc, typeof(InitHookLibDelegate));
+                            QTUtility2.flog("Win11Probe HookLibManager.Initialize.InvokeNativeInitialize");
+                        try {
+                            retcode = initialize(callbackStruct);
+                        }
+                        catch(Exception e) {
+                            QTUtility2.MakeErrorLog(e, "HookLibManager.Initialize: native Initialize threw");
+                            HookStateManager.SetLoaded(false);
+                        }
                     }
                 }
-            }
 
-            if (retcode == 0)
-            {
-                HookStateManager.SetLoaded(true);
-                QTUtility2.log("HookLib Initialize success");
-                // MessageBox.Show("HookLib Initialize success");
-                return;
+                if (retcode == 0)
+                {
+                    HookStateManager.SetLoaded(true);
+                    QTUtility2.log("HookLib Initialize success");
+                    // MessageBox.Show("HookLib Initialize success");
+                    return;
+                }
+                QTUtility2.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
+                HookStateManager.SetLoaded(false);
+                MessageForm.Show(IntPtr.Zero,
+                    String.Format(
+                        "{0}: {1} {2}",
+                        QTUtility.TextResourcesDic["ErrorDialogs"][4],
+                        QTUtility.TextResourcesDic["ErrorDialogs"][5],
+                        QTUtility.TextResourcesDic["ErrorDialogs"][7]
+                    ),
+                    QTUtility.TextResourcesDic["ErrorDialogs"][1],
+                    MessageBoxIcon.Hand, 
+                    30000, false, true
+                );
             }
-            QTUtility2.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
-            HookStateManager.SetLoaded(false);
-            MessageForm.Show(IntPtr.Zero,
-                String.Format(
-                    "{0}: {1} {2}",
-                    QTUtility.TextResourcesDic["ErrorDialogs"][4],
-                    QTUtility.TextResourcesDic["ErrorDialogs"][5],
-                    QTUtility.TextResourcesDic["ErrorDialogs"][7]
-                ),
-                QTUtility.TextResourcesDic["ErrorDialogs"][1],
-                MessageBoxIcon.Hand, 
-                30000, false, true
-            );
+            catch (DllNotFoundException dllEx)
+            {
+                // Hook DLL (or a dependency) could not be resolved: degrade to disabled.
+                QTUtility2.MakeErrorLog(dllEx, "HookLibManager.Initialize: hook DLL not found; disabling hooks");
+                HookStateManager.SetLoaded(false);
+            }
+            catch (System.Security.SecurityException secEx)
+            {
+                // Registry / security access denied during OS detection or config read.
+                QTUtility2.MakeErrorLog(secEx, "HookLibManager.Initialize: registry/security access failure; disabling hooks");
+                HookStateManager.SetLoaded(false);
+            }
+            catch (UnauthorizedAccessException uaEx)
+            {
+                QTUtility2.MakeErrorLog(uaEx, "HookLibManager.Initialize: unauthorized registry access; disabling hooks");
+                HookStateManager.SetLoaded(false);
+            }
+            catch (Exception ex)
+            {
+                // Any other unexpected failure must not interrupt Explorer startup.
+                QTUtility2.MakeErrorLog(ex, "HookLibManager.Initialize: unexpected failure; disabling hooks");
+                HookStateManager.SetLoaded(false);
+            }
         }
 
 

@@ -123,6 +123,7 @@
     <Compile Include="BreadcrumbBar.cs" />
     <Compile Include="AbstractListView.cs" />
     <Compile Include="Common\Blob.cs" />
+    <Compile Include="Common\ComReleaseHelper.cs" />
     <Compile Include="Common\CoreErrorHelper.cs" />
     <Compile Include="Common\CoreHelpers.cs" />
     <Compile Include="Common\CoreNativeMethods.cs" />

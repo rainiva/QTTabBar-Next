@@ -286,16 +286,38 @@ namespace QTTabBarLib {
                         thedel.DynamicInvoke();
                     }
                 }
+                catch(NullReferenceException ex) {
+                    QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "NullReferenceException"));
+                    SafeReinitialize();
+                }
+                catch(ObjectDisposedException ex) {
+                    QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "ObjectDisposedException"));
+                    SafeReinitialize();
+                }
                 catch(Exception ex) {
-                    string errStr = null;
-                    if (thedel != null && thedel.Method != null)
-                    {
-                        errStr = "delegate name:" + thedel.GetType()  + " ";
-                        errStr += "method name:" + thedel.Method.Name + " daynamic invoke error";
-                    }
-                    QTUtility2.MakeErrorLog(ex, errStr);
-                    // re initialize 
+                    QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "Exception"));
+                    SafeReinitialize();
+                }
+            }
+
+            // Builds contextual diagnostics for a failed delegate invocation.
+            private static string BuildExecuteErrorContext(Delegate thedel, string kind) {
+                string errStr = "CommClient.Execute " + kind + ". ";
+                if (thedel != null && thedel.Method != null) {
+                    errStr += "delegate name:" + thedel.GetType() + " ";
+                    errStr += "method name:" + thedel.Method.Name + " dynamic invoke error";
+                }
+                return errStr;
+            }
+
+            // Re-initialize the comm client for recovery, but never allow the
+            // recovery attempt itself to propagate an exception to the caller.
+            private static void SafeReinitialize() {
+                try {
                     Initialize();
+                }
+                catch(Exception reinitEx) {
+                    QTUtility2.MakeErrorLog(reinitEx, "CommClient.Execute: re-initialize failed");
                 }
             }
         }
