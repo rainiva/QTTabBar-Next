@@ -43,8 +43,7 @@ namespace QTTabBarLib {
         private static List<ICommClient> callbacks = new List<ICommClient>();
         private static StackDictionary<IntPtr, ICommClient> sdInstances = new StackDictionary<IntPtr, ICommClient>();
         private static TrayIcon trayIcon;
-        // add by indiff
-        private static ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
+
 
 
         #region Comm Classes and Interfaces
@@ -463,17 +462,17 @@ namespace QTTabBarLib {
 
         public static void LocalInvokeMain(Action<QTTabBarClass> action, bool doAsync = false) {
             QTTabBarClass instance;
-            // 获取主进程的 QTTabBar的实例
+            // 锟斤拷取锟斤拷锟斤拷锟教碉拷 QTTabBar锟斤拷实锟斤拷
             using(new Keychain(rwLockTabBar, false)) {
                 instance = sdTabHandles.Count == 0 ? null : sdTabHandles.Peek();
             }
             if(instance == null) return;
             if(doAsync) {
-                QTUtility2.log("异步调用:");
+                QTUtility2.log("锟届步锟斤拷锟斤拷:");
                 instance.BeginInvoke(action, instance);    
             }
             else {
-                QTUtility2.log("同步调用:" );
+                QTUtility2.log("同锟斤拷锟斤拷锟斤拷:" );
                 instance.Invoke(action, instance);   
             }
         }
@@ -521,17 +520,13 @@ namespace QTTabBarLib {
             return service == null ? dictTabInstances.Count : service.GetTotalInstanceCount();
         }
         private static int inTimer = 0;
+        private static int inSelectDict = 0;
         private static object LockSelectDict = new object();
 
         public static void PutSelect(string key , List<string> list ) 
         {
-            /*using(new Keychain(rwLockSelectDict, true))
+            if (Interlocked.Exchange(ref inSelectDict, 1) != 0)
             {
-                selectDict[key] = list;
-            }*/
-            if (Interlocked.Exchange(ref inTimer, 1) != 0)
-            {
-                QTUtility2.log("拒绝进入");
                 return;
             }
             try
@@ -543,23 +538,18 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.log("异常");
+                QTUtility2.MakeErrorLog(e, "PutSelect");
             }
             finally
             {
-                Interlocked.Exchange(ref inTimer, 0);
+                Interlocked.Exchange(ref inSelectDict, 0);
             }
         }
 
         public static void RemoveSelect(string key  ) 
         {
-            /*using(new Keychain(rwLockSelectDict, true))
+            if (Interlocked.Exchange(ref inSelectDict, 1) != 0)
             {
-                selectDict.Remove(key);
-            }*/
-            if (Interlocked.Exchange(ref inTimer, 1) != 0)
-            {
-                QTUtility2.log("拒绝进入");
                 return;
             }
             try
@@ -571,24 +561,18 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.log("异常");
+                QTUtility2.MakeErrorLog(e, "RemoveSelect");
             }
             finally
             {
-                Interlocked.Exchange(ref inTimer, 0);
+                Interlocked.Exchange(ref inSelectDict, 0);
             }
         }
 
         public static List<string> GetSelect(string key)
         {
-            /*using (new Keychain(rwLockSelectDict, false))
+            if (Interlocked.Exchange(ref inSelectDict, 1) != 0)
             {
-                List<string> list;
-                return selectDict.TryGetValue(key, out list) ? list : null;
-            }*/
-            if (Interlocked.Exchange(ref inTimer, 1) != 0)
-            {
-                QTUtility2.log("拒绝进入");
                 return null;
             }
             try
@@ -601,12 +585,12 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.log("异常");
+                QTUtility2.MakeErrorLog(e, "GetSelect");
                 return null;
             }
             finally
             {
-                Interlocked.Exchange(ref inTimer, 0);
+                Interlocked.Exchange(ref inSelectDict, 0);
             }
         }
 
@@ -625,14 +609,15 @@ namespace QTTabBarLib {
         }
 
         public static bool TryGetButtonBarHandle(IntPtr explorerHandle, out IntPtr ptr) {
-            // todo
-            QTButtonBar bbar;
-            if(dictBBarInstances.TryGetValue(Thread.CurrentThread, out bbar)) {
-                ptr = bbar.Handle;
-                return true;
+            using(new Keychain(rwLockBtnBar, false)) {
+                QTButtonBar bbar;
+                if(dictBBarInstances.TryGetValue(Thread.CurrentThread, out bbar)) {
+                    ptr = bbar.Handle;
+                    return true;
+                }
+                ptr = IntPtr.Zero;
+                return false;
             }
-            ptr = IntPtr.Zero;
-            return false;
         }
 
         public static void ExecuteOnServerProcess(Action action, bool doAsync) {

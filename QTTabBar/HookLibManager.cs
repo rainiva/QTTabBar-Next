@@ -156,19 +156,13 @@ namespace QTTabBarLib {
                 foreach (ManagementObject mo in searcher.Get())
                 {
 
-                    sCPUSerialNumber = mo["Name"].ToString().ToLower().Trim();//操作系统名字
-                    //sCPUSerialNumber = mo["BootDevice"].ToString().Trim();//系统启动分区
-                    //sCPUSerialNumber = mo["NumberOfProcesses"].ToString().Trim();//当前运行的进程数
-                    //sCPUSerialNumber = mo["SerialNumber"].ToString().Trim();//操作系统序列号
-                    //sCPUSerialNumber = mo["OSLanguage"].ToString().Trim();//操作系统的语言
-                    //sCPUSerialNumber = mo["Manufacturer"].ToString().Trim();//
+                    sCPUSerialNumber = mo["Name"].ToString().ToLower().Trim();
                 }
 
                 var isServer = sCPUSerialNumber.Contains("windows server");
                 if (isServer)
                 {
                     QTUtility2.log("can not hook in server by get server");
-                    Config.Window.AutoHookWindow = false;
                     LoadedHook = false;
                     return;
                 }
@@ -176,7 +170,6 @@ namespace QTTabBarLib {
             catch (Exception)
             {   
                 QTUtility2.log("can not hook in server by get server exception");
-                Config.Window.AutoHookWindow = false;
                 LoadedHook = false;
                 return;
             }
@@ -199,10 +192,9 @@ namespace QTTabBarLib {
                 return;
             }
 
-            if (!File.Exists(Path.Combine(installPath, filename))) // 如果文件不存在则设置为不自动加载
+            if (!File.Exists(Path.Combine(installPath, filename)))
             {
                 QTUtility2.flog("not exists file , close auto hook " + Path.Combine(installPath, filename));
-                Config.Window.AutoHookWindow = false;
                 LoadedHook = false;
                 return;
             }

@@ -94,6 +94,7 @@ namespace QTTabBarLib {
         
         // TODO: almost all of these need to be either sync'd or removed.
         // TODO: we should store actual TabItems, not just strings.
+        internal static readonly object syncRoot = new object();
         internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
         internal static bool fExplorerPrevented;
         internal static bool fRestoreFolderTree;
@@ -243,7 +244,9 @@ namespace QTTabBarLib {
                         RefreshLockedTabsList();
                         string str7 = (string)key.GetValue("NoCaptureAt", string.Empty);
                         if(str7.Length > 0) {
-                            NoCapturePathsList = new List<string>(str7.Split(SEPARATOR_CHAR));
+                            lock(syncRoot) {
+                                NoCapturePathsList = new List<string>(str7.Split(SEPARATOR_CHAR));
+                            }
                         }
                         if(!byte.TryParse((string)key.GetValue("WindowAlpha", "255"), out WindowAlpha)) {
                             WindowAlpha = 0xff;
@@ -450,11 +453,13 @@ namespace QTTabBarLib {
                     if(ImageListGlobal.Images.ContainsKey(path)) {
                         return path;
                     }
-                    if(ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer)) {
-                        using(IDLWrapper w = new IDLWrapper(buffer)) {
-                            if(w.Available) {
-                                ImageListGlobal.Images.Add(path, GetIcon(w.PIDL));
-                                return path;
+                    lock(syncRoot) {
+                        if(ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer)) {
+                            using(IDLWrapper w = new IDLWrapper(buffer)) {
+                                if(w.Available) {
+                                    ImageListGlobal.Images.Add(path, GetIcon(w.PIDL));
+                                    return path;
+                                }
                             }
                         }
                     }
@@ -641,10 +646,12 @@ namespace QTTabBarLib {
 
                     case 5:
                         byte[] buffer;
-                        if(ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer)) {
-                            using(IDLWrapper w = new IDLWrapper(buffer)) {
-                                if(!w.Available) return;
-                                ImageListGlobal.Images.Add(irk.ImageKey, GetIcon(w.PIDL));
+                        lock(syncRoot) {
+                            if(ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer)) {
+                                using(IDLWrapper w = new IDLWrapper(buffer)) {
+                                    if(!w.Available) return;
+                                    ImageListGlobal.Images.Add(irk.ImageKey, GetIcon(w.PIDL));
+                                }
                             }
                         }
                         return;

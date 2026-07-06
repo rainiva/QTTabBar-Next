@@ -1043,7 +1043,7 @@ namespace QTTabBarLib {
     }
 
     public static class ConfigManager {
-        public static Config LoadedConfig;
+        public static volatile Config LoadedConfig;
 
         public static void Initialize() {
             LoadedConfig = new Config();
