@@ -1766,82 +1766,22 @@ namespace QTTabBarLib
 
 
         #region 标签栏事件区
-        public RebarController rebarController;
-        private string CurrentAddress = null;
-        private QTabItem CurrentTab;
-        private int BandHeight;
-        public static int BandHeightSpace = 3;
-        private ShellBrowserEx ShellBrowser;
+        // Fields moved to TabBarBase: rebarController, CurrentAddress, CurrentTab, BandHeight,
+        // BandHeightSpace, ShellBrowser, lstActivatedTabs, ExplorerHandle, LogEntryDic,
+        // listView, listViewManager, TravelLog, pluginServer, NavigatedByCode,
+        // NowTabsAddingRemoving, NowInTravelLog, NowModalDialogShown, NowTabCloned,
+        // NowTabCreated, fNavigatedByTabSelection, CurrentTravelLogIndex, navBtnsFlag,
+        // toolStrip, buttonBack, buttonForward, buttonNavHistoryMenu, TravelToolBarHandle
 
-        private List<QTabItem> lstActivatedTabs = new List<QTabItem>(0x10);
-        private IntPtr ExplorerHandle;
-        private Dictionary<int, ITravelLogEntry> LogEntryDic = new Dictionary<int, ITravelLogEntry>();
-        private AbstractListView listView = new AbstractListView();
-        private ListViewMonitor listViewManager;
+        // AddToHistory and TryCallButtonBar moved to TabBarBase
 
-        private ITravelLogStg TravelLog;
-        public QTTabBarClass.PluginServer pluginServer { get; set; }
-
-        private bool NavigatedByCode;
-
-        private bool NowTabsAddingRemoving;
-        private bool NowInTravelLog;
-        private bool NowModalDialogShown = false;
-        private bool NowTabCloned;
-        private bool NowTabCreated;
-        private bool fNavigatedByTabSelection;
-        private int CurrentTravelLogIndex;
-        private int navBtnsFlag;
-        // TODO add fields
-        private ToolStripClasses toolStrip = null;
-        private ToolStripButton buttonBack = null;
-        private ToolStripButton buttonForward = null;
-        private ToolStripDropDownButton buttonNavHistoryMenu = null;
-        private IntPtr TravelToolBarHandle = IntPtr.Zero;
-
-        private void AddToHistory(QTabItem closingTab)
-        {
-            string currentPath = closingTab.CurrentPath;
-            if ((Config.Misc.KeepHistory && !string.IsNullOrEmpty(currentPath)) && !IsSearchResultFolder(currentPath))
-            {
-                if (QTUtility2.IsShellPathButNotFileSystem(currentPath) && (currentPath.IndexOf("???") == -1))
-                {
-                    currentPath = currentPath + "???" + closingTab.GetLogHash(true, 0);
-                }
-                StaticReg.ClosedTabHistoryList.Add(currentPath);
-                InstanceManager.ButtonBarBroadcast(bbar => bbar.RefreshButtons(), true);
-            }
-        }
-
-        private static bool TryCallButtonBar(Action<QTButtonBar> action)
-        {
-            QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
-            if (bbar == null) return false;
-            action(bbar);
-            return true;
-        }
-
-     
         // TODO: Optional params
         private bool CloseTab(QTabItem closingTab)
         {
             return ((tabControl1.TabCount > 1) && CloseTab(closingTab, false));
         }
 
-        private void ShowMessageNavCanceled(string failedPath, bool fModal)
-        {
-            QTUtility2.log("QTTabBarClass ShowMessageNavCanceled: " + failedPath);
-            QTUtility2.MakeErrorLog(null, string.Format("Failed navigation: {0}", failedPath));
-            if ( Config.Window.ShowFailNavMsg )
-            {
-                MessageForm.Show(ExplorerHandle,
-                    string.Format(QTUtility.TextResourcesDic["TabBar_Message"][0], failedPath),
-                    string.Empty,
-                    MessageBoxIcon.Asterisk,
-                    0x2710,
-                    fModal);
-            }
-        }
+        // ShowMessageNavCanceled moved to TabBarBase
 
         private void CancelFailedTabChanging(string newPath)
         {
@@ -1886,54 +1826,7 @@ namespace QTTabBarLib
             }
         }
 
-        private bool NavigateToPastSpecialDir(int hash)
-        {
-            IEnumTravelLogEntry ppenum = null;
-            try
-            {
-                ITravelLogEntry entry2;
-                if (TravelLog.EnumEntries(0x31, out ppenum) != 0)
-                {
-                    goto Label_007C;
-                }
-            Label_0013:
-                do
-                {
-                    if (ppenum.Next(1, out entry2, 0) != 0)
-                    {
-                        goto Label_007C;
-                    }
-                    if (entry2 != LogEntryDic[hash])
-                    {
-                        goto Label_0057;
-                    }
-                }
-                while (TravelLog.TravelTo(entry2) != 0);
-                NowInTravelLog = true;
-                CurrentTravelLogIndex++;
-                return true;
-            Label_0057:
-                if (entry2 != null)
-                {
-                    Marshal.ReleaseComObject(entry2);
-                }
-                goto Label_0013;
-            }
-            catch (Exception exception)
-            {
-                QTUtility2.MakeErrorLog(exception);
-            }
-            finally
-            {
-                if (ppenum != null)
-                {
-                    QTUtility2.log("ReleaseComObject ppenum");
-                    Marshal.ReleaseComObject(ppenum);
-                }
-            }
-        Label_007C:
-            return false;
-        }
+        // NavigateToPastSpecialDir moved to TabBarBase
 
         /**
         * TODO config to refresh  when tab control selected index changed
@@ -2036,102 +1929,8 @@ namespace QTTabBarLib
             QTUtility2.log("tabControl1_SelectedIndexChanged end");
         }
 
-        private void SyncTravelState()
-        {
-            if (CurrentTab != null)
-            {
-                navBtnsFlag = ((CurrentTab.HistoryCount_Back > 1) ? 1 : 0) | ((CurrentTab.HistoryCount_Forward > 0) ? 2 : 0);
-                if (Config.Tabs.ShowNavButtons && (toolStrip != null))
-                {
-                    buttonBack.Enabled = (navBtnsFlag & 1) != 0;
-                    buttonForward.Enabled = (navBtnsFlag & 2) != 0;
-                    buttonNavHistoryMenu.Enabled = navBtnsFlag != 0;
-                }
-                TryCallButtonBar(bbar => bbar.RefreshButtons());
-                QTabItem.CheckSubTexts(tabControl1);
-                SyncToolbarTravelButton();
-            }
-        }
-
-        private void SyncToolbarTravelButton()
-        {
-            if (!QTUtility.IsXP)
-            {
-                IntPtr ptr = (IntPtr)0x10001;
-                IntPtr ptr2 = (IntPtr)0x10000;
-                bool flag = (navBtnsFlag & 1) != 0;
-                bool flag2 = (navBtnsFlag & 2) != 0;
-                PInvoke.SendMessage(TravelToolBarHandle, 0x401, (IntPtr)0x100, flag ? ptr : ptr2);
-                PInvoke.SendMessage(TravelToolBarHandle, 0x401, (IntPtr)0x101, flag2 ? ptr : ptr2);
-                PInvoke.SendMessage(TravelToolBarHandle, 0x401, (IntPtr)0x102, (flag || flag2) ? ptr : ptr2);
-            }
-        }
-
-        private bool IsSpecialFolderNeedsToTravel(string path)
-        {
-            int index = path.IndexOf("*?*?*");
-            if (index != -1)
-            {
-                path = path.Substring(0, index);
-            }
-            if (!IsSearchResultFolder(path))
-            {
-                if (path.PathEquals("::{13E7F612-F261-4391-BEA2-39DF4F3FA311}"))
-                {
-                    return true;
-                }
-                if (!path.PathStartsWith(QTUtility.ResMisc[0]) &&
-                    (
-                        !path.EndsWith(QTUtility.ResMisc[0], StringComparison.OrdinalIgnoreCase) 
-                         || 
-                         Path.IsPathRooted(path)
-                     ))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static bool IsSearchResultFolder(string path)
-        {
-            return path.PathStartsWith(QTUtility.IsXP ? QTUtility.ResMisc[2] : QTUtility.PATH_SEARCHFOLDER);
-        }
-
-        private void tabControl1_RowCountChanged(object sender, QEventArgs e)
-        {
-            SetBarRows(e.RowCount);
-        }
-
-
-        private void SetBarRows(int count)
-        {
-            QTUtility2.log("QTTabBarClass SetBarRows");
-            // BandHeight = (count * (Config.Skin.TabHeight - 3 )) ;
-            // BandHeight = (count * (Config.Skin.TabHeight - 3));
-            // BandHeight = (count * (Config.Skin.TabHeight + BandHeightSpace));
-            BandHeight = (count * (Config.Skin.TabHeight) + BandHeightSpace);
-            // BandHeight = (count * (Config.Skin.TabHeight + 10 )) ;
-            // fix bug
-            /**
-           异常文本
-System.NullReferenceException: 未将对象引用设置到对象的实例。
-   在 QTTabBarLib.QTTabBarClass.SetBarRows(Int32 count)
-   在 QTTabBarLib.QTabControl.CalculateItemRectangle_MultiRows()
-   在 QTTabBarLib.QTabControl.OnPaint_MultipleRow(PaintEventArgs e)
-   在 QTTabBarLib.QTabControl.OnPaint(PaintEventArgs e)
-   在 System.Windows.Forms.Control.PaintWithErrorHandling(PaintEventArgs e, Int16 layer)
-   在 System.Windows.Forms.Control.WmPaint(Message& m)
-   在 System.Windows.Forms.Control.WndProc(Message& m)
-   在 QTTabBarLib.QTabControl.WndProc(Message& m)
-   在 System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
-   在 System.Windows.Forms.NativeWindow.Callback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
-             **/
-            if (null != rebarController)
-            {
-                rebarController.RefreshHeight();
-            }
-        }
+        // SyncTravelState, SyncToolbarTravelButton, IsSpecialFolderNeedsToTravel,
+        // IsSearchResultFolder, tabControl1_RowCountChanged, SetBarRows moved to TabBarBase
 
         private void tabControl1_Deselecting(object sender, QTabCancelEventArgs e)
         {

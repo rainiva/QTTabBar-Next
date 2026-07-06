@@ -16,7 +16,7 @@ namespace QTTtabBarTests {
 
         private static MethodInfo GetIsSearchResultFolder() {
             return typeof(QTTabBarClass).GetMethod("IsSearchResultFolder",
-                BindingFlags.NonPublic | BindingFlags.Static);
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy);
         }
 
         [Test]

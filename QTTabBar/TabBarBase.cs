@@ -93,5 +93,203 @@ namespace QTTabBarLib
 
         protected QTabControl tabControl1;
 
+        #region --- Shared Fields (moved from QTTabBarClass / QTSecondViewBar) ---
+
+        public RebarController rebarController;
+        protected string CurrentAddress;
+        protected QTabItem CurrentTab;
+        protected int BandHeight;
+        public static int BandHeightSpace = 3;
+        protected ShellBrowserEx ShellBrowser;
+
+        protected List<QTabItem> lstActivatedTabs = new List<QTabItem>(0x10);
+        protected IntPtr ExplorerHandle;
+        protected Dictionary<int, ITravelLogEntry> LogEntryDic = new Dictionary<int, ITravelLogEntry>();
+        protected AbstractListView listView = new AbstractListView();
+        protected ListViewMonitor listViewManager;
+
+        protected ITravelLogStg TravelLog;
+        public QTTabBarClass.PluginServer pluginServer { get; set; }
+
+        protected bool NavigatedByCode;
+
+        protected bool NowTabsAddingRemoving;
+        protected bool NowInTravelLog;
+        protected bool NowModalDialogShown;
+        protected bool NowTabCloned;
+        protected bool NowTabCreated;
+        protected bool fNavigatedByTabSelection;
+        protected int CurrentTravelLogIndex;
+        protected int navBtnsFlag;
+        // TODO add fields
+        protected ToolStripClasses toolStrip;
+        protected ToolStripButton buttonBack;
+        protected ToolStripButton buttonForward;
+        protected ToolStripDropDownButton buttonNavHistoryMenu;
+        protected IntPtr TravelToolBarHandle;
+
+        #endregion
+
+        #region --- Shared Methods (deduplicated from QTTabBarClass / QTSecondViewBar) ---
+
+        protected static bool TryCallButtonBar(Action<QTButtonBar> action)
+        {
+            QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
+            if (bbar == null) return false;
+            action(bbar);
+            return true;
+        }
+
+        protected static bool IsSearchResultFolder(string path)
+        {
+            return NavigationHelper.IsSearchResultFolder(path);
+        }
+
+        protected void AddToHistory(QTabItem closingTab)
+        {
+            string currentPath = closingTab.CurrentPath;
+            if ((Config.Misc.KeepHistory && !string.IsNullOrEmpty(currentPath)) && !IsSearchResultFolder(currentPath))
+            {
+                if (QTUtility2.IsShellPathButNotFileSystem(currentPath) && (currentPath.IndexOf("???") == -1))
+                {
+                    currentPath = currentPath + "???" + closingTab.GetLogHash(true, 0);
+                }
+                StaticReg.ClosedTabHistoryList.Add(currentPath);
+                InstanceManager.ButtonBarBroadcast(bbar => bbar.RefreshButtons(), true);
+            }
+        }
+
+        protected void ShowMessageNavCanceled(string failedPath, bool fModal)
+        {
+            QTUtility2.log("QTTabBarClass ShowMessageNavCanceled: " + failedPath);
+            QTUtility2.MakeErrorLog(null, string.Format("Failed navigation: {0}", failedPath));
+            if (Config.Window.ShowFailNavMsg)
+            {
+                MessageForm.Show(ExplorerHandle,
+                    string.Format(QTUtility.TextResourcesDic["TabBar_Message"][0], failedPath),
+                    string.Empty,
+                    MessageBoxIcon.Asterisk,
+                    0x2710,
+                    fModal);
+            }
+        }
+
+        protected bool IsSpecialFolderNeedsToTravel(string path)
+        {
+            int index = path.IndexOf("*?*?*");
+            if (index != -1)
+            {
+                path = path.Substring(0, index);
+            }
+            if (!IsSearchResultFolder(path))
+            {
+                if (path.PathEquals("::{13E7F612-F261-4391-BEA2-39DF4F3FA311}"))
+                {
+                    return true;
+                }
+                if (!path.PathStartsWith(QTUtility.ResMisc[0]) && (!path.EndsWith(QTUtility.ResMisc[0], StringComparison.OrdinalIgnoreCase) || Path.IsPathRooted(path)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        protected bool NavigateToPastSpecialDir(int hash)
+        {
+            IEnumTravelLogEntry ppenum = null;
+            try
+            {
+                ITravelLogEntry entry2;
+                if (TravelLog.EnumEntries(0x31, out ppenum) != 0)
+                {
+                    goto Label_007C;
+                }
+            Label_0013:
+                do
+                {
+                    if (ppenum.Next(1, out entry2, 0) != 0)
+                    {
+                        goto Label_007C;
+                    }
+                    if (entry2 != LogEntryDic[hash])
+                    {
+                        goto Label_0057;
+                    }
+                }
+                while (TravelLog.TravelTo(entry2) != 0);
+                NowInTravelLog = true;
+                CurrentTravelLogIndex++;
+                return true;
+            Label_0057:
+                if (entry2 != null)
+                {
+                    Marshal.ReleaseComObject(entry2);
+                }
+                goto Label_0013;
+            }
+            catch (Exception exception)
+            {
+                QTUtility2.MakeErrorLog(exception);
+            }
+            finally
+            {
+                if (ppenum != null)
+                {
+                    QTUtility2.log("ReleaseComObject ppenum");
+                    Marshal.ReleaseComObject(ppenum);
+                }
+            }
+        Label_007C:
+            return false;
+        }
+
+        protected void SyncTravelState()
+        {
+            if (CurrentTab != null)
+            {
+                navBtnsFlag = ((CurrentTab.HistoryCount_Back > 1) ? 1 : 0) | ((CurrentTab.HistoryCount_Forward > 0) ? 2 : 0);
+                if (Config.Tabs.ShowNavButtons && (toolStrip != null))
+                {
+                    buttonBack.Enabled = (navBtnsFlag & 1) != 0;
+                    buttonForward.Enabled = (navBtnsFlag & 2) != 0;
+                    buttonNavHistoryMenu.Enabled = navBtnsFlag != 0;
+                }
+                TryCallButtonBar(bbar => bbar.RefreshButtons());
+                QTabItem.CheckSubTexts(tabControl1);
+                SyncToolbarTravelButton();
+            }
+        }
+
+        protected void SyncToolbarTravelButton()
+        {
+            if (!QTUtility.IsXP)
+            {
+                IntPtr ptr = (IntPtr)0x10001;
+                IntPtr ptr2 = (IntPtr)0x10000;
+                bool flag = (navBtnsFlag & 1) != 0;
+                bool flag2 = (navBtnsFlag & 2) != 0;
+                PInvoke.SendMessage(TravelToolBarHandle, 0x401, (IntPtr)0x100, flag ? ptr : ptr2);
+                PInvoke.SendMessage(TravelToolBarHandle, 0x401, (IntPtr)0x101, flag2 ? ptr : ptr2);
+                PInvoke.SendMessage(TravelToolBarHandle, 0x401, (IntPtr)0x102, (flag || flag2) ? ptr : ptr2);
+            }
+        }
+
+        protected void tabControl1_RowCountChanged(object sender, QEventArgs e)
+        {
+            SetBarRows(e.RowCount);
+        }
+
+        protected void SetBarRows(int count)
+        {
+            BandHeight = (count * (Config.Skin.TabHeight) + BandHeightSpace);
+            if (null != rebarController)
+            {
+                rebarController.RefreshHeight();
+            }
+        }
+
+        #endregion
+
     }
 }
