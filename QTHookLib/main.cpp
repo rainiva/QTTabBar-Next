@@ -658,6 +658,7 @@ int Initialize(CallbackStruct* cb) {
     srand((int)time(0));
 	
 	Box(L"MH_Initialize");
+	Log(L"Win11Probe QTHookLib.Initialize.Start");
     // Initialize MinHook.
     MH_STATUS ret = MH_Initialize();
     if(ret != MH_OK && ret != MH_ERROR_ALREADY_INITIALIZED) return ret;
@@ -679,10 +680,12 @@ int Initialize(CallbackStruct* cb) {
 
     // Create and enable the CoCreateInstance, RegisterDragDrop, and SHCreateShellFolderView hooks.
 	Box(L"CREATE_HOOK start");
+		Log(L"Win11Probe QTHookLib.Initialize.CreateHook.CoCreateInstance");
     CREATE_HOOK(&CoCreateInstance, CoCreateInstance)
     CREATE_HOOK(&RegisterDragDrop, RegisterDragDrop)
 	// 创建默认 Shell 文件夹视图对象的新实例。
 	// 对应微信打开文件、qq打开文件、钉钉打开文件会打开新的窗体  这里发现不是调用该函数，只有打开文件位置会调用这个方法
+		Log(L"Win11Probe QTHookLib.Initialize.CreateHook.SHCreateShellFolderView");
     CREATE_HOOK(&SHCreateShellFolderView, SHCreateShellFolderView) 
 	// 定位文件函数
     CREATE_HOOK(&SHOpenFolderAndSelectItems, SHOpenFolderAndSelectItems)
@@ -743,6 +746,7 @@ int Initialize(CallbackStruct* cb) {
 
 
 int InitShellBrowserHook(IShellBrowser* psb) {
+    Log(L"Win11Probe QTHookLib.InitShellBrowserHook.Start");
     volatile static long initialized;
     if(InterlockedIncrement(&initialized) != 1) {
         // Return if another thread has beaten us here.
@@ -751,6 +755,7 @@ int InitShellBrowserHook(IShellBrowser* psb) {
     }
 
     // Create the BrowseObject hook
+    Log(L"Win11Probe QTHookLib.InitShellBrowserHook.CreateComHook.BrowseObject");
     CREATE_COM_HOOK(psb, 11, BrowseObject);
 
     // Vista and 7 have different IShellBrowserService interfaces.

@@ -143,6 +143,7 @@ namespace QTTabBarLib {
 
         public static void Initialize()
         {
+            QTUtility2.flog("Win11Probe HookLibManager.Initialize.Start");
             try
             {
                 if (LoadedHook)
@@ -205,6 +206,7 @@ namespace QTTabBarLib {
                 LoadedHook = false;
                 return;
             }
+            QTUtility2.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
             QTUtility2.flog("load library " + Path.Combine(installPath, filename) );
             hHookLib = PInvoke.LoadLibrary(Path.Combine(installPath, filename));
             QTUtility2.flog("load library hHookLib " + hHookLib);
@@ -218,6 +220,7 @@ namespace QTTabBarLib {
                 if(pFunc != IntPtr.Zero) {
                     InitHookLibDelegate initialize = (InitHookLibDelegate) 
                         Marshal.GetDelegateForFunctionPointer(pFunc, typeof(InitHookLibDelegate));
+                        QTUtility2.flog("Win11Probe HookLibManager.Initialize.InvokeNativeInitialize");
                     try {
                         retcode = initialize(callbackStruct);
                     }
@@ -288,6 +291,7 @@ namespace QTTabBarLib {
 
         public static void InitShellBrowserHook(IShellBrowser shellBrowser)
         {
+            QTUtility2.flog("Win11Probe HookLibManager.InitShellBrowserHook.Start");
             lock (typeof(HookLibManager))
             {
                 if(fShellBrowserIsHooked || hHookLib == IntPtr.Zero) return;
@@ -300,6 +304,7 @@ namespace QTTabBarLib {
                 int retcode = -1;
                 try {
                     retcode = initShellBrowserHook(pShellBrowser);
+                    QTUtility2.flog("Win11Probe HookLibManager.InitShellBrowserHook.NativeResult " + retcode);
                 }
                 catch(Exception e) {
                     QTUtility2.MakeErrorLog(e, "");

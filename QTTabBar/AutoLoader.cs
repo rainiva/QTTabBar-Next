@@ -55,6 +55,7 @@ namespace QTTabBarLib {
             // SetProcessDPIAware是Vista以上才有的函数，这样直接调用会使得程序不兼容XP
             // PInvoke.SetProcessDPIAware();
             // QTUtility2.log("QTUtility AutoLoader SetSite SetProcessDPIAware 不兼容XP");
+            QTUtility2.flog("Win11Probe AutoLoader.SetSite");
             QTUtility2.log("SetSite");
             explorer = site as IWebBrowser2;
             // QTUtility2.flog("QTTabBar AutoLoader SetSite ");
@@ -101,12 +102,15 @@ namespace QTTabBarLib {
                 try {
 
 
+                    QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.TabBar");
                     explorer.ShowBrowserBar(pvaTabBar, pvarShow, pvarSize);
                     QTUtility2.log("QTTabBar AutoLoader 显示标签");
                     
+                    QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.ButtonBar");
                     explorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
                     QTUtility2.log("QTTabBar AutoLoader 显示工具栏");
 
+                    QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.SecondViewBar");
                     explorer.ShowBrowserBar(secViewBar, pvarShow, pvarSize);
                     QTUtility2.log("QTTabBar AutoLoader 显示标签");
                 }

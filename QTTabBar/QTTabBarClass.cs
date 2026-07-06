@@ -5551,17 +5551,21 @@ namespace QTTabBarLib {
         }
 
         protected override void OnExplorerAttached() {
+            QTUtility2.flog("Win11Probe QTTabBarClass.OnExplorerAttached.Start");
             ExplorerHandle = (IntPtr)Explorer.HWND;
             try {
                 object obj2;
                 object obj3;
                 _IServiceProvider bandObjectSite = (_IServiceProvider)BandObjectSite;
+                QTUtility2.flog("Win11Probe QTTabBarClass.OnExplorerAttached.QueryService.IShellBrowser");
                 bandObjectSite.QueryService(ExplorerGUIDs.IID_IShellBrowser, ExplorerGUIDs.IID_IUnknown, out obj2);
                 ShellBrowser = new ShellBrowserEx((IShellBrowser)obj2);
+                QTUtility2.flog("Win11Probe QTTabBarClass.OnExplorerAttached.InitShellBrowserHook");
                 HookLibManager.InitShellBrowserHook(ShellBrowser.GetIShellBrowser());
                 if(Config.Tweaks.ForceSysListView) {
                     ShellBrowser.SetUsingListView(true);
                 }
+                QTUtility2.flog("Win11Probe QTTabBarClass.OnExplorerAttached.QueryService.ITravelLogStg");
                 bandObjectSite.QueryService(ExplorerGUIDs.IID_ITravelLogStg, ExplorerGUIDs.IID_ITravelLogStg, out obj3);
                 TravelLog = (ITravelLogStg)obj3;
             }

@@ -60,6 +60,9 @@
 - 右键菜单栏右方的空白地区—>勾选QTTabBar等工具栏—>按Alt+M—>重启explorer或重启计算机
 ![启用qttabbar](https://user-images.githubusercontent.com/501276/72576075-907fb980-3909-11ea-9dc2-9a1ea0ca2f8e.png)
 - 报错日志路径 C:\Users\Administrator\AppData\Roaming\QTTabBar\QTTabBarException.log
+- 开发者诊断会话（Win11 probe）：`powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\Win11ProbeSession.ps1`
+- 加上 `-ShowRaw` 可打印命中的 managed probe 原始行。
+- 加上 `-NativeTracePath C:\path\to\native-trace.txt` 可合并捕获到的 native `OutputDebugString` 证据。
 - [win11设置](https://github.com/indiff/qttabbar/wiki/Windows11%E6%98%BE%E7%A4%BA%E5%B7%A5%E5%85%B7%E6%A0%8F%E7%9A%84%E6%96%B9%E6%B3%95)
 
 # 编译/Build

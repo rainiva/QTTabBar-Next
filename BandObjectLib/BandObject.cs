@@ -453,6 +453,7 @@ namespace BandObjectLib {
                 BandObjectSite = pUnkSite as IInputObjectSite;
                 try {
                     object obj2;
+                    Util2.bandLog("probe", "Win11Probe BandObject.SetSite.QueryService.IWebBrowserApp");
                     ((_IServiceProvider)BandObjectSite).QueryService(
                         ExplorerGUIDs.IID_IWebBrowserApp, 
                         ExplorerGUIDs.IID_IUnknown, 
@@ -460,6 +461,7 @@ namespace BandObjectLib {
                     Util2.bandLog("BandObjectSite.QueryService");
                     Explorer = (WebBrowserClass)Marshal.CreateWrapperOfType(obj2 as IWebBrowser, typeof(WebBrowserClass));
                     Util2.bandLog("Marshal.CreateWrapperOfType");
+                    Util2.bandLog("probe", "Win11Probe BandObject.SetSite.OnExplorerAttached");
                     OnExplorerAttached();
                     Util2.bandLog("OnExplorerAttached");
                 }

@@ -56,6 +56,9 @@
 - Right click the blank area on the right side of the menu bar - > check qttabbar and other toolbars - > Press Alt + m - > Restart Explorer or restart the computer
 ![Enable qttabbar](https://user-images.githubusercontent.com/501276/72576075-907fb980-3909-11ea-9dc2-9a1ea0ca2f8e.png)
 - Error log path C:\Users\Administrator\AppData\Roaming\QTTabBar\QTTabBarException.log
+- Developer diagnostic session (Win11 probe): `powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\Win11ProbeSession.ps1`
+- Add `-ShowRaw` to print the matched managed probe lines.
+- Add `-NativeTracePath C:\path\to\native-trace.txt` to merge captured native `OutputDebugString` evidence.
 - [Setting for Windows 11](https://github.com/indiff/qttabbar/wiki/Windows11%E6%98%BE%E7%A4%BA%E5%B7%A5%E5%85%B7%E6%A0%8F%E7%9A%84%E6%96%B9%E6%B3%95)
 
 # Build
