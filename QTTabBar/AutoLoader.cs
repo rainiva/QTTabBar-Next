@@ -94,7 +94,6 @@ namespace QTTabBarLib {
                 DateTime lastActivation = DateTime.Parse((string)key.GetValue("ActivationDate", minDate));
                 if(installDate.CompareTo(lastActivation) <= 0) return;
 
-                object secViewBar = new Guid("{d2bf470e-ed1c-487f-a333-2bd8835eb6ce}").ToString("B");
                 object pvaTabBar = new Guid("{d2bf470e-ed1c-487f-a333-2bd8835eb6ce}").ToString("B");
                 object pvaButtonBar = new Guid("{d2bf470e-ed1c-487f-a666-2bd8835eb6ce}").ToString("B");
                 object pvarShow = true;
@@ -109,10 +108,6 @@ namespace QTTabBarLib {
                     QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.ButtonBar");
                     explorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
                     QTUtility2.log("QTTabBar AutoLoader 显示工具栏");
-
-                    QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.SecondViewBar");
-                    explorer.ShowBrowserBar(secViewBar, pvarShow, pvarSize);
-                    QTUtility2.log("QTTabBar AutoLoader 显示标签");
                 }
                 catch(COMException e) {
                     QTUtility2.MakeErrorLog(e, "ActivateIt");

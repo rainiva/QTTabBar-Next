@@ -21,6 +21,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
@@ -371,6 +373,7 @@ namespace QuizoPlugins {
                 try {
                     using(FileStream stream = new FileStream(PATH_DAT, FileMode.Open)) {
                         BinaryFormatter formatter = new BinaryFormatter();
+                        formatter.Binder = new RestrictedSerializationBinder();
                         MemoStore store = (MemoStore)formatter.Deserialize(stream);
 
                         rtfDic = store.Dictionary;
@@ -515,6 +518,17 @@ namespace QuizoPlugins {
             get {
                 return true;
             }
+        }
+    }
+
+    /// <summary>
+    /// Security binder that restricts deserialization to types from the current assembly.
+    /// Prevents BinaryFormatter RCE attacks by blocking arbitrary type loading.
+    /// </summary>
+    internal sealed class RestrictedSerializationBinder : SerializationBinder {
+        public override Type BindToType(string assemblyName, string typeName) {
+            string currentAssembly = Assembly.GetExecutingAssembly().FullName;
+            return Type.GetType(string.Format("{0}, {1}", typeName, currentAssembly));
         }
     }
 }
