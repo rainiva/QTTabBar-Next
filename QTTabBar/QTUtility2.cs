@@ -526,9 +526,9 @@ namespace QTTabBarLib {
 
                 writeStr(path, line);
             }
-            catch {
-            }
-            finally {
+            catch(Exception ex2) {
+                // Avoid recursive call to MakeErrorLog; write to debug output instead
+                System.Diagnostics.Debug.WriteLine("MakeErrorLog failed: " + ex2.Message);
             }
         }
 

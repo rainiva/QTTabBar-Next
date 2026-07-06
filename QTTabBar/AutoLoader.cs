@@ -39,7 +39,7 @@ namespace QTTabBarLib {
                 key.SetValue("MenuText", "QTTabBar AutoLoader");
                 key.SetValue("HelpText", "QTTabBar AutoLoader");
             }
-            Registry.LocalMachine.CreateSubKey(BHOKEYNAME + name);
+            using(RegistryKey key = Registry.LocalMachine.CreateSubKey(BHOKEYNAME + name)) { }
             QTUtility2.flog( "AutoLoader 注册表 QTTabBar 自动加载(安装)");
         }
 

@@ -151,20 +151,18 @@ namespace QTTabBarLib {
                     return;
                 }
                 
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-                string sCPUSerialNumber = "";
-                foreach (ManagementObject mo in searcher.Get())
-                {
+                using(ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem")) {
+                    string sCPUSerialNumber = "";
+                    foreach(ManagementObject mo in searcher.Get()) {
+                        sCPUSerialNumber = mo["Name"].ToString().ToLower().Trim();
+                    }
 
-                    sCPUSerialNumber = mo["Name"].ToString().ToLower().Trim();
-                }
-
-                var isServer = sCPUSerialNumber.Contains("windows server");
-                if (isServer)
-                {
-                    QTUtility2.log("can not hook in server by get server");
-                    LoadedHook = false;
-                    return;
+                    var isServer = sCPUSerialNumber.Contains("windows server");
+                    if(isServer) {
+                        QTUtility2.log("can not hook in server by get server");
+                        LoadedHook = false;
+                        return;
+                    }
                 }
             }
             catch (Exception)

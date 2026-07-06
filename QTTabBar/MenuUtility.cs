@@ -28,7 +28,7 @@ namespace QTTabBarLib {
     internal static class MenuUtility {
 
         [ThreadStatic]
-        public static bool InMenuLoop;
+        public static bool InMenuLoop = false;
 
         private static Font StartUpTabFont;
 
@@ -144,7 +144,8 @@ namespace QTTabBarLib {
             try {
                 path = Environment.ExpandEnvironmentVariables(path);
             }
-            catch {
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "ExpandEnvironmentVariables");
             }
             MenuItemArguments mia = new MenuItemArguments(app, shellBrowser, MenuGenre.Application);
             if(path.StartsWith(@"\\") || path.StartsWith("::") || !Directory.Exists(path)) {
@@ -301,7 +302,8 @@ namespace QTTabBarLib {
 
             try {
                 Process.Start(((QMenuItem)e.ClickedItem).Path);
-            } catch {
+            } catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "realDirectory_DropDownItemClicked");
                 MessageBox.Show(
                     String.Format(
                         QTUtility.TextResourcesDic["ErrorDialogs"][0],
@@ -362,7 +364,7 @@ namespace QTTabBarLib {
                 }
             }
             else {
-                // Ìí¼Ó·Ö×éµÄµÄÂ·¾¶ÁÐ±í
+                // ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½Äµï¿½Â·ï¿½ï¿½ï¿½Ð±ï¿½
                 foreach(string path in g.Paths) {
                     string displayName;
                     if(path.StartsWith(@"\\")) {

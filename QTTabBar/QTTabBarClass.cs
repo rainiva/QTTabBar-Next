@@ -3502,13 +3502,13 @@ namespace QTTabBarLib {
                     cpid = currentProcessId2;
                 }
                 string wmiQuery = string.Format("select CommandLine from Win32_Process where ProcessID ={0}", cpid);
-                ManagementObjectSearcher managementObjectSearcher =
-                    new ManagementObjectSearcher(wmiQuery);
-                ManagementObjectCollection managementObjectCollection = managementObjectSearcher.Get();
-                
-                foreach (ManagementObject managementObject in managementObjectCollection.Cast<ManagementObject>())
-                {
-                    result = managementObject["CommandLine"] == null ? "" : managementObject["CommandLine"].ToString();
+                using(ManagementObjectSearcher managementObjectSearcher =
+                    new ManagementObjectSearcher(wmiQuery)) {
+                    ManagementObjectCollection managementObjectCollection = managementObjectSearcher.Get();
+                    
+                    foreach(ManagementObject managementObject in managementObjectCollection.Cast<ManagementObject>()) {
+                        result = managementObject["CommandLine"] == null ? "" : managementObject["CommandLine"].ToString();
+                    }
                 }
                 QTUtility2.log(" process command line 3 : " + result);
             }
@@ -6628,7 +6628,8 @@ namespace QTTabBarLib {
                     QTUtility2.log("StaticReg.ExecutedPathsList.Add");
                 }
             }
-            catch {
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "ExecuteItem");
             }
         }
 
@@ -7233,23 +7234,27 @@ namespace QTTabBarLib {
                     key.DeleteValue(name, false);
                 }
             }
-            catch {
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "Unregister.Toolbar");
             }
             try {
                 using(RegistryKey key2 = Registry.ClassesRoot.OpenSubKey("CLSID", true)) {
                     try {
                         key2.DeleteSubKeyTree(name);
                     }
-                    catch {
+                    catch(Exception ex) {
+                        QTUtility2.MakeErrorLog(ex, "Unregister.CLSID");
                     }
                     try {
                         key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}");
                     }
-                    catch {
+                    catch(Exception ex) {
+                        QTUtility2.MakeErrorLog(ex, "Unregister.CLSID2");
                     }
                 }
             }
-            catch {
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "Unregister.OpenCLSID");
             }
             
             return;
