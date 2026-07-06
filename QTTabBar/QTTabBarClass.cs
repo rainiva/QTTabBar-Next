@@ -6133,16 +6133,9 @@ namespace QTTabBarLib {
 
         [ComRegisterFunction]
         private static void Register(Type t) {
-            // QTUtility2.log(  "QTTabBarClass Register" );
             string name = t.GUID.ToString("B");
-            using(RegistryKey key2 = Registry.ClassesRoot.CreateSubKey(@"CLSID\" + name)) {
-                key2.SetValue(null, "QTTabBar");
-                key2.SetValue("MenuText", "QTTabBar");
-                key2.SetValue("HelpText", "QTTabBar");
-            }
-            using(RegistryKey key3 = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Internet Explorer\Toolbar")) {
-                key3.SetValue(name, "QTTabBar");
-            }
+            ComRegistrationManager.RegisterBand(name, "QTTabBar", "QTTabBar", "QTTabBar");
+            ComRegistrationManager.RegisterToolbar(name, "QTTabBar");
         }
 
         private void ReorderTab(int index, bool fDescending) {
@@ -7229,32 +7222,17 @@ namespace QTTabBarLib {
         private static void Unregister(Type t) {
             QTUtility2.log("QTTabBarClass Unregister");
             string name = t.GUID.ToString("B");
-            try {
-                using(RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Internet Explorer\Toolbar")) {
-                    key.DeleteValue(name, false);
-                }
-            }
-            catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "Unregister.Toolbar");
-            }
+            ComRegistrationManager.UnregisterAll(name);
+            // Also clean up the hardcoded CLSID
             try {
                 using(RegistryKey key2 = Registry.ClassesRoot.OpenSubKey("CLSID", true)) {
-                    try {
-                        key2.DeleteSubKeyTree(name);
-                    }
-                    catch(Exception ex) {
-                        QTUtility2.MakeErrorLog(ex, "Unregister.CLSID");
-                    }
-                    try {
-                        key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}");
-                    }
-                    catch(Exception ex) {
-                        QTUtility2.MakeErrorLog(ex, "Unregister.CLSID2");
+                    if(key2 != null) {
+                        key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}", false);
                     }
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "Unregister.OpenCLSID");
+                QTUtility2.MakeErrorLog(ex, "Unregister.CLSID2");
             }
             
             return;
@@ -7815,7 +7793,7 @@ namespace QTTabBarLib {
 
         private static bool IsSearchResultFolder(string path)
         {
-            return path.PathStartsWith(QTUtility.IsXP ? QTUtility.ResMisc[2] : QTUtility.PATH_SEARCHFOLDER);
+            return NavigationHelper.IsSearchResultFolder(path);
         }
 
         protected void tabControl1_RowCountChanged(object sender, QEventArgs e)
