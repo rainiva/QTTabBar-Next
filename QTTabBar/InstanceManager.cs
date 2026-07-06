@@ -31,6 +31,16 @@ namespace QTTabBarLib {
         private static DuplexClient commClient;
         private static bool isServer;
 
+        // P0-5: main UI control used to marshal IPC callback delegates onto the UI
+        // thread. Registered by QTTabBarClass via SetMainUIControl.
+        private static System.Windows.Forms.Control mainUIControl;
+
+        // Register the primary UI control that owns the message loop. IPC callbacks
+        // deserialized in CommClient.Execute are marshaled onto this control's thread.
+        public static void SetMainUIControl(System.Windows.Forms.Control control) {
+            mainUIControl = control;
+        }
+
         // Server-only stuff
         private static ServiceHost serviceHost;
         private static List<ICommClient> callbacks = new List<ICommClient>();
@@ -283,7 +293,27 @@ namespace QTTabBarLib {
                     if (thedel != null && thedel.Method != null )
                     {
                         QTUtility2.log( "InstanceManager CommClient DynamicInvoke action: " + thedel  + " method:" + thedel.Method);
-                        thedel.DynamicInvoke();
+                        // P0-5: marshal the callback onto the UI thread when needed.
+                        // Use BeginInvoke (async) to avoid a deadlock between the IPC
+                        // callback thread and the UI thread waiting on each other.
+                        System.Windows.Forms.Control ui = mainUIControl;
+                        if (ui != null && ui.IsHandleCreated && ui.InvokeRequired) {
+                            Delegate toInvoke = thedel;
+                            ui.BeginInvoke(new Action(() => {
+                                try {
+                                    toInvoke.DynamicInvoke();
+                                }
+                                catch (Exception marshaledEx) {
+                                    QTUtility2.MakeErrorLog(marshaledEx, BuildExecuteErrorContext(toInvoke, "MarshaledException"));
+                                }
+                            }));
+                        }
+                        else {
+                            if (ui == null) {
+                                QTUtility2.log("CommClient.Execute: no main UI control registered, executing on current thread");
+                            }
+                            thedel.DynamicInvoke();
+                        }
                     }
                 }
                 catch(NullReferenceException ex) {

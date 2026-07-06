@@ -4590,6 +4590,9 @@ namespace QTTabBarLib {
         private void InitializeOpenedWindow() {
             IsShown = true;
             InstanceManager.PushTabBarInstance(this);
+            // P0-5: register this tab bar as the main UI control so IPC callbacks
+            // are marshaled onto its (UI) thread.
+            InstanceManager.SetMainUIControl(this);
             //  ��װ����
             QTUtility2.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
             InstallHooks();
