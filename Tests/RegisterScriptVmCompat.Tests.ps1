@@ -49,20 +49,22 @@ foreach ($marker in $requiredMarkers) {
 
 Assert-NotContains $registerScript 'where regasm.exe 2^>nul' 'Generic regasm.exe lookup must not remain, because it can pick the wrong architecture.'
 
-$previousValidateOnly = $env:QT_TABBAR_REGISTER_VALIDATE_ONLY
-$previousForceNoEnv = $env:QT_TABBAR_REGISTER_FORCE_NO_ENV
+$forcedFailureCommand = "set QT_TABBAR_REGISTER_VALIDATE_ONLY=1 && set QT_TABBAR_REGISTER_FORCE_NO_ENV=1 && call `"$registerScriptPath`" Release"
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 
 try {
-    $env:QT_TABBAR_REGISTER_VALIDATE_ONLY = '1'
-    $env:QT_TABBAR_REGISTER_FORCE_NO_ENV = '1'
-
-    $forcedFailureOutput = & cmd /c "call `"$registerScriptPath`" Release" 2>&1
-    Assert-Equal $LASTEXITCODE 1 'Validation-only forced failure must return exit code 1.'
-    Assert-Contains ($forcedFailureOutput -join "`n") 'Register environment bootstrap failed.' 'Validation-only forced failure must print the bootstrap failure banner.'
-    Assert-Contains ($forcedFailureOutput -join "`n") 'Developer Command Prompt' 'Validation-only forced failure must suggest rerunning from a Developer Command Prompt.'
+    $forcedFailureOutput = & cmd /c $forcedFailureCommand 2>&1
 } finally {
-    $env:QT_TABBAR_REGISTER_VALIDATE_ONLY = $previousValidateOnly
-    $env:QT_TABBAR_REGISTER_FORCE_NO_ENV = $previousForceNoEnv
+    $ErrorActionPreference = $previousErrorActionPreference
 }
+
+Assert-Equal $LASTEXITCODE 1 'Validation-only forced failure must return exit code 1.'
+Assert-Contains ($forcedFailureOutput -join "`n") 'Register environment bootstrap failed.' 'Validation-only forced failure must print the bootstrap failure banner.'
+Assert-Contains ($forcedFailureOutput -join "`n") 'Developer Command Prompt' 'Validation-only forced failure must suggest rerunning from a Developer Command Prompt.'
+Assert-NotContains ($forcedFailureOutput -join "`n") 'Register environment ready via' 'Forced failure path should not print a success environment banner.'
+Assert-NotContains ($forcedFailureOutput -join "`n") 'REG ADD HKLM\SOFTWARE\QTTabBar /v InstallPath /t REG_SZ /d "%cd%" /f /reg:32' 'Forced failure path should not register InstallPath (32-bit).'
+Assert-NotContains ($forcedFailureOutput -join "`n") 'REG ADD HKLM\SOFTWARE\QTTabBar /v InstallPath /t REG_SZ /d "%cd%" /f /reg:64' 'Forced failure path should not register InstallPath (64-bit).'
+Assert-NotContains ($forcedFailureOutput -join "`n") 'start taskmgr' 'Forced failure path should not launch Task Manager.'
 
 Write-Host 'RegisterScriptVmCompat tests passed.'
