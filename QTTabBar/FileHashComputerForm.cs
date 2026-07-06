@@ -380,7 +380,7 @@ namespace QTTabBarLib {
             dgvHash.ReadOnly = true;
             dgvHash.RowHeadersVisible = false;
             dgvHash.RowTemplate.Height = 0x15;
-            // 355 * 162  0x133 0x73  ¿í¶ÈÉèÖÃÎªÆÁÄ» 1/3 ¸ß¶ÈÎªÆÁÄ» 1/6
+            // 355 * 162  0x133 0x73  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Ä» 1/3 ï¿½ß¶ï¿½Îªï¿½ï¿½Ä» 1/6
             int width = Screen.PrimaryScreen.WorkingArea.Size.Width / 2;
             int height = Screen.PrimaryScreen.WorkingArea.Size.Height / 5;
             // ClientSize = new Size(0x1bf, 0xab);
@@ -621,7 +621,7 @@ namespace QTTabBarLib {
                             }
                             if(!flag2) {
                                 DataGridViewRow item = new DataGridViewRow();
-                                item.CreateCells(dgvHash, new object[] { QTUtility.ImageListGlobal.Images[QTUtility.GetImageKey(str, Path.GetExtension(str))], flag ? str : Path.GetFileName(str), VALUE_EMPTY });
+                                item.CreateCells(dgvHash, new object[] { QTUtility.GetImageFromGlobal(QTUtility.GetImageKey(str, Path.GetExtension(str))), flag ? str : Path.GetFileName(str), VALUE_EMPTY });
                                 item.Cells[0].Style.BackColor = clrNew;
                                 item.Cells[1].ToolTipText = str;
                                 item.Tag = new RowProperties(lastWriteTime);

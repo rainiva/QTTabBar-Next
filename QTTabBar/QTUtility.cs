@@ -95,6 +95,9 @@ namespace QTTabBarLib {
         // TODO: almost all of these need to be either sync'd or removed.
         // TODO: we should store actual TabItems, not just strings.
         internal static readonly object syncRoot = new object();
+        // ImageListGlobal 图标缓存的专用锁（P0-4 线程安全）。仅覆盖集合操作本身，
+        // 严禁在锁内嵌套其他锁，以避免与 syncRoot 等锁交叉造成死锁。
+        private static readonly object imageListLock = new object();
         internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
         internal static bool fExplorerPrevented;
         internal static bool fRestoreFolderTree;
@@ -210,7 +213,7 @@ namespace QTTabBarLib {
 
                 // Create the global imagelist
                 ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
-                ImageListGlobal.Images.Add("folder", GetIcon(string.Empty, false));
+                AddImageToGlobal("folder", GetIcon(string.Empty, false));
                 QTUtility2.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
 
                 // Load groups/apps
@@ -394,8 +397,8 @@ namespace QTTabBarLib {
                             SetImageKey("noext", path);
                             return "noext";
                         }
-                        if(!ImageListGlobal.Images.ContainsKey(ext)) {
-                            ImageListGlobal.Images.Add(ext, GetIcon(ext, true));
+                        if(!ImageGlobalContainsKey(ext)) {
+                            AddImageToGlobal(ext, GetIcon(ext, true));
                         }
                         return ext;
                     }
@@ -425,16 +428,20 @@ namespace QTTabBarLib {
                 }
                 if(path.Contains("*?*?*")) {
                     byte[] buffer;
-                    if(ImageListGlobal.Images.ContainsKey(path)) {
+                    if(ImageGlobalContainsKey(path)) {
                         return path;
                     }
+                    // 先在 syncRoot 下取出缓存数据并释放该锁，随后再加 imageListLock 写入，
+                    // 避免两把锁嵌套。
+                    bool found;
                     lock(syncRoot) {
-                        if(ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer)) {
-                            using(IDLWrapper w = new IDLWrapper(buffer)) {
-                                if(w.Available) {
-                                    ImageListGlobal.Images.Add(path, GetIcon(w.PIDL));
-                                    return path;
-                                }
+                        found = ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer);
+                    }
+                    if(found) {
+                        using(IDLWrapper w = new IDLWrapper(buffer)) {
+                            if(w.Available) {
+                                AddImageToGlobal(path, GetIcon(w.PIDL));
+                                return path;
                             }
                         }
                     }
@@ -442,13 +449,13 @@ namespace QTTabBarLib {
                 }
                 if(QTUtility2.IsShellPathButNotFileSystem(path)) {
                     IDLWrapper wrapper;
-                    if(ImageListGlobal.Images.ContainsKey(path)) {
+                    if(ImageGlobalContainsKey(path)) {
                         return path;
                     }
                     if(IDLWrapper.TryGetCache(path, out wrapper)) {
                         using(wrapper) {
                             if(wrapper.Available) {
-                                ImageListGlobal.Images.Add(path, GetIcon(wrapper.PIDL));
+                                AddImageToGlobal(path, GetIcon(wrapper.PIDL));
                                 return path;
                             }
                         }
@@ -595,53 +602,58 @@ namespace QTTabBarLib {
         }
 
         public static void LoadReservedImage(ImageReservationKey irk) {
-            if(!ImageListGlobal.Images.ContainsKey(irk.ImageKey)) {
-                switch(irk.ImageType) {
-                    case 0:
-                        if(irk.ImageKey != "noimage") {
-                            if(irk.ImageKey == "noext") {
-                                ImageListGlobal.Images.Add("noext", GetIcon(string.Empty, true));
-                                return;
-                            }
+            if(ImageGlobalContainsKey(irk.ImageKey)) {
+                return;
+            }
+            switch(irk.ImageType) {
+                case 0:
+                    if(irk.ImageKey != "noimage") {
+                        if(irk.ImageKey == "noext") {
+                            AddImageToGlobal("noext", GetIcon(string.Empty, true));
                             return;
                         }
                         return;
+                    }
+                    return;
 
-                    case 1:
-                        ImageListGlobal.Images.Add(irk.ImageKey, GetIcon(irk.ImageKey, true));
-                        return;
+                case 1:
+                    AddImageToGlobal(irk.ImageKey, GetIcon(irk.ImageKey, true));
+                    return;
 
-                    case 2:
-                    case 4:
-                        ImageListGlobal.Images.Add(irk.ImageKey, GetIcon(irk.ImageKey, false));
-                        return;
+                case 2:
+                case 4:
+                    AddImageToGlobal(irk.ImageKey, GetIcon(irk.ImageKey, false));
+                    return;
 
-                    case 3:
-                        return;
+                case 3:
+                    return;
 
-                    case 5:
-                        byte[] buffer;
-                        lock(syncRoot) {
-                            if(ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer)) {
-                                using(IDLWrapper w = new IDLWrapper(buffer)) {
-                                    if(!w.Available) return;
-                                    ImageListGlobal.Images.Add(irk.ImageKey, GetIcon(w.PIDL));
-                                }
+                case 5:
+                    // 先在 syncRoot 下取缓存并释放，避免与 imageListLock 嵌套。
+                    byte[] buffer;
+                    bool found5;
+                    lock(syncRoot) {
+                        found5 = ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer);
+                    }
+                    if(found5) {
+                        using(IDLWrapper w = new IDLWrapper(buffer)) {
+                            if(w.Available) {
+                                AddImageToGlobal(irk.ImageKey, GetIcon(w.PIDL));
                             }
                         }
-                        return;
+                    }
+                    return;
 
-                    case 6:
-                        IDLWrapper wrapper;
-                        if(IDLWrapper.TryGetCache(irk.ImageKey, out wrapper)) {
-                            using(wrapper) {
-                                if(wrapper.Available) {
-                                    ImageListGlobal.Images.Add(irk.ImageKey, GetIcon(wrapper.PIDL));
-                                }
+                case 6:
+                    IDLWrapper wrapper;
+                    if(IDLWrapper.TryGetCache(irk.ImageKey, out wrapper)) {
+                        using(wrapper) {
+                            if(wrapper.Available) {
+                                AddImageToGlobal(irk.ImageKey, GetIcon(wrapper.PIDL));
                             }
                         }
-                        return;
-                }
+                    }
+                    return;
             }
         }
 
@@ -974,10 +986,44 @@ namespace QTTabBarLib {
         
         // �ж�ͼƬ�б�����Ϊ��
         private static void SetImageKey(string key, string itemPath) {
-            if( null != ImageListGlobal.Images && 
-                ImageListGlobal.Images.Count > 0 && // add by indiff check Images
-                !ImageListGlobal.Images.ContainsKey(key)) {
-                ImageListGlobal.Images.Add(key, GetIcon(itemPath, false));
+            // 快速路径：已存在则无需提取图标（加锁读取以避免与并发写入产生竞态）。
+            if(ImageGlobalContainsKey(key)) {
+                return;
+            }
+            // 图标提取（可能较慢）在锁外进行，统一经 AddImageToGlobal 入口写入。
+            AddImageToGlobal(key, GetIcon(itemPath, false));
+        }
+
+        // ���� ImageListGlobal ͼ�껺��ķ��ʣ�P0-4 �̰߳�ȫ��ͳһ��ڣ���
+        // 所有对 ImageListGlobal.Images 的 Add / ContainsKey / 索引访问均应经由
+        // 下列方法，以 imageListLock 保护集合操作。锁范围保持短小，仅覆盖集合操作。
+        internal static void AddImageToGlobal(string key, Image image) {
+            lock(imageListLock) {
+                if(!ImageListGlobal.Images.ContainsKey(key)) {
+                    ImageListGlobal.Images.Add(key, image);
+                }
+            }
+        }
+
+        internal static void AddImageToGlobal(string key, Icon icon) {
+            lock(imageListLock) {
+                if(!ImageListGlobal.Images.ContainsKey(key)) {
+                    ImageListGlobal.Images.Add(key, icon);
+                }
+            }
+        }
+
+        internal static bool ImageGlobalContainsKey(string key) {
+            lock(imageListLock) {
+                return ImageListGlobal != null
+                    && ImageListGlobal.Images != null
+                    && ImageListGlobal.Images.ContainsKey(key);
+            }
+        }
+
+        internal static Image GetImageFromGlobal(string key) {
+            lock(imageListLock) {
+                return ImageListGlobal.Images[key];
             }
         }
 

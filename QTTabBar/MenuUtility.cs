@@ -375,7 +375,7 @@ namespace QTTabBarLib {
                     }
                     MenuItemEx ex = new MenuItemEx(displayName);
                     ex.Name = path;
-                    ex.Image = QTUtility.ImageListGlobal.Images[QTUtility.GetImageKey(path, null)];
+                    ex.Image = QTUtility.GetImageFromGlobal(QTUtility.GetImageKey(path, null));
                     menu.MenuItems.Add(ex);
                 }
             }
@@ -383,7 +383,7 @@ namespace QTTabBarLib {
             if(!QTUtility.IsXP) {
                 for(int k = 0; k < g.Paths.Count; k++) {
                     string imageKey = QTUtility.GetImageKey(g.Paths[k], null);
-                    IntPtr hbitmap = ((Bitmap)QTUtility.ImageListGlobal.Images[imageKey]).GetHbitmap(Color.Black);
+                    IntPtr hbitmap = ((Bitmap)QTUtility.GetImageFromGlobal(imageKey)).GetHbitmap(Color.Black);
                     if(hbitmap != IntPtr.Zero) {
                         list.Add(hbitmap);
                         PInvoke.SetMenuItemBitmaps(menu.Handle, k, 0x400, hbitmap, IntPtr.Zero);

@@ -66,7 +66,7 @@ namespace QTTabBarLib {
         public event ItemRightClickedEventHandler MenuItemRightClicked;
         public event EventHandler MultipleMenuItemsClicked;
         public event ItemRightClickedEventHandler MultipleMenuItemsRightClicked;
-        // ÅÐ¶ÏÊÇ·ñÖÐ¼ü¹ý£¿
+        // ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½
         private bool fMiddleButton = false;
 
         public SubDirTipForm(IntPtr hwndMessageReflect, bool fEnableShiftKeyOnDDMR, AbstractListView lvw) {
@@ -401,8 +401,8 @@ namespace QTTabBarLib {
                                 else {
                                     QMenuItem item = new QMenuItem(title, flag2 ? MenuTarget.Folder : MenuTarget.File, MenuGenre.SubDirTip);
                                     if(str.Length == 3) {
-                                        if(!QTUtility.ImageListGlobal.Images.ContainsKey(str)) {
-                                            QTUtility.ImageListGlobal.Images.Add(str, QTUtility.GetIcon(pIDL));
+                                        if(!QTUtility.ImageGlobalContainsKey(str)) {
+                                            QTUtility.AddImageToGlobal(str, QTUtility.GetIcon(pIDL));
                                         }
                                         item.ImageKey = str;
                                     }
@@ -461,8 +461,8 @@ namespace QTTabBarLib {
                 }
                 bool isDesktop = PInvoke.ILGetSize(wrapper.PIDL) == 2;
                 QMenuItem item = new QMenuItem(ShellMethods.GetDisplayName(wrapper.PIDL, true), MenuTarget.Folder, MenuGenre.SubDirTip);
-                if(!QTUtility.ImageListGlobal.Images.ContainsKey(wrapper.Path)) {
-                    QTUtility.ImageListGlobal.Images.Add(wrapper.Path, QTUtility.GetIcon(wrapper.PIDL));
+                if(!QTUtility.ImageGlobalContainsKey(wrapper.Path)) {
+                    QTUtility.AddImageToGlobal(wrapper.Path, QTUtility.GetIcon(wrapper.PIDL));
                 }
                 item.ImageKey = item.Path = item.TargetPath = wrapper.Path;
                 item.IDLDataChild = idlw.IDL;
@@ -479,7 +479,7 @@ namespace QTTabBarLib {
                 target.ItemRightClicked += ddmr_ItemRightClicked;
                 target.Opened += ddmr_Opened;
                 target.MenuDragEnter += ddmr_MenuDragEnter;
-                // Ìí¼ÓÊó±êÖÐ¼üÊÂ¼þ
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½Â¼ï¿½
                 item.DropDown = target;
                 item.DropDownOpening += tsmi_DropDownOpening;
                 item.DropDownItemClicked += ddmr_ItemClicked;
@@ -504,9 +504,9 @@ namespace QTTabBarLib {
 
 
 
-        //  Ìí¼ÓÊó±êÖÐ¼üÊÂ¼þ
+        //  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½Â¼ï¿½
         private void ddmr_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            if (fMiddleButton)  // Èç¹ûÊÇµãÁËÖÐ¼ü£¬ Ôò²»½øÐÐ¹Ø±Õ
+            if (fMiddleButton)  // ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ ï¿½ò²»½ï¿½ï¿½Ð¹Ø±ï¿½
             {
                 return;
             }
@@ -1126,7 +1126,7 @@ namespace QTTabBarLib {
         private void tsmi_MouseUp(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Middle)
             {
-                // ÖÐ¼üÐÂ½¨±êÇ©
+                // ï¿½Ð¼ï¿½ï¿½Â½ï¿½ï¿½ï¿½Ç©
                 fMiddleButton = true;
                 QMenuItem item = (QMenuItem)sender;
                 var qtTabBarClass = InstanceManager.GetThreadTabBar();

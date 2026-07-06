@@ -242,7 +242,7 @@ namespace QTTabBarLib {
             }
 
             private void RefreshIcon() {
-                Icon = Folders.Count == 0 ? QTUtility.ImageListGlobal.Images["folder"] : Folders.First().Icon;
+                Icon = Folders.Count == 0 ? QTUtility.GetImageFromGlobal("folder") : Folders.First().Icon;
             }
 
             public GroupEntry(string name, Keys shortcutKey, bool startup, IEnumerable<FolderEntry> folders) {

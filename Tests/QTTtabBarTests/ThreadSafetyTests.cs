@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 using NUnit.Framework;
 using QTTabBarLib;
 
@@ -211,6 +215,88 @@ namespace QTTtabBarTests {
                 Assert.AreNotEqual("rwLock", field.Name,
                     "InstanceManager should not have unused rwLock field");
             }
+        }
+
+        #endregion
+
+        #region P0-4 — ImageListGlobal 图标缓存并发线程安全
+
+        // 通过反射保证 QTUtility.ImageListGlobal 已初始化（静态构造函数在测试环境
+        // 中可能因原生依赖初始化失败而未创建该图片列表）。
+        private static FieldInfo GetImageListGlobalField() {
+            var field = typeof(QTUtility).GetField("ImageListGlobal",
+                BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(field, "QTUtility 应存在 ImageListGlobal 静态字段");
+            return field;
+        }
+
+        // 每一轮都重置为全新的图片列表，并植入一个种子项使 Count>0，
+        // 从而最大化 ContainsKey/Add 的并发写入碰撞（放大竞态）。
+        // 同时释放上一轮的 ImageList，回收其 GDI 句柄，避免句柄耗尽导致进程崩溃。
+        private static void ResetImageListGlobal() {
+            var field = GetImageListGlobalField();
+            var old = field.GetValue(null) as ImageList;
+            var il = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
+            il.Images.Add("folder", SystemIcons.Application);
+            field.SetValue(null, il);
+            if(old != null) {
+                old.Dispose();
+            }
+        }
+
+        [Test]
+        public void ImageListGlobal_ConcurrentIconCache_IsThreadSafe() {
+            // 触发 QTUtility 静态构造函数并确保 ImageListGlobal 非空
+            if(GetImageListGlobalField().GetValue(null) == null) {
+                ResetImageListGlobal();
+            }
+
+            const int threadCount = 64;        // >= 50 并发线程
+            const int rounds = 8;              // 多轮循环稳定复现
+            const int iterationsPerRound = 60;
+            const int keySpace = 16;           // 有界 key 集：限制 GDI 图标句柄总量
+
+            var exceptions = new ConcurrentQueue<Exception>();
+
+            for(int round = 0; round < rounds && exceptions.IsEmpty; round++) {
+                // 全新列表 + 多线程共享同一批有界 key，强制 ContainsKey+Add 高频并发写入
+                ResetImageListGlobal();
+
+                var barrier = new Barrier(threadCount);
+                var threads = new Thread[threadCount];
+                for(int t = 0; t < threadCount; t++) {
+                    int tid = t;
+                    int r = round;
+                    threads[t] = new Thread(() => {
+                        try {
+                            barrier.SignalAndWait();   // 所有线程同时开始
+                            for(int i = 0; i < iterationsPerRound; i++) {
+                                // UNC 网络路径 + 有界扩展名（跨线程共享），命中 GetImageKey 中
+                                // ImageListGlobal.Images.ContainsKey/Add 的无锁分支；
+                                // 多线程竞争同一 key 会放大“集合已修改/重复键”竞态。
+                                string ext = "." + r + "_" + (i % keySpace);
+                                QTUtility.GetImageKey(@"\\qtrace\share\file", ext);
+                            }
+                        }
+                        catch(Exception ex) {
+                            exceptions.Enqueue(ex);
+                        }
+                    });
+                }
+                foreach(var th in threads) th.Start();
+                foreach(var th in threads) th.Join();
+
+                // 回收本轮产生的 GDI 图标句柄，避免累积耗尽导致原生崩溃。
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+
+            Exception first;
+            exceptions.TryPeek(out first);
+            Assert.IsTrue(exceptions.IsEmpty,
+                "并发访问 ImageListGlobal 图标缓存必须线程安全，不应抛出异常。实际捕获 "
+                + exceptions.Count + " 个异常，首个: "
+                + (first == null ? "<无>" : first.GetType().Name + ": " + first.Message));
         }
 
         #endregion

@@ -262,10 +262,10 @@ namespace QTTabBarLib {
 
         private static Image GetImage(PathData pathData) {
             string strImageKey = pathData.strImageKey;
-            if(!QTUtility.ImageListGlobal.Images.ContainsKey(strImageKey)) {
+            if(!QTUtility.ImageGlobalContainsKey(strImageKey)) {
                 strImageKey = QTUtility.GetImageKey(pathData.strPath, null);
             }
-            return QTUtility.ImageListGlobal.Images[strImageKey];
+            return QTUtility.GetImageFromGlobal(strImageKey);
         }
 
         private static string GetTitleText(PathData pathData) {

@@ -4544,11 +4544,11 @@ namespace QTTabBarLib {
             buttonBack = new ToolStripButton();
             buttonForward = new ToolStripButton();
             toolStrip.SuspendLayout();
-            if(!QTUtility.ImageListGlobal.Images.ContainsKey("navBack")) {
-                QTUtility.ImageListGlobal.Images.Add("navBack", Resources_Image.imgNavBack);
+            if(!QTUtility.ImageGlobalContainsKey("navBack")) {
+                QTUtility.AddImageToGlobal("navBack", Resources_Image.imgNavBack);
             }
-            if(!QTUtility.ImageListGlobal.Images.ContainsKey("navFrwd")) {
-                QTUtility.ImageListGlobal.Images.Add("navFrwd", Resources_Image.imgNavFwd);
+            if(!QTUtility.ImageGlobalContainsKey("navFrwd")) {
+                QTUtility.AddImageToGlobal("navFrwd", Resources_Image.imgNavFwd);
             }
             toolStrip.Dock = Config.Tabs.NavButtonsOnRight ? DockStyle.Right : DockStyle.Left;
             toolStrip.AutoSize = false;
@@ -4574,13 +4574,13 @@ namespace QTTabBarLib {
             buttonBack.AutoSize = false;
             buttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
             buttonBack.Enabled = fSync ? ((navBtnsFlag & 1) != 0) : false;
-            buttonBack.Image = QTUtility.ImageListGlobal.Images["navBack"];
+            buttonBack.Image = QTUtility.GetImageFromGlobal("navBack");
             buttonBack.Size = new Size(0x15, 0x15);
             buttonBack.Click += NavigationButtons_Click;
             buttonForward.AutoSize = false;
             buttonForward.DisplayStyle = ToolStripItemDisplayStyle.Image;
             buttonForward.Enabled = fSync ? ((navBtnsFlag & 2) != 0) : false;
-            buttonForward.Image = QTUtility.ImageListGlobal.Images["navFrwd"];
+            buttonForward.Image = QTUtility.GetImageFromGlobal("navFrwd");
             buttonForward.Size = new Size(0x15, 0x15);
             buttonForward.Click += NavigationButtons_Click;
         }

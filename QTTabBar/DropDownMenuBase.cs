@@ -170,11 +170,11 @@ namespace QTTabBarLib {
 
         protected override void OnOpening(CancelEventArgs e) {
             if(!fFirstDropDownOpened) {
-                QTUtility.ImageListGlobal.Images.Add("control", Resources_Image.imgNewWindow);
-                QTUtility.ImageListGlobal.Images.Add("shift", Resources_Image.imgNewTab);
-                QTUtility.ImageListGlobal.Images.Add("back", Resources_Image.imgBack);
-                QTUtility.ImageListGlobal.Images.Add("forward", Resources_Image.imgForward);
-                QTUtility.ImageListGlobal.Images.Add("current", Resources_Image.imgCurrent);
+                QTUtility.AddImageToGlobal("control", Resources_Image.imgNewWindow);
+                QTUtility.AddImageToGlobal("shift", Resources_Image.imgNewTab);
+                QTUtility.AddImageToGlobal("back", Resources_Image.imgBack);
+                QTUtility.AddImageToGlobal("forward", Resources_Image.imgForward);
+                QTUtility.AddImageToGlobal("current", Resources_Image.imgCurrent);
                 fFirstDropDownOpened = true;
             }
             base.OnOpening(e);
