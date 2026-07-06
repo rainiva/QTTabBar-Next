@@ -2652,29 +2652,16 @@ namespace QTTabBarLib {
 
         [ComRegisterFunction]
         private static void Register(Type t) {
-            // todo: localize?
             const string strDesktopTool = "QTTab Desktop Tool";
-
-            // CLSID
-            using(RegistryKey rkClass = Registry.ClassesRoot.CreateSubKey(@"CLSID\" + t.GUID.ToString("B"))) {
-                rkClass.SetValue(null, strDesktopTool);
-                rkClass.SetValue("MenuText", strDesktopTool);
-                rkClass.SetValue("HelpText", strDesktopTool);
-                rkClass.CreateSubKey(@"Implemented Categories\{00021492-0000-0000-C000-000000000046}");
-            }
+            string guid = t.GUID.ToString("B");
+            ComRegistrationManager.RegisterBand(guid, strDesktopTool, strDesktopTool, strDesktopTool);
+            // DeskBand category
+            ComRegistrationManager.RegisterImplementedCategory(guid, "{00021492-0000-0000-C000-000000000046}");
         }
 
         [ComUnregisterFunction]
         private static void Unregister(Type t) {
-            try {
-                using(RegistryKey rkClass = Registry.ClassesRoot.CreateSubKey(@"CLSID")) {
-                    rkClass.DeleteSubKeyTree(t.GUID.ToString("B"));
-                }
-            }
-            catch (Exception e)
-            {
-                QTUtility2.MakeErrorLog(e, "Unregister");
-            }
+            ComRegistrationManager.UnregisterClsid(t.GUID.ToString("B"));
         }
 
         #endregion

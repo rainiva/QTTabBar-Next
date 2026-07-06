@@ -21,6 +21,41 @@ namespace QTTabBarLib {
         }
 
         /// <summary>
+        /// Registers an Implemented Categories subkey for a band object.
+        /// Common category IDs:
+        ///   {00021492-...} = DeskBand (QTDesktopTool)
+        ///   {00021493-...} = InfoBand (vertical, QTSecondViewBar)
+        ///   {00021494-...} = CommBand
+        /// </summary>
+        public static void RegisterImplementedCategory(string guid, string categoryId) {
+            using(RegistryKey key = Registry.ClassesRoot.CreateSubKey(
+                @"CLSID\" + guid + @"\Implemented Categories\" + categoryId)) { }
+        }
+
+        /// <summary>
+        /// Registers a Browser Helper Object (BHO) in the registry.
+        /// </summary>
+        public static void RegisterBho(string guid) {
+            using(RegistryKey key = Registry.LocalMachine.CreateSubKey(
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects\" + guid)) { }
+        }
+
+        /// <summary>
+        /// Unregisters a Browser Helper Object (BHO) from the registry.
+        /// </summary>
+        public static void UnregisterBho(string guid) {
+            try {
+                using(RegistryKey key = Registry.LocalMachine.CreateSubKey(
+                    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects")) {
+                    key.DeleteSubKey(guid, false);
+                }
+            }
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "ComRegistrationManager.UnregisterBho");
+            }
+        }
+
+        /// <summary>
         /// Registers a band object in the Internet Explorer Toolbar registry key.
         /// </summary>
         public static void RegisterToolbar(string guid, string toolbarName) {

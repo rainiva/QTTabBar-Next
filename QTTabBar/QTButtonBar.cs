@@ -1189,14 +1189,8 @@ namespace QTTabBarLib {
         private static void Register(Type t) {
             string name = t.GUID.ToString("B");
             const string str2 = "QTTab Standard Buttons";
-            using(RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"CLSID\" + name)) {
-                key.SetValue(null, str2);
-                key.SetValue("MenuText", str2);
-                key.SetValue("HelpText", str2);
-            }
-            using(RegistryKey key2 = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Internet Explorer\Toolbar")) {
-                key2.SetValue(name, "QTButtonBar");
-            }
+            ComRegistrationManager.RegisterBand(name, str2, str2, str2);
+            ComRegistrationManager.RegisterToolbar(name, "QTButtonBar");
         }
 
         private void searchBox_ErasingText(object sender, CancelEventArgs e) {
@@ -1687,24 +1681,7 @@ namespace QTTabBarLib {
         [ComUnregisterFunction]
         private static void Unregister(Type t) {
             string name = t.GUID.ToString("B");
-            try {
-                using(RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Internet Explorer\Toolbar")) {
-                    key.DeleteValue(name, false);
-                }
-            }
-            catch (Exception e)
-            {
-                QTUtility2.MakeErrorLog(e, "Unregister Toolbar");
-            }
-            try {
-                using(RegistryKey key2 = Registry.ClassesRoot.CreateSubKey("CLSID")) {
-                    key2.DeleteSubKeyTree(name);
-                }
-            }
-            catch (Exception e)
-            {
-                QTUtility2.MakeErrorLog(e, "Unregister CLSID");
-            }
+            ComRegistrationManager.UnregisterAll(name);
         }
 
         private void userAppsSubDir_DoubleClicked(object sender, EventArgs e) {

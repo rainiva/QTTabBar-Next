@@ -1704,54 +1704,16 @@ namespace QTTabBarLib
             string name = t.GUID.ToString("B");
             string str = QTUtility.IsChinese ? "左侧视图" : (QTUtility.IsJapanese ? "エクストラ ビュー (左)" : "Extra View (left)");
             string helpStr = QTUtility.IsChinese ? "左侧扩展视图" : (QTUtility.IsJapanese ? "左にさらにビューを追加します。" : "Extra View (left)");
-            using (RegistryKey subKey = Registry.ClassesRoot.CreateSubKey(@"CLSID\" + name))
-            {
-                subKey.SetValue(null, "QTTabBar");
-                subKey.SetValue("MenuText", (object)str);
-                subKey.SetValue("HelpText", (object)helpStr);
-                // 垂直资源管理器栏	CATID_InfoBand
-                // public const string CATID_CommBand = "{00021494-0000-0000-C000-000000000046}";
-                subKey.CreateSubKey("Implemented Categories\\{00021493-0000-0000-C000-000000000046}"); 
-                // subKey.CreateSubKey(@"Implemented Categories\{00021494-0000-0000-C000-000000000046}"); 
-            }
-
-            /*using (RegistryKey subKey =
-                   Registry.LocalMachine.CreateSubKey("SOFTWARE\\Microsoft\\Internet Explorer\\Toolbar"))
-            {
-                subKey.SetValue(name, (object)"QTSecondViewBar");
-            }*/
+            ComRegistrationManager.RegisterBand(name, "QTTabBar", str, helpStr);
+            // InfoBand category (vertical explorer bar)
+            ComRegistrationManager.RegisterImplementedCategory(name, "{00021493-0000-0000-C000-000000000046}");
         }
 
         [ComUnregisterFunction]
         private static void Unregister(Type t)
         {
             string str = t.GUID.ToString("B");
-            try
-            {
-                using (RegistryKey subKey = Registry.ClassesRoot.OpenSubKey("CLSID", true ))
-                {
-                    // subKey.DeleteSubKeyTree(str, false);
-                    subKey.DeleteSubKeyTree(str);
-                }
-
-                /*using (RegistryKey subKey =
-                       Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Internet Explorer\\Toolbar", true ))
-                {
-                    subKey.DeleteValue(str, false);
-                }*/
-                    
-            }
-            catch
-            {
-            }
-
-            try
-            {
-               
-            }
-            catch
-            {
-            }
+            ComRegistrationManager.UnregisterClsid(str);
         }
 
         /*protected override bool IsTabSubFolderMenuVisible

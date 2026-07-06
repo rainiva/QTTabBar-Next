@@ -34,20 +34,14 @@ namespace QTTabBarLib {
         [ComRegisterFunction]
         public static void Register(Type t) {
             string name = t.GUID.ToString("B");
-            using(RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"CLSID\" + name)) {
-                key.SetValue(null, "QTTabBar AutoLoader");
-                key.SetValue("MenuText", "QTTabBar AutoLoader");
-                key.SetValue("HelpText", "QTTabBar AutoLoader");
-            }
-            using(RegistryKey key = Registry.LocalMachine.CreateSubKey(BHOKEYNAME + name)) { }
+            ComRegistrationManager.RegisterBand(name, "QTTabBar AutoLoader", "QTTabBar AutoLoader", "QTTabBar AutoLoader");
+            ComRegistrationManager.RegisterBho(name);
             QTUtility2.flog( "AutoLoader 注册表 QTTabBar 自动加载(安装)");
         }
 
         [ComUnregisterFunction]
         public static void Unregister(Type t) {
-            using(RegistryKey key = Registry.LocalMachine.CreateSubKey(BHOKEYNAME)) {
-                key.DeleteSubKey(t.GUID.ToString("B"), false);
-            }
+            ComRegistrationManager.UnregisterBho(t.GUID.ToString("B"));
             QTUtility2.flog("AutoLoader 注册表 QTTabBar 自动加载(卸载)");
         }
 
