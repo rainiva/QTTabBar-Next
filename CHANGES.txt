@@ -1,56 +1,208 @@
 ======= 1.5.5.6 Beta(2022)=====
 Bugs Fixed:
-	ĞŞ¸´ÁËÒ»Ğ©ÒÑÖªµÄbug¡£
+    ä¿®å¤äº†ä¸€äº›å·²çŸ¥çš„bugã€‚
 New Features:
-	Ä¬ÈÏÖ§³Öctrl+dµ÷ÓÃ·Ö×é¹¦ÄÜ
-	¼¯³ÉEverything
-	Ìí¼ÓËÄ¹ú¹ú¼Ê»¯(Brazil,French,Turkiye,Espa?a)
+    é»˜è®¤æ”¯æŒctrl+dè°ƒç”¨åˆ†ç»„åŠŸèƒ½
+    é›†æˆEverything
+    æ–°å¢å›½é™…åŒ–è¯­è¨€(Brazil,French,Turkiye,EspaÃ±a)
+
+
+======= 1.5.4 Beta(2021)=====
+Bugs Fixed:
+    ä¿®å¤äº†ä¸€äº›å·²çŸ¥çš„bugã€‚
+
+New Features:
+    é»˜è®¤å¢åŠ å…¨é€‰ä¸é€‰æ”¯æŒä¸€é”®å…¨é€‰ï¼Œä¸€é”®å…¨ä¸é€‰
+    å³ä¾§ç´§æŒ¨æŒ‰é’®æ–°åŠŸèƒ½ï¼Œæ”¯æŒè®¾ç½®é»˜è®¤è·¯å¾„é€‰ä¸­æ–‡ä»¶é€‰æ‹©æ–‡ä»¶ï¼Œè·¯å¾„è·³è½¬
+    è®¾ç½®ä¸æ»šåŠ¨
+    å®‰è£…ç•Œé¢å¼€æºåè®®æ–‡æœ¬
+    ä¿®å¤å¤šä¸ªå´©æºƒbug
+    ä¿®å¤æŒ‰é’®å›¾ç‰‡è®¾ç½®èƒŒæ™¯é€æ˜bug
+    è‡ªå®šä¹‰å¢åŠ å…¨é€‰å›¾ç‰‡å‹ç¼©åŠŸèƒ½æ›´å¥½æ”¯æŒæŒ‰é’®å›¾ç‰‡æ ¼å¼
+======= 1.5.3 Beta 2 =======
+Bugs Fixed:
+    ä¿®å¤äº†ä¸€äº›å·²çŸ¥çš„bugã€‚
+
+New Features:
+    å¢åŠ è‡ªå®šä¹‰æŒ‰é’®å›¾ç‰‡ï¼Œæ”¯æŒæŒ‰é’®æ–‡å­—æ˜¾ç¤º
+    å¢åŠ æ–°åŠŸèƒ½ï¼Œæ”¯æŒæ–°æ ‡ç­¾é¡µé»˜è®¤å–å½“å‰ç›®å½•æ–°è·¯å¾„
+    å¢åŠ å¼‚å¸¸æ—¥å¿—æ‰“å°
+    å®‰è£…ç•Œé¢ç¾åŒ–æ›´æ–°
+    é»˜è®¤å¢åŠ å¹¶ä¼˜åŒ–çš®è‚¤åŠŸèƒ½
+    å¢åŠ æ”¯æŒè§†é¢‘é¢„è§ˆå›¾ç‰‡åŠŸèƒ½
+======= 1.5.2.x Beta 2 =======
+Todos:
+    æ ‡ç­¾æ å³ä¾§è·ŸéšæŒ‰é’®èƒ½å¦æ”¾ä¸€ä¸ªé€‰é¡¹å¯ä»¥æ§åˆ¶æ˜¯å¦å»é‡ã€‚ #28
+    æŒ‰é’®è‡ªå®šä¹‰å›¾ç‰‡åŠ è½½å¤±æ•ˆ #29
+    æ‹–åŠ¨æ ‡ç­¾å…³é—­æŒ‰é’®å’Œæ‹–åŠ¨æŒ‰é’®å›¾æ ‡è‡ªåŠ¨äº’é€‰ #26
+Bugs Fixed:
+    fix bug æ— æ•ˆ GetTextSize qtabitem.cs(331)ã€‚
+
+New Features:
+    å¢åŠ è›‹è›‹çš®è‚¤
+    (é»˜è®¤å¼€å¯å…³é—­æŒ‰é’®æ˜¾ç¤º)æ ‡ç­¾æ å³ä¾§è·ŸéšæŒ‰é’®èƒ½å¦æ”¾ä¸€ä¸ªé€‰é¡¹å¯ä»¥æ§åˆ¶æ˜¯å¦å»é‡ã€‚#28
+    å¢åŠ è‡ªå®šä¹‰å›¾ç‰‡ #29
+
+    ======= 1.5.2.0 Beta 2 =======
+Bugs Fixed:
+    ä¿®å¤æ‰“å¼€cmdæ˜¾ç¤ºå¼‚å¸¸/Fixed open cmd error.
+
+
+New Features:
+    å¼‚å¸¸æ—¥å¿—å¢åŠ æ‰©å±•ä¿¡æ¯æ˜¾ç¤º/Show more info for exception log.
+    å¢åŠ å¢åŠ è¯­è¨€é…ç½®æ–‡ä»¶/Add language config file.
+
+
+======= 1.5.0.0 Beta 2 =======
+Bugs Fixed:
+    Fixed scrolling lag buildup when using the ItemsView.
+    Fixed massive memory leak (!)
+    Fixed navigation on Homegroup Libraries.
+    Refined Windows searches no longer show up in the navigation history.
+    Clearing the Search bar now navigates back, instead of navigating to Libraries.
+    Middle-clicking on the Navigation Pane now respects the relevant option.
+    Fixed various problems occuring when Explorer is in single-click mode.
+    Fixed extension deselect when renaming .zip and .url files on XP.
+    IFilter-based Plugins, such as Megimo Loader, are no longer unloaded when the Options dialog is closed.
+    Support for systems with only .NET 4 and not .NET 3.5.
+    Support for both the x64 and x86 versions of Explorer on Vista x64.
+
+New Features:
+    Capturing new Explorer instances is now MUCH smoother in most cases, and supports selecting items.
+    Middle-clicking on Vista and 7's Breadcrumb Bar will open the target folder in a new tab.
+
+======= 1.5.0.0 Beta 1 =======
+Bugs Fixed:
+    Minor tweaks, fixes, and polish all around.
+    Fixed crash when uninstalling plugins.
+    Installer installs for all users now, not just a single user.
+    Fixed Subdirectory Tip display in details mode on Windows XP (for good this time).
+    Fixed bug where OK/Cancel buttons in Control Panel windows don't work.
+    Moved the Exception log from the Desktop to %APPDATA%\QTTabBar.
+
+New Features:
+    Ctrl-Click on the Folder Tree now opens a new tab.
+
+======= 1.5.0.0 Alpha 5 =======
+Bugs Fixed:
+    Many random crashes involving navigation fixed
+    Fixed a few random crashes involving the search bar
+    Broken Drag/Drop on XP fixed
+    Dragging files from the SysListView into other applications doesn't double the action anymore.
+    "Close all but this" and similar menu items fixed
+    In XP, SubDirTips no longer disappear if the mouse is moved off file label
+    Desktop Tool is not registered on Windows 7, as it doesn't work yet.
+    SysListView no longer behaves strangely when attempting to navigate to a folder unsuccessfully
+    OK/Cancel buttons on Control Panel dialogs now function as expected
+    Header In All Views functionality reimplemented using a more reliable method; won't mess with icon sizes now
+    Dragging files over folders now respects SubDirTip settings
+    Fixed crash induced by Windows Search on XP
+    Escape key now clears the search box, as expected
+    Search box now clears upon refresh without introducing duplicate items
+    Automatic renaming of ambiguous tabs is now case-insensitive
+    Installer activates TabBar and ButtonBar automatically
+    Installer deactivates TabBar and ButtonBar before removing them, working around Explorer's menu bar hiding bug
+
+New Features:
+    Brand new MSI-based installer
+    Middle-click on the Folder Tree opens the folder in a new tab on Vista/7
+
+======= 1.5.0.0 Alpha 4 =======
+Bugs Fixed:
+    General stability improvements, more exception logging code added
+    Changing environment variables on x64 systems no longer crashes Explorer
+    Tabbar/Toolbar positioning now works correctly on XP
+    Search box no longer mysteriously shrinks when focused
+    Closing dialogs in Win7 such as the Firewall dialog works correctly
+    Subdirectory Tips appear and disappear when they should, drag and drop into them much easier
+    Opening a new tab by navigating on a locked tab opens the tab in the correct location
+    Minimize to tray no longer crashes Explorer
+    Full Row Select can be enabled/disabled when the SysListView32 is used
+    Tabs are restored only on the first instance, not on subsequent instances
+    Libraries can be dropped into
+
+New/Restored Features:
+    Desktop Bar restored for XP/Vista
+    F2 rename selection functionality restored
+    SelectionChanged plugin event fires correctly
+    Cursor looping reimplemented
+    "Use old ListView control" option enabled
+    "Display column headers in all views" option enabled
+
+======= 1.5.0.0 Alpha 3 =======
+Bugs Fixed:
+    Explorer process no longer consumes a full CPU core.
+    Doubleclicking the Tab Bar background creates a new tab if the appropriate option is set.
+    Explorer window no longer becomes nonresponsive when new tab created and Activate New Tab is disabled.
+    Doubleclicking column headers no longer results in Up One Directory.
+    Subdirectory Tips launched from tab icons no longer crash Explorer.
+    Options menu no longer disables right-click after closed.
+    Button Bar correctly displays buttons when activated after Tab Bar.
+    Mouse cursor now becomes an IBeam in the Search Box.
+
+New/Restored Features:
+    Tab Locking functionality restored
+
+======= 1.5.0.0 Alpha 2 =======
+Bugs Fixed:
+    Fixed crashes on 32-bit Windows.
+
+======= 1.5.0.0 Alpha 1 =======
+New/Restored Features:
+    First release compatible with Windows 7.
+======= 1.5.5.6 Beta(2022)=====
+Bugs Fixed:
+	ï¿½Ş¸ï¿½ï¿½ï¿½Ò»Ğ©ï¿½ï¿½Öªï¿½ï¿½bugï¿½ï¿½
+New Features:
+	Ä¬ï¿½ï¿½Ö§ï¿½ï¿½ctrl+dï¿½ï¿½ï¿½Ã·ï¿½ï¿½é¹¦ï¿½ï¿½
+	ï¿½ï¿½ï¿½ï¿½Everything
+	ï¿½ï¿½ï¿½ï¿½ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½Ê»ï¿½(Brazil,French,Turkiye,Espa?a)
 
 	
 ======= 1.5.4 Beta(2021)=====
 Bugs Fixed:
-	ĞŞ¸´ÁËÒ»Ğ©ÒÑÖªµÄbug¡£
+	ï¿½Ş¸ï¿½ï¿½ï¿½Ò»Ğ©ï¿½ï¿½Öªï¿½ï¿½bugï¿½ï¿½
 
 New Features:
-	Ä¬ÈÏÄÚÖÃËùÓĞ²å¼ş£¬Ö§³ÖÒ»¼üÆôÓÃ£¬Ò»¼ü½ûÓÃ
-	À¶É«¼ÓºÅ°´Å¥ĞÂ¹¦ÄÜ£¬Ö§³ÖÅäÖÃÄ¬ÈÏÂ·¾¶£¬¼ôÌù°åµÄÈç¹ûÓĞÂ·¾¶£¬ÔòÌø×ª
-	ÄÚÖÃ²å¼şºº»¯
-	°²×°°üÖĞÎÄ¿ªÔ´Ğ­Òéµ÷Õû
-	ĞŞ¸´Ëø¶¨¹¦ÄÜbug
-	ĞŞ¸´¹¤¾ßÀ¸Í¼Æ¬ÅäÖÃ±¨´í¹¦ÄÜbug
-	µ÷Õû¹¤¾ßÀ¸Í¼Æ¬£¬Ñ¹Ëõ°üÄÚÖÃÁËÈı¿î°´Å¥Í¼Æ¬¿îÊ½
+	Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ²ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½ï¿½É«ï¿½ÓºÅ°ï¿½Å¥ï¿½Â¹ï¿½ï¿½Ü£ï¿½Ö§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ª
+	ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½Ô´Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½Ş¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bug
+	ï¿½Ş¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½Ã±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bug
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½î°´Å¥Í¼Æ¬ï¿½ï¿½Ê½
 ======= 1.5.3 Beta 2 =======
 Bugs Fixed:
-	ĞŞ¸´ÁËÒ»Ğ©ÒÑÖªµÄbug¡£
+	ï¿½Ş¸ï¿½ï¿½ï¿½Ò»Ğ©ï¿½ï¿½Öªï¿½ï¿½bugï¿½ï¿½
 	
 New Features:
-	Ôö¼Ó×Ô¶¨Òå°´Å¥Í¼Æ¬£¬Ö§³Ö°´Å¥»»·ô¹¦ÄÜ
-	Ìí¼ÓĞÂ¹¦ÄÜ£¬Ö§³ÖĞÂ¿ª±êÇ©Ò³£¬Ä¬ÈÏÈ¡¼ôÌù°åµÄÂ·¾¶
-	µ÷ÕûÒì³£ÈÕÖ¾´òÓ¡
-	°²×°°üµ÷Õûºº»¯
-	Ä¬ÈÏÅäÖÃÏîÓÅ»¯µ÷Õû
-	Ôö¼ÓÖ§³ÖÊÓÆµÔ¤ÀÀÍ¼Æ¬¹¦ÄÜ
+	ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½å°´Å¥Í¼Æ¬ï¿½ï¿½Ö§ï¿½Ö°ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½ï¿½ï¿½ï¿½ï¿½Â¹ï¿½ï¿½Ü£ï¿½Ö§ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½Ç©Ò³ï¿½ï¿½Ä¬ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+	ï¿½ï¿½ï¿½ï¿½ï¿½ì³£ï¿½ï¿½Ö¾ï¿½ï¿½Ó¡
+	ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å»ï¿½ï¿½ï¿½ï¿½ï¿½
+	ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½ÆµÔ¤ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½
 ======= 1.5.2.x Beta 2 =======
 Todos:
-	±êÇ©À¸ÓÒ²àµÄÁ½¸ö°´Å¥ÄÜ·ñÌí¼ÓÒ»¸öÑ¡ÏîÒÔ¿ØÖÆÊÇ·ñÈ¥µôÄØ¡£ #28
-	°´Å¥×Ô¶¨ÒåÍ¼Æ¬¹¦ÄÜÎŞĞ§ #29
-	¼ÓÈë±êÇ©¹Ø±Õ°´Å¥ºÍËø¶¨°´Å¥µÄÍ¼±ê×Ô¶¨ÒåÑ¡Ïî #26
+	ï¿½ï¿½Ç©ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¥ï¿½Ü·ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½Ç·ï¿½È¥ï¿½ï¿½ï¿½Ø¡ï¿½ #28
+	ï¿½ï¿½Å¥ï¿½Ô¶ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ #29
+	ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½Ø±Õ°ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¥ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ #26
 Bugs Fixed:
-	fix bug ²ÎÊıÎŞĞ§ GetTextSize qtabitem.cs(331)¡£
+	fix bug ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ GetTextSize qtabitem.cs(331)ï¿½ï¿½
 	
 New Features:
-	Ôö¼Óµ¼³öÆ¤·ô
-	(Ä¬ÈÏÅäÖÃ¹Ø±Õ°´Å¥ÏÔÊ¾)±êÇ©À¸ÓÒ²àµÄÁ½¸ö°´Å¥ÄÜ·ñÌí¼ÓÒ»¸öÑ¡ÏîÒÔ¿ØÖÆÊÇ·ñÈ¥µôÄØ¡£#28
-	ÆôÓÃ×Ô¶¨ÒåÍ¼Æ¬ #29
+	ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½Æ¤ï¿½ï¿½
+	(Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½Ã¹Ø±Õ°ï¿½Å¥ï¿½ï¿½Ê¾)ï¿½ï¿½Ç©ï¿½ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¥ï¿½Ü·ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ï¿½Ç·ï¿½È¥ï¿½ï¿½ï¿½Ø¡ï¿½#28
+	ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Í¼Æ¬ #29
 	
 	======= 1.5.2.0 Beta 2 =======
 Bugs Fixed:
-    ĞŞ¸´´ò¿ªÃüÁîÌáÊ¾·ûÒì³£/Fixed open cmd error.
+    ï¿½Ş¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ì³£/Fixed open cmd error.
 	
 	
 New Features:
-    Òì³£ÈÕÖ¾Ìí¼ÓÀ©Õ¹ĞÅÏ¢ÌáÊ¾/Show more info for exception log.
-	Ìí¼ÓÓïÑÔÅäÖÃÎÄ¼ş/Add language config file.
+    ï¿½ì³£ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹ï¿½ï¿½Ï¢ï¿½ï¿½Ê¾/Show more info for exception log.
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½/Add language config file.
 	
 	
 ======= 1.5.0.0 Beta 2 =======
@@ -77,7 +229,7 @@ Bugs Fixed:
     Fixed crash when uninstalling plugins.
     Installer installs for all users now, not just a single user.
     Fixed Subdirectory Tip display in details mode on Windows XP (for good this time).
-    Fixed bug where OK/Cancel buttons in Control Panel windows don’t work.
+    Fixed bug where OK/Cancel buttons in Control Panel windows donï¿½t work.
     Moved the Exception log from the Desktop to %APPDATA%\QTTabBar.
 
 New Features:

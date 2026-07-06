@@ -16,6 +16,7 @@
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Resources;
 //
@@ -25,7 +26,7 @@ using System.Resources;
 //
 [assembly: AssemblyTitle("QTTabBar")]
 //[assembly: AssemblyDescription("Main QTTabBar Assembly")]
-[assembly: AssemblyDescription("Ö÷QTTabBar³ÌÐò¼¯")]
+[assembly: AssemblyDescription("ï¿½ï¿½QTTabBarï¿½ï¿½ï¿½ï¿½")]
 [assembly: AssemblyConfiguration("")]
 // [assembly: AssemblyCompany("Quizo and Paul Accisano")]
 [assembly: AssemblyCompany("indiff")]
@@ -86,3 +87,5 @@ using System.Resources;
 // if you want release global edition, change this to "en" from "ja-JP".
 // This improves lookup performance for the first resource you load, and can reduce your working set. 
 [assembly: NeutralResourcesLanguage("zh-CN")]
+
+[assembly: InternalsVisibleTo("QTTtabBarTests, PublicKey=00240000048000009400000006020000002400005253413100040000010001004141924f44c5dc739bef52d9def6a589ef3469231e987a7f246afd6dbc1c31ad170d42d176b3f9c42763c0c9856eb6c296a053af4ce83d708ef7da5d2da8a2a0d5a91d04a51fcb06f46407a28abe5cfcdb8efea03121ba79c6f85ff3c2ce409e8115f5b6c9aa590c4f3bfcf1a4f501e046af29fb060ceea8f195f23403c16ff1")]

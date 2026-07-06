@@ -689,7 +689,7 @@ orleans.codegen.cs
 
 # Including strong name files can present a security risk
 # (https://github.com/github/gitignore/pull/2483#issue-259490424)
-#*.snk
+*.snk
 
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
@@ -818,4 +818,28 @@ MigrationBackup/
 /.sonarlint
 /BandObjectLib/*.ruleset
 *.ruleset
+!BandObjectLib/BandObjectLib.ruleset
+!Plugins/ActivateByMouseHover/ShowStatusBar.ruleset
+!Plugins/CreateNewItem/CreateNewItem.ruleset
+!Plugins/Memo/Memo.ruleset
+!Plugins/MigemoLoader/MigemoLoader.ruleset
+!Plugins/QTClock/QTClock.ruleset
+!Plugins/QTFileTools/QTFileTools.ruleset
+!Plugins/QTFolderButton/QTFolderButton.ruleset
+!Plugins/QTQuick/QTQuick.ruleset
+!Plugins/QTViewModeButton/ViewModeButton.ruleset
+!Plugins/QTWindowManager/QTWindowManager.ruleset
+!Plugins/Sample/SamplePlugin.ruleset
+!Plugins/ShowStatusBar/ShowStatusBar.ruleset
+!Plugins/TurnOffRepeat/TurnOffRepeat.ruleset
+!QTPluginLib/QTPluginLib.ruleset
+!QTTabBar/QTTabBar1.ruleset
 /.idea
+/.codegraph/
+
+# Debug log files
+debug-mixed*.log
+qtdebug.log
+
+# Backup files
+*.bak
