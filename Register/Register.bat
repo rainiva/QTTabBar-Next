@@ -73,9 +73,7 @@ set "REGISTER_REGASM32="
 if defined FrameworkDir32 if defined FrameworkVersion32 if exist "%FrameworkDir32%%FrameworkVersion32%\regasm.exe" (
     set "REGISTER_REGASM32=%FrameworkDir32%%FrameworkVersion32%\regasm.exe"
 )
-if not defined REGISTER_REGASM32 (
-    for /f "delims=" %%I in ('where regasm.exe 2^>nul') do if not defined REGISTER_REGASM32 set "REGISTER_REGASM32=%%~fI"
-)
+if not defined REGISTER_REGASM32 for /f "delims=" %%I in ('where /R "%SystemRoot%\Microsoft.NET\Framework" regasm.exe 2^>nul') do if not defined REGISTER_REGASM32 set "REGISTER_REGASM32=%%~fI"
 if not defined REGISTER_REGASM32 exit /b 1
 
 set "REGISTER_REGASM64="
@@ -94,6 +92,9 @@ if not defined VSWHERE_EXE if exist "%ProgramFiles%\Microsoft Visual Studio\Inst
 if not defined VSWHERE_EXE exit /b 1
 
 for /f "usebackq delims=" %%I in (`"%VSWHERE_EXE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do if not defined VS_INSTALL set "VS_INSTALL=%%~I"
+if not defined VS_INSTALL (
+    for /f "usebackq delims=" %%I in (`"%VSWHERE_EXE%" -latest -products * -property installationPath`) do if not defined VS_INSTALL set "VS_INSTALL=%%~I"
+)
 if not defined VS_INSTALL exit /b 1
 
 if exist "%VS_INSTALL%\Common7\Tools\VsDevCmd.bat" (
