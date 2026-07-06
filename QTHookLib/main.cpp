@@ -68,47 +68,6 @@ void Box(LPCWSTR lpText)
 }
 
 
-#define Box2(content) {                                                            \
-    MessageBoxW(0, content, L"Box2", MB_ICONERROR); \
-}
-
-void Box1(LPCWSTR lpText)
-{
-	MessageBoxW(0, lpText, L"Box1", MB_ICONERROR);
-}
-
-void Log1(std::wstring log)
-{
-	//CString strTempPath;
-    //::GetTempPath(MAX_PATH, strTempPath.GetBuffer(MAX_PATH));
-    LPCWSTR strLogFile = L"c:/Log.txt";
-    HANDLE hFile = INVALID_HANDLE_VALUE;
-    DWORD dwBytesWritten = 0;
-    BOOL bErrorFlag = FALSE;
-    OVERLAPPED strOverlapped = {};
-    strOverlapped.Offset = 0xFFFFFFFF;
-    strOverlapped.OffsetHigh= 0xFFFFFFFF;
-    hFile = CreateFile(strLogFile, GENERIC_READ| GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hFile== INVALID_HANDLE_VALUE)
-    {
-        return ;
-    }
-    char TimeMessage[MAX_PATH] = { 0 };
-    SYSTEMTIME st;
-    ::GetLocalTime(&st);
-    char szTime[26] = { 0 };
-    sprintf_s(szTime, "%04d-%02d-%02d %02d:%02d:%02d %d ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-    sprintf_s(TimeMessage, "%s: %s\n", szTime,log);
-    DWORD dwBytesToWrite = (DWORD)strlen(TimeMessage);
-    bErrorFlag = WriteFile(hFile, TimeMessage, dwBytesToWrite, NULL, &strOverlapped);
-    if (bErrorFlag==FALSE)
-    {
-        return ;
-    }
-    CloseHandle(hFile);
-}
-
-
 // Hook declaration macro
 #define DECLARE_HOOK(id, ret, name, params)                                         \
     typedef ret (WINAPI *__TYPE__##name)params; /* Function pointer type        */  \
@@ -306,6 +265,9 @@ struct Config
     BYTE imgAlpha ;                //图片透明度 Image alpha
     std::vector<BitmapGDI*> imageList;  //背景图列表 background image list
 } m_config;                             //配置信息 config
+
+// Initialization flag (file-scope so Dispose() can reset it)
+volatile static long initialized = 0;
 
 #pragma endregion
 
@@ -622,28 +584,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
         // if (name == L"explorer.exe") InjectionEntryPoint();
     }
-    else if (ul_reason_for_call == DLL_PROCESS_DETACH)
-    {
-        /*for (auto& bmp : m_config.imageList)
-        {
-            delete bmp;
-        }*/
-
-
-		std::vector<BitmapGDI*>::iterator it;
-		for(it=m_config.imageList.begin();it!=m_config.imageList.end();it++)
-		{
-			delete &it;
-		}
-   
-        m_config.imageList.clear();
-        m_duiList.clear();
-    }
     return true;
 }
 
 int Initialize(CallbackStruct* cb) {
-    volatile static long initialized;
+    // initialized is now a file-scope variable
 	
 	// Log(L"Initialize");
 	// MessageBoxW(0, L"Initialize", L"Initialize", MB_ICONERROR);
@@ -783,13 +728,25 @@ int InitShellBrowserHook(IShellBrowser* psb) {
 }
 
 int Dispose() {
-    // Uninitialize MinHook.
+    // Disable all hooks before uninitializing
+    MH_DisableHook(NULL);
     MH_Uninitialize();
 
     // Free the Automation library
     if(hModAutomation != NULL) {
         FreeLibrary(hModAutomation);
+        hModAutomation = NULL;
     }
+
+    // Release BitmapGDI resources
+    for (auto& bmp : m_config.imageList) {
+        delete bmp;
+    }
+    m_config.imageList.clear();
+    m_duiList.clear();
+
+    // Reset initialized flag so the hook can be re-initialized if needed
+    InterlockedExchange(&initialized, 0);
 
     return S_OK;
 }
@@ -931,14 +888,8 @@ int WINAPI DetourFillRect(HDC hDC, const RECT* lprc, HBRUSH hbr)
 {
     int ret = fpFillRect(hDC, lprc, hbr);
 
-
-	// Box1(L"DetourFillRect in ");
     auto iter = m_duiList.find(GetCurrentThreadId());
 
-	if (iter->second.hDC == hDC )
-	{
-		// Box1(L" resolve hdc suc" );
-	}
     if (iter != m_duiList.end()) {
         if (iter->second.hDC == hDC && m_config.imageList.size())
         {
