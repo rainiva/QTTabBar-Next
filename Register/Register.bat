@@ -50,6 +50,8 @@ start taskmgr
 exit /b 0
 
 :ensure_registration_environment
+if /i "%QT_TABBAR_REGISTER_FORCE_NO_ENV%"=="1" exit /b 1
+
 call :has_usable_environment
 if not errorlevel 1 (
     set "REGISTER_ENV_SOURCE=current-shell"

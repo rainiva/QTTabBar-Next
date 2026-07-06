@@ -17,6 +17,12 @@ function Assert-NotContains([string]$Haystack, [string]$Needle, [string]$Message
     }
 }
 
+function Assert-Equal([object]$Actual, [object]$Expected, [string]$Message) {
+    if ($Actual -ne $Expected) {
+        throw "$Message`nExpected: $Expected`nActual:   $Actual"
+    }
+}
+
 $requiredMarkers = @(
     'set "SCRIPT_DIR=%~dp0"',
     ':ensure_registration_environment',
@@ -25,6 +31,7 @@ $requiredMarkers = @(
     ':try_vs2010',
     ':fail_no_environment',
     'QT_TABBAR_REGISTER_VALIDATE_ONLY',
+    'QT_TABBAR_REGISTER_FORCE_NO_ENV',
     'vswhere.exe',
     'for /f "usebackq delims=" %%I in (`"%VSWHERE_EXE%" -latest -products * -property installationPath`) do if not defined VS_INSTALL',
     'VS100COMNTOOLS',
@@ -42,4 +49,20 @@ foreach ($marker in $requiredMarkers) {
 
 Assert-NotContains $registerScript 'where regasm.exe 2^>nul' 'Generic regasm.exe lookup must not remain, because it can pick the wrong architecture.'
 
-Write-Host 'RegisterScriptVmCompat static checks passed.'
+$previousValidateOnly = $env:QT_TABBAR_REGISTER_VALIDATE_ONLY
+$previousForceNoEnv = $env:QT_TABBAR_REGISTER_FORCE_NO_ENV
+
+try {
+    $env:QT_TABBAR_REGISTER_VALIDATE_ONLY = '1'
+    $env:QT_TABBAR_REGISTER_FORCE_NO_ENV = '1'
+
+    $forcedFailureOutput = & cmd /c "call `"$registerScriptPath`" Release" 2>&1
+    Assert-Equal $LASTEXITCODE 1 'Validation-only forced failure must return exit code 1.'
+    Assert-Contains ($forcedFailureOutput -join "`n") 'Register environment bootstrap failed.' 'Validation-only forced failure must print the bootstrap failure banner.'
+    Assert-Contains ($forcedFailureOutput -join "`n") 'Developer Command Prompt' 'Validation-only forced failure must suggest rerunning from a Developer Command Prompt.'
+} finally {
+    $env:QT_TABBAR_REGISTER_VALIDATE_ONLY = $previousValidateOnly
+    $env:QT_TABBAR_REGISTER_FORCE_NO_ENV = $previousForceNoEnv
+}
+
+Write-Host 'RegisterScriptVmCompat tests passed.'
