@@ -38,15 +38,14 @@ namespace QTTabBarLib
     // public sealed class QTSecondViewBar : TabBarBase
     public sealed class QTSecondViewBar : TabBarBase
     {
-        internal ExplorerManager explorerManager;
+        internal ExplorerManager explorerManager = null;
         private Panel viewContainer;
         private Panel controlContainer;
         private SplitContainer addressBarContainer;
         private SplitContainer splitContainer;
-        private BreadcrumbBar breadCrumbs;
         // private FilterBox filterBox;
         private IContainer components;
-        internal ContextMenuStripEx contextMenuTab;
+        internal new ContextMenuStripEx contextMenuTab;
 
         // private QTabItem CurrentTab;
         // private BreadcrumbsAddressBar breadCrumbs;
@@ -54,7 +53,7 @@ namespace QTTabBarLib
 
         private const int VIEW_MIN_HEIGHT = 64;
         private bool fNowResizing;
-        private int prefSize;
+        private int prefSize = 0;
         private bool UserResizing;
         // private IntPtr ExplorerHandle;
         // private AbstractListView listView = new AbstractListView();
@@ -350,7 +349,7 @@ namespace QTTabBarLib
         }*/
 
    
-        protected void InitializeContextMenus()
+        private void InitializeContextMenus()
         {
             this.contextMenuTab = new ContextMenuStripEx(this.components, true);
             // this.contextMenuTab.ImageList = ;
@@ -370,9 +369,7 @@ namespace QTTabBarLib
             this.contextMenuBar.Closed += new ToolStripDropDownClosedEventHandler(this.contextMenuBar_Closed);*/
         }
 
-        private volatile bool FirstNavigationCompleted;
-
-        protected bool fShownDW;
+        private bool fShownDW;
         public override void ShowDW(bool fShow)
         {
             this.Visible = this.fShownDW = fShow;
@@ -495,9 +492,6 @@ namespace QTTabBarLib
             listViewManager.Initialize();
         }
 
-        private HookProc hookProc_GetMsg;
-        private HookProc hookProc_Key;
-        private HookProc hookProc_Mouse;
         private bool fHookInstalled;
 
         private WindowSubclass rebarWindowSubclass;
@@ -768,9 +762,9 @@ namespace QTTabBarLib
             }
         }
 
-        private IntPtr hHook_Key;
-        private IntPtr hHook_Mouse;
-        private IntPtr hHook_Msg;
+        private IntPtr hHook_Key = IntPtr.Zero;
+        private IntPtr hHook_Mouse = IntPtr.Zero;
+        private IntPtr hHook_Msg = IntPtr.Zero;
         /**
         * 注册快捷键的回调
         */
@@ -1142,7 +1136,7 @@ namespace QTTabBarLib
             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
         }
 
-        public Color HorizontalExplorerBarBackgroundColor
+        public new Color HorizontalExplorerBarBackgroundColor
         {
             get
             {
@@ -1150,7 +1144,7 @@ namespace QTTabBarLib
             }
         }
 
-        protected Color VerticalExplorerBarBackgroundColor
+        private new Color VerticalExplorerBarBackgroundColor
         {
             get
             {
@@ -1168,7 +1162,7 @@ namespace QTTabBarLib
             return 1;
         }
 
-        public bool IsVertical
+        public new bool IsVertical
         {
             get
             {
@@ -1176,7 +1170,7 @@ namespace QTTabBarLib
             }
         }
 
-        internal  bool IsBottomBar
+        internal new bool IsBottomBar
         {
             get
             {
@@ -1557,7 +1551,7 @@ namespace QTTabBarLib
             }
             return false;
         }*/
-        protected bool fEventsActivated;
+        private bool fEventsActivated;
 
         private void ActivateEvents(bool fActive)
         {
@@ -1586,7 +1580,7 @@ namespace QTTabBarLib
             }
         }
 
-        protected bool fProcessingStartups = true;
+        private bool fProcessingStartups = true;
         protected override void OnExplorerAttached()
         {
             QTUtility2.log("QTTabBarClass OnExplorerAttached");
@@ -1622,8 +1616,6 @@ namespace QTTabBarLib
         }
 
         private VisualStyleRenderer bgRenderer;
-        private bool isTabSubFolderMenuVisible;
-
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             if (VisualStyleRenderer.IsSupported)
@@ -1683,7 +1675,7 @@ namespace QTTabBarLib
         }
 
         private bool isFirst = true;
-        private bool isTabSubFolderMenuVisible1;
+        private bool isTabSubFolderMenuVisible1 = false;
 
         public void Activate()
         {
@@ -1714,7 +1706,7 @@ namespace QTTabBarLib
             string helpStr = QTUtility.IsChinese ? "左侧扩展视图" : (QTUtility.IsJapanese ? "左にさらにビューを追加します。" : "Extra View (left)");
             using (RegistryKey subKey = Registry.ClassesRoot.CreateSubKey(@"CLSID\" + name))
             {
-                subKey.SetValue(null, "");
+                subKey.SetValue(null, "QTTabBar");
                 subKey.SetValue("MenuText", (object)str);
                 subKey.SetValue("HelpText", (object)helpStr);
                 // 垂直资源管理器栏	CATID_InfoBand
@@ -1775,44 +1767,39 @@ namespace QTTabBarLib
 
         #region 标签栏事件区
         public RebarController rebarController;
-        protected string CurrentAddress;
-        protected QTabItem CurrentTab;
-        protected int BandHeight;
+        private string CurrentAddress = null;
+        private QTabItem CurrentTab;
+        private int BandHeight;
         public static int BandHeightSpace = 3;
-        protected ShellBrowserEx ShellBrowser;
+        private ShellBrowserEx ShellBrowser;
 
-        protected List<QTabItem> lstActivatedTabs = new List<QTabItem>(0x10);
-        protected IntPtr ExplorerHandle;
-        protected Dictionary<int, ITravelLogEntry> LogEntryDic = new Dictionary<int, ITravelLogEntry>();
-        protected AbstractListView listView = new AbstractListView();
-        protected ListViewMonitor listViewManager;
+        private List<QTabItem> lstActivatedTabs = new List<QTabItem>(0x10);
+        private IntPtr ExplorerHandle;
+        private Dictionary<int, ITravelLogEntry> LogEntryDic = new Dictionary<int, ITravelLogEntry>();
+        private AbstractListView listView = new AbstractListView();
+        private ListViewMonitor listViewManager;
 
-        protected List<ToolStripItem> lstPluginMenuItems_Sys;
-        protected List<ToolStripItem> lstPluginMenuItems_Tab;
-        protected ITravelLogStg TravelLog;
+        private ITravelLogStg TravelLog;
         public QTTabBarClass.PluginServer pluginServer { get; set; }
 
-        protected bool NavigatedByCode;
+        private bool NavigatedByCode;
 
-        protected bool NowTabsAddingRemoving;
-        protected bool NowInTravelLog;
-        protected bool NowModalDialogShown;
-        protected bool NowOpenedByGroupOpener;
-        protected bool NowTabCloned;
-        protected bool NowTabCreated;
-        protected bool NowTabDragging;
-        protected bool NowTopMost;
-        protected bool fNavigatedByTabSelection;
-        protected int CurrentTravelLogIndex;
-        protected int navBtnsFlag;
+        private bool NowTabsAddingRemoving;
+        private bool NowInTravelLog;
+        private bool NowModalDialogShown = false;
+        private bool NowTabCloned;
+        private bool NowTabCreated;
+        private bool fNavigatedByTabSelection;
+        private int CurrentTravelLogIndex;
+        private int navBtnsFlag;
         // TODO add fields
-        protected ToolStripClasses toolStrip;
-        protected ToolStripButton buttonBack;
-        protected ToolStripButton buttonForward;
-        protected ToolStripDropDownButton buttonNavHistoryMenu;
-        protected IntPtr TravelToolBarHandle;
+        private ToolStripClasses toolStrip = null;
+        private ToolStripButton buttonBack = null;
+        private ToolStripButton buttonForward = null;
+        private ToolStripDropDownButton buttonNavHistoryMenu = null;
+        private IntPtr TravelToolBarHandle = IntPtr.Zero;
 
-        protected void AddToHistory(QTabItem closingTab)
+        private void AddToHistory(QTabItem closingTab)
         {
             string currentPath = closingTab.CurrentPath;
             if ((Config.Misc.KeepHistory && !string.IsNullOrEmpty(currentPath)) && !IsSearchResultFolder(currentPath))
@@ -1836,12 +1823,12 @@ namespace QTTabBarLib
 
      
         // TODO: Optional params
-        protected bool CloseTab(QTabItem closingTab)
+        private bool CloseTab(QTabItem closingTab)
         {
             return ((tabControl1.TabCount > 1) && CloseTab(closingTab, false));
         }
 
-        protected void ShowMessageNavCanceled(string failedPath, bool fModal)
+        private void ShowMessageNavCanceled(string failedPath, bool fModal)
         {
             QTUtility2.log("QTTabBarClass ShowMessageNavCanceled: " + failedPath);
             QTUtility2.MakeErrorLog(null, string.Format("Failed navigation: {0}", failedPath));
@@ -1856,7 +1843,7 @@ namespace QTTabBarLib
             }
         }
 
-        protected void CancelFailedTabChanging(string newPath)
+        private void CancelFailedTabChanging(string newPath)
         {
             if (!CloseTab(tabControl1.SelectedTab, true))
             {
@@ -1899,7 +1886,7 @@ namespace QTTabBarLib
             }
         }
 
-        protected bool NavigateToPastSpecialDir(int hash)
+        private bool NavigateToPastSpecialDir(int hash)
         {
             IEnumTravelLogEntry ppenum = null;
             try
@@ -1957,7 +1944,7 @@ namespace QTTabBarLib
           在 QTTabBarLib.ShellBrowserEx.Navigate(IDLWrapper idlw, SBSP flags)
           在 QTTabBarLib.QTTabBarClass.tabControl1_SelectedIndexChanged(Object sender, EventArgs e)
         */
-        protected void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
             QTabItem selectedTab = tabControl1.SelectedTab;
             string currentPath = selectedTab.CurrentPath;
@@ -2049,7 +2036,7 @@ namespace QTTabBarLib
             QTUtility2.log("tabControl1_SelectedIndexChanged end");
         }
 
-        protected void SyncTravelState()
+        private void SyncTravelState()
         {
             if (CurrentTab != null)
             {
@@ -2080,7 +2067,7 @@ namespace QTTabBarLib
             }
         }
 
-        protected bool IsSpecialFolderNeedsToTravel(string path)
+        private bool IsSpecialFolderNeedsToTravel(string path)
         {
             int index = path.IndexOf("*?*?*");
             if (index != -1)
@@ -2111,13 +2098,13 @@ namespace QTTabBarLib
             return path.PathStartsWith(QTUtility.IsXP ? QTUtility.ResMisc[2] : QTUtility.PATH_SEARCHFOLDER);
         }
 
-        protected void tabControl1_RowCountChanged(object sender, QEventArgs e)
+        private void tabControl1_RowCountChanged(object sender, QEventArgs e)
         {
             SetBarRows(e.RowCount);
         }
 
 
-        protected void SetBarRows(int count)
+        private void SetBarRows(int count)
         {
             QTUtility2.log("QTTabBarClass SetBarRows");
             // BandHeight = (count * (Config.Skin.TabHeight - 3 )) ;
@@ -2146,7 +2133,7 @@ System.NullReferenceException: 未将对象引用设置到对象的实例。
             }
         }
 
-        protected void tabControl1_Deselecting(object sender, QTabCancelEventArgs e)
+        private void tabControl1_Deselecting(object sender, QTabCancelEventArgs e)
         {
             if (e.TabPageIndex != -1)
             {
@@ -2157,7 +2144,7 @@ System.NullReferenceException: 未将对象引用设置到对象的实例。
         /**
          * 保存选中项
          */
-        protected void SaveSelectedItems(QTabItem tab)
+        private void SaveSelectedItems(QTabItem tab)
         {
             Address[] addressArray;
             string str;
@@ -2174,7 +2161,7 @@ System.NullReferenceException: 未将对象引用设置到对象的实例。
         }
 
 
-        protected void tabControl1_Selecting(object sender, QTabCancelEventArgs e)
+        private void tabControl1_Selecting(object sender, QTabCancelEventArgs e)
         {
             if (NowTabsAddingRemoving)
             {

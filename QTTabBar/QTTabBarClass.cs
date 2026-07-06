@@ -416,7 +416,7 @@ namespace QTTabBarLib {
             contextMenuDropped.Show(MousePosition);
         }
 
-        // TODO: Kill this.
+        // Async callback for FolderTree thread completion
         private void AsyncComplete_FolderTree(IAsyncResult ar) {
             AsyncResult result = (AsyncResult)ar;
             ((WaitTimeoutCallback)result.AsyncDelegate).EndInvoke(ar);
@@ -2366,7 +2366,7 @@ namespace QTTabBarLib {
         // �˺�����BeforeNavigate2����(on XP and Vista)
         // or NavigateComplete2 (on 7)
         private void DoFirstNavigation(bool before, string path) {
-            // TODO: sort out this mess  ����һ����������
+            // Handles first navigation: checks for pending create-window paths  ����һ����������
             if(StaticReg.CreateWindowPaths.Count > 0 || StaticReg.CreateWindowIDLs.Count > 0) {
                 QTUtility2.log("DoFirstNavigation StaticReg.CreateWindowPaths.Count " + StaticReg.CreateWindowPaths.Count + " StaticReg.CreateWindowIDLs.Count:" + StaticReg.CreateWindowIDLs.Count);
                 foreach (string tpath in StaticReg.CreateWindowPaths.Where(str2 => !str2.PathEquals(path))) {

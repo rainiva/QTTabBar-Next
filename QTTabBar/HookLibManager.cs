@@ -324,7 +324,12 @@ namespace QTTabBarLib {
         }
 
         public static void CheckHooks() {
-            // TODO
+            if(!LoadedHook || hHookLib == IntPtr.Zero) return;
+            for(int i = 0; i < hookStatus.Length; i++) {
+                if(hookStatus[i] != 0) {
+                    QTUtility2.flog("Hook " + ((Hooks)i) + " status: " + hookStatus[i]);
+                }
+            }
         }
     }
 }
