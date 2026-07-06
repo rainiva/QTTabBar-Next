@@ -25,8 +25,7 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     public static class HookLibManager {
-        private static bool fShellBrowserIsHooked;
-        private static IntPtr hHookLib;
+        // Hook state fields moved to HookStateManager for unified state management
         private static int[] hookStatus = Enumerable.Repeat(-1, Enum.GetNames(typeof(Hooks)).Length).ToArray();
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -89,20 +88,20 @@ namespace QTTabBarLib {
 
         public static void Initialize_bgtool()
         {
-            if (hHookLib != IntPtr.Zero) return;
+            if (HookStateManager.Handle != IntPtr.Zero) return;
             string installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar");
             // string filename = IntPtr.Size == 8 ? "QTHookLib64.dll" : "QTHookLib32.dll";
             string filename =  "ExplorerBgTool.dll";
-            hHookLib = PInvoke.LoadLibrary(Path.Combine(installPath, filename));
+            HookStateManager.SetHandle(PInvoke.LoadLibrary(Path.Combine(installPath, filename)));
             int retcode = -1;
-            if (hHookLib == IntPtr.Zero)
+            if (HookStateManager.Handle == IntPtr.Zero)
             {
                 int error = Marshal.GetLastWin32Error();
                 QTUtility2.MakeErrorLog(null, "LoadLibrary error: " + error);
             }
             else
             {
-                IntPtr pFunc = PInvoke.GetProcAddress(hHookLib, "OnWindowLoad");
+                IntPtr pFunc = PInvoke.GetProcAddress(HookStateManager.Handle, "OnWindowLoad");
                 if (pFunc != IntPtr.Zero)
                 {
                     InitHookLibDelegate initialize = (InitHookLibDelegate)
@@ -139,14 +138,13 @@ namespace QTTabBarLib {
             );
         }
 
-        private static Boolean LoadedHook = false;
 
         public static void Initialize()
         {
             QTUtility2.flog("Win11Probe HookLibManager.Initialize.Start");
             try
             {
-                if (LoadedHook)
+                if (HookStateManager.IsLoaded)
                 {
                     return;
                 }
@@ -162,52 +160,52 @@ namespace QTTabBarLib {
                 bool isServer = productName.ToLower().Contains("server");
                 if(isServer) {
                     QTUtility2.log("can not hook in server by registry check");
-                    LoadedHook = false;
+                    HookStateManager.SetLoaded(false);
                     return;
                 }
             }
             catch (Exception)
             {   
                 QTUtility2.log("can not hook in server by registry check exception");
-                LoadedHook = false;
+                HookStateManager.SetLoaded(false);
                 return;
             }
 
             string installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar");
             string filename = IntPtr.Size == 8 ? "QTHookLib64.dll" : "QTHookLib32.dll";
-            if (hHookLib != IntPtr.Zero)
+            if (HookStateManager.Handle != IntPtr.Zero)
             {
                    if (!Config.Window.AutoHookWindow)
                    {
-                        PInvoke.FreeLibrary(hHookLib);
-                        hHookLib = IntPtr.Zero;
+                        PInvoke.FreeLibrary(HookStateManager.Handle);
+                        HookStateManager.SetHandle(IntPtr.Zero);
                    }
                 return;
             }
 
             if (!Config.Window.AutoHookWindow)
             {
-                LoadedHook = false;
+                HookStateManager.SetLoaded(false);
                 return;
             }
 
             if (!File.Exists(Path.Combine(installPath, filename)))
             {
                 QTUtility2.flog("not exists file , close auto hook " + Path.Combine(installPath, filename));
-                LoadedHook = false;
+                HookStateManager.SetLoaded(false);
                 return;
             }
             QTUtility2.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
             QTUtility2.flog("load library " + Path.Combine(installPath, filename) );
-            hHookLib = PInvoke.LoadLibrary(Path.Combine(installPath, filename));
-            QTUtility2.flog("load library hHookLib " + hHookLib);
+            HookStateManager.SetHandle(PInvoke.LoadLibrary(Path.Combine(installPath, filename)));
+            QTUtility2.flog("load library hHookLib " + HookStateManager.Handle);
             int retcode = -1;
-            if(hHookLib == IntPtr.Zero) {
+            if(HookStateManager.Handle == IntPtr.Zero) {
                 int error = Marshal.GetLastWin32Error();
                 QTUtility2.MakeErrorLog(null, "LoadLibrary error: " + error);
             }
             else {
-                IntPtr pFunc = PInvoke.GetProcAddress(hHookLib, "Initialize");
+                IntPtr pFunc = PInvoke.GetProcAddress(HookStateManager.Handle, "Initialize");
                 if(pFunc != IntPtr.Zero) {
                     InitHookLibDelegate initialize = (InitHookLibDelegate) 
                         Marshal.GetDelegateForFunctionPointer(pFunc, typeof(InitHookLibDelegate));
@@ -217,20 +215,20 @@ namespace QTTabBarLib {
                     }
                     catch(Exception e) {
                         QTUtility2.MakeErrorLog(e, "");
-                        LoadedHook = false;
+                        HookStateManager.SetLoaded(false);
                     }
                 }
             }
 
             if (retcode == 0)
             {
-                LoadedHook = true;
+                HookStateManager.SetLoaded(true);
                 QTUtility2.log("HookLib Initialize success");
                 // MessageBox.Show("HookLib Initialize success");
                 return;
             }
             QTUtility2.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
-            LoadedHook = false;
+            HookStateManager.SetLoaded(false);
             MessageForm.Show(IntPtr.Zero,
                 String.Format(
                     "{0}: {1} {2}",
@@ -285,8 +283,8 @@ namespace QTTabBarLib {
             QTUtility2.flog("Win11Probe HookLibManager.InitShellBrowserHook.Start");
             lock (typeof(HookLibManager))
             {
-                if(fShellBrowserIsHooked || hHookLib == IntPtr.Zero) return;
-                IntPtr pFunc = PInvoke.GetProcAddress(hHookLib, "InitShellBrowserHook");
+                if(HookStateManager.ShellBrowserHooked || HookStateManager.Handle == IntPtr.Zero) return;
+                IntPtr pFunc = PInvoke.GetProcAddress(HookStateManager.Handle, "InitShellBrowserHook");
                 if(pFunc == IntPtr.Zero) return;
                 InitShellBrowserHookDelegate initShellBrowserHook = (InitShellBrowserHookDelegate)
                         Marshal.GetDelegateForFunctionPointer(pFunc, typeof(InitShellBrowserHookDelegate));
@@ -318,13 +316,13 @@ namespace QTTabBarLib {
                     );
                 }
                 else {
-                    fShellBrowserIsHooked = true;
+                    HookStateManager.SetShellBrowserHooked(true);
                 }
             }
         }
 
         public static void CheckHooks() {
-            if(!LoadedHook || hHookLib == IntPtr.Zero) return;
+            if(!HookStateManager.IsLoaded || HookStateManager.Handle == IntPtr.Zero) return;
             for(int i = 0; i < hookStatus.Length; i++) {
                 if(hookStatus[i] != 0) {
                     QTUtility2.flog("Hook " + ((Hooks)i) + " status: " + hookStatus[i]);
