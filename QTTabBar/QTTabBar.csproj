@@ -366,6 +366,9 @@
         <Compile Include="HookStateManager.cs" />
             <Compile Include="Logger.cs" />
             <Compile Include="SerializationHelper.cs" />
+                <Compile Include="SelectionTracker.cs" />
+                <Compile Include="ButtonBarRegistry.cs" />
+                <Compile Include="TabInstanceRegistry.cs" />
     <Compile Include="GroupsManager.cs" />
     <Compile Include="HookLibManager.cs" />
     <Compile Include="Interop\BROWSEINFO.cs" />

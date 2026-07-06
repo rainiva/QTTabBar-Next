@@ -8,89 +8,139 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ThreadSafetyTests {
 
-        #region 4.1 — GetSelect flag isolation
+        #region 4.1 — Selection tracking normal operation
 
         [Test]
-        public void GetSelect_Works_When_Timer_Flag_Is_Set() {
-            // Arrange: store a value
+        public void GetSelect_Returns_Stored_Value() {
+            // Arrange
             var testList = new List<string> { "file1.txt", "file2.txt" };
             InstanceManager.PutSelect("test_key_ts1", testList);
 
-            // Simulate timer running by setting inTimer=1 via reflection
-            var imType = typeof(InstanceManager);
-            var inTimerField = imType.GetField("inTimer", BindingFlags.NonPublic | BindingFlags.Static);
-            Assert.IsNotNull(inTimerField, "inTimer field should exist");
-            inTimerField.SetValue(null, 1);
-
             try {
-                // Act: GetSelect should still return the stored value
-                // (currently fails because GetSelect reuses inTimer and returns null)
+                // Act
                 var result = InstanceManager.GetSelect("test_key_ts1");
 
                 // Assert
                 Assert.IsNotNull(result,
-                    "GetSelect should return stored value even when timer flag is set");
+                    "GetSelect should return stored value under normal conditions");
                 CollectionAssert.AreEqual(testList, result);
             }
             finally {
                 // Cleanup
-                inTimerField.SetValue(null, 0);
                 InstanceManager.RemoveSelect("test_key_ts1");
             }
         }
 
         [Test]
-        public void PutSelect_Works_When_Timer_Flag_Is_Set() {
-            var imType = typeof(InstanceManager);
-            var inTimerField = imType.GetField("inTimer", BindingFlags.NonPublic | BindingFlags.Static);
-            Assert.IsNotNull(inTimerField, "inTimer field should exist");
-
+        public void PutSelect_Stores_Value_Correctly() {
             var testList = new List<string> { "fileA.txt" };
 
-            // Simulate timer running
-            inTimerField.SetValue(null, 1);
+            InstanceManager.PutSelect("test_key_ts2", testList);
 
             try {
-                // PutSelect should still work (uses inSelectDict, not inTimer)
-                InstanceManager.PutSelect("test_key_ts2", testList);
+                // Verify it was stored
+                var result = InstanceManager.GetSelect("test_key_ts2");
+                Assert.IsNotNull(result,
+                    "PutSelect should store value under normal conditions");
+                CollectionAssert.AreEqual(testList, result);
             }
             finally {
-                inTimerField.SetValue(null, 0);
+                InstanceManager.RemoveSelect("test_key_ts2");
             }
-
-            // Verify it was stored
-            var result = InstanceManager.GetSelect("test_key_ts2");
-            Assert.IsNotNull(result,
-                "PutSelect should store value even when timer flag is set");
-            CollectionAssert.AreEqual(testList, result);
-
-            // Cleanup
-            InstanceManager.RemoveSelect("test_key_ts2");
         }
 
         [Test]
-        public void RemoveSelect_Works_When_Timer_Flag_Is_Set() {
-            var imType = typeof(InstanceManager);
-            var inTimerField = imType.GetField("inTimer", BindingFlags.NonPublic | BindingFlags.Static);
-
+        public void RemoveSelect_Removes_Value_Correctly() {
             // Store a value first
             InstanceManager.PutSelect("test_key_ts3", new List<string> { "x" });
 
-            // Simulate timer running
-            inTimerField.SetValue(null, 1);
-
-            try {
-                // RemoveSelect should still work (uses inSelectDict, not inTimer)
-                InstanceManager.RemoveSelect("test_key_ts3");
-            }
-            finally {
-                inTimerField.SetValue(null, 0);
-            }
+            // Remove it
+            InstanceManager.RemoveSelect("test_key_ts3");
 
             // Verify it was removed
             var result = InstanceManager.GetSelect("test_key_ts3");
             Assert.IsNull(result,
-                "RemoveSelect should remove value even when timer flag is set");
+                "RemoveSelect should remove value under normal conditions");
+        }
+
+        #endregion
+
+        #region 4.1b — Selection tracking reentrancy guard
+
+        [Test]
+        public void GetSelect_Returns_Null_When_Reentrancy_Detected() {
+            // Arrange: store a value
+            var testList = new List<string> { "file1.txt" };
+            InstanceManager.PutSelect("test_key_ts4", testList);
+
+            // Simulate reentrancy by setting inSelectDict=1 via reflection
+            var stType = typeof(SelectionTracker);
+            var inSelectDictField = stType.GetField("inSelectDict", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(inSelectDictField, "inSelectDict field should exist in SelectionTracker");
+            inSelectDictField.SetValue(null, 1);
+
+            try {
+                // Act: GetSelect should return null when reentrancy is detected
+                var result = InstanceManager.GetSelect("test_key_ts4");
+
+                // Assert
+                Assert.IsNull(result,
+                    "GetSelect should return null when reentrancy is detected");
+            }
+            finally {
+                // Cleanup
+                inSelectDictField.SetValue(null, 0);
+                InstanceManager.RemoveSelect("test_key_ts4");
+            }
+        }
+
+        [Test]
+        public void PutSelect_Skips_When_Reentrancy_Detected() {
+            var stType = typeof(SelectionTracker);
+            var inSelectDictField = stType.GetField("inSelectDict", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(inSelectDictField, "inSelectDict field should exist in SelectionTracker");
+
+            // Simulate reentrancy
+            inSelectDictField.SetValue(null, 1);
+
+            try {
+                // PutSelect should be a no-op because reentrancy is detected
+                InstanceManager.PutSelect("test_key_ts5", new List<string> { "skipped" });
+            }
+            finally {
+                inSelectDictField.SetValue(null, 0);
+            }
+
+            // Verify it was NOT stored (because PutSelect was skipped)
+            var result = InstanceManager.GetSelect("test_key_ts5");
+            Assert.IsNull(result,
+                "PutSelect should skip when reentrancy is detected");
+        }
+
+        [Test]
+        public void RemoveSelect_Skips_When_Reentrancy_Detected() {
+            // Store a value first
+            InstanceManager.PutSelect("test_key_ts6", new List<string> { "x" });
+
+            var stType = typeof(SelectionTracker);
+            var inSelectDictField = stType.GetField("inSelectDict", BindingFlags.NonPublic | BindingFlags.Static);
+            inSelectDictField.SetValue(null, 1);
+
+            try {
+                // RemoveSelect should be a no-op because reentrancy is detected
+                InstanceManager.RemoveSelect("test_key_ts6");
+            }
+            finally {
+                inSelectDictField.SetValue(null, 0);
+            }
+
+            // Verify it was NOT removed (because RemoveSelect was skipped)
+            var result = InstanceManager.GetSelect("test_key_ts6");
+            Assert.IsNotNull(result,
+                "RemoveSelect should skip when reentrancy is detected");
+
+            // Cleanup
+            InstanceManager.RemoveSelect("test_key_ts6");
         }
 
         #endregion
