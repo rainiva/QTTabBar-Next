@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -37,6 +38,11 @@ namespace QTTabBarLib {
                         object obj = binaryFormatter.Deserialize(memStream);
                         return obj;
                     }
+                }
+                catch(SerializationException serializationException) {
+                    // A blocked/non-whitelisted or malformed payload: degrade gracefully.
+                    QTUtility2.MakeErrorLog(serializationException, "ByteArrayToObject: rejected or malformed serialized payload");
+                    return null;
                 }
                 catch(Exception exception) {
                     QTUtility2.MakeErrorLog(exception, "ByteArrayToObject:" + Encoding.Default.GetString(arrBytes));
