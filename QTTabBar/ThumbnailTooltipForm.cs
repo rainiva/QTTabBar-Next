@@ -1393,7 +1393,7 @@ namespace QTTabBarLib {
                             fCached = true;
                         }
                         if(ppvThumb.Detach(out ptr2) == 0) {
-                            Bitmap bmp = Image.FromHbitmap(ptr2);
+                            Bitmap bmp = CreateManagedBitmapAndReleaseHandle(ptr2, Image.FromHbitmap, PInvoke.DeleteObject);
                             Size size = bmp.Size;
                             sizeRaw = sizeActual = size;
                             ImageData data = new ImageData(bmp, null, path, dtLastWriteTime, size, size);
@@ -1455,7 +1455,7 @@ namespace QTTabBarLib {
                         Size prgSize = new Size(Config.Tips.PreviewMaxWidth, Config.Tips.PreviewMaxHeight);
                         int pdwFlags = 0x60;
                         if(((image.GetLocation(pszPathBuffer, pszPathBuffer.Capacity, ref pdwPriority, ref prgSize, 0x18, ref pdwFlags) == 0) && (image.Extract(out ptr2) == 0)) && (ptr2 != IntPtr.Zero)) {
-                            Bitmap bmp = Image.FromHbitmap(ptr2);
+                            Bitmap bmp = CreateManagedBitmapAndReleaseHandle(ptr2, Image.FromHbitmap, PInvoke.DeleteObject);
                             Size size = bmp.Size;
                             sizeRaw = sizeActual = size;
                             ImageData data = new ImageData(bmp, null, path, dtLastWriteTime, size, size);
@@ -1489,6 +1489,19 @@ namespace QTTabBarLib {
                 }
             }
             return null;
+        }
+
+        // 由非托管 HBITMAP 生成托管 Bitmap，并删除原始 HBITMAP 句柄，避免 GDI 句柄泄漏。
+        //
+        // 所有权：IShellItemImageFactory/ISharedBitmap.Detach 或 IExtractImage.Extract 返回的
+        // HBITMAP 归调用方所有。Image.FromHbitmap 会把像素数据拷贝进一个新的 GDI+ Bitmap，
+        // 与原始 HBITMAP 不再共享像素，因此拷贝完成后立即 DeleteObject 原始句柄是安全且必需的。
+        // 委托参数用于测试注入（可断言删除是否发生、发生几次、针对哪个句柄）。
+        internal static Bitmap CreateManagedBitmapAndReleaseHandle(
+                IntPtr hBitmap, Func<IntPtr, Bitmap> fromHbitmap, Func<IntPtr, bool> deleteObject) {
+            Bitmap bmp = fromHbitmap(hBitmap);
+            deleteObject(hBitmap);
+            return bmp;
         }
 
         internal static List<string> MakeDefaultImgExts() {

@@ -163,7 +163,10 @@ namespace QTTabBarLib {
                 }
             }
             finally {
-                if(ppidl != IntPtr.Zero && !noAppend) {
+                // ppidl 所有权：noAppend 分支已将原始 ppidl 交给 new IDLWrapper(ppidl)，
+                // 不能在此重复释放（否则二次释放）；非 noAppend 路径已将 ppidl
+                // ILCombine 成新的 PIDL（由 wrapper 持有），原始 ppidl 必须在此释放。
+                if(ShouldFreeRawPidl(ppidl == IntPtr.Zero, noAppend)) {
                     PInvoke.CoTaskMemFree(ppidl);
                 }
             }
@@ -214,7 +217,7 @@ namespace QTTabBarLib {
                 IShellView ppshv;
                 if (shellBrowser.QueryActiveShellView(out ppshv) == 0)
                 {
-                    folderView = ppshv as IFolderView;
+                    folderView = AcquireFolderViewFromShellView(ppshv);
                 }
             }
             QTUtility2.log(" GetSelectedCount folderView is null ? " + (folderView == null) ); // 测试是否未空？  by indiff
@@ -268,6 +271,37 @@ namespace QTTabBarLib {
                    0 == shellBrowser.GetControlWindow(3, out hwnd);
         }
 
+        // 从活动的 IShellView 获取 IFolderView，并释放不再需要的 IShellView 接口引用。
+        //
+        // 所有权：IShellBrowser.QueryActiveShellView 会对返回的 ppshv 做 AddRef（创建一个
+        // 引用计数为 1 的 RCW）。将其强转为 IFolderView 会在同一 COM 身份上做 QueryInterface，
+        // CLR 返回同一个 RCW 并将其托管引用计数增至 2。因此必须在此恰好释放一次
+        // ppshv 引用，使得只剩下 folderView 持有的那一个引用；folderView 仍可正常使用，
+        // 将在 Dispose/下次 OnNavigateComplete 时释放。若强转失败（对象不是 IFolderView），
+        // 仍需释放 ppshv，避免汄漏 COM 引用。
+        internal static IFolderView AcquireFolderViewFromShellView(object ppshv, Func<object, string, int> releaser = null) {
+            if(ppshv == null) {
+                return null;
+            }
+            if(releaser == null) {
+                releaser = ComReleaseHelper.SafeReleaseComObject;
+            }
+            IFolderView folderView = ppshv as IFolderView;
+            releaser(ppshv, "OnNavigateComplete ppshv");
+            return folderView;
+        }
+
+        // 判定 GetItem 的 finally 是否应释放 IFolderView.Item 返回的原始 PIDL。
+        //   - PIDL 为空         -> 无需释放。
+        //   - noAppend         -> 所有权已交给返回的 IDLWrapper(ppidl)，在此释放会造成二次释放。
+        //   - append 路径      -> 原始 PIDL 已被 ILCombine 成新 PIDL（由 wrapper 持有），原始必须释放。
+        internal static bool ShouldFreeRawPidl(bool ppidlIsZero, bool noAppend) {
+            if(ppidlIsZero) {
+                return false;
+            }
+            return !noAppend;
+        }
+
         // Call this on navigate to refresh the FolderView
         // 当导航的时候刷新文件夹视图
         public void OnNavigateComplete() {
@@ -286,7 +320,7 @@ namespace QTTabBarLib {
                     IShellView ppshv;
                     if (shellBrowser.QueryActiveShellView(out ppshv) == 0)
                     {
-                        folderView = ppshv as IFolderView;
+                        folderView = AcquireFolderViewFromShellView(ppshv);
                     }
                 }
 

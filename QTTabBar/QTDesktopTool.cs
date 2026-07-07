@@ -365,6 +365,42 @@ namespace QTTabBarLib {
                 shellViewListener = null;
             }
 
+            // #3 反订阅：InitializeComponent 中为各菜单/下拉挂接的 ItemClicked 等事件无对应 -=，
+            // 在关闭点统一反订阅，避免菜单对 this 的事件引用长期驻留。
+            if(contextMenu != null) {
+                contextMenu.ItemClicked -= dropDowns_ItemClicked;
+                contextMenu.Closing -= contextMenu_Closing;
+                contextMenu.ReorderFinished -= contextMenu_ReorderFinished;
+                contextMenu.ItemRightClicked -= dropDowns_ItemRightClicked;
+            }
+            if(ddmrGroups != null) {
+                ddmrGroups.ReorderFinished -= dropDowns_ReorderFinished;
+                ddmrGroups.ItemClicked -= dropDowns_ItemClicked;
+                ddmrGroups.ItemRightClicked -= dropDowns_ItemRightClicked;
+            }
+            if(ddmrHistory != null) {
+                ddmrHistory.ItemClicked -= dropDowns_ItemClicked;
+                ddmrHistory.ItemRightClicked -= dropDowns_ItemRightClicked;
+            }
+            if(ddmrUserapps != null) {
+                ddmrUserapps.ReorderFinished -= dropDowns_ReorderFinished;
+                ddmrUserapps.ItemClicked -= dropDowns_ItemClicked;
+                ddmrUserapps.ItemRightClicked -= dropDowns_ItemRightClicked;
+            }
+            if(ddmrRecentFile != null) {
+                ddmrRecentFile.ItemClicked -= dropDowns_ItemClicked;
+                ddmrRecentFile.ItemRightClicked -= dropDowns_ItemRightClicked;
+            }
+            if(tsmiExperimental != null) {
+                tsmiExperimental.DropDownItemClicked -= tsmiExperimental_DropDownItemClicked;
+                tsmiExperimental.DropDownOpening -= tsmiExperimental_DropDownOpening;
+            }
+            if(contextMenuForSetting != null) {
+                contextMenuForSetting.ItemClicked -= contextMenuForSetting_ItemClicked;
+            }
+            MouseClick -= desktopTool_MouseClick;
+            MouseDoubleClick -= desktopTool_MouseDoubleClick;
+
             base.CloseDW(dwReserved);
         }
 

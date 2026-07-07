@@ -130,10 +130,32 @@ namespace QTTabBarLib {
         #region IDisposable Members
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
             if(fDisposed) return;
-            if(CurrentListView != null) {
-                CurrentListView.Dispose();
-                CurrentListView = null;
+            if(disposing) {
+                // #2 反订阅：构造函数里 ContainerController.MessageCaptured += ContainerController_MessageCaptured
+                // 无对应 -=。与 ExtendedListViewCommon 既有安全做法一致：先 -= 断开委托再置空引用，
+                // 子类化解除交由窗口 WM_NCDESTROY 自动完成（不调用 ReleaseHandle）。
+                if(ContainerController != null) {
+                    ContainerController.MessageCaptured -= ContainerController_MessageCaptured;
+                    ContainerController = null;
+                }
+                // #2 反订阅：RecaptureHandles 里 CurrentListView.ListViewDestroyed += ListView_Destroyed
+                // 无对应 -=，销毁前先反订阅再释放。
+                if(CurrentListView != null) {
+                    CurrentListView.ListViewDestroyed -= ListView_Destroyed;
+                    CurrentListView.Dispose();
+                    CurrentListView = null;
+                }
+                if(PreviousListView != null) {
+                    PreviousListView.ListViewDestroyed -= ListView_Destroyed;
+                    PreviousListView.Dispose();
+                    PreviousListView = null;
+                }
             }
             fDisposed = true;
         }

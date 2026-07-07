@@ -89,10 +89,17 @@ namespace QTTabBarLib {
             }
         }
 
-        // The real ReleaseHandle is unsafe.  NEVER EVER EVER call it!
-        // Just clear the event subscription list instead.
+        // #4 句柄释放评估结论：
+        // 这些 NativeWindowController 子类化的是 Explorer 自身的窗口（SysListView32 /
+        // SHELLDLL_DefView / ShellTabWindowClass / Edit 等），这些窗口同时还被 QTHookLib
+        // 原生子类化。若在此强行调用 base.ReleaseHandle()（经 SetWindowLong 恢复窗口过程），
+        // 可能与原生子类化的过程链相互破坏，因此保留“不调用 base”的原设计。真正的子类化
+        // 解除由窗口销毁时的 WM_NCDESTROY 经 base.WndProc 自动完成，不会长期泄漏。
+        // 这里负责托管侧清理：断开事件委托链，并清零保存的外部句柄，避免残留已释放的死
+        // 句柄；可安全重复调用（幂等）。
         public override void ReleaseHandle() {
             MessageCaptured = null;
+            OptionalHandle = IntPtr.Zero;
         }
 
         public IntPtr OptionalHandle { get; set; }
