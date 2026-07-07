@@ -23,6 +23,7 @@ using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using QTPluginLib;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using QTPlugin;
@@ -243,6 +244,11 @@ namespace QTTabBarLib {
                 }
             }
             else {
+
+                if(!path.StartsWith(IDLWrapper.INDICATOR_NAMESPACE) && !SafeLaunch.IsAllowedLaunchTarget(path)) {
+                    QTUtility2.MakeErrorLog(null, "AppsManager blocked ShellExecute target: " + path);
+                    return;
+                }
 
                 // check whether target exists if link
                 using(IDLWrapper idlw = new IDLWrapper(path)) {

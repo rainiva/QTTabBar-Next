@@ -24,6 +24,7 @@ using System.Linq;
 using System.Media;
 using System.Threading;
 using System.Runtime.InteropServices;
+using QTPluginLib;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using BandObjectLib;
@@ -1022,17 +1023,21 @@ namespace QTTabBarLib {
             else {
                 // todo: is this right?
                 try {
-                    Process.Start(new ProcessStartInfo(clickedItem.Path) {
-                        WorkingDirectory = Path.GetDirectoryName(clickedItem.Path) ?? "",
-                        ErrorDialog = true,
-                        ErrorDialogParentHandle = IntPtr.Zero
-                    });
-                    if(Config.Misc.KeepRecentFiles) {
-                        StaticReg.ExecutedPathsList.Add(clickedItem.Path);
+                    Process process;
+                    if(SafeLaunch.TryStart(clickedItem.Path, out process, startInfo => {
+                        startInfo.ErrorDialog = true;
+                        startInfo.ErrorDialogParentHandle = IntPtr.Zero;
+                    })) {
+                        using(process) {
+                            if(Config.Misc.KeepRecentFiles) {
+                                StaticReg.ExecutedPathsList.Add(clickedItem.Path);
+                            }
+                        }
                     }
                 }
-                catch {
-                }   
+                catch(Exception ex) {
+                    QTUtility2.MakeErrorLog(ex, "QTDesktopTool item click launch");
+                }
             }
         }
 

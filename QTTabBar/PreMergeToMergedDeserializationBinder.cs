@@ -22,13 +22,19 @@ namespace QTTabBarLib
         {
             String exeAssembly = Assembly.GetExecutingAssembly().FullName;
 
-            QTUtility2.log("PreMergeToMergedDeserializationBinder exeAssembly:" + exeAssembly + " typeName: " + typeName);
+            QTUtility2.log("PreMergeToMergedDeserializationBinder typeName: " + typeName);
 
-            // Legacy FMDServiceProxy namespace migration (whitelisted).
+            // Legacy FMDServiceProxy namespace migration (only when assembly is present).
             if (typeName != null && typeName.Contains("Entities."))
             {
                 string migrated = typeName.Replace("Entities", "FMDService");
-                return Type.GetType("FMDServiceProxy." + migrated + ", FMDServiceProxy, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null");
+                Type fmdType = Type.GetType(
+                    "FMDServiceProxy." + migrated + ", FMDServiceProxy, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null",
+                    false);
+                if (fmdType != null)
+                {
+                    return fmdType;
+                }
             }
 
             // QTTabBarLib types (SerializeDelegate, the nested AnonymousClassWrapper,

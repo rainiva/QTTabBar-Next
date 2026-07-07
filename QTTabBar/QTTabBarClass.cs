@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
+using QTPluginLib;
 using System.Windows.Forms.VisualStyles;
 using BandObjectLib;
 using Microsoft.Win32;
@@ -2186,16 +2186,18 @@ namespace QTTabBarLib {
 
         private void cmdPath(string currentPath)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = "/k cd " + currentPath;
-            process.StartInfo.WorkingDirectory = currentPath;
-            process.Start();
+            if(!Directory.Exists(currentPath)) {
+                return;
+            }
 
-            ShowWindowAsync(process.MainWindowHandle, WS_SHOWNORMAL); //��ʾ������ע�͵�
+            using(Process process = new Process()) {
+                process.StartInfo = SafeLaunch.CreateCmdInDirectory(currentPath);
+                process.Start();
+
+                ShowWindowAsync(process.MainWindowHandle, WS_SHOWNORMAL); //��ʾ������ע�͵�
             SetForegroundWindow(process.MainWindowHandle);            //�ŵ�ǰ��
-            SetFocus(process.MainWindowHandle);
+                SetFocus(process.MainWindowHandle);
+            }
         }
 
         /************************************************************************/
@@ -5142,14 +5144,20 @@ namespace QTTabBarLib {
         private void menuitemExecuted_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             try {
                 string toolTipText = e.ClickedItem.ToolTipText;
-                ProcessStartInfo startInfo = new ProcessStartInfo(toolTipText);
-                startInfo.WorkingDirectory = Path.GetDirectoryName(toolTipText);
-                startInfo.ErrorDialog = true;
-                startInfo.ErrorDialogParentHandle = ExplorerHandle;
-                Process.Start(startInfo);
-                StaticReg.ExecutedPathsList.Add(toolTipText);
+                Process process;
+                if(!SafeLaunch.TryStart(toolTipText, out process, startInfo => {
+                    startInfo.ErrorDialog = true;
+                    startInfo.ErrorDialogParentHandle = ExplorerHandle;
+                })) {
+                    QTUtility.SoundPlay();
+                    return;
+                }
+                using(process) {
+                    StaticReg.ExecutedPathsList.Add(toolTipText);
+                }
             }
-            catch {
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "menuitemExecuted_DropDownItemClicked");
                 QTUtility.SoundPlay();
             }
         }
@@ -6613,15 +6621,17 @@ namespace QTTabBarLib {
                 }
             }
             try {
-                Process.Start(new ProcessStartInfo(clickedItem.Path) {
-                    WorkingDirectory = Path.GetDirectoryName(clickedItem.Path) ?? "",
-                    ErrorDialog = true,
-                    ErrorDialogParentHandle = ExplorerHandle
-                });
-                QTUtility2.log("Process.Start");
-                if(Config.Misc.KeepRecentFiles) {
-                    StaticReg.ExecutedPathsList.Add(clickedItem.Path);
-                    QTUtility2.log("StaticReg.ExecutedPathsList.Add");
+                Process process;
+                if(SafeLaunch.TryStart(clickedItem.Path, out process, startInfo => {
+                    startInfo.ErrorDialog = true;
+                    startInfo.ErrorDialogParentHandle = ExplorerHandle;
+                })) {
+                    using(process) {
+                        if(Config.Misc.KeepRecentFiles) {
+                            StaticReg.ExecutedPathsList.Add(clickedItem.Path);
+                        }
+                    }
+                    QTUtility2.log("Process.Start");
                 }
             }
             catch(Exception ex) {

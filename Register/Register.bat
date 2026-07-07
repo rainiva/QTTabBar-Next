@@ -46,7 +46,6 @@ REG ADD HKLM\SOFTWARE\QTTabBar /v InstallPath /t REG_SZ /d "%cd%" /f /reg:32
 REG ADD HKLM\SOFTWARE\QTTabBar /v InstallPath /t REG_SZ /d "%cd%" /f /reg:64
 
 cd /d "%SCRIPT_DIR%"
-start taskmgr
 exit /b 0
 
 :ensure_registration_environment

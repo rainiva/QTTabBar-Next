@@ -960,14 +960,24 @@ namespace SetHome
 
             if (!KillFlag)
             {
-                Process.Start(@"%systemroot%\taskkill.exe",  @"/F /T IM explorer.exe" );
-               // @"/F /T /PID " + process.Id);
+                string taskkill = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "System32", "taskkill.exe");
+                using(Process killer = Process.Start(new ProcessStartInfo {
+                    FileName = taskkill,
+                    Arguments = "/F /T /IM explorer.exe",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                })) {
+                    killer?.WaitForExit(5000);
+                }
             }
 
             Thread.Sleep(1500);
             if (Process.GetProcessesByName("explorer").Length != 0)
                 return;
-            Process.Start("explorer.exe");
+            Process.Start(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe"));
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -989,8 +999,8 @@ namespace SetHome
                 // MessageBox.Show(sCPUSerialNumber.Substring(10, 10));//分割字符串
                 MessageBox.Show(sCPUSerialNumber);//分割字符串
             }
-            catch (Exception )
-            {
+            catch(Exception ex) {
+                Debug.WriteLine("SetHomeForm WMI query failed: " + ex.Message);
             }
             
             var osVersionVersionString = Environment.OSVersion.VersionString;

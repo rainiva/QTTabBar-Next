@@ -83,7 +83,6 @@ namespace QTTabBarLib
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public sealed class ToolbarManager

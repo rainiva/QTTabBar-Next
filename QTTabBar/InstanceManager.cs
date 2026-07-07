@@ -397,15 +397,19 @@ namespace QTTabBarLib {
 
         // P0-2: single factory for the IPC pipe binding, shared by the service host
         // and the duplex client. Uses transport security (Windows identity carried on
-        // the named pipe) instead of the previous wide-open SecurityMode.None, while
-        // preserving the original large-message quotas used to carry serialized
-        // delegates between explorer instances.
+        // the named pipe) with bounded message quotas to reduce DoS risk while still
+        // supporting serialized delegates between explorer instances.
+        internal const long MaxIpcMessageBytes = 64L * 1024 * 1024;
+
         internal static NetNamedPipeBinding CreatePipeBinding() {
+            int maxMessageSize = MaxIpcMessageBytes > int.MaxValue
+                    ? int.MaxValue
+                    : (int)MaxIpcMessageBytes;
             return new NetNamedPipeBinding(NetNamedPipeSecurityMode.Transport) {
                 ReceiveTimeout = TimeSpan.MaxValue,
-                ReaderQuotas = { MaxArrayLength = int.MaxValue },
-                MaxBufferSize = int.MaxValue,
-                MaxReceivedMessageSize = int.MaxValue,
+                ReaderQuotas = { MaxArrayLength = maxMessageSize },
+                MaxBufferSize = maxMessageSize,
+                MaxReceivedMessageSize = maxMessageSize,
             };
         }
 

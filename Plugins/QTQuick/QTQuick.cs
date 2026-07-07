@@ -24,6 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using QTPluginLib;
+using System.Diagnostics;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -52,7 +55,7 @@ namespace Qwop {
     ///		
     ///			Author, Name, Version, and Description are used in Options -> Plugins tab.
     /// </summary>
-    [Plugin(PluginType.Interactive, Author = "indiff", Name = "¿ì½Ý", Version = "1.0.0.1", Description = "´ò¿ªQTÑ¡Ïî;Éý¼¶ÖØÆô×ÊÔ´¹ÜÀíÆ÷")]
+    [Plugin(PluginType.Interactive, Author = "indiff", Name = "ï¿½ï¿½ï¿?", Version = "1.0.0.1", Description = "ï¿½ï¿½QTÑ¡ï¿½ï¿½;ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public class QTQuickButton : IBarDropButton
     {
         static readonly bool IsWin7 = Environment.OSVersion.Version >= new Version(6, 1);
@@ -62,7 +65,7 @@ namespace Qwop {
         private IShellBrowser shellBrowser;
 
         private bool fFirstMenuDropDown = true;
-        private string text = "¿ì½Ý";
+        private string text = "ï¿½ï¿½ï¿?";
         private string REG_ENV_PATH = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
         private List<Address> lstSelectedItems = new List<Address>();
 
@@ -241,22 +244,22 @@ namespace Qwop {
             this.menu = menu;
 
             if(fFirstMenuDropDown) {
-                menu.Items.Add(new ToolStripMenuItem("ÎÒµÄÎÄµµ"));
-                menu.Items.Add(new ToolStripMenuItem("¿ØÖÆÃæ°å\\ËùÓÐ¿ØÖÆÃæ°åÏî\\ÏµÍ³"));
-                menu.Items.Add(new ToolStripMenuItem("¿ØÖÆÃæ°å\\ËùÓÐ¿ØÖÆÃæ°åÏî\\¸öÐÔ»¯"));   
-                menu.Items.Add(new ToolStripMenuItem("¿ØÖÆÃæ°å\\ËùÓÐ¿ØÖÆÃæ°åÏî\\ÍøÂçÁ¬½Ó"));
-              //  menu.Items.Add(new ToolStripMenuItem("ÉèÖÃµ±Ç°Ä¿Â¼JAVA_HOME"));
-              //  menu.Items.Add(new ToolStripMenuItem("ÉèÖÃµ±Ç°Ä¿Â¼M2_HOME"));
-                menu.Items.Add(new ToolStripMenuItem("²é¿´ÏµÍ³ÐÅÏ¢"));
-                menu.Items.Add(new ToolStripMenuItem("ÖØÆô×ÊÔ´¹ÜÀíÆ÷")); 
-                menu.Items.Add(new ToolStripMenuItem("¹Ø»ú"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½Òµï¿½ï¿½Äµï¿½"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\ï¿½ï¿½ï¿½Ð¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\ÏµÍ³"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\ï¿½ï¿½ï¿½Ð¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\ï¿½ï¿½ï¿½Ô»ï¿½"));   
+                menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\ï¿½ï¿½ï¿½Ð¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"));
+              //  menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼JAVA_HOME"));
+              //  menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼M2_HOME"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½é¿´ÏµÍ³ï¿½ï¿½Ï¢"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")); 
+                menu.Items.Add(new ToolStripMenuItem("ï¿½Ø»ï¿½"));
 
-              //  menu.Items.Add(new ToolStripMenuItem("ÉèÖÃµ±Ç°Ä¿Â¼ANT_HOME"));
-             //   menu.Items.Add(new ToolStripMenuItem("ÉèÖÃµ±Ç°Ä¿Â¼MVND_HOME"));
+              //  menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼ANT_HOME"));
+             //   menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼MVND_HOME"));
 
-                menu.Items.Add(new ToolStripMenuItem("ÉèÖÃPath"));
-                menu.Items.Add(new ToolStripMenuItem("É¾³ýQTTabGroup£¨Æô¶¯Ïî£©"));
-                menu.Items.Add(new ToolStripMenuItem("´ò¿ªQTTabBarÒì³£ÈÕÖ¾"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½ï¿½ï¿½Path"));
+                menu.Items.Add(new ToolStripMenuItem("É¾ï¿½ï¿½QTTabGroupï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½î£©"));
+                menu.Items.Add(new ToolStripMenuItem("ï¿½ï¿½QTTabBarï¿½ì³£ï¿½ï¿½Ö¾"));
 
                 // menu.Items.Add(new ToolStripMenuItem("Test selection"));
                 fFirstMenuDropDown = false;
@@ -297,7 +300,7 @@ namespace Qwop {
                 switch (idx)
                 {
                     case 0: {
-                            // 0. ÎÒµÄÎÄµµ
+                            // 0. ï¿½Òµï¿½ï¿½Äµï¿½
                             path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                             break;
                     }
@@ -306,7 +309,7 @@ namespace Qwop {
                             if ( IsWin7 ) {
                                 path = "::{26EE0668-A00A-44D7-9371-BEB064C98683}\\0\\::{BB06C0E4-D293-4F75-8A90-CB05B6477EEE}";
                                 string spa_exe = Environment.GetEnvironmentVariable("systemroot") + "\\System32\\SystemPropertiesAdvanced.exe";
-                                Process.Start(spa_exe);
+                                SafeLaunch.TryStart(spa_exe);
                                 return;
                             }
                             else if (IsXP) { }
@@ -314,7 +317,7 @@ namespace Qwop {
                             break;
                     }
                     case 2 :{
-                            // 2. ÏÔÊ¾
+                            // 2. ï¿½ï¿½Ê¾
                             if ( IsWin7 )
                                 path = "::{26EE0668-A00A-44D7-9371-BEB064C98683}\\0\\::{ED834ED6-4B5A-4BFE-8F11-A626DCB6A921}";
                             else if ( IsXP )
@@ -324,7 +327,7 @@ namespace Qwop {
 
                     case 3:
                         {
-                            // 3. ÍøÂçÁ¬½Ó
+                            // 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                             if (IsWin7)
                                 path = "::{7007ACC7-3202-11D1-AAD2-00805FC1270E}";
                             else if (IsXP)
@@ -341,7 +344,7 @@ namespace Qwop {
 
                         if (String.IsNullOrEmpty(selectedPath) || !Directory.Exists(selectedPath))
                         {
-                            MessageBox.Show("µ±Ç°Ä¿Â¼ÒÑ¾­É¾³ý");
+                            MessageBox.Show("ï¿½ï¿½Ç°Ä¿Â¼ï¿½Ñ¾ï¿½É¾ï¿½ï¿½");
                            // QTUtility.SoundPlay();
                             return;
                         }
@@ -349,7 +352,7 @@ namespace Qwop {
 
                         if (String.IsNullOrEmpty(binPath) || !Directory.Exists(binPath))
                         {
-                            MessageBox.Show("binÄ¿Â¼²»´æÔÚ");
+                            MessageBox.Show("binÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                            // QTUtility.SoundPlay();
                             return;
                         }
@@ -358,7 +361,7 @@ namespace Qwop {
 
                         if (String.IsNullOrEmpty(libPath) || !Directory.Exists(libPath))
                         {
-                            MessageBox.Show("libÄ¿Â¼²»´æÔÚ");
+                            MessageBox.Show("libÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                           //  QTUtility.SoundPlay();
                             return;
                         }
@@ -373,13 +376,13 @@ namespace Qwop {
                                 envKey.SetValue("CLASSPATH", @".;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;" );
                             }
                             SendNotifyMessage((IntPtr)HWND_BROADCAST, WM_SETTINGCHANGE, (UIntPtr)0, "Environment");
-                            MessageBox.Show("ÉèÖÃJAVA_HOME³É¹¦");
+                            MessageBox.Show("ï¿½ï¿½ï¿½ï¿½JAVA_HOMEï¿½É¹ï¿½");
                         }
                         break;
                     }
                     case 44:
                         {
-                            // 3. ÉèÖÃµ±Ç°Ä¿Â¼JAVA_HOME
+                            // 3. ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼JAVA_HOME
                             string selectedPath = pluginServer.SelectedTab.Address.Path;
                             string binPath = Path.Combine( selectedPath, "bin" );
                             string libPath = Path.Combine( selectedPath, "lib" );
@@ -388,14 +391,14 @@ namespace Qwop {
 
 
                             if(String.IsNullOrEmpty(selectedPath) || !Directory.Exists(selectedPath)) {
-                                MessageBox.Show("µ±Ç°Ä¿Â¼ÒÑ¾­É¾³ý");
+                                MessageBox.Show("ï¿½ï¿½Ç°Ä¿Â¼ï¿½Ñ¾ï¿½É¾ï¿½ï¿½");
                                // QTUtility.SoundPlay();
                                 return;
                             }
 
  
                             if(String.IsNullOrEmpty(binPath) || !Directory.Exists(binPath)) {
-                                MessageBox.Show("binÄ¿Â¼²»´æÔÚ");
+                                MessageBox.Show("binÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                               //  QTUtility.SoundPlay();
                                 return;
                             }
@@ -403,7 +406,7 @@ namespace Qwop {
 
  
                             if(String.IsNullOrEmpty(libPath) || !Directory.Exists(libPath)) {
-                                MessageBox.Show("libÄ¿Â¼²»´æÔÚ");
+                                MessageBox.Show("libÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                               //  QTUtility.SoundPlay();
                                 return;
                             }
@@ -411,7 +414,7 @@ namespace Qwop {
                             /*
  
                             if(String.IsNullOrEmpty(toolsJar) || !File.Exists(toolsJar)) {
-                                MessageBox.Show("toolsJar²»´æÔÚ");
+                                MessageBox.Show("toolsJarï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                                 QTUtility.SoundPlay();
                                 return;
                             }
@@ -419,7 +422,7 @@ namespace Qwop {
 
  
                             if(String.IsNullOrEmpty(toolsJar) || !File.Exists(dtJar)) {
-                                MessageBox.Show("dtJar²»´æÔÚ");
+                                MessageBox.Show("dtJarï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                                 QTUtility.SoundPlay();
                                 return;
                             }
@@ -428,7 +431,7 @@ namespace Qwop {
 
                           //  Environment.SetEnvironmentVariable("JAVA_HOME", selectedPath, EnvironmentVariableTarget.Machine);
                            // Environment.SetEnvironmentVariable("CLASSPATH", @".;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;", EnvironmentVariableTarget.Machine);
-                            // È¥ÖØ£¬ ÅÐ¶ÏÊÇ·ñÓÐ java home É¾µô
+                            // È¥ï¿½Ø£ï¿½ ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ java home É¾ï¿½ï¿½
                             string oldpath = filterEmpty( "java.exe" );
 
 
@@ -458,12 +461,12 @@ namespace Qwop {
                             //                    .Invoke();
                             Thread.Sleep(800);
 
-                            MessageBox.Show("ÉèÖÃJAVA_HOME³É¹¦");
+                            MessageBox.Show("ï¿½ï¿½ï¿½ï¿½JAVA_HOMEï¿½É¹ï¿½");
                             break;
                         }
                     case 55:
                         {
-                            // 5. ÉèÖÃµ±Ç°Ä¿Â¼M2_HOME
+                            // 5. ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼M2_HOME
                             string selectedPath = pluginServer.SelectedTab.Address.Path;
                             string binPath = Path.Combine(selectedPath, "bin");
                             string mvnCmd = Path.Combine(binPath, "mvn.cmd");
@@ -471,7 +474,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(selectedPath) || !Directory.Exists(selectedPath))
                             {
-                                MessageBox.Show("µ±Ç°Ä¿Â¼ÒÑ¾­É¾³ý");
+                                MessageBox.Show("ï¿½ï¿½Ç°Ä¿Â¼ï¿½Ñ¾ï¿½É¾ï¿½ï¿½");
                                // QTUtility.SoundPlay();
                                 return;
                             }
@@ -479,7 +482,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(binPath) || !Directory.Exists(binPath))
                             {
-                                MessageBox.Show("binÄ¿Â¼²»´æÔÚ");
+                                MessageBox.Show("binÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                              //   QTUtility.SoundPlay();
                                 return;
                             }
@@ -489,7 +492,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(mvnCmd) || !File.Exists(mvnCmd))
                             {
-                                MessageBox.Show("mvnCmd²»´æÔÚ");
+                                MessageBox.Show("mvnCmdï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                               //  QTUtility.SoundPlay();
                                 return;
                             }
@@ -520,20 +523,20 @@ namespace Qwop {
                                 envKey.SetValue("M2_HOME", selectedPath);
 
                                 SendNotifyMessage((IntPtr)HWND_BROADCAST, WM_SETTINGCHANGE, (UIntPtr)0, "Environment");
-                                MessageBox.Show("ÉèÖÃM2_HOME³É¹¦");
+                                MessageBox.Show("ï¿½ï¿½ï¿½ï¿½M2_HOMEï¿½É¹ï¿½");
                             }
                             break;
                         }
                     case 4:
                         {
-                            // 4. ²é¿´ÏµÍ³ÐÅÏ¢
+                            // 4. ï¿½é¿´ÏµÍ³ï¿½ï¿½Ï¢
                             string msinfo32 = Environment.GetEnvironmentVariable("systemroot") + "\\System32\\msinfo32.exe";
-                            Process.Start(msinfo32);
+                            SafeLaunch.TryStart(msinfo32);
                             break;
                         }
                     case 5:
                         {
-                            // 5. ÖØÆô×ÊÔ´¹ÜÀíÆ÷
+                            // 5. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                             /*
                             foreach (Process p in Process.GetProcesses())
                             {
@@ -547,44 +550,24 @@ namespace Qwop {
                             // PInvoke.PostMessage(hwndExplr, WM.CLOSE, IntPtr.Zero, (IntPtr)nCode)
                             Thread.Sleep(800);
                             Process.Start("explorer.exe");*/
-                            string MyDosComLine1, MyDosComLine2, MyDosComLine3;
-                            MyDosComLine1 = "taskkill /f /im explorer.exe";//·µ»Ø¸ùÄ¿Â¼ÃüÁî
-                            MyDosComLine2 =  "start explorer.exe";//½øÈëMyFilesÄ¿Â¼
-                            Process myProcess = new Process();
-
-                            myProcess.StartInfo.FileName = "cmd.exe ";//´ò¿ªDOS¿ØÖÆÆ½Ì¨ 
-                            myProcess.StartInfo.UseShellExecute = false;
-                            myProcess.StartInfo.CreateNoWindow = true;//ÊÇ·ñÏÔÊ¾DOS´°¿Ú£¬true´ú±íÒþ²Ø;
-                            myProcess.StartInfo.RedirectStandardInput = true;
-                            myProcess.StartInfo.RedirectStandardOutput = true;
-                            myProcess.StartInfo.RedirectStandardError = true;
-                            myProcess.Start();
-                            StreamWriter sIn = myProcess.StandardInput;//±ê×¼ÊäÈëÁ÷ 
-                            sIn.AutoFlush = true;
-                            StreamReader sOut = myProcess.StandardOutput;//±ê×¼ÊäÈëÁ÷
-
-                            StreamReader sErr = myProcess.StandardError;//±ê×¼´íÎóÁ÷ 
-                            sIn.Write(MyDosComLine1 + System.Environment.NewLine);//µÚÒ»ÌõDOSÃüÁî 
-                            sIn.Write(MyDosComLine2 + System.Environment.NewLine);//µÚ¶þÌõDOSÃüÁî 
-                            sIn.Write("exit" + System.Environment.NewLine);//µÚËÄÌõDOSÃüÁî£¬ÍË³öDOS´°¿Ú
-                            string s = sOut.ReadToEnd();//¶ÁÈ¡Ö´ÐÐDOSÃüÁîºóÊä³öÐÅÏ¢ 
-                            string er = sErr.ReadToEnd();//¶ÁÈ¡Ö´ÐÐDOSÃüÁîºó´íÎóÐÅÏ¢
-                            if (myProcess.HasExited == false)
-                            {
-                                myProcess.Kill();
+                            string systemRoot = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+                            string taskkill = Path.Combine(systemRoot, "System32", "taskkill.exe");
+                            string explorer = Path.Combine(systemRoot, "explorer.exe");
+                            using(Process killer = Process.Start(new ProcessStartInfo {
+                                FileName = taskkill,
+                                Arguments = "/f /im explorer.exe",
+                                CreateNoWindow = true,
+                                UseShellExecute = false
+                            })) {
+                                killer?.WaitForExit(5000);
                             }
-                            else
-                            {
-                            }
-                            sIn.Close();
-                            sOut.Close();
-                            sErr.Close();
-                            myProcess.Close();
+                            Thread.Sleep(800);
+                            SafeLaunch.TryStart(explorer);
                             break;
                         }
                     case 6:
                         {
-                            // 6. ¹Ø»ú
+                            // 6. ï¿½Ø»ï¿½
                             IntPtr handle = GetShellTrayWnd();
                             CloseExplorer(handle, 1);
                             // PInvoke.PostMessage(hwndExplr, WM.CLOSE, IntPtr.Zero, (IntPtr)nCode)
@@ -593,14 +576,14 @@ namespace Qwop {
                         }
                     case 99:
                         {
-                            // 9. ÉèÖÃµ±Ç°Ä¿Â¼ANT_HOME
+                            // 9. ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼ANT_HOME
                             string selectedPath = pluginServer.SelectedTab.Address.Path;
                             string binPath = Path.Combine(selectedPath, "bin");
                             string antCmd = Path.Combine(binPath, "ant.cmd");
 
                             if (String.IsNullOrEmpty(selectedPath) || !Directory.Exists(selectedPath))
                             {
-                                MessageBox.Show("µ±Ç°Ä¿Â¼ÒÑ¾­É¾³ý");
+                                MessageBox.Show("ï¿½ï¿½Ç°Ä¿Â¼ï¿½Ñ¾ï¿½É¾ï¿½ï¿½");
                                // QTUtility.SoundPlay();
                                 return;
                             }
@@ -608,7 +591,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(binPath) || !Directory.Exists(binPath))
                             {
-                                MessageBox.Show("binÄ¿Â¼²»´æÔÚ");
+                                MessageBox.Show("binÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                                // QTUtility.SoundPlay();
                                 return;
                             }
@@ -616,7 +599,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(antCmd) || !File.Exists(antCmd))
                             {
-                                MessageBox.Show("antCmd²»´æÔÚ");
+                                MessageBox.Show("antCmdï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                               //  QTUtility.SoundPlay();
                                 return;
                             }
@@ -628,20 +611,20 @@ namespace Qwop {
                                 envKey.SetValue("ANT_HOME", selectedPath);
                                 envKey.SetValue("PATH", joinDevPath(oldPath));
                                 SendNotifyMessage((IntPtr)HWND_BROADCAST, WM_SETTINGCHANGE, (UIntPtr)0, "Environment");
-                                MessageBox.Show("ÉèÖÃANT_HOME³É¹¦");
+                                MessageBox.Show("ï¿½ï¿½ï¿½ï¿½ANT_HOMEï¿½É¹ï¿½");
                             }
                             break;
                         }
                     case 10:
                         {
-                            // 10. ÉèÖÃµ±Ç°Ä¿Â¼MVND_HOME
+                            // 10. ï¿½ï¿½ï¿½Ãµï¿½Ç°Ä¿Â¼MVND_HOME
                             string selectedPath = pluginServer.SelectedTab.Address.Path;
                             string binPath = Path.Combine(selectedPath, "bin");
                             string mvndexe = Path.Combine(binPath, "mvnd.exe");
 
                             if (String.IsNullOrEmpty(selectedPath) || !Directory.Exists(selectedPath))
                             {
-                                MessageBox.Show("µ±Ç°Ä¿Â¼ÒÑ¾­É¾³ý");
+                                MessageBox.Show("ï¿½ï¿½Ç°Ä¿Â¼ï¿½Ñ¾ï¿½É¾ï¿½ï¿½");
                                // QTUtility.SoundPlay();
                                 return;
                             }
@@ -649,7 +632,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(binPath) || !Directory.Exists(binPath))
                             {
-                                MessageBox.Show("binÄ¿Â¼²»´æÔÚ");
+                                MessageBox.Show("binÄ¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                              //   QTUtility.SoundPlay();
                                 return;
                             }
@@ -657,7 +640,7 @@ namespace Qwop {
 
                             if (String.IsNullOrEmpty(mvndexe) || !File.Exists(mvndexe))
                             {
-                                MessageBox.Show("mvndexe²»´æÔÚ");
+                                MessageBox.Show("mvndexeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                              //   QTUtility.SoundPlay();
                                 return;
                             }
@@ -669,7 +652,7 @@ namespace Qwop {
                                 envKey.SetValue("MVND_HOME", selectedPath);
                                 envKey.SetValue("PATH", joinDevPath(oldPath));
                                 SendNotifyMessage((IntPtr)HWND_BROADCAST, WM_SETTINGCHANGE, (UIntPtr)0, "Environment");
-                                MessageBox.Show("ÉèÖÃMVND_HOME³É¹¦");
+                                MessageBox.Show("ï¿½ï¿½ï¿½ï¿½MVND_HOMEï¿½É¹ï¿½");
                             }
                             break;
                         }
@@ -677,7 +660,7 @@ namespace Qwop {
 
                     case 7:
                         {
-                            // 11. ¹ÜÀíÔ±·½Ê½Æô¶¯
+                            // 11. ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
                             string selectedPath = pluginServer.SelectedTab.Address.Path;
                             string binPath = Path.Combine(selectedPath, "bin");
                             string mvndexe = Path.Combine(binPath, "mvnd.exe");
@@ -740,12 +723,12 @@ namespace Qwop {
                                 }).Start();*/
                             }
                             else {
-                                MessageBox.Show( "Î´ÕÒµ½¿ÉÖ´ÐÐÎÄ¼þSetHome");
+                                MessageBox.Show( "Î´ï¿½Òµï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½Ä¼ï¿½SetHome");
                             }
                             break;
                         }
 
-                    case 8:  // É¾³ýgroupÎÄ¼þ
+                    case 8:  // É¾ï¿½ï¿½groupï¿½Ä¼ï¿½
                         {
                             string startUpFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
                             try
@@ -761,7 +744,7 @@ namespace Qwop {
                             break;
                         }
 
-                    case 9:  // É¾³ý QTTabBarException.log
+                    case 9:  // É¾ï¿½ï¿½ QTTabBarException.log
                     {
                         
                         string notepadExe = GuessNotepadPath();
@@ -808,7 +791,7 @@ namespace Qwop {
                 {
                     case 0:
                         {
-                            // 0. ÎÒµÄÎÄµµ
+                            // 0. ï¿½Òµï¿½ï¿½Äµï¿½
                             path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                             break;
                         }
@@ -825,7 +808,7 @@ namespace Qwop {
                         }
                     case 2:
                         {
-                            // 2. ÏÔÊ¾
+                            // 2. ï¿½ï¿½Ê¾
                             if (IsWin7)
                                 path = "::{26EE0668-A00A-44D7-9371-BEB064C98683}\\0\\::{ED834ED6-4B5A-4BFE-8F11-A626DCB6A921}";
                             else if (IsXP)
@@ -908,7 +891,7 @@ namespace Qwop {
     //    internal static readonly bool IsWin7 = Environment.OSVersion.Version >= new Version(6, 1);
         //   internal static readonly bool IsXP = Environment.OSVersion.Version.Major <= 5;
 
-        #region  ÒýÈëdll
+        #region  ï¿½ï¿½ï¿½ï¿½dll
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
 
@@ -921,7 +904,7 @@ namespace Qwop {
         #endregion
 
 
-        // ¹Ø±Õ×ÊÔ´¹ÜÀíÆ÷£¬·¢ËÍ¹Ø±ÕÏûÏ¢
+        // ï¿½Ø±ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¹Ø±ï¿½ï¿½ï¿½Ï¢
         public static void CloseExplorer(IntPtr hwndExplr, int nCode, bool doAsync = false)
         {
             if (IsXP && nCode == 0) nCode = 3;

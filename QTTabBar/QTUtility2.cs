@@ -31,6 +31,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using QTPluginLib;
 using BandObjectLib;
 using Microsoft.Win32;
 using Microsoft.Win32.SafeHandles;
@@ -242,7 +243,7 @@ namespace QTTabBarLib {
 
         public static void MakeErrorLog(Exception ex, string optional = null) { Logger.MakeErrorLog(ex, optional);
         }
-
+
         /*
         public static object lockObject = new object();
         //��д���������ļ�д��Ȩ�ޣ�ÿ���߳����εȴ��ϸ�д�����
@@ -260,7 +261,7 @@ namespace QTTabBarLib {
             ���ã�������ס���������ݣ�����ֹ�����߳̽���ô���飬ֱ���ô����������ɣ��ͷŸ�����
          * Mutex�����ǿ���ϵͳ����ģ������ǿ��Կ�Խ���̵ġ�
          */
-        
+        
         public static void Close(TextReader sr)
         {
             if (sr == null)
@@ -422,9 +423,18 @@ namespace QTTabBarLib {
         }
 
         public static bool IsValidExecutablePath(string path) {
-            if(String.IsNullOrEmpty(path)) return false;
-            if(!Path.IsPathRooted(path)) return false;
-            string ext = Path.GetExtension(path).ToLower();
+            return SafeLaunch.IsAllowedLaunchTarget(path)
+                   && !string.IsNullOrEmpty(path)
+                   && Path.IsPathRooted(path.Trim())
+                   && HasExecutableExtension(path);
+        }
+
+        private static bool HasExecutableExtension(string path) {
+            string ext = Path.GetExtension(path);
+            if(string.IsNullOrEmpty(ext)) {
+                return false;
+            }
+            ext = ext.ToLowerInvariant();
             return ext == ".exe" || ext == ".bat" || ext == ".cmd" || ext == ".msi";
         }
 

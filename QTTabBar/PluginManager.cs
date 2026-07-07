@@ -122,9 +122,10 @@ namespace QTTabBarLib {
 
         public static PluginAssembly LoadAssembly(string path) {
             if(path.Length > 0 && File.Exists(path)) {
-                // 保守来源/签名校验:失败仅记告警,仍继续加载。
-                // 项目自带一批未签名插件,硬阻断会破坏功能。
-                ValidatePluginSource(path, GetTrustedPluginDirectories());
+                PluginSourceValidation validation = ValidatePluginSource(path, GetTrustedPluginDirectories());
+                if(!validation.ShouldContinueLoading) {
+                    return null;
+                }
                 PluginAssembly pa = new PluginAssembly(path);
                 if(pa.PluginInfosExist) {
                     string[] enabled = Config.Plugin.Enabled;
@@ -141,10 +142,7 @@ namespace QTTabBarLib {
         }
 
         // ------------------------------------------------------------------
-        // 插件来源/签名校验(P1 安全加固,保守策略:告警不阻断)
-        // 动态加载程序集无来源校验存在安全风险。下面方法校验插件是否
-        // 位于受信任插件目录、是否具有 Authenticode 签名或强名称;
-        // 校验失败仅记告警,仍继续加载。
+        // 插件来源/签名校验:位于受信任目录或已签名的插件才允许加载。
         // ------------------------------------------------------------------
 
         /// <summary>
@@ -232,8 +230,8 @@ namespace QTTabBarLib {
         }
 
         /// <summary>
-        /// 保守来源校验:校验插件是否受信任(位于受信任目录或已签名)。
-        /// 无论校验结果如何,ShouldContinueLoading 永远为 true(仅告警不阻断)。永不抛异常。
+        /// 来源校验:插件必须位于受信任目录或具有受信任签名。
+        /// 校验失败时 ShouldContinueLoading 为 false,调用方必须阻断加载。
         /// </summary>
         internal static PluginSourceValidation ValidatePluginSource(string assemblyPath, IEnumerable<string> trustedDirs) {
             bool trusted = false;
@@ -250,12 +248,11 @@ namespace QTTabBarLib {
             if(!trusted) {
                 QTUtility2.MakeErrorLog(null,
                     "PluginManager: plugin failed source/signature validation "
-                    + "(unsigned or outside trusted directory); loading anyway (conservative policy): "
+                    + "(unsigned or outside trusted directory); loading blocked: "
                     + assemblyPath);
             }
 
-            // 保守策略:即使校验失败也绝不阻断加载。
-            return new PluginSourceValidation { IsTrusted = trusted, ShouldContinueLoading = true };
+            return new PluginSourceValidation { IsTrusted = trusted, ShouldContinueLoading = trusted };
         }
 
         private static void LoadStaticInstance(PluginInformation pi, PluginAssembly pa) {
@@ -555,7 +552,9 @@ StackTrace ---
                                 }
                             }
                         }
-                        catch {
+                        catch(Exception ex) {
+                            QTUtility2.MakeErrorLog(ex,
+                                "PluginAssembly: failed loading plugin type from " + path);
                         }
                     }
                 }
@@ -681,9 +680,8 @@ StackTrace ---
     }
 
     /// <summary>
-    /// 插件来源/签名校验结果(保守策略)。
-    /// IsTrusted:插件是否受信任(位于受信任目录或已签名)。
-    /// ShouldContinueLoading:是否应继续加载 —— 保守策略下永远为 true(仅告警不阻断)。
+    /// 插件来源/签名校验结果。
+    /// ShouldContinueLoading 与 IsTrusted 一致:仅受信任插件允许加载。
     /// </summary>
     internal struct PluginSourceValidation {
         public bool IsTrusted;

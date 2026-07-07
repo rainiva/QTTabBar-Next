@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using QTPluginLib;
 using System.Windows.Forms;
 using QTTabBarLib.Interop;
 
@@ -301,7 +302,10 @@ namespace QTTabBarLib {
             if (e.ClickedItem is DirectoryMenuItem) { return;}
 
             try {
-                Process.Start(((QMenuItem)e.ClickedItem).Path);
+                string path = ((QMenuItem)e.ClickedItem).Path;
+                if(!SafeLaunch.TryStart(path)) {
+                    throw new InvalidOperationException("Blocked unsafe launch target: " + path);
+                }
             } catch(Exception ex) {
                 QTUtility2.MakeErrorLog(ex, "realDirectory_DropDownItemClicked");
                 MessageBox.Show(

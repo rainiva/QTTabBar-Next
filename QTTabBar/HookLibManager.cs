@@ -383,36 +383,31 @@ namespace QTTabBarLib {
 
         /// <summary>
         /// 确定性的受信任路径解析(可测):
-        /// 1) 若受信任目录中存在该 DLL,返回受信任路径(优先);
-        /// 2) 否则若旧目录中存在该 DLL,记告警后回退旧路径;
-        /// 3) 两处都不存在时,返回旧路径候选,以复用既有“文件不存在则降级”处理。
+        /// 1) 若受信任目录中存在该 DLL,返回受信任路径;
+        /// 2) 否则返回受信任目录候选路径,不再回退到用户可写旧路径。
         /// </summary>
         internal static string ResolveTrustedLibraryPath(string fileName, string trustedDir, string legacyDir) {
             if (string.IsNullOrEmpty(fileName)) return null;
 
-            // 1) 优先受信任安装目录
             if (!string.IsNullOrEmpty(trustedDir)) {
                 string trustedFull = Path.Combine(trustedDir, fileName);
                 if (File.Exists(trustedFull)) {
                     return trustedFull;
                 }
-            }
 
-            // 2) 回退旧的用户可写路径(仅当受信任副本缺失时),并记告警
-            if (!string.IsNullOrEmpty(legacyDir)) {
-                string legacyFull = Path.Combine(legacyDir, fileName);
-                if (File.Exists(legacyFull)) {
-                    QTUtility2.MakeErrorLog(null,
-                        "HookLibManager: trusted install copy of " + fileName
-                        + " not found; falling back to legacy user-writable path " + legacyFull);
-                    return legacyFull;
+                if (!string.IsNullOrEmpty(legacyDir)) {
+                    string legacyFull = Path.Combine(legacyDir, fileName);
+                    if (File.Exists(legacyFull)) {
+                        QTUtility2.MakeErrorLog(null,
+                            "HookLibManager: trusted install copy of " + fileName
+                            + " not found; legacy copy at " + legacyFull + " is ignored.");
+                    }
                 }
-                // 3) 两处都不存在:返回旧路径候选,保持既有降级逻辑不变
-                return legacyFull;
+
+                return trustedFull;
             }
 
-            // 无旧目录时退而用受信任目录候选
-            return string.IsNullOrEmpty(trustedDir) ? null : Path.Combine(trustedDir, fileName);
+            return string.IsNullOrEmpty(legacyDir) ? null : Path.Combine(legacyDir, fileName);
         }
 
         public static void CheckHooks() {

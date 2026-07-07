@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Media;
+using QTPluginLib;
 using System.Windows.Forms;
 using QTTabBarLib.Interop;
 
@@ -94,12 +95,8 @@ namespace QTTabBarLib {
 
         private void btnOk2_Click(object sender, EventArgs e) {
             if(!string.IsNullOrEmpty(strExecute)) {
-                try {
-                    Process.Start(strExecute);
-                }
-                catch (Exception ex)
-                {
-                    QTUtility2.MakeErrorLog(ex, "MessageForm btnOk2_Click");
+                if(!SafeLaunch.TryStart(strExecute)) {
+                    QTUtility2.MakeErrorLog(null, "MessageForm btnOk2_Click blocked launch: " + strExecute);
                 }
             }
         }

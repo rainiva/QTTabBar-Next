@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using QTPluginLib;
 
 namespace QuizoPlugins {
     internal sealed class MemoForm : Form {
@@ -251,11 +252,9 @@ namespace QuizoPlugins {
                 }
                 fontList.Clear();
             }
-            catch(Exception) {
+            catch(Exception ex) {
+                Debug.WriteLine("MemoForm.Dispose fonts failed: " + ex.Message);
             }
-        }
-
-        private void InitializeComponent() {
             components = new Container();
             richTextBox1 = new RichTextBox();
             contextMenuStrip1 = new ContextMenuStrip(components);
@@ -385,7 +384,8 @@ namespace QuizoPlugins {
                         stream.Close();
                     }
                 }
-                catch(Exception) {
+                catch(Exception ex) {
+                    Debug.WriteLine("MemoForm.LoadDB failed: " + ex.Message);
                 }
             }
             else {
@@ -444,7 +444,7 @@ namespace QuizoPlugins {
         }
 
         private void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e) {
-            Process.Start(e.LinkText);
+            SafeLaunch.TryStart(e.LinkText);
         }
 
         private void SaveDB() {
@@ -499,11 +499,9 @@ namespace QuizoPlugins {
                     fNowShown = true;
                 }
             }
-            catch(Exception) {
+            catch(Exception ex) {
+                Debug.WriteLine("MemoForm.ShowMemoForm failed: " + ex.Message);
             }
-        }
-
-        private void textBox1_KeyPress(object sender, KeyPressEventArgs e) {
             if(e.KeyChar == '\r') {
                 e.Handled = true;
                 button1.PerformClick();
@@ -527,8 +525,20 @@ namespace QuizoPlugins {
     /// </summary>
     internal sealed class RestrictedSerializationBinder : SerializationBinder {
         public override Type BindToType(string assemblyName, string typeName) {
-            string currentAssembly = Assembly.GetExecutingAssembly().FullName;
-            return Type.GetType(string.Format("{0}, {1}", typeName, currentAssembly));
+            if(string.IsNullOrEmpty(typeName)) {
+                throw new SerializationException("Blocked empty type name during Memo deserialization.");
+            }
+
+            if(typeName.StartsWith("QuizoPlugins.", StringComparison.Ordinal)) {
+                return Type.GetType(string.Format("{0}, {1}", typeName, Assembly.GetExecutingAssembly().FullName));
+            }
+
+            if(typeName.StartsWith("System.", StringComparison.Ordinal)) {
+                return null;
+            }
+
+            throw new SerializationException(
+                "Blocked non-whitelisted type during Memo deserialization: " + typeName);
         }
     }
 }

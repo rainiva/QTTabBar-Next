@@ -98,6 +98,7 @@
     <Compile Include="IPluginServer.cs" />
     <Compile Include="ITab.cs" />
     <Compile Include="LocalizedStringProvider.cs" />
+    <Compile Include="SafeLaunch.cs" />
     <Compile Include="MenuType.cs" />
     <Compile Include="PluginAttribute.cs" />
     <Compile Include="PluginEventArgs.cs" />
