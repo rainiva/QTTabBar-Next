@@ -29,21 +29,25 @@
     <ConfigurationType>Utility</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>OldSyntax</CLRSupport>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Utility</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>OldSyntax</CLRSupport>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Utility</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>OldSyntax</CLRSupport>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Utility</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>OldSyntax</CLRSupport>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -67,6 +71,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <BuildProjectReferences>false</BuildProjectReferences>
+    <QtTabBarRegisterMode Condition="'$(QtTabBarRegisterMode)'==''">Validate</QtTabBarRegisterMode>
+    <QtTabBarRegisterCommand>cd /d $(ProjectDir)
+if /I "$(QtTabBarRegisterMode)"=="Apply" call Register.bat $(Configuration)
+if /I "$(QtTabBarRegisterMode)"=="Validate" set QT_TABBAR_REGISTER_VALIDATE_ONLY=1&amp;&amp; call Register.bat $(Configuration)
+if /I not "$(QtTabBarRegisterMode)"=="Apply" if /I not "$(QtTabBarRegisterMode)"=="Validate" echo Register step skipped. Set QtTabBarRegisterMode=Validate or Apply to run Register.bat.</QtTabBarRegisterCommand>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
@@ -78,26 +88,22 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PostBuildEvent>
-      <Command>cd $(ProjectDir)
-call Register.bat $(Configuration)</Command>
+      <Command>$(QtTabBarRegisterCommand)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PostBuildEvent>
-      <Command>cd $(ProjectDir)
-call Register.bat $(Configuration)</Command>
+      <Command>$(QtTabBarRegisterCommand)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PostBuildEvent>
-      <Command>cd $(ProjectDir)
-call Register.bat $(Configuration)</Command>
+      <Command>$(QtTabBarRegisterCommand)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PostBuildEvent>
-      <Command>cd $(ProjectDir)
-call Register.bat $(Configuration)</Command>
+      <Command>$(QtTabBarRegisterCommand)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -111,6 +117,10 @@ call Register.bat $(Configuration)</Command>
     </ProjectReference>
     <ProjectReference Include="..\QTTabBar\QTTabBar.csproj">
       <Project>{e36e7a44-8f1d-4cff-a65a-c3207a17cded}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\QTHookLib\QTHookLib.vcxproj">
+      <Project>{740c67c7-6ae5-414b-a3f8-d69355fe508b}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

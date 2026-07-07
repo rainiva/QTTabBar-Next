@@ -55,7 +55,7 @@ namespace BandObjectLib {
         private Size maxSize = new Size(-1, -1);
 
         protected IInputObjectSite BandObjectSite;
-        protected WebBrowserClass Explorer;
+        protected SHDocVw.WebBrowser Explorer;
         protected bool fClosedDW;
         protected bool fFinalRelease;
         protected IntPtr ReBarHandle;
@@ -459,7 +459,7 @@ namespace BandObjectLib {
                         ExplorerGUIDs.IID_IUnknown, 
                         out obj2);
                     Util2.bandLog("BandObjectSite.QueryService");
-                    Explorer = (WebBrowserClass)Marshal.CreateWrapperOfType(obj2 as IWebBrowser, typeof(WebBrowserClass));
+                    Explorer = obj2 as SHDocVw.WebBrowser;
                     Util2.bandLog("Marshal.CreateWrapperOfType");
                     Util2.bandLog("probe", "Win11Probe BandObject.SetSite.OnExplorerAttached");
                     OnExplorerAttached();

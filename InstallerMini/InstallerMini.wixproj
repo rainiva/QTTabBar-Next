@@ -8,6 +8,9 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>QTTabBarSetup%28No Plugins%29</OutputName>
     <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(WIX)' != '' AND Exists('$(WIX)\bin\Wix.targets') ">$(WIX)\bin\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND Exists('$(ProgramFiles(x86))\WiX Toolset v3.11\bin\Wix.targets') ">$(ProgramFiles(x86))\WiX Toolset v3.11\bin\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND Exists('$(ProgramFiles)\WiX Toolset v3.11\bin\Wix.targets') ">$(ProgramFiles)\WiX Toolset v3.11\bin\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <Name>InstallerMini</Name>
