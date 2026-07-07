@@ -5,7 +5,7 @@ using QTTabBarLib;
 
 namespace QTTtabBarTests {
     /// <summary>
-    /// 任务 #15:插件与 native DLL 加载安全加固(保守策略:告警不阻断)。
+    /// 任务 #15:插件与 native DLL 加载安全加固(校验失败则阻断加载)。
     ///
     /// 分层测试豁免说明:
     /// HookLibManager / PluginManager 的实际加载走的是 Win32 LoadLibrary 与
@@ -13,8 +13,7 @@ namespace QTTtabBarTests {
     /// 无法在纯 NUnit 单元测试环境里端到端复现。因此这里对底层安全逻辑采用
     /// **针对性单元测试**,把两条可确定化的安全决策抽取为纯函数后断言:
     ///   1) 受信任路径解析:给定受信任目录与候选路径,优先解析出受信任目录中的 DLL;
-    ///   2) 来源/签名校验:给定未签名/不在受信任目录的程序集路径,校验返回"不受信任",
-    ///      但加载流程不抛出、不中断(通过返回值 ShouldContinueLoading 验证"告警但继续")。
+    ///   2) 来源/签名校验:给定未签名/不在受信任目录的程序集路径,校验返回"不受信任"且阻断加载。
     /// </summary>
     [TestFixture]
     public class PluginNativeLoadSecurityTests {
@@ -61,8 +60,8 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ResolveTrustedLibraryPath_FallsBackToLegacy_WhenTrustedMissing() {
-            // 受信任目录不含该 DLL、旧目录含有时,回退到旧路径(实现内部应记告警)。
+        public void ResolveTrustedLibraryPath_DoesNotFallBackToLegacy_WhenTrustedMissing() {
+            // 受信任目录不含该 DLL、旧目录含有时,不得回退到用户可写旧路径。
             const string fileName = "ExplorerBgTool.dll";
             string trustedDir = Path.Combine(tempRoot, "trusted");
             string legacyDir = Path.Combine(tempRoot, "legacy");
@@ -72,13 +71,12 @@ namespace QTTtabBarTests {
 
             string resolved = HookLibManager.ResolveTrustedLibraryPath(fileName, trustedDir, legacyDir);
 
-            Assert.AreEqual(Path.Combine(legacyDir, fileName), resolved,
-                "受信任目录缺失该 DLL 时应回退到旧路径。");
+            Assert.AreEqual(Path.Combine(trustedDir, fileName), resolved,
+                "受信任目录缺失该 DLL 时必须解析受信任路径,不得使用旧路径。");
         }
 
         [Test]
-        public void ResolveTrustedLibraryPath_ReturnsLegacyCandidate_WhenNeitherExists() {
-            // 两处都没有该 DLL 时,返回旧路径候选,保持既有"文件不存在则降级"处理不变。
+        public void ResolveTrustedLibraryPath_ReturnsTrustedCandidate_WhenNeitherExists() {
             const string fileName = "ExplorerBgTool.dll";
             string trustedDir = Path.Combine(tempRoot, "trusted");
             string legacyDir = Path.Combine(tempRoot, "legacy");
@@ -87,11 +85,11 @@ namespace QTTtabBarTests {
 
             string resolved = HookLibManager.ResolveTrustedLibraryPath(fileName, trustedDir, legacyDir);
 
-            Assert.AreEqual(Path.Combine(legacyDir, fileName), resolved,
-                "两处都不存在时应返回旧路径候选以复用既有降级逻辑。");
+            Assert.AreEqual(Path.Combine(trustedDir, fileName), resolved,
+                "两处都不存在时应返回受信任目录候选路径。");
         }
 
-        // ---------------- PluginManager: 来源/签名校验(告警不阻断) ----------------
+        // ---------------- PluginManager: 来源/签名校验(失败阻断) ----------------
 
         [Test]
         public void IsWithinTrustedPluginDirectory_ReturnsTrue_ForPathInsideTrustedDir() {
@@ -135,9 +133,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ValidatePluginSource_UnsignedUntrusted_ReturnsNotTrusted_ButContinues() {
-            // 核心保守策略验证:未签名且不在受信任目录 → 校验返回"不受信任",
-            // 但加载流程必须继续(ShouldContinueLoading == true),且不抛异常。
+        public void ValidatePluginSource_UnsignedUntrusted_ReturnsNotTrusted_AndBlocks() {
             string trustedDir = Path.Combine(tempRoot, "plugins");
             string otherDir = Path.Combine(tempRoot, "downloads");
             Directory.CreateDirectory(trustedDir);
@@ -152,8 +148,38 @@ namespace QTTtabBarTests {
 
             Assert.IsFalse(result.IsTrusted,
                 "未签名且不在受信任目录的插件应被判定为不受信任。");
+            Assert.IsFalse(result.ShouldContinueLoading,
+                "校验失败时必须阻断加载。");
+        }
+
+        [Test]
+        public void ValidatePluginSource_UnsignedInTrustedDir_ContinuesLoading() {
+            string trustedDir = Path.Combine(tempRoot, "plugins");
+            Directory.CreateDirectory(trustedDir);
+            string pluginPath = Path.Combine(trustedDir, "Bundled.dll");
+            File.WriteAllText(pluginPath, "not a real assembly");
+
+            PluginSourceValidation result = PluginManager.ValidatePluginSource(
+                pluginPath, new[] { trustedDir });
+
+            Assert.IsTrue(result.IsTrusted,
+                "位于受信任插件目录内的程序集应视为受信任。");
             Assert.IsTrue(result.ShouldContinueLoading,
-                "保守策略:校验失败仅告警,加载流程必须继续。");
+                "受信任插件必须允许继续加载。");
+        }
+
+        [Test]
+        public void LoadAssembly_UntrustedUnsigned_ReturnsNull() {
+            string trustedDir = Path.Combine(tempRoot, "plugins");
+            string otherDir = Path.Combine(tempRoot, "downloads");
+            Directory.CreateDirectory(trustedDir);
+            Directory.CreateDirectory(otherDir);
+            string bogus = Path.Combine(otherDir, "unsigned.dll");
+            File.WriteAllText(bogus, "not a real assembly");
+
+            PluginAssembly loaded = PluginManager.LoadAssembly(bogus);
+
+            Assert.IsNull(loaded, "不受信任的插件路径不得加载。");
         }
     }
 }

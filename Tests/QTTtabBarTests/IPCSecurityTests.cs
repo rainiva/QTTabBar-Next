@@ -45,16 +45,17 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void CreatePipeBinding_PreservesLargeMessageQuotas() {
-            // 回归保护:启用安全后,原有的大消息/长超时配额不得丢失,
-            // 否则 explorer 之间序列化委托的正常广播会被截断或超时。
+        public void CreatePipeBinding_UsesBoundedMessageQuotas() {
             MethodInfo m = GetStaticMethod("CreatePipeBinding", Type.EmptyTypes);
             Assert.IsNotNull(m, "InstanceManager 应提供可测的静态工厂方法 CreatePipeBinding()");
 
             NetNamedPipeBinding b = (NetNamedPipeBinding)m.Invoke(null, null);
-            Assert.AreEqual(int.MaxValue, b.MaxReceivedMessageSize, "MaxReceivedMessageSize 应保持 int.MaxValue");
-            Assert.AreEqual(int.MaxValue, b.MaxBufferSize, "MaxBufferSize 应保持 int.MaxValue");
-            Assert.AreEqual(int.MaxValue, b.ReaderQuotas.MaxArrayLength, "ReaderQuotas.MaxArrayLength 应保持 int.MaxValue");
+            const long expectedMax = 64L * 1024 * 1024;
+            Assert.AreEqual(expectedMax, b.MaxReceivedMessageSize,
+                "MaxReceivedMessageSize 应使用有界上限以降低 DoS 风险。");
+            Assert.AreEqual(expectedMax, b.MaxBufferSize, "MaxBufferSize 应与 MaxReceivedMessageSize 一致。");
+            Assert.AreEqual((int)expectedMax, b.ReaderQuotas.MaxArrayLength,
+                "ReaderQuotas.MaxArrayLength 应与消息上限一致。");
             Assert.AreEqual(TimeSpan.MaxValue, b.ReceiveTimeout, "ReceiveTimeout 应保持 TimeSpan.MaxValue");
         }
 

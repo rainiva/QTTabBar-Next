@@ -46,5 +46,10 @@ namespace QTTtabBarTests {
             Assert.IsFalse(QTUtility2.IsValidExecutablePath(@"C:\data\document.pdf"));
             Assert.IsFalse(QTUtility2.IsValidExecutablePath(@"C:\Windows\explorer.dll"));
         }
+
+        [Test]
+        public void IsValidExecutablePath_Rejects_ShellMetacharacters() {
+            Assert.IsFalse(QTUtility2.IsValidExecutablePath(@"C:\Windows\System32\cmd.exe & calc"));
+        }
     }
 }
