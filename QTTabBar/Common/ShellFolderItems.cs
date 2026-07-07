@@ -13,8 +13,8 @@ namespace QTTabBarLib.Common
         private readonly ShellContainer nativeShellFolder;
         private ShellObject currentItem;
         private IEnumIDList nativeEnumIdList;
-        private object current;
-        private ShellObject current1;
+        private object current = null;
+        private ShellObject current1 = null;
 
         internal ShellFolderItems(ShellContainer nativeShellFolder)
         {

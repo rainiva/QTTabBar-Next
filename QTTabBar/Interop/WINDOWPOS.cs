@@ -2,6 +2,7 @@
 
 namespace QTTabBarLib.Interop
 {
+  #pragma warning disable 0649
   internal struct WINDOWPOS
   {
     public IntPtr hwnd;
@@ -12,4 +13,5 @@ namespace QTTabBarLib.Interop
     public int cy;
     public SWP flags;
   }
+  #pragma warning restore 0649
 }

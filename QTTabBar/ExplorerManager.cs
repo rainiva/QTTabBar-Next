@@ -11,112 +11,48 @@ namespace QTTabBarLib
     internal sealed class ExplorerManager : NativeWindow, IDisposable, ICommandInvokerWindow
     {
         [ThreadStatic]
-        public static ExplorerManager ThreadInstance;
+        public static ExplorerManager ThreadInstance = null;
         [ThreadStatic]
-        public static IntPtr ThreadExplorerHandle;
+        public static IntPtr ThreadExplorerHandle = IntPtr.Zero;
         [ThreadStatic]
-        private static int windowDpi;
+        private static int windowDpi = 0;
         [ThreadStatic]
-        public static bool StartUpProcessComplete;
-        private SHDocVw.WebBrowser explorer;
-        private IShellBrowser shellBrowser;
+        public static bool StartUpProcessComplete = false;
         // private IBandSite bandSite;
         // private ShellFolderView shellFolderView;
-        private HookProc hookProc_Key;
-        private HookProc hookProc_Mouse;
-        private HookProc hookProc_GetMsg;
-        private HookProc hookProc_CallWndProc;
-        private IntPtr hHook_Key;
-        private IntPtr hHook_Mouse;
-        private IntPtr hHook_GetMsg;
-        private IntPtr hHook_CallWndProc;
-        private IntPtr hwndExplorer;
-        private IntPtr hwndRebar;
-        private IntPtr hwndListView;
-        private IntPtr hwndShellTab;
-        private IntPtr hwndAddressBandRoot;
-        private IntPtr hwndBreadcrumbParent;
-        private IntPtr hwndBreadcrumbToolbarWindow;
-        private WindowSubclass explorerWindowSubclass;
-        private WindowSubclass rebarWindowSubclass;
-        private WindowSubclass shellTabWindowSubclass;
-        private WindowSubclass addressBandRootWindowSubclass;
-        private WindowSubclass rebarParentWindowSubclass;
-        private bool fNowClosing;
-        private bool fUnregistered;
         // private NavigationPane navPane;
         // private NavigationPane navigationPaneMouseEvent;
         // private ToolbarImageHelper toolbarImageHelper;
         // private PluginManager pluginManager;
-        private static int DefaultRebarCOLORREF = -1;
-        private bool disposed;
-        private bool fVerticalBarDisplayed;
-        private bool fHorizontalExplorerBarDisplayed;
-        private bool fFirstNavigationComplete;
-        private bool fFirstEnumDone;
-        private bool fNowInitializingInstallation;
-        private bool fProcessingPendings;
         private byte[] currentIDL = new byte[2];
-        private IContainer components;
         // private SyncControl syncControl;
-        private bool fHorizontalyMaximized;
-        private Rectangle rctHorizontalyMaximizing;
-        private Rectangle rctHorizontalyMaximized;
-        private Point pntWndDragStartHMaximized;
-        private bool fInitializedOnSetSite;
-        public static bool fNowActivateNofocusExpected;
+        public static bool fNowActivateNofocusExpected = false;
         private bool fTreeViewColorPending = true;
-        private bool fTreeViewColorPendingOnStartUp;
-        private bool fSuppressRightButtonUp;
         [ThreadStatic]
-        public static bool CurrentExplorerIsRooted;
+        public static bool CurrentExplorerIsRooted = false;
         // private static ResourceCache<BmpCacheKey, Bitmap> watermarkImageCache = new ResourceCache<BmpCacheKey, Bitmap>(new Func<BmpCacheKey, Bitmap>(KeyResourceConverters.ToBitmap));
-        private System.Windows.Forms.Timer timerPollingShrinkToolbar;
-        private System.Windows.Forms.Timer timerShrinkStart;
-        private System.Windows.Forms.Timer timerVerticalBarShrinkStart;
-        private System.Windows.Forms.Timer timerBottomBarShrinkStart;
-        private System.Windows.Forms.Timer timerExpandTimerOnMaximized;
-        private bool fHorizontalToolbarShrinkPending;
-        private bool fVerticalBarShrinkPending;
-        private bool fBottomBarShrinkPending;
         private const int POLLINGINTERVAL_SHRINK = 333;
         private static int FOLDERBAND_HEIGHT = 34;
-        private ContextMenuStripEx contextMenFolderBand;
-        private TabSwitchForm tabSwitcher;
-        private bool fSuppressFocusing41008;
         // private static ConcurrentDictionary<ExplorerManager, SHOWWINDOW> dicNotifyIcon;
-        private static NotifyIcon notifyIcon;
-        private static ContextMenuStripEx contextMenuNotifyIcon;
-        private static Icon icoNotify;
-        private static ExplorerManager explorerManager_NotifyIconOwner;
-        private static bool fNotifyIconChanged;
-        private static bool fNotifyIconContextMenued;
-        public static bool fMergingAllWindow;
-        private FileRenameDialog fileRenameDialog;
-        private ExplorerManager.ToolbarManager toolbarManager;
-        private bool fInteractivePluginsUnloadingPending;
-        private bool fNoMoreDWMCOLORIZATIONCOLORCHANGED;
-        private int modalCounter;
+        public static bool fMergingAllWindow = false;
+        private ExplorerManager.ToolbarManager toolbarManager = null;
         // private ExtraViewResizer extraViewResizer;
-        private bool fFirstDpiChangeNotified;
         // private Rebar rebar;
-        private static volatile bool fNowOptionDialogOpening;
-        private bool fOptionDialogCreated;
         // private static OptionDialog optionsDialog;
         // private static RefreshProcessInfo refreshProcessInfo;
         // private Dictionary<int, EventData> dicUserEventData;
-        internal QTabItem tabDragSourceInTheWindow;
+        internal QTabItem tabDragSourceInTheWindow = null;
         // public IList<ItemIDList> PendingFoldersDefault;
-        public bool PendingFoldersDefaultProcessed;
-        public IList<string> PendingGroupsDefault;
-        public IList<string> PendingGroupsExtraView;
+        public bool PendingFoldersDefaultProcessed = false;
+        public IList<string> PendingGroupsDefault = null;
+        public IList<string> PendingGroupsExtraView = null;
         // public IList<ItemIDList> PendingFoldersExtraView;
         // public CommandInfo PendingCommandExtraView;
-        public QTabItem PendingTabExtraView;
-        public QTabItem PendingModifyTabExtraView2nd;
-        public QTabItem PendingModifyTabExtraView3rd;
-        public QTabItem PendingTabDefaultView;
-        public bool StartUpSelectionPendingExtraView;
+        public QTabItem PendingTabExtraView = null;
+        public QTabItem PendingModifyTabExtraView2nd = null;
+        public QTabItem PendingModifyTabExtraView3rd = null;
+        public QTabItem PendingTabDefaultView = null;
+        public bool StartUpSelectionPendingExtraView = false;
 
         public ExplorerManager.ToolbarManager Toolbars
         {
@@ -153,13 +89,10 @@ namespace QTTabBarLib
         public sealed class ToolbarManager
         {
             private ExplorerManager explorerManager;
-            private QTTabBarClass tabBar;
-            private QTTabBarClass tabBarAnother;
             // private QCommandBar commandBar1st;
             // private QCommandBar2nd commandBar2nd;
             // private QCommandBarVertical commandBarVrt;
             // private QManagementBar managementBar;
-            private QTSecondViewBar secondViewBar;
             // private QThirdViewBar thirdViewBar;
             private bool fNowHiding3rdViewBar;
 
