@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -89,10 +90,12 @@ namespace QTTabBarLib {
         public static void Initialize_bgtool()
         {
             if (HookStateManager.Handle != IntPtr.Zero) return;
-            string installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar");
             // string filename = IntPtr.Size == 8 ? "QTHookLib64.dll" : "QTHookLib32.dll";
             string filename =  "ExplorerBgTool.dll";
-            HookStateManager.SetHandle(PInvoke.LoadLibrary(Path.Combine(installPath, filename)));
+            // 优先从受信任安装目录(程序集所在目录)解析 DLL 全路径后再加载,降低 DLL 劫持面;
+            // 仅当受信任副本不存在时才回退旧的用户可写路径并记告警。
+            string libPath = ResolveHookLibraryPath(filename);
+            HookStateManager.SetHandle(PInvoke.LoadLibrary(libPath));
             int retcode = -1;
             if (HookStateManager.Handle == IntPtr.Zero)
             {
@@ -164,8 +167,9 @@ namespace QTTabBarLib {
                     return;
                 }
 
-                string installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar");
                 string filename = IntPtr.Size == 8 ? "QTHookLib64.dll" : "QTHookLib32.dll";
+                // 优先从受信任安装目录解析钩子 DLL 全路径,降低 DLL 劫持面。
+                string libPath = ResolveHookLibraryPath(filename);
                 if (HookStateManager.Handle != IntPtr.Zero)
                 {
                        if (!Config.Window.AutoHookWindow)
@@ -182,15 +186,15 @@ namespace QTTabBarLib {
                     return;
                 }
 
-                if (!File.Exists(Path.Combine(installPath, filename)))
+                if (!File.Exists(libPath))
                 {
-                    QTUtility2.flog("not exists file , close auto hook " + Path.Combine(installPath, filename));
+                    QTUtility2.flog("not exists file , close auto hook " + libPath);
                     HookStateManager.SetLoaded(false);
                     return;
                 }
                 QTUtility2.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
-                QTUtility2.flog("load library " + Path.Combine(installPath, filename) );
-                HookStateManager.SetHandle(PInvoke.LoadLibrary(Path.Combine(installPath, filename)));
+                QTUtility2.flog("load library " + libPath );
+                HookStateManager.SetHandle(PInvoke.LoadLibrary(libPath));
                 QTUtility2.flog("load library hHookLib " + HookStateManager.Handle);
                 int retcode = -1;
                 if(HookStateManager.Handle == IntPtr.Zero) {
@@ -336,6 +340,79 @@ namespace QTTabBarLib {
                     HookStateManager.SetShellBrowserHooked(true);
                 }
             }
+        }
+
+        // ------------------------------------------------------------------
+        // 受信任路径解析(P1 安全加固)
+        // 旧行为从 CommonApplicationData(用户可写目录)直接 LoadLibrary,存在 DLL 劫持风险。
+        // 下面的方法优先从受信任安装目录(程序集所在目录)解析 DLL,
+        // 仅当受信任副本缺失时才回退旧路径并记告警。
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// 受信任安装目录:当前程序集所在目录。获取失败时返回 null(由调用方降级)。
+        /// </summary>
+        internal static string GetTrustedInstallDirectory() {
+            try {
+                string loc = Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(loc)) {
+                    return Path.GetDirectoryName(loc);
+                }
+            }
+            catch (Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "HookLibManager.GetTrustedInstallDirectory");
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 旧的用户可写安装目录:CommonApplicationData\QTTabBar。
+        /// </summary>
+        internal static string GetLegacyInstallDirectory() {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "QTTabBar");
+        }
+
+        /// <summary>
+        /// 按“受信任安装目录优先”策略解析钩子 DLL 全路径。
+        /// </summary>
+        internal static string ResolveHookLibraryPath(string fileName) {
+            return ResolveTrustedLibraryPath(fileName, GetTrustedInstallDirectory(), GetLegacyInstallDirectory());
+        }
+
+        /// <summary>
+        /// 确定性的受信任路径解析(可测):
+        /// 1) 若受信任目录中存在该 DLL,返回受信任路径(优先);
+        /// 2) 否则若旧目录中存在该 DLL,记告警后回退旧路径;
+        /// 3) 两处都不存在时,返回旧路径候选,以复用既有“文件不存在则降级”处理。
+        /// </summary>
+        internal static string ResolveTrustedLibraryPath(string fileName, string trustedDir, string legacyDir) {
+            if (string.IsNullOrEmpty(fileName)) return null;
+
+            // 1) 优先受信任安装目录
+            if (!string.IsNullOrEmpty(trustedDir)) {
+                string trustedFull = Path.Combine(trustedDir, fileName);
+                if (File.Exists(trustedFull)) {
+                    return trustedFull;
+                }
+            }
+
+            // 2) 回退旧的用户可写路径(仅当受信任副本缺失时),并记告警
+            if (!string.IsNullOrEmpty(legacyDir)) {
+                string legacyFull = Path.Combine(legacyDir, fileName);
+                if (File.Exists(legacyFull)) {
+                    QTUtility2.MakeErrorLog(null,
+                        "HookLibManager: trusted install copy of " + fileName
+                        + " not found; falling back to legacy user-writable path " + legacyFull);
+                    return legacyFull;
+                }
+                // 3) 两处都不存在:返回旧路径候选,保持既有降级逻辑不变
+                return legacyFull;
+            }
+
+            // 无旧目录时退而用受信任目录候选
+            return string.IsNullOrEmpty(trustedDir) ? null : Path.Combine(trustedDir, fileName);
         }
 
         public static void CheckHooks() {

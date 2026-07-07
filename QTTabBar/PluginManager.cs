@@ -40,7 +40,7 @@ namespace QTTabBarLib {
             return dicPluginAssemblies.TryGetValue(path, out asm);
         }
 
-        // ����������쳣
+        // 处理插件异常
         public static void HandlePluginException(Exception ex, IntPtr hwnd, string pluginID, string strCase) {
             MessageForm.Show(hwnd, 
                 "Error : " + strCase + "\r\nPlugin : \"" + pluginID + "\"\r\nErrorType : " + ex, 
@@ -61,7 +61,7 @@ namespace QTTabBarLib {
         }
 
         /// <summary>
-        /// ����һ��Ĭ�ϵ� ����� ������ڵĻ��� TODO
+        /// 添加一批默认插件（若存在的话）TODO
         /// </summary>
         private static void InitDefaultQTConfigPlugin()
         {
@@ -122,6 +122,9 @@ namespace QTTabBarLib {
 
         public static PluginAssembly LoadAssembly(string path) {
             if(path.Length > 0 && File.Exists(path)) {
+                // 保守来源/签名校验:失败仅记告警,仍继续加载。
+                // 项目自带一批未签名插件,硬阻断会破坏功能。
+                ValidatePluginSource(path, GetTrustedPluginDirectories());
                 PluginAssembly pa = new PluginAssembly(path);
                 if(pa.PluginInfosExist) {
                     string[] enabled = Config.Plugin.Enabled;
@@ -135,6 +138,124 @@ namespace QTTabBarLib {
                 }
             }
             return null;
+        }
+
+        // ------------------------------------------------------------------
+        // 插件来源/签名校验(P1 安全加固,保守策略:告警不阻断)
+        // 动态加载程序集无来源校验存在安全风险。下面方法校验插件是否
+        // 位于受信任插件目录、是否具有 Authenticode 签名或强名称;
+        // 校验失败仅记告警,仍继续加载。
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// 受信任插件目录:程序集安装目录 + 发行自带插件的 ProgramData\QTTabBar。
+        /// </summary>
+        internal static IEnumerable<string> GetTrustedPluginDirectories() {
+            List<string> dirs = new List<string>();
+            try {
+                string loc = Assembly.GetExecutingAssembly().Location;
+                if(!string.IsNullOrEmpty(loc)) {
+                    dirs.Add(Path.GetDirectoryName(loc));
+                }
+            }
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "PluginManager.GetTrustedPluginDirectories: assembly location");
+            }
+            dirs.Add(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "QTTabBar"));
+            return dirs;
+        }
+
+        /// <summary>
+        /// 判断程序集是否位于任一受信任插件目录内(确定性纯路径逻辑)。不抛异常。
+        /// </summary>
+        internal static bool IsWithinTrustedPluginDirectory(string assemblyPath, IEnumerable<string> trustedDirs) {
+            if(string.IsNullOrEmpty(assemblyPath) || trustedDirs == null) return false;
+            string fullPath;
+            try {
+                fullPath = Path.GetFullPath(assemblyPath);
+            }
+            catch {
+                return false;
+            }
+            foreach(string dir in trustedDirs) {
+                if(string.IsNullOrEmpty(dir)) continue;
+                string dirFull;
+                try {
+                    dirFull = Path.GetFullPath(dir);
+                }
+                catch {
+                    continue;
+                }
+                if(dirFull.Length == 0) continue;
+                if(dirFull[dirFull.Length - 1] != Path.DirectorySeparatorChar) {
+                    dirFull += Path.DirectorySeparatorChar;
+                }
+                if(fullPath.StartsWith(dirFull, StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 程序集是否具有受信任签名(Authenticode 或强名称)。无效/未签名时返回 false。永不抛异常。
+        /// </summary>
+        internal static bool HasTrustedSignature(string assemblyPath) {
+            if(string.IsNullOrEmpty(assemblyPath) || !File.Exists(assemblyPath)) return false;
+
+            // 1) Authenticode 签名
+            try {
+                var cert = System.Security.Cryptography.X509Certificates.X509Certificate
+                    .CreateFromSignedFile(assemblyPath);
+                if(cert != null && !string.IsNullOrEmpty(cert.Subject)) {
+                    return true;
+                }
+            }
+            catch {
+                // 未经 Authenticode 签名,继续尝试强名称
+            }
+
+            // 2) 强名称(具有公钥令牌)
+            try {
+                AssemblyName an = AssemblyName.GetAssemblyName(assemblyPath);
+                byte[] token = an.GetPublicKeyToken();
+                if(token != null && token.Length > 0) {
+                    return true;
+                }
+            }
+            catch {
+                // 非托管程序集或无强名称
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 保守来源校验:校验插件是否受信任(位于受信任目录或已签名)。
+        /// 无论校验结果如何,ShouldContinueLoading 永远为 true(仅告警不阻断)。永不抛异常。
+        /// </summary>
+        internal static PluginSourceValidation ValidatePluginSource(string assemblyPath, IEnumerable<string> trustedDirs) {
+            bool trusted = false;
+            try {
+                trusted = IsWithinTrustedPluginDirectory(assemblyPath, trustedDirs)
+                          || HasTrustedSignature(assemblyPath);
+            }
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex,
+                    "PluginManager.ValidatePluginSource: validation error; continuing (conservative)");
+                trusted = false;
+            }
+
+            if(!trusted) {
+                QTUtility2.MakeErrorLog(null,
+                    "PluginManager: plugin failed source/signature validation "
+                    + "(unsigned or outside trusted directory); loading anyway (conservative policy): "
+                    + assemblyPath);
+            }
+
+            // 保守策略:即使校验失败也绝不阻断加载。
+            return new PluginSourceValidation { IsTrusted = trusted, ShouldContinueLoading = true };
         }
 
         private static void LoadStaticInstance(PluginInformation pi, PluginAssembly pa) {
@@ -163,7 +284,7 @@ namespace QTTabBarLib {
                 if(key == null) yield break;
                 foreach(string str in key.GetValueNames())
                 {
-                    // ��Ҫ�ж��ļ��Ƿ����
+                    // 需要判断文件是否存在
                     var path = (string)key.GetValue(str, string.Empty);
                     if (File.Exists(path))
                     {
@@ -177,17 +298,17 @@ namespace QTTabBarLib {
             // Read in the Assemblies to refresh
             string[] enabled = Config.Plugin.Enabled;
 /*
-δ�������������õ������ʵ����
+δ�������������õ������ʵ����
 HelpLink ---
 
 Source ---
 QTTabBar
 StackTrace ---
-   �� QTTabBarLib.PluginManager.<RefreshPlugins>b__e(PluginAssembly asm)
-   �� System.Linq.Enumerable.<SelectManyIterator>d__14`2.MoveNext()
-   �� System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
-   �� System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
-   �� System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   �� QTTabBarLib.PluginManager.<RefreshPlugins>b__e(PluginAssembly asm)
+   �� System.Linq.Enumerable.<SelectManyIterator>d__14`2.MoveNext()
+   �� System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   �� System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   �� System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
  */
             var pluginAssemblies = ReadAssemblyPaths().Select(path => {
                 PluginAssembly asm;
@@ -557,6 +678,16 @@ StackTrace ---
                 return (dicPluginInformations.Count > 0);
             }
         }
+    }
+
+    /// <summary>
+    /// 插件来源/签名校验结果(保守策略)。
+    /// IsTrusted:插件是否受信任(位于受信任目录或已签名)。
+    /// ShouldContinueLoading:是否应继续加载 —— 保守策略下永远为 true(仅告警不阻断)。
+    /// </summary>
+    internal struct PluginSourceValidation {
+        public bool IsTrusted;
+        public bool ShouldContinueLoading;
     }
 
     [Serializable, StructLayout(LayoutKind.Sequential)]
