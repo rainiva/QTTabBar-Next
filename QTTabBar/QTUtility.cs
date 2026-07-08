@@ -104,15 +104,15 @@ namespace QTTabBarLib {
         internal static bool fSingleClick;
         internal static int iIconUnderLineVal;
         internal static ImageList ImageListGlobal;
-        internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
-        internal static List<string> NoCapturePathsList = new List<string>();
+        internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session { get { return SessionState.ITEMIDLIST_Dic_Session; } set { SessionState.ITEMIDLIST_Dic_Session = value; } }
+        internal static List<string> NoCapturePathsList { get { return SessionState.NoCapturePathsList; } set { SessionState.NoCapturePathsList = value; } }
         internal static string[] ResMain;
         internal static string[] ResMisc;
         internal static bool RestoreFolderTree_Hide;
         // internal static SolidBrush sbAlternate;
        // internal static Font StartUpTabFont;
         internal static Dictionary<string, string[]> TextResourcesDic;
-        internal static byte WindowAlpha = 0xff;
+        internal static byte WindowAlpha { get { return SessionState.WindowAlpha; } set { SessionState.WindowAlpha = value; } }
 
         // �Ƿ�Ϊ����ģʽ
         internal static bool InNightMode;

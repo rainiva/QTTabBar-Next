@@ -446,6 +446,7 @@
     <Compile Include="ImageReservationKey.cs" />
     <Compile Include="InitializationOrchestrator.cs" />
     <Compile Include="InstanceManager.cs" />
+    <Compile Include="SessionState.cs" />
     <Compile Include="IpcCommandDispatcher.cs" />
     <Compile Include="IpcCommandMessage.cs" />
     <Compile Include="Interop\BITMAPINFO.cs" />

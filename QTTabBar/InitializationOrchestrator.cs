@@ -97,8 +97,8 @@ namespace QTTabBarLib {
                                 QTUtility.NoCapturePathsList = new List<string>(str7.Split(QTUtility.SEPARATOR_CHAR));
                             }
                         }
-                        if(!byte.TryParse((string)key.GetValue("WindowAlpha", "255"), out QTUtility.WindowAlpha)) {
-                            QTUtility.WindowAlpha = 0xff;
+                        if(!byte.TryParse((string)key.GetValue("WindowAlpha", "255"), out SessionState.WindowAlpha)) {
+                            SessionState.WindowAlpha = 0xff;
                         }
                     }
                 }
