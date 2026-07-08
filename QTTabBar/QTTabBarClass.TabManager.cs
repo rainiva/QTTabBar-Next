@@ -954,35 +954,29 @@ namespace QTTabBarLib {
                 Config.Tabs.NewTabPosition = TabPos.Rightmost;
                 try {
                     if(iIndex == 1) {
-                        using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegConst.Root, false))
+                        string[] strArray = StaticReg.LockedTabsToRestoreList.ToArray();
+                        if ((strArray.Length > 0) && (strArray[0].Length > 0))
                         {
-                            if (key != null)
+                            foreach (string str2 in strArray.Where(str2 => str2.Length > 0
+                                    && _owner.tabControl1.TabPages.All(item3 => item3.CurrentPath != str2)))
                             {
-                                string[] strArray = ((string)key.GetValue("TabsLocked2", string.Empty)).Split(QTUtility.SEPARATOR_CHAR);
-                                if ((strArray.Length > 0) && (strArray[0].Length > 0))
+                                if (str2 == openingPath)
                                 {
-                                    foreach (string str2 in strArray.Where(str2 => str2.Length > 0
-                                            && _owner.tabControl1.TabPages.All(item3 => item3.CurrentPath != str2)))
+                                    _owner.tabControl1.TabPages.Relocate(0, _owner.tabControl1.TabCount - 1);
+                                }
+                                else
+                                {
+                                    using (IDLWrapper wrapper2 = new IDLWrapper(str2))
                                     {
-                                        if (str2 == openingPath)
+                                        if (wrapper2.Available)
                                         {
-                                            _owner.tabControl1.TabPages.Relocate(0, _owner.tabControl1.TabCount - 1);
-                                        }
-                                        else
-                                        {
-                                            using (IDLWrapper wrapper2 = new IDLWrapper(str2))
-                                            {
-                                                if (wrapper2.Available)
-                                                {
-                                                    QTabItem item4 = CreateNewTab(wrapper2);
-                                                    item4.TabLocked = true;
-                                                }
-                                            }
+                                            QTabItem item4 = CreateNewTab(wrapper2);
+                                            item4.TabLocked = true;
                                         }
                                     }
-                                    _owner.fNowRestoring = true;
                                 }
                             }
+                            _owner.fNowRestoring = true;
                         }
                     }
                     else if(iIndex == 0) {
@@ -1039,13 +1033,12 @@ namespace QTTabBarLib {
                         e.Cancel = !CloseTab(e.TabPage);
                     }
                     else {
-                        using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
                         {
                             string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
                                              where item2.TabLocked
                                              select item2.CurrentPath).ToArray();
 
-                            QTUtility2.WriteRegBinary(list, "TabsLocked", key);
+                            QTUtility.SaveLockedTabs(list);
                         }
                         WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
                     }

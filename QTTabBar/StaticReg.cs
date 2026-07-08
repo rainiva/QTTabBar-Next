@@ -58,6 +58,7 @@ namespace QTTabBarLib {
     }
 
     internal sealed class RegBackedList<T> : Collection<T> {
+        private readonly object _assignLock = new object();
         private string key;
         private int lastUpdate = 0;
         private bool updating = false;
@@ -140,8 +141,29 @@ namespace QTTabBarLib {
         }
 
         public void Assign(IEnumerable<T> collection) {
-            Clear(); // todo: make more efficient
-            AddRange(collection);
+            lock(_assignLock) {
+                updating = true;
+                try {
+                    base.ClearItems();
+                    if(collection != null) {
+                        foreach(T item in collection) {
+                            InsertItem(Count, item);
+                        }
+                    }
+                    using(RegistryKey reg = Registry.CurrentUser.CreateSubKey(RegConst.StaticReg + key)) {
+                        foreach(string name in reg.GetValueNames()) {
+                            reg.DeleteValue(name);
+                        }
+                        for(int i = 0; i < Count; i++) {
+                            reg.SetValue("" + i, this[i]);
+                        }
+                        reg.SetValue("", ++lastUpdate);
+                    }
+                }
+                finally {
+                    updating = false;
+                }
+            }
         }
     }
 }

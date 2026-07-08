@@ -482,8 +482,17 @@ namespace QTTabBarLib {
                         StaticReg.LockedTabsToRestoreList.Assign(collection);
                     }
                     else {
-                        StaticReg.LockedTabsToRestoreList.Clear();
+                        StaticReg.LockedTabsToRestoreList.Assign(Array.Empty<string>());
                     }
+                }
+            }
+        }
+
+        public static void SaveLockedTabs(string[] paths) {
+            StaticReg.LockedTabsToRestoreList.Assign(paths ?? Array.Empty<string>());
+            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+                if(key != null) {
+                    QTUtility2.WriteRegBinary(paths, "TabsLocked", key);
                 }
             }
         }

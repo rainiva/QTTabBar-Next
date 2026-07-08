@@ -185,7 +185,6 @@ namespace QTTabBarLib {
 
 
         #region qwop �Զ�����
-        private static QTTabBarClass lstTabBar;
         public static void OpenOptionDialog()
         {
             OptionsDialog.Open();
@@ -212,11 +211,11 @@ namespace QTTabBarLib {
             
             if (null == tabBar)
             {
-                if (lstTabBar == null)
+                tabBar = TabInstanceRegistry.PeekMainInstance();
+                if (tabBar == null)
                 {
                     return false;
                 }
-                tabBar = lstTabBar;
             } 
             
             using (IDLWrapper wrapper = new IDLWrapper(address))
@@ -331,9 +330,6 @@ namespace QTTabBarLib {
             InitializeComponent();
             lstActivatedTabs.Add(CurrentTab);
 
-            // reocrd the last qttabbarclass instance, add by indiff .
-            lstTabBar = this;
-            
             // Ĭ�ϻ�ȡ�Ƿ�������־
             QTUtility2.ENABLE_LOGGER = Config.Misc.EnableLog;
         }
@@ -559,14 +555,11 @@ namespace QTTabBarLib {
                             }
 
                             
-                            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
-                            {
-                                string[] list = (from QTabItem item2 in tabControl1.TabPages
+                            string[] list = (from QTabItem item2 in tabControl1.TabPages
                                                  where item2.TabLocked
                                                  select item2.CurrentPath).ToArray();
                                // MessageBox.Show(String.Join(",", list));
-                                QTUtility2.WriteRegBinary(list, "TabsLocked", key);
-                            }
+                                QTUtility.SaveLockedTabs(list);
                             if(msg.hwnd == WindowUtils.GetShellTabWindowClass(ExplorerHandle)) { // �����ǩ�� handle ����Դ��������ƥ��
                                 try {
                                     bool flag = tabControl1.TabCount == 1;
@@ -909,10 +902,7 @@ namespace QTTabBarLib {
                         }*/
 
                         // �ر���Ϣȥ��д��������ǩ�ĵ���
-                        if (list != null && list.Length > 0)
-                        {
-                            QTUtility2.WriteRegBinary(list, "TabsLocked", key);
-                        }
+                        QTUtility.SaveLockedTabs(list);
 
                         InstanceManager.UnregisterTabBar();
                         if(0x80000 != ((int)PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000))) {
@@ -1265,14 +1255,13 @@ namespace QTTabBarLib {
                     break;
 
                 case BindAction.CloseWindow: // �رմ��� indiff
-                    using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
                     {
                         string[] list = (from QTabItem item2 in tabControl1.TabPages
                                          where item2.TabLocked
                                          select item2.CurrentPath).ToArray();
 
                         //MessageBox.Show(String.Join(",", list));
-                        QTUtility2.WriteRegBinary(list, "TabsLocked", key);
+                        QTUtility.SaveLockedTabs(list);
                     }
                     WindowUtils.CloseExplorer(ExplorerHandle, 1);
                     break;
@@ -2708,13 +2697,12 @@ namespace QTTabBarLib {
 
                 case Keys.Alt | Keys.F4:  // ��ݼ���ʽ�رմ���
                     if(!fRepeat) {
-                        using (RegistryKey key1 = Registry.CurrentUser.CreateSubKey(RegConst.Root))
                         {
                             string[] list = (from QTabItem item2 in tabControl1.TabPages
                                              where item2.TabLocked
                                              select item2.CurrentPath).ToArray();
                            //  MessageBox.Show(String.Join(",", list));
-                            QTUtility2.WriteRegBinary(list, "TabsLocked", key1);
+                            QTUtility.SaveLockedTabs(list);
                         }
                         WindowUtils.CloseExplorer(ExplorerHandle, 1);
                     }
@@ -3997,14 +3985,13 @@ namespace QTTabBarLib {
                     break;
 
                 case QTButtonBar.BII_CLOSE_WINDOW: // �ش���
-                    using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
                     {
                         string[] list = (from QTabItem item2 in tabControl1.TabPages
                                          where item2.TabLocked
                                          select item2.CurrentPath).ToArray();
 
                         // MessageBox.Show(String.Join(",", list));
-                        QTUtility2.WriteRegBinary(list, "TabsLocked", key);
+                        QTUtility.SaveLockedTabs(list);
                     }
                     WindowUtils.CloseExplorer(ExplorerHandle, 1);
                     break;

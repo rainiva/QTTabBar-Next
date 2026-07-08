@@ -1075,14 +1075,11 @@ namespace QTTabBarLib
                             }
 
 
-                            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
-                            {
-                                string[] list = (from QTabItem item2 in tabControl1.TabPages
+                            string[] list = (from QTabItem item2 in tabControl1.TabPages
                                                  where item2.TabLocked
                                                  select item2.CurrentPath).ToArray();
                                 // MessageBox.Show(String.Join(",", list));
-                                QTUtility2.WriteRegBinary(list, "TabsLocked", key);
-                            }
+                                QTUtility.SaveLockedTabs(list);
                             if (msg.hwnd == WindowUtils.GetShellTabWindowClass(ExplorerHandle))
                             { // 如果标签的 handle 与资源管理器的匹配
                                 try

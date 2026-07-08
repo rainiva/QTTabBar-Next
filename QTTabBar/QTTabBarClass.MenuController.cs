@@ -75,14 +75,13 @@ namespace QTTabBarLib {
                     _owner.ChooseNewDirectory();
                 }
                 else if(e.ClickedItem == _owner.tsmiCloseWindow) {
-                    using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
                     {
                         string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
                                          where item2.TabLocked
                                          select item2.CurrentPath).ToArray();
 
                         // MessageBox.Show(String.Join(",", list));
-                        QTUtility2.WriteRegBinary(list, "TabsLocked", key);
+                        QTUtility.SaveLockedTabs(list);
                     }
                     WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
                 }
@@ -167,14 +166,13 @@ namespace QTTabBarLib {
                 if(_owner.ContextMenuedTab != null) {
                     if(e.ClickedItem == _owner.tsmiClose) {
                         if(_owner.tabControl1.TabCount == 1) {
-                            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
                             {
                                 string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
                                                  where item2.TabLocked
                                                  select item2.CurrentPath).ToArray();
 
                                 // MessageBox.Show(String.Join(",", list));
-                                QTUtility2.WriteRegBinary(list, "TabsLocked", key);
+                                QTUtility.SaveLockedTabs(list);
                             }
                             WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
                         }
