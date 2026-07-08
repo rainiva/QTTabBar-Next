@@ -35,31 +35,24 @@ namespace QTTtabBarTests {
 
         #region PathValidator.IsShortDateStr facade equivalence
 
-        // Pattern (compiled from GBK source): \d{1,2}/\d{1,2}/\d{1,2}\s星期[一|二|三|四|五|六|日]\s\d{1,2}:\d{1,2}:\d{1,2}
-        // 星期一 = \u661F\u671F\u4E00, 星期日 = \u661F\u671F\u65E5
+        // Pattern: \d{1,2}/\d{1,2}/\d{1,2}\s周[一|二|三|四|五|六|日]\s\d{1,2}:\d{1,2}:\d{1,2}
+        // 周一 = \u5468\u4E00, 周日 = \u5468\u65E5
 
         [Test]
         public void IsShortDateStr_Facade_Equals_Extraction_MondaySample() {
-            string sample = "6/12/24 \u661F\u671F\u4E00 12:34:56";
+            string sample = "6/12/24 \u5468\u4E00 12:34:56";
             bool facade = QTUtility.IsShortDateStr(sample);
             bool extracted = PathValidator.IsShortDateStr(sample);
-            // NOTE: the IsShortDateStr regex in PathValidator.cs contains U+FFFD
-            // (replacement chars) where the Chinese weekday chars should be. This
-            // is a historical encoding corruption present in the original
-            // QTUtility.cs as well (verified via git show 039d4be^ -- the bytes
-            // are identical), NOT introduced by the Task 3.3 extraction. Both
-            // facade and extraction return false for a sample that should match.
-            // We assert equivalence (the actual contract) and document the issue.
-            Assert.IsFalse(facade, "regex has historical U+FFFD corruption in weekday chars; both return false");
+            Assert.IsTrue(facade, "regex should match short date with weekday 周一");
             Assert.AreEqual(extracted, facade, "facade and extraction must agree");
         }
 
         [Test]
         public void IsShortDateStr_Facade_Equals_Extraction_SundaySample() {
-            string sample = "12/1/2024 \u661F\u671F\u65E5 1:2:3";
+            string sample = "12/1/24 \u5468\u65E5 1:2:3";
             bool facade = QTUtility.IsShortDateStr(sample);
             bool extracted = PathValidator.IsShortDateStr(sample);
-            Assert.IsFalse(facade, "regex has historical U+FFFD corruption in weekday chars; both return false");
+            Assert.IsTrue(facade, "regex should match short date with weekday 周日");
             Assert.AreEqual(extracted, facade, "facade and extraction must agree");
         }
 

@@ -267,12 +267,6 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void Façade_Explorer_NavigateComplete2_Remains_On_QTTabBarClass() {
-            Assert.IsNotNull(typeof(QTTabBarClass).GetMethod("Explorer_NavigateComplete2", AnyInstance),
-                "QTTabBarClass should retain Explorer_NavigateComplete2 façade (called by InitializeInstallation)");
-        }
-
-        [Test]
         public void Façade_OnExplorerAttached_Override_Remains() {
             // OnExplorerAttached is a protected override; verify it still exists on QTTabBarClass
             MethodInfo m = typeof(QTTabBarClass).GetMethod("OnExplorerAttached",

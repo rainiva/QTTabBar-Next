@@ -68,7 +68,7 @@ namespace QTTabBarLib {
             {
                 return false;
             }
-            string pattern = @"\d{1,2}/\d{1,2}/\d{1,2}\s��[һ|��|��|��|��|��|��]\s\d{1,2}:\d{1,2}:\d{1,2}";
+            string pattern = @"\d{1,2}/\d{1,2}/\d{1,2}\s周[一|二|三|四|五|六|日]\s\d{1,2}:\d{1,2}:\d{1,2}";
             return Regex.IsMatch(input, pattern);
         }
     }

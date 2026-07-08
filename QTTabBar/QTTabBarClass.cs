@@ -2109,9 +2109,7 @@ namespace QTTabBarLib {
 
 
 
-        private void Explorer_NavigateComplete2(object pDisp, ref object URL) {
-            _explorerControllerModule.Explorer_NavigateComplete2(pDisp, ref URL);
-        }
+        // Explorer_NavigateComplete2 lives in ExplorerControllerModule; façade removed (dead code)
 
 
         // ��Ϣ����
