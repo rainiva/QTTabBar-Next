@@ -559,6 +559,9 @@
     <Compile Include="QTTabBarClass.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="QTTabBarClass.MenuController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTUtility.cs" />
     <Compile Include="QTUtility2.cs" />
     <Compile Include="SubDirTipForm.cs">
