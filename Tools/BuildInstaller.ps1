@@ -280,6 +280,14 @@ foreach ($relativeProjectPath in $installerProjects) {
             New-Item -ItemType Directory -Path $cabinetCachePath -Force | Out-Null
         }
 
+        # Isolate each culture's IntermediateOutputPath (matches the wixproj
+        # convention obj\$(Configuration)\) so its *.FileListAbsolute.txt is
+        # per-culture. Otherwise MSBuild IncrementalClean, seeing the previous
+        # culture's MSI as stale output when Cultures changes, deletes it and
+        # only the last culture (ru-RU) survives. MSI still goes to OutputPath
+        # (bin\Release\<culture>\), which is unaffected by this override.
+        $intermediateOutputPath = ("obj\{0}\{1}\" -f $Configuration, $culture)
+
         Write-Host "Building culture '$culture' for '$relativeProjectPath'..."
         Invoke-MsBuildProjectWithRetry -MsBuildExe $resolvedMsBuildPath -ProjectPath $projectPath -MaxAttempts 5 -RetryDelaySeconds 2 -Properties @{
             Configuration = $Configuration
@@ -288,6 +296,7 @@ foreach ($relativeProjectPath in $installerProjects) {
             ReuseCabinetCache = 'true'
             CabinetCachePath = $cabinetCachePath
             Cultures = $culture
+            IntermediateOutputPath = $intermediateOutputPath
         }
     }
 
