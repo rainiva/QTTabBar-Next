@@ -251,7 +251,7 @@ namespace QTTabBarLib {
         #endregion
 
         public QTTabBarClass() {
-            QTUtility.Initialize();
+            InitializationOrchestrator.Initialize();
             // QTUtility2.AllocDebugConsole();
             // Application.SetCompatibleTextRenderingDefault(false);
             // Application.DoEvents();
@@ -1366,7 +1366,11 @@ namespace QTTabBarLib {
          */
         private void EnableApiHook()
         {
-            // Create and enable the API hooks
+            // Create and enable the API hooks.
+            // Startup one-time hook initialization is handled idempotently by
+            // InitializationOrchestrator.Initialize(). This method, however, is the
+            // user-triggered context-menu entry ("Enable API Hook"), so it must keep
+            // its own independent call to re-enable/reload the API hooks on demand.
             HookLibManager.Initialize();
             QTUtility2.log("QTUtility ������������ API hooks");
         }

@@ -444,6 +444,7 @@
     <Compile Include="Delegates.cs" />
     <Compile Include="IDLWrapper.cs" />
     <Compile Include="ImageReservationKey.cs" />
+    <Compile Include="InitializationOrchestrator.cs" />
     <Compile Include="InstanceManager.cs" />
     <Compile Include="IpcCommandDispatcher.cs" />
     <Compile Include="IpcCommandMessage.cs" />

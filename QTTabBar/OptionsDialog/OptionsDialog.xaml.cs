@@ -92,7 +92,7 @@ namespace QTTabBarLib {
             // Ensure AssemblyResolve is registered before any Options page XAML loads TreeListView.
             GC.KeepAlive(typeof(QTUtility));
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.Initialize();
+                InitializationOrchestrator.Initialize();
             }
             ConfigManager.UpdateConfig(false);
             var dialog = new OptionsDialog();
