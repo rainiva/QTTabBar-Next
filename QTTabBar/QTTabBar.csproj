@@ -565,6 +565,9 @@
     <Compile Include="QTTabBarClass.MenuController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+<Compile Include="QTTabBarClass.TabManager.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTUtility.cs" />
     <Compile Include="QTUtility2.cs" />
     <Compile Include="SubDirTipForm.cs">
