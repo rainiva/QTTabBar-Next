@@ -137,6 +137,45 @@ function Invoke-MsBuildProject {
     }
 }
 
+function Invoke-MsBuildProjectWithRetry {
+    param(
+        [string]$MsBuildExe,
+        [string]$ProjectPath,
+        [hashtable]$Properties,
+        [int]$MaxAttempts = 3,
+        [int]$RetryDelaySeconds = 2
+    )
+
+    $msbuildArgs = @($ProjectPath, '/m:1', '/t:Build')
+    foreach ($key in $Properties.Keys) {
+        $msbuildArgs += "/p:$key=$($Properties[$key])"
+    }
+
+    # Transient failures caused by Windows Defender locking WiX extension .cab files
+    # in %TEMP% (light.exe -> LGHT0001). Retry only these; propagate other errors.
+    $transientPattern = 'LGHT0001|cannot access the file.*\.cab|\.cab.*(being used by another process|access is denied)'
+
+    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+        $output = & $MsBuildExe @msbuildArgs 2>&1
+        $output | ForEach-Object { Write-Host $_ }
+
+        if ($LASTEXITCODE -eq 0) {
+            return
+        }
+
+        $outputText = ($output | Out-String)
+        $isTransient = $outputText -match $transientPattern
+
+        if ($attempt -lt $MaxAttempts -and $isTransient) {
+            Write-Host "[Retry] Transient WiX cab lock (LGHT0001) detected for $ProjectPath (attempt $attempt/$MaxAttempts). Retrying in $RetryDelaySeconds second(s)..."
+            Start-Sleep -Seconds $RetryDelaySeconds
+            continue
+        }
+
+        throw "MSBuild failed for $ProjectPath with exit code $LASTEXITCODE after $attempt attempt(s)."
+    }
+}
+
 $resolvedMsBuildPath = Resolve-MsBuildPath -ExplicitPath $MSBuildPath
 $resolvedWixTargetsPath = Resolve-WixTargetsPath -ExplicitPath $WixTargetsPath -AllowMissing:$DetectOnly
 
@@ -176,7 +215,7 @@ foreach ($relativeProjectPath in $installerProjects) {
     if (-not (Test-Path $cabinetCachePath)) {
         New-Item -ItemType Directory -Path $cabinetCachePath -Force | Out-Null
     }
-    Invoke-MsBuildProject -MsBuildExe $resolvedMsBuildPath -ProjectPath $projectPath -Properties @{
+    Invoke-MsBuildProjectWithRetry -MsBuildExe $resolvedMsBuildPath -ProjectPath $projectPath -Properties @{
         Configuration = $Configuration
         Platform = 'x86'
         WixTargetsPath = $resolvedWixTargetsPath
