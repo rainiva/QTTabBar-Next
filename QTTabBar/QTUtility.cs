@@ -97,13 +97,13 @@ namespace QTTabBarLib {
         internal static readonly object syncRoot = new object();
         // ImageListGlobal 图标缓存的专用锁（P0-4 线程安全）。仅覆盖集合操作本身，
         // 严禁在锁内嵌套其他锁，以避免与 syncRoot 等锁交叉造成死锁。
-        private static readonly object imageListLock = new object();
-        internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
+        internal static readonly object imageListLock = new object();
+        internal static Dictionary<string, string> DisplayNameCacheDic { get { return ResourceCache.DisplayNameCacheDic; } set { ResourceCache.DisplayNameCacheDic = value; } }
         internal static bool fExplorerPrevented;
         internal static bool fRestoreFolderTree;
         internal static bool fSingleClick;
         internal static int iIconUnderLineVal;
-        internal static ImageList ImageListGlobal;
+        internal static ImageList ImageListGlobal { get { return ResourceCache.ImageListGlobal; } set { ResourceCache.ImageListGlobal = value; } }
         internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session { get { return SessionState.ITEMIDLIST_Dic_Session; } set { SessionState.ITEMIDLIST_Dic_Session = value; } }
         internal static List<string> NoCapturePathsList { get { return SessionState.NoCapturePathsList; } set { SessionState.NoCapturePathsList = value; } }
         internal static string[] ResMain;
@@ -111,7 +111,7 @@ namespace QTTabBarLib {
         internal static bool RestoreFolderTree_Hide;
         // internal static SolidBrush sbAlternate;
        // internal static Font StartUpTabFont;
-        internal static Dictionary<string, string[]> TextResourcesDic;
+        internal static Dictionary<string, string[]> TextResourcesDic { get { return ResourceCache.TextResourcesDic; } set { ResourceCache.TextResourcesDic = value; } }
         internal static byte WindowAlpha { get { return SessionState.WindowAlpha; } set { SessionState.WindowAlpha = value; } }
 
         // �Ƿ�Ϊ����ģʽ
@@ -985,7 +985,7 @@ namespace QTTabBarLib {
         }
 
         public static void ValidateTextResources() {
-            ValidateTextResources(ref TextResourcesDic);
+            ValidateTextResources(ref ResourceCache.TextResourcesDic);
             ResMain = TextResourcesDic["TabBar_Menu"];
             ResMisc = TextResourcesDic["Misc_Strings"];
             Resx.UpdateAll();

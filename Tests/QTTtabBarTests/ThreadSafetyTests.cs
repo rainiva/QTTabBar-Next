@@ -224,7 +224,7 @@ namespace QTTtabBarTests {
         // 通过反射保证 QTUtility.ImageListGlobal 已初始化（静态构造函数在测试环境
         // 中可能因原生依赖初始化失败而未创建该图片列表）。
         private static FieldInfo GetImageListGlobalField() {
-            var field = typeof(QTUtility).GetField("ImageListGlobal",
+            var field = typeof(QTUtility).Assembly.GetType("QTTabBarLib.ResourceCache").GetField("ImageListGlobal",
                 BindingFlags.NonPublic | BindingFlags.Static);
             Assert.IsNotNull(field, "QTUtility 应存在 ImageListGlobal 静态字段");
             return field;
