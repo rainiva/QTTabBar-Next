@@ -30,9 +30,32 @@ namespace QTTabBarLib {
             get { return Interlocked.Read(ref currentVersion); }
         }
 
-        /// <summary>Atomically bump the version and return the new value.</summary>
+        /// <summary>
+        /// Atomically bump the version and return the new value.
+        ///
+        /// The new version is derived from UTC ticks rather than a plain per-process
+        /// counter so it is globally monotonic across every explorer.exe process on
+        /// the same machine (they all read the same system clock). This fixes the
+        /// cross-process / post-restart dedup misjudgment where a fresh sender whose
+        /// in-process counter restarts from 0 produced a version that another process
+        /// had already applied, causing its legitimate config change to be dropped as
+        /// a duplicate.
+        ///
+        ///  - candidate = Max(currentVersion + 1, UtcNow.Ticks): the clock supplies a
+        ///    machine-wide comparable baseline, while the "+1" guard keeps the value
+        ///    strictly increasing even if the clock is stepped backwards.
+        ///  - A lock-free Interlocked.CompareExchange loop applies the update so
+        ///    concurrent increments never lose an update and never return the same
+        ///    value twice (no lock is introduced).
+        /// </summary>
         internal static long Increment() {
-            return Interlocked.Increment(ref currentVersion);
+            while(true) {
+                long prev = Interlocked.Read(ref currentVersion);
+                long candidate = System.Math.Max(prev + 1, System.DateTime.UtcNow.Ticks);
+                if(Interlocked.CompareExchange(ref currentVersion, candidate, prev) == prev) {
+                    return candidate;
+                }
+            }
         }
 
         /// <summary>

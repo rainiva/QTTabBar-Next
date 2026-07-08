@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,6 +85,20 @@ namespace QTTtabBarTests {
             LastAppliedField().SetValue(null, value);
         }
 
+        // currentVersion 为私有静态字段；测试通过 SetCurrentVersion 显式重置以
+        // 模拟「新进程/重启后进程内计数器从 0 开始」的发送方，保证可重复。
+        private static FieldInfo CurrentVersionField() {
+            Type t = TrackerType;
+            Assert.IsNotNull(t, "ConfigVersionTracker 应存在");
+            FieldInfo f = t.GetField("currentVersion", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(f, "ConfigVersionTracker 应有 currentVersion 私有静态字段");
+            return f;
+        }
+
+        private static void SetCurrentVersion(long value) {
+            CurrentVersionField().SetValue(null, value);
+        }
+
         private static bool InvokeShouldApply(long version) {
             MethodInfo m = TrackerType.GetMethod(
                 "ShouldApply", AnyStatic, null, new[] { typeof(long) }, null);
@@ -131,9 +147,9 @@ namespace QTTtabBarTests {
         public void Increment_ReturnsMonotonicallyIncreasingValue() {
             long before = GetCurrent();
             long r1 = InvokeIncrement();
-            Assert.AreEqual(before + 1, r1, "Increment 应返回自增后的版本号");
+            Assert.Greater(r1, before, "Increment 应返回严格大于此前 Current 的版本号");
             long r2 = InvokeIncrement();
-            Assert.AreEqual(r1 + 1, r2, "连续 Increment 应单调 +1");
+            Assert.Greater(r2, r1, "连续 Increment 应严格单调递增");
             Assert.GreaterOrEqual(GetCurrent(), r2, "Current 应 >= 最近一次 Increment 结果");
         }
 
@@ -142,17 +158,31 @@ namespace QTTtabBarTests {
             long before = GetCurrent();
             const int threads = 32;
             const int perThread = 500;
+            ConcurrentBag<long> produced = new ConcurrentBag<long>();
             Task[] tasks = new Task[threads];
             for(int i = 0; i < threads; i++) {
                 tasks[i] = Task.Factory.StartNew(() => {
                     for(int j = 0; j < perThread; j++) {
-                        InvokeIncrement();
+                        produced.Add(InvokeIncrement());
                     }
                 });
             }
             Task.WaitAll(tasks);
-            Assert.AreEqual(before + (long)threads * perThread, GetCurrent(),
-                "并发 Increment 不得丢失更新（线程安全）");
+
+            int total = threads * perThread;
+            Assert.AreEqual(total, produced.Count, "每次 Increment 都应产出一个返回值");
+            // CAS 不丢更新的强断言：全部返回值互不相同（版本生成方式无关）。
+            HashSet<long> distinct = new HashSet<long>(produced);
+            Assert.AreEqual(total, distinct.Count,
+                "并发 Increment 每次都应返回唯一的新版本（CAS 不丢更新）");
+            long max = long.MinValue;
+            foreach(long v in produced) {
+                if(v > max) {
+                    max = v;
+                }
+                Assert.Greater(v, before, "并发产出的每个版本都应严格大于起始 Current");
+            }
+            Assert.GreaterOrEqual(GetCurrent(), max, "Current 应 >= 并发产出的最大版本");
         }
 
         #endregion
@@ -322,6 +352,41 @@ namespace QTTtabBarTests {
             //     （ShouldApply(newVersion) 为 true 并推进基线），即新版本会触发 reload。
             Assert.IsTrue(InvokeShouldApply(newVersion), "新版本应通过去重门控（意味着会触发 reload）");
             Assert.AreEqual(newVersion, GetLastApplied(), "通过门控后基线应推进到新版本");
+        }
+
+        #endregion
+
+        #region 跨进程/跨重启多发送方版本去重误判（RED→GREEN）
+
+        [Test]
+        public void MultipleSenders_RestartedSenderVersion_NotMisjudgedAsDuplicate() {
+            // 复现缺陷：接收端已应用发送方 A 的版本并推进 lastAppliedVersion；
+            // 随后另一个「从 0 重新计数」的发送方 B（新进程/重启）调用 Increment，
+            // 其新版本必须严格大于已应用版本并被 ShouldApply 放行，否则 B 的
+            // 合法配置变更会被误判为重复/陈旧而跳过。
+            SetCurrentVersion(0L);
+            SetLastApplied(0L);
+
+            // 发送方 A 生成版本并被接收端应用（推进基线）。
+            long versionA = InvokeIncrement();
+            Assert.IsTrue(InvokeShouldApply(versionA), "发送方 A 的版本应被接收端应用");
+            Assert.AreEqual(versionA, GetLastApplied(), "应用 A 后基线应推进到 versionA");
+
+            // 让系统时钟前进，保证基于时钟的全局单调版本严格更新（消除时钟分辨率抖动）。
+            Thread.Sleep(50);
+
+            // 发送方 B：新进程/重启 → 进程内计数器从 0 开始。
+            SetCurrentVersion(0L);
+            long versionB = InvokeIncrement();
+
+            // 旧实现（进程内从 0 自增）：versionA==1、versionB==1 → versionB 不大于
+            // versionA，ShouldApply(versionB) 返回 false（RED）。
+            // UTC ticks 全局单调修复后：versionB > versionA 且被放行（GREEN）。
+            Assert.Greater(versionB, versionA,
+                "跨进程/重启后从 0 重新计数的发送方，其新版本仍应严格大于已应用版本");
+            Assert.IsTrue(InvokeShouldApply(versionB),
+                "新发送方的合法配置变更不应被误判为重复/陈旧而跳过");
+            Assert.AreEqual(versionB, GetLastApplied(), "放行 B 后基线应推进到 versionB");
         }
 
         #endregion
