@@ -167,13 +167,58 @@ function Invoke-MsBuildProjectWithRetry {
         $isTransient = $outputText -match $transientPattern
 
         if ($attempt -lt $MaxAttempts -and $isTransient) {
-            Write-Host "[Retry] Transient WiX cab lock (LGHT0001) detected for $ProjectPath (attempt $attempt/$MaxAttempts). Retrying in $RetryDelaySeconds second(s)..."
-            Start-Sleep -Seconds $RetryDelaySeconds
+            $delaySeconds = [int][Math]::Min($RetryDelaySeconds * [Math]::Pow(2, $attempt - 1), 8)
+            Write-Host "[Retry] Transient WiX cab lock (LGHT0001/cab in use) detected for $ProjectPath (attempt $attempt/$MaxAttempts). Retrying in $delaySeconds second(s)..."
+            Start-Sleep -Seconds $delaySeconds
             continue
         }
 
         throw "MSBuild failed for $ProjectPath with exit code $LASTEXITCODE after $attempt attempt(s)."
     }
+}
+
+function ConvertFrom-MSBuildEscape {
+    param([string]$Value)
+
+    if (-not $Value) {
+        return $Value
+    }
+
+    return [regex]::Replace($Value, '%([0-9A-Fa-f]{2})', { param($m) [char][Convert]::ToInt32($m.Groups[1].Value, 16) })
+}
+
+function Get-WixProjectCultures {
+    param([string]$ProjectPath)
+
+    # Prefer reading <Cultures> from the wixproj (Release|x86). Fall back to the
+    # canonical 7 cultures shipped by QTTabBar if it cannot be read reliably.
+    $fallback = @('en-US', 'zh-CN', 'de-DE', 'tr-TR', 'pt-BR', 'es-ES', 'ru-RU')
+    try {
+        $content = Get-Content -LiteralPath $ProjectPath -Raw -Encoding UTF8
+        $match = [regex]::Match($content, '<Cultures>\s*(.*?)\s*</Cultures>')
+        if ($match.Success) {
+            $list = $match.Groups[1].Value -split '[;,]' | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+            if ($list.Count -gt 0) {
+                return $list
+            }
+        }
+    }
+    catch {
+    }
+
+    return $fallback
+}
+
+function Get-WixOutputMsiFileName {
+    param([string]$ProjectPath)
+
+    $content = Get-Content -LiteralPath $ProjectPath -Raw -Encoding UTF8
+    $match = [regex]::Match($content, '<OutputName>\s*(.*?)\s*</OutputName>')
+    if ($match.Success) {
+        return (ConvertFrom-MSBuildEscape $match.Groups[1].Value) + '.msi'
+    }
+
+    throw "Unable to determine <OutputName> from $ProjectPath."
 }
 
 $resolvedMsBuildPath = Resolve-MsBuildPath -ExplicitPath $MSBuildPath
@@ -211,15 +256,53 @@ $installerProjects = switch ($Project) {
 
 foreach ($relativeProjectPath in $installerProjects) {
     $projectPath = Join-Path $repoRoot $relativeProjectPath
-    $cabinetCachePath = Join-Path (Split-Path -Parent $projectPath) 'obj\_cabcache'
-    if (-not (Test-Path $cabinetCachePath)) {
-        New-Item -ItemType Directory -Path $cabinetCachePath -Force | Out-Null
+    $projectDir = Split-Path -Parent $projectPath
+    $cultures = Get-WixProjectCultures -ProjectPath $projectPath
+    $msiFileName = Get-WixOutputMsiFileName -ProjectPath $projectPath
+    $outputRoot = Join-Path $projectDir ("bin\{0}" -f $Configuration)
+
+    Write-Host "Building installer '$relativeProjectPath' per-culture: $($cultures -join ', ')"
+
+    # Link one culture at a time so a Defender-induced LGHT0001 on a single
+    # language only retries that language instead of the whole 7-culture batch.
+    foreach ($culture in $cultures) {
+        $msiPath = Join-Path (Join-Path $outputRoot $culture) $msiFileName
+
+        # Idempotent skip: lets an interrupted run resume without rebuilding.
+        if (Test-Path -LiteralPath $msiPath) {
+            Write-Host "[Skip] Culture '$culture' already built: $msiPath"
+            continue
+        }
+
+        # Per-culture cabinet cache dir further reduces cross-culture lock contention.
+        $cabinetCachePath = Join-Path $projectDir ("obj\_cabcache\{0}" -f $culture)
+        if (-not (Test-Path $cabinetCachePath)) {
+            New-Item -ItemType Directory -Path $cabinetCachePath -Force | Out-Null
+        }
+
+        Write-Host "Building culture '$culture' for '$relativeProjectPath'..."
+        Invoke-MsBuildProjectWithRetry -MsBuildExe $resolvedMsBuildPath -ProjectPath $projectPath -MaxAttempts 5 -RetryDelaySeconds 2 -Properties @{
+            Configuration = $Configuration
+            Platform = 'x86'
+            WixTargetsPath = $resolvedWixTargetsPath
+            ReuseCabinetCache = 'true'
+            CabinetCachePath = $cabinetCachePath
+            Cultures = $culture
+        }
     }
-    Invoke-MsBuildProjectWithRetry -MsBuildExe $resolvedMsBuildPath -ProjectPath $projectPath -Properties @{
-        Configuration = $Configuration
-        Platform = 'x86'
-        WixTargetsPath = $resolvedWixTargetsPath
-        ReuseCabinetCache = 'true'
-        CabinetCachePath = $cabinetCachePath
+
+    # Verify every expected MSI exists; fail non-zero listing any missing culture.
+    $missingCultures = @()
+    foreach ($culture in $cultures) {
+        $msiPath = Join-Path (Join-Path $outputRoot $culture) $msiFileName
+        if (-not (Test-Path -LiteralPath $msiPath)) {
+            $missingCultures += $culture
+        }
     }
+
+    if ($missingCultures.Count -gt 0) {
+        throw "Installer '$relativeProjectPath' incomplete: missing MSI for culture(s): $($missingCultures -join ', ')."
+    }
+
+    Write-Host "Installer '$relativeProjectPath' complete: $($cultures.Count)/$($cultures.Count) cultures."
 }
