@@ -4022,6 +4022,8 @@ namespace QTTabBarLib {
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.ContextMenuStrip = contextMenuTab;
             tabControl1.RefreshOptions(true);
+            _tabManager = new TabManager(this);
+            _menuController = new MenuController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
             tabControl1.Deselecting += _tabManager.tabControl1_Deselecting;
             tabControl1.Selecting += _tabManager.tabControl1_Selecting;
@@ -4041,8 +4043,6 @@ namespace QTTabBarLib {
             // ע����ɫ������ť�ĵ���¼�
             tabControl1.PlusButtonClicked += _tabManager.tabControl1_PlusButtonClicked;
             
-            _menuController = new MenuController(this);
-            _tabManager = new TabManager(this);
             contextMenuTab.Items.Add(new ToolStripMenuItem());
             contextMenuTab.ShowImageMargin = false;
             contextMenuTab.ItemClicked += _menuController.contextMenuTab_ItemClicked;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using NUnit.Framework;
 using QTTabBarLib;
 
@@ -403,6 +404,157 @@ namespace QTTtabBarTests {
             FieldInfo f = typeof(QTTabBarClass).GetField("ContextMenuedTab",
                 BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.IsNotNull(f, "QTTabBarClass should have ContextMenuedTab field");
+        }
+
+        #endregion
+
+        #region TabIndex() behavior equivalence (façade vs extraction)
+
+        // TabIndex() (TabManager.cs L1484-L1505) is a pure computation based on
+        // Config.Tabs.NewTabPosition and tabControl1 state (TabPages.Count /
+        // SelectedIndex). We create a minimal QTTabBarClass + QTabControl via
+        // FormatterServices.GetUninitializedObject (bypassing constructors that
+        // require COM/Explorer/WinForms handle), wire up a TabManager, and verify
+        // behavior for every TabPos value. We also verify the façade
+        // (QTTabBarClass.TabIndex, private) forwards identically to the extraction
+        // (TabManager.TabIndex, public).
+        //
+        // Methods like AddInsertTab, OpenNewTab, CloseTab, CloneTabButton etc. are
+        // heavily coupled to Explorer/COM/Shell and cannot be deterministically
+        // tested without a live Explorer instance. They are intentionally skipped
+        // to avoid fragile/false-green tests.
+
+        private TabPos _savedNewTabPosition;
+
+        [SetUp]
+        public void TabIndex_SetUp() {
+            if(ConfigManager.LoadedConfig == null) {
+                ConfigManager.LoadedConfig = new Config();
+            }
+            _savedNewTabPosition = Config.Tabs.NewTabPosition;
+        }
+
+        [TearDown]
+        public void TabIndex_TearDown() {
+            Config.Tabs.NewTabPosition = _savedNewTabPosition;
+        }
+
+        private static (QTTabBarClass owner, object tabManager) CreateTabManagerWithFakeOwner(
+                int tabCount, int selectedIndex) {
+            var owner = (QTTabBarClass)FormatterServices.GetUninitializedObject(typeof(QTTabBarClass));
+            var tabCtrl = (QTabControl)FormatterServices.GetUninitializedObject(typeof(QTabControl));
+
+            var pages = new QTabControl.QTabCollection(tabCtrl);
+            for(int i = 0; i < tabCount; i++) {
+                ((List<QTabItem>)pages).Add(null);
+            }
+            typeof(QTabControl).GetField("tabPages", AnyInstance).SetValue(tabCtrl, pages);
+            typeof(QTabControl).GetField("iSelectedIndex", AnyInstance).SetValue(tabCtrl, selectedIndex);
+
+            owner.tabControl1 = tabCtrl;
+
+            ConstructorInfo ctor = TabManagerType.GetConstructor(
+                AnyInstance, null, new[] { typeof(QTTabBarClass) }, null);
+            object tabManager = ctor.Invoke(new object[] { owner });
+
+            typeof(QTTabBarClass).GetField("_tabManager",
+                BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, tabManager);
+
+            return (owner, tabManager);
+        }
+
+        private static int InvokeTabIndex(object tabManager) {
+            return (int)TabManagerType.GetMethod("TabIndex", AnyInstance)
+                .Invoke(tabManager, null);
+        }
+
+        private static int InvokeFacadeTabIndex(QTTabBarClass owner) {
+            return (int)typeof(QTTabBarClass).GetMethod("TabIndex",
+                BindingFlags.NonPublic | BindingFlags.Instance).Invoke(owner, null);
+        }
+
+        [Test]
+        public void TabIndex_Rightmost_ReturnsTabCount() {
+            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            Config.Tabs.NewTabPosition = TabPos.Rightmost;
+            Assert.AreEqual(5, InvokeTabIndex(tm),
+                "Rightmost: TabIndex should equal TabPages.Count");
+        }
+
+        [Test]
+        public void TabIndex_Right_ReturnsSelectedIndexPlusOne() {
+            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            Config.Tabs.NewTabPosition = TabPos.Right;
+            Assert.AreEqual(3, InvokeTabIndex(tm),
+                "Right: TabIndex should equal SelectedIndex + 1");
+        }
+
+        [Test]
+        public void TabIndex_Left_ReturnsSelectedIndexMinusOne() {
+            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            Config.Tabs.NewTabPosition = TabPos.Left;
+            Assert.AreEqual(1, InvokeTabIndex(tm),
+                "Left: TabIndex should equal SelectedIndex - 1");
+        }
+
+        [Test]
+        public void TabIndex_Leftmost_ReturnsZero() {
+            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            Config.Tabs.NewTabPosition = TabPos.Leftmost;
+            Assert.AreEqual(0, InvokeTabIndex(tm),
+                "Leftmost: TabIndex should be 0 (else branch)");
+        }
+
+        [Test]
+        public void TabIndex_LastActive_ReturnsZero() {
+            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            Config.Tabs.NewTabPosition = TabPos.LastActive;
+            Assert.AreEqual(0, InvokeTabIndex(tm),
+                "LastActive: TabIndex should be 0 (else branch)");
+        }
+
+        [Test]
+        public void TabIndex_Rightmost_WithZeroTabs_ReturnsZero() {
+            var (_, tm) = CreateTabManagerWithFakeOwner(0, -1);
+            Config.Tabs.NewTabPosition = TabPos.Rightmost;
+            Assert.AreEqual(0, InvokeTabIndex(tm),
+                "Rightmost with 0 tabs: TabIndex should be 0");
+        }
+
+        [Test]
+        public void TabIndex_Facade_Equals_Extraction_AllPositions() {
+            var (owner, tm) = CreateTabManagerWithFakeOwner(4, 1);
+            foreach(TabPos pos in (TabPos[])Enum.GetValues(typeof(TabPos))) {
+                Config.Tabs.NewTabPosition = pos;
+                int facade = InvokeFacadeTabIndex(owner);
+                int extracted = InvokeTabIndex(tm);
+                Assert.AreEqual(facade, extracted,
+                    "TabIndex façade must equal extraction for TabPos.{0}", pos);
+            }
+        }
+
+        #endregion
+
+        #region _owner prefix correctness guard
+
+        [Test]
+        public void TabManager_OwnerField_IsReadOnly() {
+            FieldInfo owner = TabManagerType.GetField("_owner", AnyInstance);
+            Assert.IsNotNull(owner, "_owner field must exist");
+            Assert.IsTrue(owner.IsInitOnly,
+                "_owner must be readonly (IsInitOnly) to prevent accidental reassignment");
+        }
+
+        [Test]
+        public void TabManager_HasExactlyOne_QTTabBarClass_Field() {
+            FieldInfo[] qtFields = TabManagerType
+                .GetFields(AnyInstance)
+                .Where(f => f.FieldType == typeof(QTTabBarClass))
+                .ToArray();
+            Assert.AreEqual(1, qtFields.Length,
+                "TabManager must have exactly one QTTabBarClass field (_owner)");
+            Assert.AreEqual("_owner", qtFields[0].Name,
+                "The single QTTabBarClass field must be named _owner");
         }
 
         #endregion
