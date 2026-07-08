@@ -94,7 +94,11 @@ function Resolve-WixTargetsPath {
 
     $candidates += @(
         (Join-Path ${env:ProgramFiles(x86)} 'WiX Toolset v3.11\bin\Wix.targets'),
-        (Join-Path $env:ProgramFiles 'WiX Toolset v3.11\bin\Wix.targets')
+        (Join-Path $env:ProgramFiles 'WiX Toolset v3.11\bin\Wix.targets'),
+        (Join-Path ${env:ProgramFiles(x86)} 'WiX Toolset v3.14\bin\Wix.targets'),
+        (Join-Path $env:ProgramFiles 'WiX Toolset v3.14\bin\Wix.targets'),
+        (Join-Path ${env:ProgramFiles(x86)} 'MSBuild\Microsoft\WiX\v3.x\wix.targets'),
+        (Join-Path $env:ProgramFiles 'MSBuild\Microsoft\WiX\v3.x\wix.targets')
     )
 
     foreach ($candidate in $candidates | Where-Object { $_ }) {
@@ -112,7 +116,7 @@ function Resolve-WixTargetsPath {
         return $null
     }
 
-    throw 'Wix.targets not found. Install WiX Toolset v3.11 or rerun with -WixTargetsPath <full-path-to-Wix.targets>.'
+    throw 'Wix.targets not found. Install WiX Toolset v3.11 or v3.14 or rerun with -WixTargetsPath <full-path-to-Wix.targets>.'
 }
 
 function Invoke-MsBuildProject {
@@ -168,9 +172,15 @@ $installerProjects = switch ($Project) {
 
 foreach ($relativeProjectPath in $installerProjects) {
     $projectPath = Join-Path $repoRoot $relativeProjectPath
+    $cabinetCachePath = Join-Path (Split-Path -Parent $projectPath) 'obj\_cabcache'
+    if (-not (Test-Path $cabinetCachePath)) {
+        New-Item -ItemType Directory -Path $cabinetCachePath -Force | Out-Null
+    }
     Invoke-MsBuildProject -MsBuildExe $resolvedMsBuildPath -ProjectPath $projectPath -Properties @{
         Configuration = $Configuration
         Platform = 'x86'
         WixTargetsPath = $resolvedWixTargetsPath
+        ReuseCabinetCache = 'true'
+        CabinetCachePath = $cabinetCachePath
     }
 }

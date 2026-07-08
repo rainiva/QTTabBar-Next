@@ -165,6 +165,12 @@
     <Exec Condition="!Exists('$(InteropShDocVw)') Or !Exists('$(InteropMshtml)')"
           Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(GenerateInteropScript)&quot;" />
   </Target>
+  <Target Name="CopyInteropSHDocVw" AfterTargets="Build">
+    <Copy Condition="Exists('$(MSBuildProjectDirectory)\..\lib\interop\Interop.SHDocVw.dll')"
+          SourceFiles="$(MSBuildProjectDirectory)\..\lib\interop\Interop.SHDocVw.dll"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
