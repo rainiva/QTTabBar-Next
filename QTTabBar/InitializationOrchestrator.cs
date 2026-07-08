@@ -91,12 +91,6 @@ namespace QTTabBarLib {
                             }
                         }
                         QTUtility.RefreshLockedTabsList();
-                        string str7 = (string)key.GetValue("NoCaptureAt", string.Empty);
-                        if(str7.Length > 0) {
-                            lock(QTUtility.syncRoot) {
-                                QTUtility.NoCapturePathsList = new List<string>(str7.Split(QTUtility.SEPARATOR_CHAR));
-                            }
-                        }
                         if(!byte.TryParse((string)key.GetValue("WindowAlpha", "255"), out SessionState.WindowAlpha)) {
                             SessionState.WindowAlpha = 0xff;
                         }

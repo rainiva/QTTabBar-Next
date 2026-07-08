@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Linq;
@@ -342,6 +343,8 @@ namespace QTTabBarLib {
             public bool TrayOnMinimize           { get; set; }
             public bool AutoHookWindow           { get; set; }
             public bool ShowFailNavMsg           { get; set; } // SHOW_FAIL_NAV_MSG
+            public bool BreakTabBar              { get; set; }
+            public string NoCaptureAt            { get; set; }
            
             public byte[] DefaultLocation        { get; set; }
 
@@ -373,6 +376,8 @@ namespace QTTabBarLib {
                 TrayOnMinimize = false;
                 // 默认关闭自动启动hook
                 AutoHookWindow = false;
+                BreakTabBar = true;
+                NoCaptureAt = string.Empty;
   //              string idl = Environment.OSVersion.Version >= new Version(6, 1)
   //                       ? "::{031E4825-7B94-4DC3-B131-E946B44C8DD5}"  // Libraries
   //                     : "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"; // Computer
@@ -1126,8 +1131,83 @@ namespace QTTabBarLib {
         }
     }
 
+    internal static class ConfigMetadataCache {
+        internal sealed class SettingEntry {
+            internal string KeyPath;
+            internal string Name;
+            internal Type Type;
+            internal PropertyInfo Property;
+        }
+
+        internal sealed class CategoryEntry {
+            internal string KeyPath;
+            internal PropertyInfo CategoryProperty;
+            internal SettingEntry[] Settings;
+        }
+
+        private static readonly object BuildLock = new object();
+        private static CategoryEntry[] _categories;
+        private static SettingEntry[] _flatSettings;
+
+        internal static CategoryEntry[] Categories {
+            get {
+                EnsureBuilt();
+                return _categories;
+            }
+        }
+
+        internal static IEnumerable<SettingEntry> GetWriteSettings(bool desktopOnly) {
+            EnsureBuilt();
+            if(!desktopOnly) {
+                return _flatSettings;
+            }
+            CategoryEntry desktop = _categories.FirstOrDefault(c => c.CategoryProperty.Name == "desktop");
+            return desktop == null ? Enumerable.Empty<SettingEntry>() : desktop.Settings;
+        }
+
+        private static void EnsureBuilt() {
+            if(_categories != null) return;
+            lock(BuildLock) {
+                if(_categories != null) return;
+                const string RegPath = RegConst.Root + RegConst.Config;
+                var categories = (
+                    from categoryProperty in typeof(Config).GetProperties()
+                    where categoryProperty.CanWrite
+                    let categoryType = categoryProperty.PropertyType
+                    select new CategoryEntry {
+                        KeyPath = RegPath + categoryType.Name.Substring(1),
+                        CategoryProperty = categoryProperty,
+                        Settings = (
+                            from settingProperty in categoryType.GetProperties()
+                            select new SettingEntry {
+                                Name = settingProperty.Name,
+                                Type = settingProperty.PropertyType,
+                                Property = settingProperty
+                            }
+                        ).ToArray()
+                    }
+                ).ToArray();
+                _categories = categories;
+                _flatSettings = categories.SelectMany(c => c.Settings.Select(s => new SettingEntry {
+                    KeyPath = c.KeyPath,
+                    Name = s.Name,
+                    Type = s.Type,
+                    Property = s.Property
+                })).ToArray();
+            }
+        }
+
+        internal static void ResetForTests() {
+            lock(BuildLock) {
+                _categories = null;
+                _flatSettings = null;
+            }
+        }
+    }
+
     public static class ConfigManager {
         public static volatile Config LoadedConfig;
+        private static string[] _lastPluginEnabledSnapshot;
 
         public static void Initialize() {
             LoadedConfig = new Config();
@@ -1149,48 +1229,59 @@ namespace QTTabBarLib {
                 QTUtility.TextResourcesDic = newTextResources;
             }
             QTUtility.ValidateTextResources();
+            ApplyNoCapturePathsFromConfig();
             StaticReg.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
             StaticReg.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;
             DropDownMenuBase.InitializeMenuRenderer();
             ContextMenuStripEx.InitializeMenuRenderer();
-            PluginManager.RefreshPlugins();
+            string[] enabledPlugins = Config.Plugin.Enabled ?? Array.Empty<string>();
+            bool pluginListChanged = _lastPluginEnabledSnapshot == null
+                || !_lastPluginEnabledSnapshot.SequenceEqual(enabledPlugins);
+            if(pluginListChanged) {
+                PluginManager.RefreshPlugins();
+                _lastPluginEnabledSnapshot = (string[])enabledPlugins.Clone();
+            }
             InstanceManager.LocalTabBroadcast(tabbar => tabbar.RefreshOptions());
             if(fBroadcast) {
                 InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
             }
         }
 
+        public static void SetNoCapturePathsAndBroadcast(IEnumerable<string> paths) {
+            List<string> list = paths == null ? new List<string>() : paths.ToList();
+            Config.Window.NoCaptureAt = string.Join(";", list.ToArray());
+            lock(QTUtility.syncRoot) {
+                QTUtility.NoCapturePathsList = new List<string>(list);
+            }
+            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Config + "Window")) {
+                if(key != null) {
+                    key.SetValue("NoCaptureAt", Config.Window.NoCaptureAt ?? string.Empty);
+                }
+            }
+            ConfigVersionTracker.Increment();
+            InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
+        }
+
+        public static void PersistBreakTabBar(bool breakTabBar) {
+            Config.Window.BreakTabBar = breakTabBar;
+            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Config + "Window")) {
+                if(key != null) {
+                    key.SetValue("BreakTabBar", breakTabBar ? 1 : 0);
+                }
+            }
+        }
+
         public static void ReadConfig() {
             try
             {
-                const string RegPath = RegConst.Root + RegConst.Config;
-
-                var categories =
-                    from categoryProperty in typeof(Config).GetProperties()
-                    where categoryProperty.CanWrite
-                    let categoryType = categoryProperty.PropertyType
-                    let categoryObject = categoryProperty.GetValue(LoadedConfig, null)
-                    select new {
-                        keyPath = RegPath + categoryType.Name.Substring(1),
-                        categoryObject, 
-                        settings = (
-                            from settingProperty in categoryType.GetProperties()
-                            select new {
-                                name = settingProperty.Name,
-                                type = settingProperty.PropertyType,
-                                value = settingProperty.GetValue(categoryObject, null),
-                                property = settingProperty
-                            }
-                        )
-                    };
-
-                foreach(var category in categories) {
-                    using (var key=Registry.CurrentUser.CreateSubKey(category.keyPath)) {
-                        foreach(var setting in category.settings) {
-                                object value = key.GetValue(setting.name);
+                foreach(var category in ConfigMetadataCache.Categories) {
+                    object categoryObject = category.CategoryProperty.GetValue(LoadedConfig, null);
+                    using (var key=Registry.CurrentUser.CreateSubKey(category.KeyPath)) {
+                        foreach(var setting in category.Settings) {
+                                object value = key.GetValue(setting.Name);
                                 if (value == null) { continue;}
 
-                                Type t = setting.type;
+                                Type t = setting.Type;
 
                                 if (t == typeof(bool))
                                 {
@@ -1220,12 +1311,15 @@ namespace QTTabBarLib {
                                     }
                                 }
 
-                                setting.property.SetValue(category.categoryObject, value, null);
+                                setting.Property.SetValue(categoryObject, value, null);
                             
                            
                         }
                     }
                 }
+
+                MigrateLegacyRootSettings();
+                ApplyNoCapturePathsFromConfig();
 
                 using(IDLWrapper wrapper = new IDLWrapper(Config.Window.DefaultLocation)) {
                     if(!wrapper.Available) {
@@ -1287,57 +1381,80 @@ namespace QTTabBarLib {
         public static void WriteConfig(bool DesktopOnly = false) {
             const string RegPath = RegConst.Root + RegConst.Config;
             QTUtility2.log("WriteConfig " + RegPath);
-            //Returns details of setting properties from all categories, or only Desktop category
-            var settings =
-                from categoryProperty in typeof(Config).GetProperties()
-                where DesktopOnly ? categoryProperty.Name == "desktop" : categoryProperty.CanWrite
-                let categoryType = categoryProperty.PropertyType
-                let categoryObject = categoryProperty.GetValue(LoadedConfig,null)
-                from settingProperty in categoryType .GetProperties()
-                select new {
-                    keyPath = RegPath + categoryType.Name.Substring(1),
-                    name = settingProperty.Name,
-                    type = settingProperty.PropertyType,
-                    value = settingProperty.GetValue(categoryObject, null)
-                };
-
-            foreach(var setting in settings) {
-                using (var key=Registry.CurrentUser.CreateSubKey(setting.keyPath)) {
-                    Type t = setting.type;
-                    object value = setting.value;
-
-                    if (t==typeof(bool)) {
-                        value=(bool)value ? 1 : 0;
-                    } else if (t != typeof(int) && t != typeof(string) && !t.IsEnum) {
-                        if (t==typeof(Font)) {
-                            value = XmlSerializableFont.FromFont((Font)value);
-                            t = typeof(XmlSerializableFont);
-                        }
-                        var ser = new DataContractJsonSerializer(t);
-                        using (var stream=new MemoryStream()) {
-                            try {
-                                ser.WriteObject(stream,value);
-                            } catch (Exception e) {
-                                QTUtility2.MakeErrorLog(e);
-                            }
-                            stream.Position = 0;
-                            StreamReader streamReader = new StreamReader(stream);
-                            value = streamReader.ReadToEnd();
-
-                            QTUtility2.Close(streamReader);
-                            QTUtility2.Close(stream);
-                           // if (streamReader != null) { streamReader.Close(); }
-                           // if (stream != null) { stream.Close(); }
-                        }
-                    }
-                    key.SetValue(setting.name,value);
+            foreach(var category in ConfigMetadataCache.Categories) {
+                if(DesktopOnly && category.CategoryProperty.Name != "desktop") {
+                    continue;
                 }
+                object categoryObject = category.CategoryProperty.GetValue(LoadedConfig, null);
+                foreach(var setting in category.Settings) {
+                    using (var key=Registry.CurrentUser.CreateSubKey(category.KeyPath)) {
+                        Type t = setting.Type;
+                        object value = setting.Property.GetValue(categoryObject, null);
+
+                        if (t==typeof(bool)) {
+                            value=(bool)value ? 1 : 0;
+                        } else if (t != typeof(int) && t != typeof(string) && !t.IsEnum) {
+                            if (t==typeof(Font)) {
+                                value = XmlSerializableFont.FromFont((Font)value);
+                                t = typeof(XmlSerializableFont);
+                            }
+                            var ser = new DataContractJsonSerializer(t);
+                            using (var stream=new MemoryStream()) {
+                                try {
+                                    ser.WriteObject(stream,value);
+                                } catch (Exception e) {
+                                    QTUtility2.MakeErrorLog(e);
+                                }
+                                stream.Position = 0;
+                                StreamReader streamReader = new StreamReader(stream);
+                                value = streamReader.ReadToEnd();
+
+                                QTUtility2.Close(streamReader);
+                                QTUtility2.Close(stream);
+                            }
+                        }
+                        key.SetValue(setting.Name,value);
+                    }
+                }
+            }
+            if(!DesktopOnly) {
+                _lastPluginEnabledSnapshot = (string[])(Config.Plugin.Enabled ?? Array.Empty<string>()).Clone();
             }
             // Task 2.4: bump the config version after a successful write so the
             // subsequent ReloadConfig broadcast can carry a monotonic version and
             // clients can drop stale / duplicate reloads.
             ConfigVersionTracker.Increment();
 			
+        }
+
+        private static void MigrateLegacyRootSettings() {
+            using(RegistryKey rootKey = Registry.CurrentUser.OpenSubKey(RegConst.Root, false)) {
+                if(rootKey == null) return;
+                using(RegistryKey windowKey = Registry.CurrentUser.OpenSubKey(RegConst.Root + RegConst.Config + "Window", false)) {
+                    if(windowKey == null || windowKey.GetValue("BreakTabBar") == null) {
+                        object legacyBreak = rootKey.GetValue("BreakTabBar");
+                        if(legacyBreak != null) {
+                            Config.Window.BreakTabBar = Convert.ToInt32(legacyBreak) != 0;
+                        }
+                    }
+                    if(windowKey == null || windowKey.GetValue("NoCaptureAt") == null) {
+                        object legacyNoCapture = rootKey.GetValue("NoCaptureAt");
+                        if(legacyNoCapture != null) {
+                            Config.Window.NoCaptureAt = legacyNoCapture.ToString();
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void ApplyNoCapturePathsFromConfig() {
+            if(string.IsNullOrEmpty(Config.Window.NoCaptureAt)) {
+                return;
+            }
+            lock(QTUtility.syncRoot) {
+                QTUtility.NoCapturePathsList = new List<string>(
+                    Config.Window.NoCaptureAt.Split(QTUtility.SEPARATOR_CHAR));
+            }
         }
     }
 }

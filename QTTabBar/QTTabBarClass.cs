@@ -4091,13 +4091,7 @@ namespace QTTabBarLib {
        
 
         protected override bool ShouldHaveBreak() {
-            bool breakBar = true;
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
-                if(key != null) {
-                    breakBar = ((int)key.GetValue("BreakTabBar", 1) == 1);
-                }
-            }
-            return breakBar;
+            return Config.Window.BreakTabBar;
         }
 
         internal void ShowContextMenu(bool fByKey) {
@@ -4110,9 +4104,7 @@ namespace QTTabBarLib {
                 InitializeInstallation();
             }
             if(!fShow) {
-                using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
-                    key.SetValue("BreakTabBar", BandHasBreak() ? 1 : 0);
-                }
+                ConfigManager.PersistBreakTabBar(BandHasBreak());
             }
         }
         // ��ʾĿ¼��

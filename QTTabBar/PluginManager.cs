@@ -50,6 +50,10 @@ namespace QTTabBarLib {
                 0x7530);
         }
 
+        private static string[] _cachedAssemblyPaths;
+        private static DateTime _assemblyPathsCacheExpiryUtc = DateTime.MinValue;
+        private static readonly TimeSpan AssemblyPathsCacheTtl = TimeSpan.FromSeconds(30);
+
         private static volatile bool _initialized;
 
         public static void Initialize() {
@@ -353,18 +357,33 @@ namespace QTTabBarLib {
         }
 
         private static IEnumerable<string> ReadAssemblyPaths() {
+            if(_cachedAssemblyPaths != null && DateTime.UtcNow < _assemblyPathsCacheExpiryUtc) {
+                foreach(string cached in _cachedAssemblyPaths) {
+                    yield return cached;
+                }
+                yield break;
+            }
+            List<string> paths = new List<string>();
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"Plugins\Paths")) {
-                if(key == null) yield break;
-                foreach(string str in key.GetValueNames())
-                {
-                    // 需要判断文件是否存在
-                    var path = (string)key.GetValue(str, string.Empty);
-                    if (File.Exists(path))
-                    {
-                        yield return path;
+                if(key != null) {
+                    foreach(string str in key.GetValueNames()) {
+                        var path = (string)key.GetValue(str, string.Empty);
+                        if(File.Exists(path)) {
+                            paths.Add(path);
+                        }
                     }
                 }
             }
+            _cachedAssemblyPaths = paths.ToArray();
+            _assemblyPathsCacheExpiryUtc = DateTime.UtcNow.Add(AssemblyPathsCacheTtl);
+            foreach(string path in _cachedAssemblyPaths) {
+                yield return path;
+            }
+        }
+
+        private static void InvalidateAssemblyPathsCache() {
+            _cachedAssemblyPaths = null;
+            _assemblyPathsCacheExpiryUtc = DateTime.MinValue;
         }
 
         public static void RefreshPlugins() {
@@ -385,17 +404,23 @@ StackTrace ---
  */
             var pluginAssemblies = ReadAssemblyPaths().Select(path => {
                 PluginAssembly asm;
-                if(!GetAssembly(path, out asm)) return LoadAssembly(path);
-                foreach(PluginInformation info in asm.PluginInformations
-                            .Where(info
-                                => enabled.Contains(info.PluginID) &&
-                                   File.Exists( info.Path )
-                                )
-                        ) {
-                    info.Enabled = true;
-                    asm.Enabled = true;
+                if(GetAssembly(path, out asm)) {
+                    DateTime diskTime = File.GetLastWriteTimeUtc(path);
+                    if(asm.LastLoadTime == diskTime) {
+                        foreach(PluginInformation info in asm.PluginInformations
+                                    .Where(info
+                                        => enabled.Contains(info.PluginID) &&
+                                           File.Exists( info.Path )
+                                        )
+                                ) {
+                            info.Enabled = true;
+                            asm.Enabled = true;
+                        }
+                        return asm;
+                    }
+                    UninstallPluginAssembly(asm);
                 }
-                return asm;
+                return LoadAssembly(path);
             });
             if (pluginAssemblies != null && pluginAssemblies.Count() > 0 )
             {
@@ -437,6 +462,7 @@ StackTrace ---
                     key.SetValue("" + idx++, path);
                 }
             }
+            InvalidateAssemblyPathsCache();
         }
 
         public static bool TryGetStaticPluginInstance(string pid, out Plugin plugin) {
@@ -586,6 +612,7 @@ StackTrace ---
         private const string IMGSMALL = "_small";
         public string Name;
         public string Path;
+        public DateTime LastLoadTime;
         private const string RESNAME = "Resource";
         private static Type T_PLUGINATTRIBUTE = typeof(PluginAttribute);
         public string Title;
@@ -596,6 +623,7 @@ StackTrace ---
             Path = path;
             Title = Author = Description = Version = Name = string.Empty;
             if(File.Exists(path)) {
+                LastLoadTime = File.GetLastWriteTimeUtc(path);
                 try {
                     assembly = Assembly.Load(File.ReadAllBytes(path));
                     AssemblyName name = assembly.GetName();
