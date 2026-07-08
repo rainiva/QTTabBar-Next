@@ -65,6 +65,24 @@ namespace QTTabBarLib {
             return Encode(IpcCommand.OpenOptions);
         }
 
+        // Encodes a ReloadConfig command carrying an 8-byte configuration version
+        // in the payload. Kept separate from the default Encode path so callers
+        // that do not care about versioning still emit the 6-byte header, keeping
+        // the wire format backward compatible (old receivers ignore the payload).
+        internal static byte[] EncodeReloadConfig(long version) {
+            return Encode(IpcCommand.ReloadConfig, BitConverter.GetBytes(version));
+        }
+
+        // Reads the configuration version from a ReloadConfig payload. Tolerates a
+        // null / too-short payload (legacy sender, no version) by returning 0,
+        // which downstream treats as "unspecified".
+        internal static long DecodeConfigVersion(byte[] payload) {
+            if(payload == null || payload.Length < 8) {
+                return 0L;
+            }
+            return BitConverter.ToInt64(payload, 0);
+        }
+
         internal static bool TryDecodeSelectTab(byte[] payload, out IntPtr tabBarHandle, out int index) {
             tabBarHandle = IntPtr.Zero;
             index = 0;

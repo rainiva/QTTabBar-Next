@@ -42,7 +42,8 @@ namespace QTTabBarLib {
                     work = () => ExecuteSelectTab(tabBarHandle, index);
                     return true;
                 case IpcCommand.ReloadConfig:
-                    work = ReloadConfigOnClient;
+                    long configVersion = IpcCommandMessage.DecodeConfigVersion(payload);
+                    work = () => ReloadConfigOnClient(configVersion);
                     return true;
                 case IpcCommand.ReloadGroups:
                     work = GroupsManager.ReloadFromBroadcast;
@@ -68,7 +69,13 @@ namespace QTTabBarLib {
             }
         }
 
-        private static void ReloadConfigOnClient() {
+        private static void ReloadConfigOnClient(long version) {
+            // Drop stale / duplicate reloads: a version that is not strictly newer
+            // than the last applied one (and is non-zero) is ignored. version 0
+            // means "unspecified" (legacy sender) and is always applied.
+            if(!ConfigVersionTracker.ShouldApply(version)) {
+                return;
+            }
             ConfigManager.ReadConfig();
             ConfigManager.UpdateConfig(false);
         }

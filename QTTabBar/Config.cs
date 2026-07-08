@@ -1148,7 +1148,7 @@ namespace QTTabBarLib {
             PluginManager.RefreshPlugins();
             InstanceManager.LocalTabBroadcast(tabbar => tabbar.RefreshOptions());
             if(fBroadcast) {
-                InstanceManager.StaticBroadcastCommand(IpcCommand.ReloadConfig);
+                InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
             }
         }
 
@@ -1325,6 +1325,10 @@ namespace QTTabBarLib {
                     key.SetValue(setting.name,value);
                 }
             }
+            // Task 2.4: bump the config version after a successful write so the
+            // subsequent ReloadConfig broadcast can carry a monotonic version and
+            // clients can drop stale / duplicate reloads.
+            ConfigVersionTracker.Increment();
 			
         }
     }

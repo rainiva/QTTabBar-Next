@@ -522,6 +522,14 @@ namespace QTTabBarLib {
             if(service != null) service.Broadcast(IpcCommandMessage.Encode(command));
         }
 
+        // Overload for commands whose payload is pre-encoded by the caller (e.g.
+        // ReloadConfig carrying a configuration version). Keeps the existing
+        // no-payload overload untouched for all other broadcast call sites.
+        public static void StaticBroadcastCommand(byte[] encodedCommand) {
+            ICommService service = GetChannel();
+            if(service != null) service.Broadcast(encodedCommand);
+        }
+
         public static void TabBarBroadcast(Action<QTTabBarClass> action, bool includeCurrent) {
             LocalTabBroadcast(action, Thread.CurrentThread);
             if(includeCurrent) {
