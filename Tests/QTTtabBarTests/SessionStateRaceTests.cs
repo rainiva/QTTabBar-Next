@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using NUnit.Framework;
 using QTTabBarLib;
 
@@ -105,6 +107,139 @@ namespace QTTtabBarTests {
             }
             finally {
                 ResourceCache.TextResourcesDic = original;
+            }
+        }
+
+        // ---- Behavior / concurrency characterization (Task 29) -----------
+
+        [Test]
+        public void TextResourcesDic_PublishChain_PublishesCompleteDictionary() {
+            // Config.Lang must be reachable for ValidateTextResources; use a plain
+            // default config (no registry / no broadcast) when nothing initialized it.
+            if(ConfigManager.LoadedConfig == null) {
+                ConfigManager.LoadedConfig = new Config();
+            }
+
+            Dictionary<string, string[]> saved = ResourceCache.TextResourcesDic;
+            try {
+                // Drive the exact publish chain used by ValidateTextResources()/UpdateConfig:
+                // start from null -> validate on a local -> publish once under the global lock.
+                Dictionary<string, string[]> dict = null;
+                QTUtility.ValidateTextResources(ref dict);
+                Assert.IsNotNull(dict,
+                    "ValidateTextResources must materialize a non-null dictionary from a null input");
+
+                lock(QTUtility.syncRoot) {
+                    ResourceCache.TextResourcesDic = dict;
+                }
+
+                // The lock-free read point (QTUtility.TextResourcesDic facade) must observe
+                // the fully built dictionary, never null / half-initialized.
+                Dictionary<string, string[]> viaReader = QTUtility.TextResourcesDic;
+                Assert.IsNotNull(viaReader, "published TextResourcesDic must not be null at the read point");
+                Assert.AreSame(dict, viaReader, "reader must observe the exact published reference");
+
+                CollectionAssert.Contains(viaReader.Keys, "TabBar_Menu",
+                    "built-in resources must have populated the TabBar_Menu key");
+                CollectionAssert.Contains(viaReader.Keys, "Misc_Strings",
+                    "built-in resources must have populated the Misc_Strings key");
+                Assert.IsNotNull(viaReader["TabBar_Menu"]);
+                Assert.Greater(viaReader["TabBar_Menu"].Length, 0,
+                    "TabBar_Menu must be filled from built-in resources (not a half-initialized empty slot)");
+                Assert.IsNotNull(viaReader["Misc_Strings"]);
+                Assert.Greater(viaReader["Misc_Strings"].Length, 0,
+                    "Misc_Strings must be filled from built-in resources (not a half-initialized empty slot)");
+            }
+            finally {
+                ResourceCache.TextResourcesDic = saved;
+            }
+        }
+
+        [Test]
+        public void NoCapturePathsList_WholeReferenceReplacement_IsConcurrencySafe() {
+            List<string> saved = SessionState.NoCapturePathsList;
+            try {
+                SessionState.NoCapturePathsList = new List<string> { "::{seed}" };
+
+                Exception readerError = null;
+                bool stop = false;
+
+                Thread reader = new Thread(() => {
+                    try {
+                        while(!Volatile.Read(ref stop)) {
+                            // Same lock-free .Any() read path as HookLibManager /
+                            // QTUtility2 / QTTabBarClass; the predicate forces enumeration.
+                            bool unused = QTUtility.NoCapturePathsList.Any(p => p.StartsWith("::"));
+                        }
+                    }
+                    catch(Exception ex) {
+                        readerError = ex;
+                    }
+                });
+                reader.IsBackground = true;
+                reader.Start();
+
+                // Writer replaces the WHOLE reference under the global lock; it never
+                // mutates the currently-published list in place.
+                for(int i = 0; i < 5000; i++) {
+                    List<string> next = new List<string> { "::{seed}", "::{gen-" + i + "}" };
+                    lock(QTUtility.syncRoot) {
+                        SessionState.NoCapturePathsList = next;
+                    }
+                }
+
+                Volatile.Write(ref stop, true);
+                Assert.IsTrue(reader.Join(5000), "reader thread should finish promptly");
+
+                Assert.IsNull(readerError,
+                    "lock-free .Any() reader must never throw: whole-reference replacement plus a " +
+                    "volatile read snapshot avoids the in-place mutation that would break enumeration "
+                    + (readerError == null ? "" : "(" + readerError.GetType().Name + ": " + readerError.Message + ")"));
+            }
+            finally {
+                SessionState.NoCapturePathsList = saved;
+            }
+        }
+
+        [Test]
+        public void WindowAlpha_ConcurrentReadWrite_NeverTearsAndRoundTrips() {
+            byte saved = QTUtility.WindowAlpha;
+            try {
+                byte[] allowed = { 0x00, 0x40, 0x80, 0xC0, 0xFF };
+                Exception readerError = null;
+                bool stop = false;
+
+                Thread reader = new Thread(() => {
+                    try {
+                        while(!Volatile.Read(ref stop)) {
+                            byte v = QTUtility.WindowAlpha;
+                            if(Array.IndexOf(allowed, v) < 0) {
+                                throw new Exception("observed unexpected/torn WindowAlpha value: " + v);
+                            }
+                        }
+                    }
+                    catch(Exception ex) {
+                        readerError = ex;
+                    }
+                });
+                reader.IsBackground = true;
+                reader.Start();
+
+                for(int i = 0; i < 20000; i++) {
+                    QTUtility.WindowAlpha = allowed[i % allowed.Length];
+                }
+
+                Volatile.Write(ref stop, true);
+                Assert.IsTrue(reader.Join(5000), "reader thread should finish promptly");
+                Assert.IsNull(readerError,
+                    readerError == null ? "" : readerError.Message);
+
+                QTUtility.WindowAlpha = 0x7F;
+                Assert.AreEqual((byte)0x7F, QTUtility.WindowAlpha,
+                    "WindowAlpha facade (Volatile.Write/Read) must round-trip the last written value");
+            }
+            finally {
+                QTUtility.WindowAlpha = saved;
             }
         }
     }
