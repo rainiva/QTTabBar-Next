@@ -80,6 +80,7 @@ namespace QTTabBarLib
         {
             try
             {
+                QTUtility.Initialize();
                 Application.EnableVisualStyles();
                 BandHeight = 500;
                 this.InitializeComponent();

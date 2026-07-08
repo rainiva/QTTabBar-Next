@@ -156,6 +156,7 @@ namespace QTTabBarLib {
             catch(Exception exception) {
                 // TODO: Any errors here would be very serious.  Alert the user as such.
                 QTUtility2.MakeErrorLog(exception);
+                _initialized = true;
             }
             }
         }

@@ -104,6 +104,7 @@ namespace QTTabBarLib {
         private ToolStripClasses toolStrip;
 
         public QTButtonBar() {
+            QTUtility.Initialize();
             // BarHeight = Config.Skin.TabHeight + 100;
             InitializeComponent();
         }

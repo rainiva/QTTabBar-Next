@@ -50,7 +50,10 @@ namespace QTTabBarLib {
                 0x7530);
         }
 
+        private static volatile bool _initialized;
+
         public static void Initialize() {
+            if(_initialized) return;
             // add by indiff.
             InitDefaultQTConfigPlugin();    
             foreach(PluginAssembly pa in ReadAssemblyPaths().Select(LoadAssembly)) {
@@ -59,6 +62,7 @@ namespace QTTabBarLib {
                     if(info.Enabled) LoadStaticInstance(info, pa);        
                 }
             }
+            _initialized = true;
         }
 
         /// <summary>

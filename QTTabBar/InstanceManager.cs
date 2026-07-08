@@ -43,6 +43,7 @@ namespace QTTabBarLib {
         }
 
         // Server-only stuff
+        private static volatile bool _initialized;
         private static ServiceHost serviceHost;
         private static List<ICommClient> callbacks = new List<ICommClient>();
         private static StackDictionary<IntPtr, ICommClient> sdInstances = new StackDictionary<IntPtr, ICommClient>();
@@ -350,12 +351,7 @@ namespace QTTabBarLib {
             // Re-initialize the comm client for recovery, but never allow the
             // recovery attempt itself to propagate an exception to the caller.
             private static void SafeReinitialize() {
-                try {
-                    Initialize();
-                }
-                catch(Exception reinitEx) {
-                    QTUtility2.MakeErrorLog(reinitEx, "CommClient.Execute: re-initialize failed");
-                }
+                InstanceManager.SafeReinitialize();
             }
         }
 
@@ -451,6 +447,8 @@ namespace QTTabBarLib {
         #endregion
 
         public static void Initialize(bool skipServer = false) {
+            if(_initialized) return;
+
             uint desktopPID;
             PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out desktopPID);
             isServer = desktopPID == PInvoke.GetCurrentProcessId();
@@ -463,6 +461,7 @@ namespace QTTabBarLib {
             // Otherwise reentrant calls will deadlock, for some reason.
             // So, create a new thread and open the channels there.
             thread = new Thread(() => {
+                CloseCommResources();
                 if(isServer && !skipServer) {
                     serviceHost = new ServiceHost(
                             typeof(CommService),
@@ -502,14 +501,53 @@ namespace QTTabBarLib {
             thread.Start();
             lock(thread) {
                 Monitor.Wait(thread);
-            }            
+            }
+            _initialized = true;
+        }
+
+        private static void CloseCommResources() {
+            if(serviceHost != null) {
+                try {
+                    if(serviceHost.State != CommunicationState.Closed) {
+                        serviceHost.Close();
+                    }
+                }
+                catch {
+                    serviceHost.Abort();
+                }
+                serviceHost = null;
+            }
+            if(commClient != null) {
+                try {
+                    if(commClient.State != CommunicationState.Closed) {
+                        commClient.Close();
+                    }
+                }
+                catch {
+                    commClient.Abort();
+                }
+                commClient = null;
+            }
+        }
+
+        private static void SafeReinitialize() {
+            try {
+                QTUtility2.log("InstanceManager.SafeReinitialize: resetting comm channels");
+                CloseCommResources();
+                _initialized = false;
+                Initialize();
+            }
+            catch(Exception reinitEx) {
+                QTUtility2.MakeErrorLog(reinitEx, "InstanceManager.SafeReinitialize: re-initialize failed");
+            }
         }
 
         private static ICommService GetChannel() {
-            if(commClient.State != CommunicationState.Opened) {
-                Initialize(true);
+            if(commClient != null && commClient.State == CommunicationState.Opened) {
+                return commClient.Channel;
             }
-            return commClient.State == CommunicationState.Opened ? commClient.Channel : null;
+            Initialize(true);
+            return commClient != null && commClient.State == CommunicationState.Opened ? commClient.Channel : null;
         }
 
         public static void StaticBroadcast(Action action) {
