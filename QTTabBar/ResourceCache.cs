@@ -25,7 +25,7 @@ namespace QTTabBarLib {
         // usage remain exactly equivalent to the original field declarations.
         internal static ImageList ImageListGlobal;
         internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
-        internal static Dictionary<string, string[]> TextResourcesDic;
+        internal static volatile Dictionary<string, string[]> TextResourcesDic;
 
         /// <summary>
         /// The global lock (guards DisplayNameCacheDic and other cross-collection

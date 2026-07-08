@@ -1137,9 +1137,17 @@ namespace QTTabBarLib {
         }
 
         public static void UpdateConfig(bool fBroadcast = true) {
-            QTUtility.TextResourcesDic = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
+            // Task 2.5.3: build and validate the dictionary on a local first, then
+            // publish it once under lock so lock-free readers never observe a null or
+            // half-initialized TextResourcesDic. The trailing ValidateTextResources()
+            // only refreshes ResMain/ResMisc/Resx from the already-valid published dict.
+            Dictionary<string, string[]> newTextResources = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
                     ? QTUtility.ReadLanguageFile(Config.Lang.LangFile)
                     : null;
+            QTUtility.ValidateTextResources(ref newTextResources);
+            lock(QTUtility.syncRoot) {
+                QTUtility.TextResourcesDic = newTextResources;
+            }
             QTUtility.ValidateTextResources();
             StaticReg.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
             StaticReg.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;

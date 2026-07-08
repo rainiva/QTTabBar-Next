@@ -22,7 +22,7 @@ namespace QTTabBarLib {
         // writes (dic[key] = val), Add, iteration and out/ref usage remain
         // exactly equivalent to the original field declarations.
         internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
-        internal static List<string> NoCapturePathsList = new List<string>();
+        internal static volatile List<string> NoCapturePathsList = new List<string>();
         internal static byte WindowAlpha = 0xff;
 
         /// <summary>

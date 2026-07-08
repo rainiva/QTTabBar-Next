@@ -112,7 +112,7 @@ namespace QTTabBarLib {
         // internal static SolidBrush sbAlternate;
        // internal static Font StartUpTabFont;
         internal static Dictionary<string, string[]> TextResourcesDic { get { return ResourceCache.TextResourcesDic; } set { ResourceCache.TextResourcesDic = value; } }
-        internal static byte WindowAlpha { get { return SessionState.WindowAlpha; } set { SessionState.WindowAlpha = value; } }
+        internal static byte WindowAlpha { get { return System.Threading.Volatile.Read(ref SessionState.WindowAlpha); } set { System.Threading.Volatile.Write(ref SessionState.WindowAlpha, value); } }
 
         // �Ƿ�Ϊ����ģʽ
         internal static bool InNightMode;
@@ -985,7 +985,11 @@ namespace QTTabBarLib {
         }
 
         public static void ValidateTextResources() {
-            ValidateTextResources(ref ResourceCache.TextResourcesDic);
+            Dictionary<string, string[]> dict = ResourceCache.TextResourcesDic;
+            ValidateTextResources(ref dict);
+            lock(syncRoot) {
+                ResourceCache.TextResourcesDic = dict;
+            }
             ResMain = TextResourcesDic["TabBar_Menu"];
             ResMisc = TextResourcesDic["Misc_Strings"];
             Resx.UpdateAll();
