@@ -251,7 +251,14 @@ namespace QTTabBarLib {
         #endregion
 
         public QTTabBarClass() {
-            InitializationOrchestrator.Initialize();
+            // Trigger QTUtility's static constructor as the single driver of the
+            // business initialization sequence. QTUtility.Initialize() is an empty
+            // method whose only purpose is to fire that static ctor, which in turn
+            // calls InitializationOrchestrator.Initialize() exactly once. Calling the
+            // orchestrator directly here would let its mid-sequence QTUtility.* access
+            // trigger the static ctor and re-enter the orchestrator (Monitor is
+            // reentrant), running the non-idempotent steps twice.
+            QTUtility.Initialize();
             // QTUtility2.AllocDebugConsole();
             // Application.SetCompatibleTextRenderingDefault(false);
             // Application.DoEvents();
