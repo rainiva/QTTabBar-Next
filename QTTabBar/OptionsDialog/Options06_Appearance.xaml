@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
     This file is part of QTTabBar, a shell extension for Microsoft
     Windows Explorer.
@@ -34,7 +34,7 @@
     </UserControl.Resources>
 
     <StackPanel
-        Margin="14,5,10,0"
+        Margin="{StaticResource Fluent.PageMargin}"
         Orientation="Vertical">
         <StackPanel
             Margin="0,0,0,4"

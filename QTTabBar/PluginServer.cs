@@ -886,7 +886,7 @@ namespace QTTabBarLib {
 
         protected override int CalcBandHeight(int count)
         {
-            throw new NotImplementedException();
+            return -1;
         }
     }
 }

@@ -378,41 +378,59 @@ namespace QTTabBarLib {
         /// 按“受信任安装目录优先”策略解析钩子 DLL 全路径。
         /// </summary>
         internal static string ResolveHookLibraryPath(string fileName) {
-            return ResolveTrustedLibraryPath(fileName, GetTrustedInstallDirectory(), GetLegacyInstallDirectory());
+            return ResolveTrustedLibraryPath(
+                fileName,
+                GetTrustedInstallDirectory(),
+                GetLegacyInstallDirectory(),
+                Config.Security.BlockLegacyHookDllPath);
         }
 
         /// <summary>
         /// 确定性的受信任路径解析(可测):
         /// 1) 若受信任目录中存在该 DLL,返回受信任路径(优先);
-        /// 2) 否则若旧目录中存在该 DLL,记告警后回退旧路径;
-        /// 3) 两处都不存在时,返回旧路径候选,以复用既有“文件不存在则降级”处理。
+        /// 2) 否则若旧目录中存在该 DLL,记告警后回退旧路径(除非 blockLegacyPath);
+        /// 3) 两处都不存在时,返回受信任路径候选或 legacy 候选(blockLegacyPath 时不返回 legacy)。
         /// </summary>
-        internal static string ResolveTrustedLibraryPath(string fileName, string trustedDir, string legacyDir) {
+        internal static string ResolveTrustedLibraryPath(
+                string fileName,
+                string trustedDir,
+                string legacyDir,
+                bool blockLegacyPath = false) {
             if (string.IsNullOrEmpty(fileName)) return null;
 
+            string trustedFull = string.IsNullOrEmpty(trustedDir)
+                ? null
+                : Path.Combine(trustedDir, fileName);
+
             // 1) 优先受信任安装目录
-            if (!string.IsNullOrEmpty(trustedDir)) {
-                string trustedFull = Path.Combine(trustedDir, fileName);
-                if (File.Exists(trustedFull)) {
-                    return trustedFull;
-                }
+            if (!string.IsNullOrEmpty(trustedFull) && File.Exists(trustedFull)) {
+                return trustedFull;
             }
 
             // 2) 回退旧的用户可写路径(仅当受信任副本缺失时),并记告警
             if (!string.IsNullOrEmpty(legacyDir)) {
                 string legacyFull = Path.Combine(legacyDir, fileName);
                 if (File.Exists(legacyFull)) {
+                    if (blockLegacyPath) {
+                        QTUtility2.MakeErrorLog(null,
+                            "HookLibManager: blocked legacy user-writable hook path (BlockLegacyHookDllPath=true): "
+                            + legacyFull);
+                        return trustedFull;
+                    }
                     QTUtility2.MakeErrorLog(null,
                         "HookLibManager: trusted install copy of " + fileName
                         + " not found; falling back to legacy user-writable path " + legacyFull);
                     return legacyFull;
                 }
-                // 3) 两处都不存在:返回旧路径候选,保持既有降级逻辑不变
+                // 3) 两处都不存在
+                if (blockLegacyPath) {
+                    return trustedFull;
+                }
                 return legacyFull;
             }
 
             // 无旧目录时退而用受信任目录候选
-            return string.IsNullOrEmpty(trustedDir) ? null : Path.Combine(trustedDir, fileName);
+            return trustedFull;
         }
 
         public static void CheckHooks() {

@@ -1499,9 +1499,15 @@ namespace QTTabBarLib {
         // 委托参数用于测试注入（可断言删除是否发生、发生几次、针对哪个句柄）。
         internal static Bitmap CreateManagedBitmapAndReleaseHandle(
                 IntPtr hBitmap, Func<IntPtr, Bitmap> fromHbitmap, Func<IntPtr, bool> deleteObject) {
-            Bitmap bmp = fromHbitmap(hBitmap);
-            deleteObject(hBitmap);
-            return bmp;
+            try {
+                Bitmap bmp = fromHbitmap(hBitmap);
+                deleteObject(hBitmap);
+                return bmp;
+            }
+            catch {
+                deleteObject(hBitmap);
+                throw;
+            }
         }
 
         internal static List<string> MakeDefaultImgExts() {

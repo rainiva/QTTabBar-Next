@@ -185,7 +185,13 @@ namespace QTTabBarLib {
 
             // Register a callback for AssemblyResolve in order to load embedded assemblies.
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
-                String resourceName = "QTTabBarLib.Resources." + new AssemblyName(args.Name).Name + ".dll";
+                var requestedName = new AssemblyName(args.Name);
+                foreach(var loaded in AppDomain.CurrentDomain.GetAssemblies()) {
+                    if(string.Equals(loaded.GetName().Name, requestedName.Name, StringComparison.OrdinalIgnoreCase)) {
+                        return loaded;
+                    }
+                }
+                String resourceName = "QTTabBarLib.Resources." + requestedName.Name + ".dll";
                 using(var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)) {
                     if(stream == null) return null;
                     byte[] assemblyData = new byte[stream.Length];

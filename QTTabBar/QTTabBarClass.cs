@@ -3103,7 +3103,7 @@ namespace QTTabBarLib {
                     FirstNavigationCompleted = true;
                     // this.listView
                     // compatibleView.SetBackColor(ColorTranslator.ToWin32(SystemColors.Window),   ColorTranslator.ToWin32(System.Drawing.Color.FromArgb(244, 248, 253)));
-                    // listView.RefreshViewWatermark(false);
+                    listView.RefreshViewWatermark(false);
                 }
             }
         }
@@ -5096,6 +5096,7 @@ namespace QTTabBarLib {
                     elvc.SubDirTip_MenuItemRightClicked += subDirTip_MenuItemRightClicked;
                     elvc.SubDirTip_MultipleMenuItemsClicked += subDirTip_MultipleMenuItemsClicked;
                     elvc.SubDirTip_MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
+                    elvc.RefreshViewWatermark(true);
                 }
             }
             HandleF5();
@@ -6132,6 +6133,10 @@ namespace QTTabBarLib {
             tabControl1.ResumeLayout();
             ResumeLayout(true);
             TryCallButtonBar(bbar => { return bbar.CreateItems(); });
+            AbstractListView lv = GetListView();
+            if(lv != null) {
+                lv.RefreshViewWatermark(true);
+            }
         }
 
         [ComRegisterFunction]

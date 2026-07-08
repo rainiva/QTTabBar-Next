@@ -1199,7 +1199,7 @@ namespace QTTabBarLib {
         private bool ShowSubDirTip(IntPtr pIDL, int iItem, bool fSkipFocusCheck) {
             // desktop thread ( desktop hook -> mouse hottrack, desktop hook -> keydown )
 
-            if(fSkipFocusCheck || Config.Bool(Scts.SubDirTipForInactiveWindow) ||
+            if(fSkipFocusCheck || Config.Tips.SubDirTipForInactiveWindow ||
                     hwndListView == PInvoke.GetFocus()) {
                 try {
                     string path = ShellMethods.GetDisplayName(pIDL, false);
@@ -1268,7 +1268,7 @@ namespace QTTabBarLib {
                 using(IDLWrapper idlw = new IDLWrapper(qmi.IDL)) {
                     if(!idlw.IsDeadLink(hwndDialogParent)) {
                         Keys modKey = ModifierKeys;
-                        if(!Config.Bool(Scts.ActivateNewTab)) {
+                        if(!Config.Tabs.ActivateNewTab) {
                             if(modKey == Keys.Shift) {
                                 modKey = Keys.None;
                             }
@@ -1371,7 +1371,7 @@ namespace QTTabBarLib {
                 }
 
                 Keys modKey = ModifierKeys;
-                if(!Config.Bool(Scts.ActivateNewTab)) {
+                if(!Config.Tabs.ActivateNewTab) {
                     if(modKey == Keys.Shift) {
                         modKey = Keys.None;
                     }

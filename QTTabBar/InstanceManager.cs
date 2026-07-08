@@ -136,14 +136,7 @@ namespace QTTabBarLib {
                 ICommClient comm;
                 if(sdInstances.TryGetValue(tabBarHandle, out comm)) {
                     QTUtility2.log("SelectTabOnOtherTabBar comm.Execute");
-                    comm.Execute(DelToByte(new Action(() => {
-                        using(new Keychain(TabInstanceRegistry.Lock, false)) {
-                            QTTabBarClass tabbar;
-                            if(TabInstanceRegistry.TryGetTabBarByHandle(tabBarHandle, out tabbar)) {
-                                tabbar.SelectedTabIndex = index;
-                            }
-                        }
-                    })));
+                    comm.Execute(IpcCommandMessage.EncodeSelectTab(tabBarHandle, index));
                 }
             }
 
@@ -181,23 +174,21 @@ namespace QTTabBarLib {
             }
 
             public void ExecuteOnServerProcess(byte[] encodedAction, bool doAsync) {
-                try
-                {
+                try {
+                    if(IpcCommandDispatcher.TryExecuteOnServer(encodedAction, doAsync)) {
+                        return;
+                    }
                     Delegate action = ByteToDel(encodedAction);
-                    if (action != null)
-                    {
-                        if (doAsync)
-                        {
+                    if(action != null) {
+                        if(doAsync) {
                             AsyncHelper.BeginInvoke(action);
                         }
-                        else
-                        {
+                        else {
                             action.DynamicInvoke();
                         }
                     }
                 }
-                catch (Exception ex)
-                {
+                catch(Exception ex) {
                     QTUtility2.MakeErrorLog(ex);
                 }
             }
@@ -281,40 +272,21 @@ namespace QTTabBarLib {
             public void Execute(byte[] encodedAction) {
                 Delegate thedel = null;
                 try {
-                    QTUtility2.log("InstanceManager CommClient Execute : "
-                                   // +  encodedAction + 
-                                   // " Length: " + encodedAction.Length + 
-                                   // " str " + Encoding.Default.GetString(encodedAction)
-                                   );
-                    // add by indiff fix bug
-                    if (null == encodedAction || encodedAction.Length == 0 ) {
+                    QTUtility2.log("InstanceManager CommClient Execute : ");
+                    if(encodedAction == null || encodedAction.Length == 0) {
                         return;
                     }
+
+                    Action typedAction;
+                    if(IpcCommandDispatcher.TryCreateClientAction(encodedAction, out typedAction) && typedAction != null) {
+                        MarshalActionToUi(typedAction);
+                        return;
+                    }
+
                     thedel = ByteToDel(encodedAction);
-                    if (thedel != null && thedel.Method != null )
-                    {
-                        QTUtility2.log( "InstanceManager CommClient DynamicInvoke action: " + thedel  + " method:" + thedel.Method);
-                        // P0-5: marshal the callback onto the UI thread when needed.
-                        // Use BeginInvoke (async) to avoid a deadlock between the IPC
-                        // callback thread and the UI thread waiting on each other.
-                        System.Windows.Forms.Control ui = mainUIControl;
-                        if (ui != null && ui.IsHandleCreated && ui.InvokeRequired) {
-                            Delegate toInvoke = thedel;
-                            ui.BeginInvoke(new Action(() => {
-                                try {
-                                    toInvoke.DynamicInvoke();
-                                }
-                                catch (Exception marshaledEx) {
-                                    QTUtility2.MakeErrorLog(marshaledEx, BuildExecuteErrorContext(toInvoke, "MarshaledException"));
-                                }
-                            }));
-                        }
-                        else {
-                            if (ui == null) {
-                                QTUtility2.log("CommClient.Execute: no main UI control registered, executing on current thread");
-                            }
-                            thedel.DynamicInvoke();
-                        }
+                    if(thedel != null && thedel.Method != null) {
+                        QTUtility2.log("InstanceManager CommClient DynamicInvoke action: " + thedel + " method:" + thedel.Method);
+                        MarshalDelegateToUi(thedel);
                     }
                 }
                 catch(NullReferenceException ex) {
@@ -328,6 +300,40 @@ namespace QTTabBarLib {
                 catch(Exception ex) {
                     QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "Exception"));
                     SafeReinitialize();
+                }
+            }
+
+            private static void MarshalActionToUi(Action action) {
+                System.Windows.Forms.Control ui = mainUIControl;
+                if(ui != null && ui.IsHandleCreated && ui.InvokeRequired) {
+                    ui.BeginInvoke(action);
+                }
+                else {
+                    if(ui == null) {
+                        QTUtility2.log("CommClient.Execute: no main UI control registered, executing on current thread");
+                    }
+                    action();
+                }
+            }
+
+            private static void MarshalDelegateToUi(Delegate thedel) {
+                System.Windows.Forms.Control ui = mainUIControl;
+                if(ui != null && ui.IsHandleCreated && ui.InvokeRequired) {
+                    Delegate toInvoke = thedel;
+                    ui.BeginInvoke(new Action(() => {
+                        try {
+                            toInvoke.DynamicInvoke();
+                        }
+                        catch(Exception marshaledEx) {
+                            QTUtility2.MakeErrorLog(marshaledEx, BuildExecuteErrorContext(toInvoke, "MarshaledException"));
+                        }
+                    }));
+                }
+                else {
+                    if(ui == null) {
+                        QTUtility2.log("CommClient.Execute: no main UI control registered, executing on current thread");
+                    }
+                    thedel.DynamicInvoke();
                 }
             }
 
@@ -383,6 +389,21 @@ namespace QTTabBarLib {
 
         #region Utility Methods
 
+        // IPC delegate serialization (BinaryFormatter + SerializeDelegate) is a
+        // same-user RCE surface: any in-process caller that can reach the pipe can
+        // ship arbitrary captured delegates. Transport + SameUserAuthorizationManager
+        // blocks other users but not the owning user or compromised same-user code.
+        //
+        // Recommended replacement (incremental):
+        // 1) Introduce IpcCommand enum + small DTO payloads (tab handle, index, flags).
+        // 2) Replace DelToByte/ByteToDel with typed Execute(IpcCommand, byte[] payload).
+        // 3) Dispatch through a static whitelist map; drop BinaryFormatter entirely.
+        // 4) Keep PreMergeToMergedDeserializationBinder only until migration completes.
+        //
+        // Current call sites still on delegates: TabBarBroadcast, ButtonBarBroadcast,
+        // ExecuteOnMainProcess, GetFromServerProcess. Migrated to typed QTIP messages:
+        // SelectTabOnOtherTabBar, OpenOptions, StaticBroadcast ReloadConfig/Groups/Apps.
+
         private static byte[] DelToByte(Delegate del) {
             return QTUtility.ObjectToByteArray(new SerializeDelegate(del));
         }
@@ -400,12 +421,14 @@ namespace QTTabBarLib {
         // the named pipe) instead of the previous wide-open SecurityMode.None, while
         // preserving the original large-message quotas used to carry serialized
         // delegates between explorer instances.
+        internal const int MaxIpcMessageBytes = 4 * 1024 * 1024;
+
         internal static NetNamedPipeBinding CreatePipeBinding() {
             return new NetNamedPipeBinding(NetNamedPipeSecurityMode.Transport) {
                 ReceiveTimeout = TimeSpan.MaxValue,
-                ReaderQuotas = { MaxArrayLength = int.MaxValue },
-                MaxBufferSize = int.MaxValue,
-                MaxReceivedMessageSize = int.MaxValue,
+                ReaderQuotas = { MaxArrayLength = MaxIpcMessageBytes },
+                MaxBufferSize = MaxIpcMessageBytes,
+                MaxReceivedMessageSize = MaxIpcMessageBytes,
             };
         }
 
@@ -494,6 +517,11 @@ namespace QTTabBarLib {
             if(service != null) service.Broadcast(DelToByte(action));
         }
 
+        public static void StaticBroadcastCommand(IpcCommand command) {
+            ICommService service = GetChannel();
+            if(service != null) service.Broadcast(IpcCommandMessage.Encode(command));
+        }
+
         public static void TabBarBroadcast(Action<QTTabBarClass> action, bool includeCurrent) {
             LocalTabBroadcast(action, Thread.CurrentThread);
             if(includeCurrent) {
@@ -568,17 +596,35 @@ namespace QTTabBarLib {
         public static bool TryGetButtonBarHandle(IntPtr explorerHandle, out IntPtr ptr) { return ButtonBarRegistry.TryGetButtonBarHandle(explorerHandle, out ptr); }
 
         public static void ExecuteOnServerProcess(Action action, bool doAsync) {
+            ExecuteOnServerProcessBytes(DelToByte(action), doAsync, action);
+        }
+
+        public static void ExecuteOnServerProcessOpenOptions() {
+            ExecuteOnServerProcessBytes(IpcCommandMessage.EncodeOpenOptions(), false, OptionsDialog.OpenOnServer);
+        }
+
+        private static void ExecuteOnServerProcessBytes(byte[] encodedAction, bool doAsync, Action legacyFallback = null) {
             ICommService service;
             if(isServer || (service = GetChannel()) == null) {
                 try {
-                    action();
+                    if(IpcCommandDispatcher.TryExecuteOnServer(encodedAction, doAsync)) {
+                        return;
+                    }
+                    if(legacyFallback != null) {
+                        if(doAsync) {
+                            AsyncHelper.BeginInvoke(legacyFallback);
+                        }
+                        else {
+                            legacyFallback();
+                        }
+                    }
                 }
                 catch(Exception ex) {
                     QTUtility2.MakeErrorLog(ex);
                 }
             }
             else {
-                service.ExecuteOnServerProcess(DelToByte(action), doAsync);                
+                service.ExecuteOnServerProcess(encodedAction, doAsync);
             }
         }
 

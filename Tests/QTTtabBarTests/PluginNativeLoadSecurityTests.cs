@@ -5,7 +5,8 @@ using QTTabBarLib;
 
 namespace QTTtabBarTests {
     /// <summary>
-    /// 任务 #15:插件与 native DLL 加载安全加固(保守策略:告警不阻断)。
+    /// 任务 #15:插件与 native DLL 加载安全加固。
+    /// 默认保守策略:校验失败仅告警仍继续加载; Config.Security 可 opt-in 阻断。
     ///
     /// 分层测试豁免说明:
     /// HookLibManager / PluginManager 的实际加载走的是 Win32 LoadLibrary 与
@@ -23,6 +24,9 @@ namespace QTTtabBarTests {
 
         [SetUp]
         public void SetUp() {
+            if(ConfigManager.LoadedConfig == null) {
+                ConfigManager.Initialize();
+            }
             tempRoot = Path.Combine(Path.GetTempPath(),
                 "QTTabBarSecTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempRoot);
@@ -154,6 +158,126 @@ namespace QTTtabBarTests {
                 "未签名且不在受信任目录的插件应被判定为不受信任。");
             Assert.IsTrue(result.ShouldContinueLoading,
                 "保守策略:校验失败仅告警,加载流程必须继续。");
+        }
+
+        [Test]
+        public void IsWithinTrustedPluginDirectory_ReturnsFalse_ForProgramDataPath() {
+            string trustedDir = Path.Combine(tempRoot, "install");
+            string programDataDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "QTTabBar");
+            Directory.CreateDirectory(trustedDir);
+            Directory.CreateDirectory(programDataDir);
+            string pluginPath = Path.Combine(programDataDir, "Legacy.dll");
+            File.WriteAllText(pluginPath, "x");
+
+            bool insideTrusted = PluginManager.IsWithinTrustedPluginDirectory(
+                pluginPath, PluginManager.GetTrustedPluginDirectories());
+            bool insideLegacy = PluginManager.IsWithinTrustedPluginDirectory(
+                pluginPath, PluginManager.GetLegacyPluginDirectories());
+
+            Assert.IsFalse(insideTrusted, "ProgramData 路径 alone 不应算受信任安装目录。");
+            Assert.IsTrue(insideLegacy, "ProgramData 应归类为 legacy 目录。");
+        }
+
+        [Test]
+        public void ValidatePluginSource_Blocks_WhenBlockUntrustedPluginsEnabled() {
+            string trustedDir = Path.Combine(tempRoot, "plugins");
+            string otherDir = Path.Combine(tempRoot, "downloads");
+            Directory.CreateDirectory(trustedDir);
+            Directory.CreateDirectory(otherDir);
+            string bogus = Path.Combine(otherDir, "unsigned.dll");
+            File.WriteAllText(bogus, "not a real assembly");
+
+            bool prior = Config.Security.BlockUntrustedPlugins;
+            try {
+                ConfigManager.LoadedConfig.security.BlockUntrustedPlugins = true;
+                PluginSourceValidation result = PluginManager.ValidatePluginSource(
+                    bogus, new[] { trustedDir });
+                Assert.IsFalse(result.IsTrusted);
+                Assert.IsFalse(result.ShouldContinueLoading,
+                    "BlockUntrustedPlugins=true 时必须阻断不受信任插件。");
+            }
+            finally {
+                ConfigManager.LoadedConfig.security.BlockUntrustedPlugins = prior;
+            }
+        }
+
+        [Test]
+        public void ResolveTrustedLibraryPath_BlocksLegacy_WhenConfigured() {
+            const string fileName = "ExplorerBgTool.dll";
+            string trustedDir = Path.Combine(tempRoot, "trusted");
+            string legacyDir = Path.Combine(tempRoot, "legacy");
+            Directory.CreateDirectory(trustedDir);
+            Directory.CreateDirectory(legacyDir);
+            File.WriteAllText(Path.Combine(legacyDir, fileName), "legacy");
+
+            string resolved = HookLibManager.ResolveTrustedLibraryPath(
+                fileName, trustedDir, legacyDir, blockLegacyPath: true);
+
+            Assert.AreEqual(Path.Combine(trustedDir, fileName), resolved,
+                "BlockLegacyHookDllPath 时不应回退到 legacy 路径。");
+        }
+
+        [Test]
+        public void ResolveTrustedLibraryPath_BlockLegacy_ReturnsNull_WhenNeitherExistsAndNoTrustedDir() {
+            const string fileName = "ExplorerBgTool.dll";
+            string legacyDir = Path.Combine(tempRoot, "legacy");
+            Directory.CreateDirectory(legacyDir);
+
+            string resolved = HookLibManager.ResolveTrustedLibraryPath(
+                fileName, null, legacyDir, blockLegacyPath: true);
+
+            Assert.IsNull(resolved,
+                "blockLegacyPath 且无受信任目录时不应返回 legacy 候选路径。");
+        }
+
+        [Test]
+        public void ResolveTrustedLibraryPath_BlockLegacy_ReturnsTrustedCandidate_WhenNeitherExists() {
+            const string fileName = "ExplorerBgTool.dll";
+            string trustedDir = Path.Combine(tempRoot, "trusted");
+            string legacyDir = Path.Combine(tempRoot, "legacy");
+            Directory.CreateDirectory(trustedDir);
+            Directory.CreateDirectory(legacyDir);
+
+            string resolved = HookLibManager.ResolveTrustedLibraryPath(
+                fileName, trustedDir, legacyDir, blockLegacyPath: true);
+
+            Assert.AreEqual(Path.Combine(trustedDir, fileName), resolved,
+                "blockLegacyPath 且两处均不存在时应返回受信任路径候选。");
+        }
+
+        [Test]
+        public void HasTrustedSignature_ReturnsTrue_ForSameStrongNameAssembly() {
+            string assemblyPath = typeof(PluginManager).Assembly.Location;
+            Assert.IsFalse(string.IsNullOrEmpty(assemblyPath));
+            Assert.IsTrue(File.Exists(assemblyPath));
+
+            bool signed = PluginManager.HasTrustedSignature(assemblyPath);
+
+            Assert.IsTrue(signed,
+                "与主程序集相同强名称的程序集应通过 HasTrustedSignature。");
+        }
+
+        [Test]
+        public void LoadAssembly_ReturnsNull_WhenBlockUntrustedPluginsEnabled() {
+            string trustedDir = Path.Combine(tempRoot, "plugins");
+            string otherDir = Path.Combine(tempRoot, "downloads");
+            Directory.CreateDirectory(trustedDir);
+            Directory.CreateDirectory(otherDir);
+            string bogus = Path.Combine(otherDir, "unsigned.dll");
+            File.WriteAllText(bogus, "not a real assembly");
+
+            bool prior = Config.Security.BlockUntrustedPlugins;
+            try {
+                ConfigManager.LoadedConfig.security.BlockUntrustedPlugins = true;
+                PluginAssembly result = PluginManager.LoadAssembly(bogus);
+                Assert.IsNull(result,
+                    "BlockUntrustedPlugins=true 时 LoadAssembly 必须返回 null。");
+            }
+            finally {
+                ConfigManager.LoadedConfig.security.BlockUntrustedPlugins = prior;
+            }
         }
     }
 }

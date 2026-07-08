@@ -35,8 +35,15 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <RuntimeIdentifiers>win;win-x86</RuntimeIdentifiers>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StrongNameKeyFile>$(MSBuildProjectDirectory)\..\QTTabBar Rebirth.snk</StrongNameKeyFile>
+    <EnableStrongNameSigner>true</EnableStrongNameSigner>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -97,6 +104,7 @@
     <Reference Include="System.Xaml" />
     <Reference Include="Ricciolo.Controls.TreeListView">
       <HintPath>Resources\Ricciolo.Controls.TreeListView.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -220,6 +228,9 @@
     <Compile Include="ExplorerBrowser\NavigationOptions.cs" />
     <Compile Include="ExplorerManager.cs" />
     <Compile Include="ExplorerProcessCaptor.cs" />
+    <Compile Include="FluentThemeManager.cs" />
+    <Compile Include="FluentThemeTokens.cs" />
+    <Compile Include="FluentOptionsPoCLauncher.cs" />
     <Compile Include="FileRename\FileRenameDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -382,6 +393,12 @@
     <Compile Include="OptionsDialog\OptionsDialog.xaml.cs">
       <DependentUpon>OptionsDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OptionsDialog\OptionsFluentPoCTweaksPage.xaml.cs">
+      <DependentUpon>OptionsFluentPoCTweaksPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\OptionsFluentPoCWindow.xaml.cs">
+      <DependentUpon>OptionsFluentPoCWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RebarController.cs" />
     <Compile Include="MiscClasses.cs" />
     <Compile Include="Config.cs" />
@@ -395,12 +412,14 @@
     <Compile Include="Toolbar.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />
+    <Compile Include="WatermarkCache.cs" />
     <Compile Include="Interop\INameSpaceTreeControl.cs" />
     <Compile Include="Interop\IOleWindow.cs" />
     <Compile Include="Interop\IFolderView2.cs" />
     <Compile Include="Interop\IFolderViewOptions.cs" />
     <Compile Include="Interop\IUIAutomationGridPattern.cs" />
     <Compile Include="ShellBrowserEx.cs" />
+    <Compile Include="Scts.cs" />
     <Compile Include="CreateNewGroupForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -426,6 +445,8 @@
     <Compile Include="IDLWrapper.cs" />
     <Compile Include="ImageReservationKey.cs" />
     <Compile Include="InstanceManager.cs" />
+    <Compile Include="IpcCommandDispatcher.cs" />
+    <Compile Include="IpcCommandMessage.cs" />
     <Compile Include="Interop\BITMAPINFO.cs" />
     <Compile Include="Interop\BITMAPINFOHEADER.cs" />
     <Compile Include="Interop\CMINVOKECOMMANDINFO.cs" />
@@ -704,6 +725,30 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="OptionsDialog\OptionsFluentPoCTweaksPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\OptionsFluentPoCWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\Themes\FluentControls.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\Themes\FluentTheme.Dark.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\Themes\FluentTheme.Light.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\Themes\FluentOptionsResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OptionsDialog\OptionsDialogResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -942,6 +987,15 @@
     <Folder Include="quizo\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Brutal.Dev.StrongNameSigner" Version="3.7.1" />
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+    <PackageReference Include="WPF-UI" Version="3.0.5" GeneratePathProperty="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Resources.Extensions">
+      <HintPath>$(USERPROFILE)\.nuget\packages\system.resources.extensions\8.0.0\lib\net462\System.Resources.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Interop.MSHTML">
       <HintPath>..\lib\interop\Interop.MSHTML.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -953,6 +1007,18 @@
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureInteropAssemblies" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <InteropShDocVw>$(MSBuildProjectDirectory)\..\lib\interop\Interop.SHDocVw.dll</InteropShDocVw>
+      <InteropMshtml>$(MSBuildProjectDirectory)\..\lib\interop\Interop.MSHTML.dll</InteropMshtml>
+      <GenerateInteropScript>$(MSBuildProjectDirectory)\..\Tools\GenerateInterop.ps1</GenerateInteropScript>
+    </PropertyGroup>
+    <Exec Condition="!Exists('$(InteropShDocVw)') Or !Exists('$(InteropMshtml)')" Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(GenerateInteropScript)&quot;" />
+  </Target>
+  <Target Name="SignWpfUiDependency" BeforeTargets="BeforeCompile">
+    <Exec Condition="Exists('$(PkgWPF_UI)\lib\net472\Wpf.Ui.dll')"
+          Command="&quot;$(StrongNameSignerDirectory)StrongNameSigner.Console.exe&quot; -in &quot;$(PkgWPF_UI)\lib\net472&quot; -k &quot;$(StrongNameKeyFile)&quot;" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

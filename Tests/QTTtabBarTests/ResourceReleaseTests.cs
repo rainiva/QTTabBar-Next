@@ -23,16 +23,13 @@ namespace QTTtabBarTests {
         // ---------------------------------------------------------------------
 
         [Test]
-        public void AcquireFolderViewFromShellView_ReleasesShellViewReference_ExactlyOnce() {
+        public void AcquireFolderViewFromShellView_KeepsReference_WhenCastSucceeds() {
             var spy = new ReleaseSpy();
-            var fake = new FakeFolderView(); // 同时充当 IShellView 角色（同一 RCW 语义）
+            var fake = new FakeFolderView();
 
             IFolderView result = ShellBrowserEx.AcquireFolderViewFromShellView(fake, spy.Release);
 
-            // 强转得到的 folderView 与 ppshv 是同一对象；因强转在同一 RCW 上又加了一次
-            // 托管引用，所以必须把 ppshv 这一个引用释放掉，且只释放一次。
-            Assert.AreEqual(1, spy.Count, "应恰好释放一次 IShellView 引用");
-            Assert.AreSame(fake, spy.LastObject, "释放的必须是 ppshv 这个引用");
+            Assert.AreEqual(0, spy.Count, "Successful cast must not release the shared RCW");
             Assert.AreSame(fake, result, "应返回强转得到的 folderView");
         }
 
@@ -125,6 +122,20 @@ namespace QTTtabBarTests {
                 Assert.IsTrue(deleted, "原始 HBITMAP 应被删除");
                 result.Dispose();
             }
+        }
+
+        [Test]
+        public void CreateManagedBitmapAndReleaseHandle_DeletesHandle_WhenFromHbitmapThrows() {
+            IntPtr fakeHandle = new IntPtr(0x5678);
+            bool deleted = false;
+
+            Assert.Throws<InvalidOperationException>(() =>
+                ThumbnailTooltipForm.CreateManagedBitmapAndReleaseHandle(
+                    fakeHandle,
+                    h => { throw new InvalidOperationException("fromHbitmap failed"); },
+                    h => { deleted = true; return true; }));
+
+            Assert.IsTrue(deleted, "fromHbitmap 抛异常时仍应释放原始 HBITMAP");
         }
 
         // ---- 测试替身 -------------------------------------------------------

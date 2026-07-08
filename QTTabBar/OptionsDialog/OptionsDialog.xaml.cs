@@ -44,24 +44,67 @@ using Binding = System.Windows.Data.Binding;
 using Button = System.Windows.Controls.Button;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
+using MessageBoxButton = System.Windows.MessageBoxButton;
+using MessageBoxImage = System.Windows.MessageBoxImage;
+using MessageBoxResult = System.Windows.MessageBoxResult;
 using TreeView = System.Windows.Controls.TreeView;
 using UserControl = System.Windows.Controls.UserControl;
 
+
+using Wpf.Ui.Controls;
 
 namespace QTTabBarLib {
     /// <summary>
     /// Interaction logic for OptionsDialog.xaml
     /// </summary>
-    internal partial class OptionsDialog : Window {
+    internal partial class OptionsDialog : FluentWindow {
         private static OptionsDialog instance;
         private static Thread instanceThread;
         private static Thread launchingThread;
-        private Config WorkingConfig;
-        
+        private         Config WorkingConfig;
+        OptionsDialogTab[] optionTabs;
+        OptionsNavItem[] navItems;
+
+        OptionsDialogTab SelectedPage {
+            get {
+                var nav = lstCategories?.SelectedItem as OptionsNavItem;
+                return nav?.Page;
+            }
+        }
+
         #region ---------- Static Methods ----------
 
+        internal static void ShowStandalonePreview() {
+            if(Thread.CurrentThread.GetApartmentState() != ApartmentState.STA) {
+                var thread = new Thread(ShowStandalonePreviewInternal) { IsBackground = false };
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                thread.Join();
+                return;
+            }
+            ShowStandalonePreviewInternal();
+        }
+
+        static void ShowStandalonePreviewInternal() {
+            if(Application.Current == null) {
+                new Application { ShutdownMode = ShutdownMode.OnMainWindowClose };
+            }
+            // Ensure AssemblyResolve is registered before any Options page XAML loads TreeListView.
+            GC.KeepAlive(typeof(QTUtility));
+            if(ConfigManager.LoadedConfig == null) {
+                ConfigManager.Initialize();
+            }
+            ConfigManager.UpdateConfig(false);
+            var dialog = new OptionsDialog();
+            dialog.ShowDialog();
+        }
+
         public static void Open() {
-            InstanceManager.ExecuteOnServerProcess(OpenInternal, false);
+            InstanceManager.ExecuteOnServerProcessOpenOptions();
+        }
+
+        internal static void OpenOnServer() {
+            OpenInternal();
         }
 
         private static void OpenInternal() {
@@ -149,6 +192,7 @@ namespace QTTabBarLib {
                 PInvoke.SetProcessDPIAware();
                 // QTUtility2.log("QTUtility OptionsDialog SetProcessDPIAware 不兼容XP");
                 InitializeComponent();
+                FluentThemeManager.ApplyTo(this);
                 
                 // this.LoadViewFromUri("/QTTabBar;component/optionsdialog/optionsdialog.xaml");
                 // this.DataContext = container.Resolve<LoginViewModel>((typeof(LoginView),this));
@@ -169,7 +213,7 @@ namespace QTTabBarLib {
 
              //   QTUtility2.log("set title end");           
                 int i = 0;
-                tabbedPanel.ItemsSource = new OptionsDialogTab[] {
+                optionTabs = new OptionsDialogTab[] {
                     new Options01_Window        { Index = i++},
                     new Options02_Tabs          { Index = i++},
                     new Options03_Tweaks        { Index = i++},
@@ -178,41 +222,44 @@ namespace QTTabBarLib {
                     new Options06_Appearance    { Index = i++},
                     new Options07_Mouse         { Index = i++},
                     new Options08_Keys          { Index = i++},
-                    new Options09_Groups        { Index = i++}, // can not use dll
+                    new Options09_Groups        { Index = i++},
                     new Options10_Apps          { Index = i++},
                     new Options11_ButtonBar     { Index = i++},
                     new Options12_Plugins       { Index = i++},
                     new Options13_Language      { Index = i++},
                     new Options14_About         { Index = i}
                 };
-
-               // QTUtility2.log("tabbedPanel.ItemsSource end");    
-
-                // For some reason, on XP, the Options dialog starts up with a blank tab
-                // This is the only way I've found to fix it
-                // TODO: Investigate and see if there's a better way
-                Loaded += (sender, args) => {
-                    tabbedPanel.SelectedIndex = 1;
-                    tabbedPanel.SelectedIndex = 0;
-                };
+                navItems = new OptionsNavItem[optionTabs.Length];
+                for(int n = 0; n < optionTabs.Length; n++) {
+                    navItems[n] = new OptionsNavItem(optionTabs[n]);
+                }
+                lstCategories.ItemsSource = navItems;
 
                 WorkingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
-                foreach(OptionsDialogTab tab in tabbedPanel.Items) {
+                foreach(OptionsDialogTab tab in optionTabs) {
                     tab.WorkingConfig = WorkingConfig;
                     IHotkeyContainer ihc = tab as IHotkeyContainer;
                     if(ihc != null) ihc.NewHotkeyRequested += ProcessNewHotkey;
                     tab.InitializeConfig();
+                    FluentThemeManager.SyncPageTheme(tab);
                 }
+
+                var selectedIndex = WorkingConfig.desktop.lstSelectedIndex;
+                if(selectedIndex < 0 || selectedIndex >= optionTabs.Length) selectedIndex = 0;
+                lstCategories.SelectedIndex = selectedIndex;
               //  QTUtility2.log("InitializeConfig end");
 
                 //////////// setting by qwop .
                 setByQwop();
               //  QTUtility2.log("利用主屏幕的宽度设置，选项窗体的宽度， 和绝对高度 end");
             }
-            catch (Exception exception)
-            {
+            catch(Exception exception) {
                 QTUtility2.MakeErrorLog(exception, "OptionsDialog constructor");
-
+                MessageBox.Show(
+                    exception.ToString(),
+                    "OptionsDialog",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -339,12 +386,13 @@ namespace QTTabBarLib {
         #endregion
 
         private void UpdateOptions() {
-            foreach(OptionsDialogTab tab in tabbedPanel.Items) {
+            foreach(OptionsDialogTab tab in optionTabs) {
                 tab.CommitConfig();
             }
             ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
             ConfigManager.WriteConfig();
             ConfigManager.UpdateConfig();
+            ExplorerManager.ClearWatermarkCache();
         }
 
         private void CategoryListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e) {
@@ -478,7 +526,7 @@ namespace QTTabBarLib {
                     QTUtility.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(response == MessageBoxResult.OK) {
-                ((OptionsDialogTab)tabbedPanel.SelectedItem).ResetConfig();   
+                SelectedPage?.ResetConfig();   
             }
         }
 
@@ -488,7 +536,7 @@ namespace QTTabBarLib {
                     QTUtility.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(response == MessageBoxResult.OK) {
-                foreach(OptionsDialogTab tab in tabbedPanel.Items) {
+                foreach(OptionsDialogTab tab in optionTabs) {
                     tab.ResetConfig();
                 }
             }
@@ -505,7 +553,7 @@ namespace QTTabBarLib {
 
         private void btnApply_Click(object sender, RoutedEventArgs e) {
             UpdateOptions();
-            foreach(OptionsDialogTab tab in tabbedPanel.Items) {
+            foreach(OptionsDialogTab tab in optionTabs) {
                 tab.InitializeConfig();
             }
         }
@@ -595,7 +643,7 @@ namespace QTTabBarLib {
                     QTUtility.TextResourcesDic["Options_Page08_Keys"][6] +
                     Environment.NewLine + "{0}" + Environment.NewLine + Environment.NewLine +
                     QTUtility.TextResourcesDic["Options_Page08_Keys"][7];
-            IHotkeyEntry conflictingEntry = tabbedPanel.Items
+            IHotkeyEntry conflictingEntry = optionTabs
                     .OfType<IHotkeyContainer>()
                     .SelectMany(hc => hc.GetHotkeyEntries())
                     .FirstOrDefault(entry => entry.ShortcutKey == modkey);
@@ -722,6 +770,15 @@ namespace QTTabBarLib {
         }
 
         #endregion
+    }
+
+    sealed class OptionsNavItem {
+        public OptionsNavItem(OptionsDialogTab page) {
+            Page = page;
+        }
+
+        public OptionsDialogTab Page { get; }
+        public int Index => Page.Index;
     }
 
     internal interface IHotkeyEntry {

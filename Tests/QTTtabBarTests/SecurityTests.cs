@@ -92,5 +92,79 @@ namespace QTTtabBarTests
             Assert.IsFalse(NonWhitelistedGadget.Instantiated,
                 "Non-whitelisted dangerous type must NOT be instantiated during deserialization.");
         }
+
+        [Test]
+        public void ByteArrayToObject_Rejects_NonWhitelisted_QTTabBarLibPayload()
+        {
+            byte[] payload;
+            using (var ms = new MemoryStream())
+            {
+                new BinaryFormatter().Serialize(ms, new PluginKey("test", new[] { 1 }));
+                payload = ms.ToArray();
+            }
+
+            object result = QTUtility.ByteArrayToObject(payload);
+
+            Assert.IsNull(result,
+                "Non-whitelisted QTTabBarLib serializable types must be rejected.");
+        }
+
+        [Test]
+        public void BindToType_Throws_ForFramework_ISerializable_Gadget()
+        {
+            var binder = new PreMergeToMergedDeserializationBinder();
+            Assert.Throws<SerializationException>(() =>
+                binder.BindToType("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                    "System.Security.Principal.WindowsIdentity"));
+        }
+
+        [Test]
+        public void BindToType_Allows_Framework_DelegateSerializationHolder()
+        {
+            var binder = new PreMergeToMergedDeserializationBinder();
+            Assert.DoesNotThrow(() =>
+                binder.BindToType("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                    "System.DelegateSerializationHolder"));
+        }
+
+        [Test]
+        public void DeepClone_Config_Roundtrips_Successfully()
+        {
+            Config original = new Config { tabs = { ActivateNewTab = false } };
+            Config clone = QTUtility2.DeepClone(original);
+            Assert.IsNotNull(clone);
+            Assert.AreEqual(original.tabs.ActivateNewTab, clone.tabs.ActivateNewTab);
+        }
+
+        [Test]
+        public void DeepClone_Config_WithFontFields_Roundtrips()
+        {
+            // Default Config ctor initializes PreviewFont / TabTextFont (System.Drawing.Font).
+            Config original = new Config();
+            Assert.IsNotNull(original.tips.PreviewFont);
+            Assert.IsNotNull(original.skin.TabTextFont);
+
+            Config clone = QTUtility2.DeepClone(original);
+
+            Assert.IsNotNull(clone);
+            Assert.AreEqual(original.tips.PreviewFont.Name, clone.tips.PreviewFont.Name);
+            Assert.AreEqual(original.skin.TabTextFont.Size, clone.skin.TabTextFont.Size);
+        }
+
+        [Test]
+        public void ByteArrayToObject_Rejects_CoreFramework_ISerializable_Payload()
+        {
+            byte[] payload;
+            using (var ms = new MemoryStream())
+            {
+                new BinaryFormatter().Serialize(ms, new InvalidOperationException("gadget probe"));
+                payload = ms.ToArray();
+            }
+
+            object result = QTUtility.ByteArrayToObject(payload);
+
+            Assert.IsNull(result,
+                "ISerializable types from core framework assemblies must be rejected end-to-end.");
+        }
     }
 }

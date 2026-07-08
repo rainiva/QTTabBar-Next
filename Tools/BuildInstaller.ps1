@@ -148,6 +148,12 @@ if ($DetectOnly) {
 }
 
 if (-not $SkipCoreBuild) {
+    $generateInterop = Join-Path $repoRoot 'Tools\GenerateInterop.ps1'
+    if (Test-Path $generateInterop) {
+        Write-Host 'Generating COM interop assemblies (if needed)...'
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $generateInterop
+    }
+
     Invoke-MsBuildProject -MsBuildExe $resolvedMsBuildPath -ProjectPath $solutionPath -Properties @{
         Configuration = 'Release'
         Platform = 'Mixed Platforms'

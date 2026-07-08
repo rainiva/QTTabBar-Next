@@ -38,7 +38,6 @@ namespace QTTabBarLib
     // public sealed class QTSecondViewBar : TabBarBase
     public sealed class QTSecondViewBar : TabBarBase
     {
-        internal ExplorerManager explorerManager = null;
         private Panel viewContainer;
         private Panel controlContainer;
         private SplitContainer addressBarContainer;
@@ -1391,6 +1390,7 @@ namespace QTTabBarLib
                     // elvc.SubDirTip_MenuItemRightClicked += subDirTip_MenuItemRightClicked;
                     // elvc.SubDirTip_MultipleMenuItemsClicked += subDirTip_MultipleMenuItemsClicked;
                     // elvc.SubDirTip_MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
+                    elvc.RefreshViewWatermark(true);
                 }
             }
             // HandleF5();
@@ -1667,11 +1667,16 @@ namespace QTTabBarLib
 
         private void Explorer_NavigateComplete2(object pDisp, ref object URL)
         {
-            // add by indiff.
             QTUtility2.log("QTSecondViewBar Explorer_NavigateComplete2  pDisp :"
                            + pDisp
                            + " URL :" + (string)URL
             );
+            if(ShellBrowser != null) {
+                ShellBrowser.OnNavigateComplete();
+            }
+            if(listView != null) {
+                listView.RefreshViewWatermark(false);
+            }
         }
 
         private bool isFirst = true;

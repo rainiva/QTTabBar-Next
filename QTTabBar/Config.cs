@@ -235,6 +235,39 @@ namespace QTTabBarLib {
         public static _Plugin Plugin    { get { return ConfigManager.LoadedConfig.plugin; } }	/*插件管理*/
         public static _Lang Lang        { get { return ConfigManager.LoadedConfig.lang; } }		/*语言配置*/
         public static _Desktop Desktop { get { return ConfigManager.LoadedConfig.desktop; } }   /*关于信息*/
+        public static _Security Security { get { return ConfigManager.LoadedConfig.security; } }
+
+        /// <summary>
+        /// Legacy bool setting accessor for keys still referenced via <see cref="Scts"/>.
+        /// </summary>
+        public static bool Bool(Scts key) {
+            switch(key) {
+                case Scts.ViewWatermarking:
+                    return Tweaks.ViewWatermarking;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Legacy int setting accessor (stub for archived ExplorerManager code paths).
+        /// </summary>
+        public static int Get(Scts key) {
+            return 0;
+        }
+
+        /// <summary>
+        /// Legacy setting writer (stub for archived ExplorerManager code paths).
+        /// </summary>
+        public static void Set(Scts key, object value) {
+        }
+
+        /// <summary>
+        /// Legacy positive-int setting check (stub).
+        /// </summary>
+        public static bool Positive(Scts key) {
+            return Get(key) > 0;
+        }
 
         /// <summary>
         /// Safely reads a registry value. If the sub-key does not exist, access is
@@ -279,6 +312,7 @@ namespace QTTabBarLib {
         public _Plugin plugin   { get; set; }
         public _Lang lang       { get; set; }
         public _Desktop desktop { get; set; }
+        public _Security security { get; set; }
 
         public Config() {
             window = new _Window();
@@ -293,6 +327,7 @@ namespace QTTabBarLib {
             plugin = new _Plugin();
             lang = new _Lang();
             desktop = new _Desktop();
+            security = new _Security();
         }
 
         [Serializable]
@@ -421,6 +456,7 @@ namespace QTTabBarLib {
             public bool ToggleFullRowSelect      { get; set; }
             public bool DetailsGridLines         { get; set; }
             public bool AlternateRowColors       { get; set; }
+            public bool ViewWatermarking         { get; set; }
             public Color AltRowBackgroundColor   { get; set; }
             public Color AltRowForegroundColor   { get; set; }
 
@@ -458,8 +494,22 @@ namespace QTTabBarLib {
                 ToggleFullRowSelect = QTUtility.IsXP; // 详细视图选中整行
                 DetailsGridLines = false;  // 网格线
                 AlternateRowColors = false;// 交替行颜色
+                ViewWatermarking = false;
                 AltRowForegroundColor = SystemColors.WindowText; // 前景色
                 AltRowBackgroundColor = QTUtility2.MakeColor(0xfaf5f1); // 背景色
+            }
+        }
+
+        [Serializable]
+        public class _Security {
+            /// <summary>When true, untrusted/unsigned plugins are not loaded.</summary>
+            public bool BlockUntrustedPlugins { get; set; }
+            /// <summary>When true, hook DLLs are not loaded from legacy user-writable paths.</summary>
+            public bool BlockLegacyHookDllPath { get; set; }
+
+            public _Security() {
+                BlockUntrustedPlugins = false;
+                BlockLegacyHookDllPath = false;
             }
         }
 
@@ -469,6 +519,8 @@ namespace QTTabBarLib {
             public bool SubDirTipsPreview        { get; set; }
             public bool SubDirTipsFiles          { get; set; }
             public bool SubDirTipsWithShift      { get; set; }
+            /// <summary>When true, Subfolder Tips on the desktop are shown even when the desktop window is inactive.</summary>
+            public bool SubDirTipForInactiveWindow { get; set; }
             public bool ShowTooltipPreviews      { get; set; }
             public bool ShowPreviewsWithShift    { get; set; }
             public bool ShowPreviewInfo          { get; set; }
@@ -496,6 +548,7 @@ namespace QTTabBarLib {
                 SubDirTipsPreview = true;  // 子目录提示预览
                 SubDirTipsFiles = true;  // 子目录提示文件
                 SubDirTipsWithShift = false ; // 仅当shift键按下显示子目录
+                SubDirTipForInactiveWindow = false;
                 ShowTooltipPreviews = true;  
                 ShowPreviewInfo = true; // 启用文件预览
                 ShowPreviewsWithShift = true; // 仅当shift健按下, 启用文件预览
@@ -1095,11 +1148,7 @@ namespace QTTabBarLib {
             PluginManager.RefreshPlugins();
             InstanceManager.LocalTabBroadcast(tabbar => tabbar.RefreshOptions());
             if(fBroadcast) {
-                // SyncTaskBarMenu(); todo
-                InstanceManager.StaticBroadcast(() => {
-                    ReadConfig();
-                    UpdateConfig(false);
-                });
+                InstanceManager.StaticBroadcastCommand(IpcCommand.ReloadConfig);
             }
         }
 

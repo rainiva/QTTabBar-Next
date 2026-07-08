@@ -837,6 +837,9 @@ MigrationBackup/
 /.idea
 /.codegraph/
 
+# Generated COM interop (build via Tools/GenerateInterop.ps1)
+/lib/interop/*.dll
+
 # Debug log files
 debug-mixed*.log
 qtdebug.log

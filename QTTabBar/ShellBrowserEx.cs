@@ -275,10 +275,10 @@ namespace QTTabBarLib {
         //
         // 所有权：IShellBrowser.QueryActiveShellView 会对返回的 ppshv 做 AddRef（创建一个
         // 引用计数为 1 的 RCW）。将其强转为 IFolderView 会在同一 COM 身份上做 QueryInterface，
-        // CLR 返回同一个 RCW 并将其托管引用计数增至 2。因此必须在此恰好释放一次
-        // ppshv 引用，使得只剩下 folderView 持有的那一个引用；folderView 仍可正常使用，
-        // 将在 Dispose/下次 OnNavigateComplete 时释放。若强转失败（对象不是 IFolderView），
-        // 仍需释放 ppshv，避免汄漏 COM 引用。
+        // CLR 返回同一个 RCW（同一 RCW 对象，托管侧不重复 AddRef）。因此当强转成功时不得
+        // 释放 ppshv——folderView 与 ppshv 是同一 RCW，释放会过早降低 COM 引用计数。
+        // folderView 将在 Dispose/下次 OnNavigateComplete 时释放。若强转失败（对象不是
+        // IFolderView），仍需释放 ppshv，避免泄漏 COM 引用。
         internal static IFolderView AcquireFolderViewFromShellView(object ppshv, Func<object, string, int> releaser = null) {
             if(ppshv == null) {
                 return null;
@@ -287,7 +287,11 @@ namespace QTTabBarLib {
                 releaser = ComReleaseHelper.SafeReleaseComObject;
             }
             IFolderView folderView = ppshv as IFolderView;
-            releaser(ppshv, "OnNavigateComplete ppshv");
+            // When the cast succeeds, folderView and ppshv are the same RCW; releasing
+            // ppshv here would drop the COM ref while the caller still holds folderView.
+            if(folderView == null) {
+                releaser(ppshv, "OnNavigateComplete ppshv");
+            }
             return folderView;
         }
 
@@ -307,23 +311,19 @@ namespace QTTabBarLib {
         public void OnNavigateComplete() {
             if(shellBrowser == null) return;
 
-            // 是否释放有问题 by indiff
-            if (folderView != null)
-            {
+            if(folderView != null) {
                 QTUtility2.log("ReleaseComObject folderView to reset");
                 Marshal.ReleaseComObject(folderView);
                 folderView = null;
+            }
 
-                if (folderView == null)
-                {
-                    // 显示赋值 folderView 实例
-                    IShellView ppshv;
-                    if (shellBrowser.QueryActiveShellView(out ppshv) == 0)
-                    {
-                        folderView = AcquireFolderViewFromShellView(ppshv);
-                    }
-                }
+            AcquireActiveFolderView();
+        }
 
+        private void AcquireActiveFolderView() {
+            IShellView ppshv;
+            if(shellBrowser.QueryActiveShellView(out ppshv) == 0) {
+                folderView = AcquireFolderViewFromShellView(ppshv);
             }
         }
 

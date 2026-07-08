@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>QTTabBarLib</RootNamespace>
+    <AssemblyName>FluentPoCTestHost</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <SignAssembly>false</SignAssembly>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\QTTabBar\QTTabBar.csproj" />
+  </ItemGroup>
+</Project>
