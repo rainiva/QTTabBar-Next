@@ -209,9 +209,9 @@ namespace QTTabBarLib {
             return SerializationHelper.ByteArrayToObject(arrBytes);
         }
 
-        private readonly static string[] strIconExt = new string[] { ".exe", ".lnk", ".ico", ".url", ".sln" };
+        // Task 3.3 facade: forwards to IconManager (extraction = move + forwarding).
         public static bool ExtHasIcon(string ext) {
-            return strIconExt.Contains(ext);
+            return IconManager.ExtHasIcon(ext);
         }
 
         private readonly static string[] strCompressedExt = new string[] { ".zip", ".lzh", ".cab" };
@@ -230,165 +230,15 @@ namespace QTTabBarLib {
         }
 
         public static Icon GetIcon(IntPtr pIDL) {
-            SHFILEINFO psfi = new SHFILEINFO();
-            if((IntPtr.Zero != PInvoke.SHGetFileInfo(pIDL, 0, ref psfi, Marshal.SizeOf(psfi), 0x109)) && (psfi.hIcon != IntPtr.Zero)) {
-                Icon icon = new Icon(Icon.FromHandle(psfi.hIcon), 0x10, 0x10);
-                PInvoke.DestroyIcon(psfi.hIcon);
-                return icon;
-            }
-            return Resources_Image.icoEmpty;
+            return IconManager.GetIcon(pIDL);
         }
 
         public static Icon GetIcon(string path, bool fExtension) {
-            Icon icon;
-            SHFILEINFO psfi = new SHFILEINFO();
-            if(fExtension) {
-                if(path.Length == 0) {
-                    path = ".*";
-                }
-                if((IntPtr.Zero != PInvoke.SHGetFileInfo("*" + path, 0x80, ref psfi, Marshal.SizeOf(psfi), 0x111)) && (psfi.hIcon != IntPtr.Zero)) {
-                    icon = new Icon(Icon.FromHandle(psfi.hIcon), 0x10, 0x10);
-                    PInvoke.DestroyIcon(psfi.hIcon);
-                    return icon;
-                }
-                return Resources_Image.icoEmpty;
-            }
-            if(path.Length == 0) {
-                if((IntPtr.Zero != PInvoke.SHGetFileInfo("dummy", 0x10, ref psfi, Marshal.SizeOf(psfi), 0x111)) && (psfi.hIcon != IntPtr.Zero)) {
-                    icon = new Icon(Icon.FromHandle(psfi.hIcon), 0x10, 0x10);
-                    PInvoke.DestroyIcon(psfi.hIcon);
-                    return icon;
-                }
-                return Resources_Image.icoEmpty;
-            }
-            if(!IsXP && path.StartsWith("::")) {
-                IntPtr pszPath = PInvoke.ILCreateFromPath(path);
-                if(pszPath != IntPtr.Zero) {
-                    if((IntPtr.Zero != PInvoke.SHGetFileInfo(pszPath, 0, ref psfi, Marshal.SizeOf(psfi), 0x109)) && (psfi.hIcon != IntPtr.Zero)) {
-                        icon = new Icon(Icon.FromHandle(psfi.hIcon), 0x10, 0x10);
-                        PInvoke.DestroyIcon(psfi.hIcon);
-                        PInvoke.CoTaskMemFree(pszPath);
-                        return icon;
-                    }
-                    PInvoke.CoTaskMemFree(pszPath);
-                }
-            }
-            else if((IntPtr.Zero != PInvoke.SHGetFileInfo(path, 0, ref psfi, Marshal.SizeOf(psfi), 0x101)) && (psfi.hIcon != IntPtr.Zero)) {
-                icon = new Icon(Icon.FromHandle(psfi.hIcon), 0x10, 0x10);
-                PInvoke.DestroyIcon(psfi.hIcon);
-                return icon;
-            }
-            return Resources_Image.icoEmpty;
+            return IconManager.GetIcon(path, fExtension);
         }
 
         public static string GetImageKey(string path, string ext) {
-            if(!string.IsNullOrEmpty(path)) {
-                if(QTUtility2.IsNetworkPath(path)) {
-                    if(ext != null) {
-                        ext = ext.ToLower();
-                        if(ext.Length == 0) {
-                            SetImageKey("noext", path);
-                            return "noext";
-                        }
-                        if(!ImageGlobalContainsKey(ext)) {
-                            AddImageToGlobal(ext, GetIcon(ext, true));
-                        }
-                        return ext;
-                    }
-                    if(IsNetworkRootFolder(path)) {
-                        SetImageKey(path, path);
-                        return path;
-                    }
-                    SetImageKey("mynetwork", PATH_MYNETWORK);
-                    return "mynetwork";
-                }
-                if(path.StartsWith("::")) {
-                    SetImageKey(path, path);
-                    return path;
-                }
-                if(ext != null) {
-                    ext = ext.ToLower();
-                    if(ext.Length == 0) {
-                        SetImageKey("noext", path);
-                        return "noext";
-                    }
-                    if(ExtHasIcon(ext)) {
-                        SetImageKey(path, path);
-                        return path;
-                    }
-                    SetImageKey(ext, path);
-                    return ext;
-                }
-                if(path.Contains("*?*?*")) {
-                    byte[] buffer;
-                    if(ImageGlobalContainsKey(path)) {
-                        return path;
-                    }
-                    // 先在 syncRoot 下取出缓存数据并释放该锁，随后再加 imageListLock 写入，
-                    // 避免两把锁嵌套。
-                    bool found;
-                    lock(syncRoot) {
-                        found = ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer);
-                    }
-                    if(found) {
-                        using(IDLWrapper w = new IDLWrapper(buffer)) {
-                            if(w.Available) {
-                                AddImageToGlobal(path, GetIcon(w.PIDL));
-                                return path;
-                            }
-                        }
-                    }
-                    return "noimage";
-                }
-                if(QTUtility2.IsShellPathButNotFileSystem(path)) {
-                    IDLWrapper wrapper;
-                    if(ImageGlobalContainsKey(path)) {
-                        return path;
-                    }
-                    if(IDLWrapper.TryGetCache(path, out wrapper)) {
-                        using(wrapper) {
-                            if(wrapper.Available) {
-                                AddImageToGlobal(path, GetIcon(wrapper.PIDL));
-                                return path;
-                            }
-                        }
-                    }
-                    return "noimage";
-                }
-                if(path.StartsWith("ftp://") || path.StartsWith("http://")) {
-                    return "folder";
-                }
-                try {
-                    DirectoryInfo info = new DirectoryInfo(path);
-                    if(info.Exists) {
-                        FileAttributes attributes = info.Attributes;
-                        if(((attributes & FileAttributes.System) != 0) || ((attributes & FileAttributes.ReadOnly) != 0)) {
-                            SetImageKey(path, path);
-                            return path;
-                        }
-                        return "folder";
-                    }
-                    if(File.Exists(path)) {
-                        ext = Path.GetExtension(path).ToLower();
-                        if(ext.Length == 0) {
-                            SetImageKey("noext", path);
-                            return "noext";
-                        }
-                        if(ExtHasIcon(ext)) {
-                            SetImageKey(path, path);
-                            return path;
-                        }
-                        SetImageKey(ext, path);
-                        return ext;
-                    }
-                    if(path.ToLower().Contains(@".zip\")) {
-                        return "folder";
-                    }
-                }
-                catch {
-                }
-            }
-            return "noimage";
+            return IconManager.GetImageKey(path, ext);
         }
 
         public static DateTime GetLinkerTimestamp() {
@@ -478,16 +328,9 @@ namespace QTTabBarLib {
             return null; // TODO
         }
 
-        private static bool IsNetworkRootFolder(string path) {
-            string str = path.Substring(2);
-            int index = str.IndexOf(Path.DirectorySeparatorChar);
-            if(index != -1) {
-                string str2 = str.Substring(index + 1);
-                if(str2.Length > 0) {
-                    return (str2.IndexOf(Path.DirectorySeparatorChar) == -1);
-                }
-            }
-            return false;
+        // Task 3.3: relaxed private -> internal so the facade/tests can reach it.
+        internal static bool IsNetworkRootFolder(string path) {
+            return PathValidator.IsNetworkRootFolder(path);
         }
 
         public static void Initialize() {
@@ -495,59 +338,7 @@ namespace QTTabBarLib {
         }
 
         public static void LoadReservedImage(ImageReservationKey irk) {
-            if(ImageGlobalContainsKey(irk.ImageKey)) {
-                return;
-            }
-            switch(irk.ImageType) {
-                case 0:
-                    if(irk.ImageKey != "noimage") {
-                        if(irk.ImageKey == "noext") {
-                            AddImageToGlobal("noext", GetIcon(string.Empty, true));
-                            return;
-                        }
-                        return;
-                    }
-                    return;
-
-                case 1:
-                    AddImageToGlobal(irk.ImageKey, GetIcon(irk.ImageKey, true));
-                    return;
-
-                case 2:
-                case 4:
-                    AddImageToGlobal(irk.ImageKey, GetIcon(irk.ImageKey, false));
-                    return;
-
-                case 3:
-                    return;
-
-                case 5:
-                    // 先在 syncRoot 下取缓存并释放，避免与 imageListLock 嵌套。
-                    byte[] buffer;
-                    bool found5;
-                    lock(syncRoot) {
-                        found5 = ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer);
-                    }
-                    if(found5) {
-                        using(IDLWrapper w = new IDLWrapper(buffer)) {
-                            if(w.Available) {
-                                AddImageToGlobal(irk.ImageKey, GetIcon(w.PIDL));
-                            }
-                        }
-                    }
-                    return;
-
-                case 6:
-                    IDLWrapper wrapper;
-                    if(IDLWrapper.TryGetCache(irk.ImageKey, out wrapper)) {
-                        using(wrapper) {
-                            if(wrapper.Available) {
-                                AddImageToGlobal(irk.ImageKey, GetIcon(wrapper.PIDL));
-                            }
-                        }
-                    }
-                    return;
-            }
+            IconManager.LoadReservedImage(irk);
         }
 
         public static MouseChord MakeMouseChord(MouseChord button, Keys modifiers) {
@@ -661,64 +452,7 @@ namespace QTTabBarLib {
         }
 
         public static Dictionary<string, string[]> ReadLanguageFile(string path) {
-          //  const string linebreak = "\r\n";
-          //  const string linebreakLiteral = @"\r\n";
-
-            //We have to remove the first linebreak in the XML element's value, before we can split 
-            //on the linebreak. It's there in the XML, when the XML is created using the editor.
-            //Other linebreaks should be left in place, even if the line is empty, in order to preserve
-            //the relative places of the other substrings.
-            //The simplest way to do this is with a regular expression.
-
-            try {
-               /* var dictionary = XElement.Load(path).Elements().ToDictionary(
-                    element => element.Name.ToString(),
-                    element => {
-                        string[] substrings =
-                            ((string)element)
-                            .Replace(singleLinebreakAtStart, "")
-                            .Split(new[] { linebreak }, StringSplitOptions.None)
-                            .Select(
-                                s => s.Replace(linebreakLiteral, linebreak)
-                            )
-                            .ToArray();
-                        return substrings;
-                    }
-                );*/
-                const string newValue = "\r\n";
-                const string oldValue = @"\r\n";
-                Dictionary<string, string[]> dictionary = new Dictionary<string, string[]>();
-
-                using (XmlTextReader reader = new XmlTextReader(path))
-                {
-                    while (reader.Read())
-                    {
-                        if (reader.NodeType != XmlNodeType.Element || reader.Name == "root") continue;
-                        string[] str = reader.ReadString().Split(new string[] { newValue }, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < str.Length; i++)
-                        {
-                            str[i] = str[i].Replace(oldValue, newValue);
-                        }
-                        dictionary[reader.Name] = str;
-                    }
-                    reader.Close();
-                }
-                return dictionary;
-            } catch (XmlException xmlException) {
-                string msg = String.Join("\r\n", new[] {
-                    "Invalid language file.",
-                    "",
-                    xmlException.SourceUri,
-                    "Line: " + xmlException.LineNumber,
-                    "Position: " + xmlException.LinePosition,
-                    "Detail: " + xmlException.Message
-                });
-                MessageBox.Show(msg);
-                return null;
-            } catch (Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
-                return null;
-            }
+            return QTResourceManager.ReadLanguageFile(path);
         }
        // private string QTTabBar = @"Software\QTTabBar\Config\Misc";
      
@@ -877,47 +611,25 @@ namespace QTTabBarLib {
             }
         }
         
-        // �ж�ͼƬ�б�����Ϊ��
-        private static void SetImageKey(string key, string itemPath) {
-            // 快速路径：已存在则无需提取图标（加锁读取以避免与并发写入产生竞态）。
-            if(ImageGlobalContainsKey(key)) {
-                return;
-            }
-            // 图标提取（可能较慢）在锁外进行，统一经 AddImageToGlobal 入口写入。
-            AddImageToGlobal(key, GetIcon(itemPath, false));
+        // Task 3.3: relaxed private -> internal so the facade/tests can reach it.
+        internal static void SetImageKey(string key, string itemPath) {
+            IconManager.SetImageKey(key, itemPath);
         }
 
-        // ���� ImageListGlobal ͼ�껺��ķ��ʣ�P0-4 �̰߳�ȫ��ͳһ��ڣ���
-        // 所有对 ImageListGlobal.Images 的 Add / ContainsKey / 索引访问均应经由
-        // 下列方法，以 imageListLock 保护集合操作。锁范围保持短小，仅覆盖集合操作。
         internal static void AddImageToGlobal(string key, Image image) {
-            lock(imageListLock) {
-                if(!ImageListGlobal.Images.ContainsKey(key)) {
-                    ImageListGlobal.Images.Add(key, image);
-                }
-            }
+            IconManager.AddImageToGlobal(key, image);
         }
 
         internal static void AddImageToGlobal(string key, Icon icon) {
-            lock(imageListLock) {
-                if(!ImageListGlobal.Images.ContainsKey(key)) {
-                    ImageListGlobal.Images.Add(key, icon);
-                }
-            }
+            IconManager.AddImageToGlobal(key, icon);
         }
 
         internal static bool ImageGlobalContainsKey(string key) {
-            lock(imageListLock) {
-                return ImageListGlobal != null
-                    && ImageListGlobal.Images != null
-                    && ImageListGlobal.Images.ContainsKey(key);
-            }
+            return IconManager.ImageGlobalContainsKey(key);
         }
 
         internal static Image GetImageFromGlobal(string key) {
-            lock(imageListLock) {
-                return ImageListGlobal.Images[key];
-            }
+            return IconManager.GetImageFromGlobal(key);
         }
 
         public static void SetTabBarOption(TabBarOption tabBarOption, QTTabBarClass tabBar) {
@@ -985,79 +697,12 @@ namespace QTTabBarLib {
         }
 
         public static void ValidateTextResources() {
-            Dictionary<string, string[]> dict = ResourceCache.TextResourcesDic;
-            ValidateTextResources(ref dict);
-            lock(syncRoot) {
-                ResourceCache.TextResourcesDic = dict;
-            }
-            ResMain = TextResourcesDic["TabBar_Menu"];
-            ResMisc = TextResourcesDic["Misc_Strings"];
-            Resx.UpdateAll();
+            QTResourceManager.ValidateTextResources();
         }
-    
+
         public static void ValidateTextResources(ref Dictionary<string, string[]> dict)
         {
-            // MessageBox.Show("Config.Lang.UseLangFile:" + Config.Lang.UseLangFile + ",dict == null:" + (dict == null));
-            // ��Ҫ���˵ĵ��� url
-            string[] urlKeys = { "SiteURL", "PayPalURL" };
-            
-            // dict �ļ��
-            if (dict == null)
-            {
-                dict = new Dictionary<string, string[]>();
-            }
-
-            // ������������,�ڴ˿�������������
-            IEnumerable<KeyValuePair<string, string>> keyValuePairs = null;
-            switch (Config.Lang.BuiltInLangSelectedIndex)
-            {
-                case 0: keyValuePairs = Resources_String.ResourceManager.GetResourceStrings(); break;
-                case 1: keyValuePairs = Resource_String_zh_CN.ResourceManager.GetResourceStrings(); break;
-                case 2: keyValuePairs = Resources_String_de_DE.ResourceManager.GetResourceStrings(); break;
-                case 3: keyValuePairs = Resources_String_pt_BR.ResourceManager.GetResourceStrings(); break;
-                case 4: keyValuePairs = Resources_String_es_ES.ResourceManager.GetResourceStrings(); break;
-                case 5: keyValuePairs = Resources_String_fr_FR.ResourceManager.GetResourceStrings(); break;
-                case 6: keyValuePairs = Resources_String_tr_TR.ResourceManager.GetResourceStrings(); break;
-                case 7: keyValuePairs = Resources_String_ru_RU.ResourceManager.GetResourceStrings(); break;
-            }
-
-            // �������Ϊ�գ� ���ȡĬ�ϵ�Ӧ������
-            if (null == keyValuePairs)
-            {
-                keyValuePairs = Resources_String.ResourceManager.GetResourceStrings();
-            }
-
-            // �ж��Ƿ�δʹ����������,����ǵĻ�����ֱ�ӱ��� ��������
-            if ( !Config.Lang.UseLangFile )
-            {
-                foreach (var pair in keyValuePairs)
-                {
-                    dict[pair.Key] = pair.Value.Split(SEPARATOR_CHAR);
-                }
-            }
-            else // �����ⲿ�����ļ�
-            {
-                // ������������
-                foreach (var pair in keyValuePairs)
-                {
-                    if (urlKeys.Contains(pair.Key)) continue;
-                    // �ֺŷָ��ַ������������ʽ
-                    string[] buildinValue = pair.Value.Split(SEPARATOR_CHAR);
-                    string[] res;
-                    dict.TryGetValue(pair.Key, out res);
-                    if (res == null) // ����� dict ��δ��ȡ����Ӧ�� ֵ�� ��� �������Ը��ǵ�.
-                    {
-                        dict[pair.Key] = buildinValue;
-                    }
-                    else if (res.Length < buildinValue.Length)// �����ȡ�����������������Ե���Ŀ��һ��
-                    {
-                        int len = res.Length;
-                        Array.Resize(ref res, buildinValue.Length);
-                        Array.Copy(buildinValue, len, res, len, buildinValue.Length - len);
-                        dict[pair.Key] = res;
-                    }
-                }
-            }
+            QTResourceManager.ValidateTextResources(ref dict);
         }
 
 
@@ -1099,43 +744,27 @@ namespace QTTabBarLib {
 
         public static bool IsEmptyStr(string strs)
         {
-            return strs == null || strs.Trim().Length == 0;
+            return PathValidator.IsEmptyStr(strs);
         }
 
         public static bool IsNetPath(string path)
         {
-            return !IsEmptyStr(path) && path.StartsWith(@"\\");
+            return PathValidator.IsNetPath(path);
         }
 
         public static bool IsNoCapturePaths(string path)
         {
-            // �������
-            string controlPanel = "::{26EE0668-A00A-44D7-9371-BEB064C98683}";
-            string print = @"::{21EC2020-3AEA-1069-A2DD-08002B30309D}\::{2227A280-3AEA-1069-A2DE-08002B30309D}";// ��ӡ��
-            return !IsEmptyStr(path) && (
-                path.StartsWith(controlPanel) ||
-                path.StartsWith(print) 
-                );
+            return PathValidator.IsNoCapturePaths(path);
         }
 
         public static bool IsSimpleDateStr(string input)
         {
-            if (IsEmptyStr(input))
-            {
-                return false;
-            }
-            string pattern = @"\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}";
-            return Regex.IsMatch(input, pattern);
+            return PathValidator.IsSimpleDateStr(input);
         }
 
         public static bool IsShortDateStr(string input)
         {
-            if (IsEmptyStr(input))
-            {
-                return false;
-            }
-            string pattern = @"\d{1,2}/\d{1,2}/\d{1,2}\s��[һ|��|��|��|��|��|��]\s\d{1,2}:\d{1,2}:\d{1,2}";
-            return Regex.IsMatch(input, pattern);
+            return PathValidator.IsShortDateStr(input);
         }
 
         // c# ��ȡ��ǰ���̵ĸ�����
