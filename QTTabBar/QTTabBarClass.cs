@@ -72,6 +72,7 @@ namespace QTTabBarLib {
         private BindActionController _bindActionController;
         private ShellCommandController _shellCommandController;
         private ListViewInputController _listViewInputController;
+        private KeyboardAcceleratorController _keyboardAcceleratorController;
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
 
@@ -667,23 +668,6 @@ namespace QTTabBarLib {
 
         // todo: handle links — CreateTMPPathsToOpenNew moved to ListViewInputController (3l)
 
-        private void ddmrUndoClose_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
-            QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-            if(clickedItem != null) {
-                using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                    e.HRESULT = shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
-                }
-                if(e.HRESULT == 0xffff) {
-                    StaticReg.ClosedTabHistoryList.Remove(clickedItem.Path);
-                    e.ClickedItem.Dispose();
-                }
-            }
-        }
-
-        private void ddrmrGroups_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
-            ReplaceByGroup(e.ClickedItem.Text);
-        }
-
         protected override void Dispose(bool disposing) {
             if(disposing && (components != null)) {
                 components.Dispose();
@@ -897,6 +881,7 @@ namespace QTTabBarLib {
             _bindActionController = new BindActionController(this);
             _shellCommandController = new ShellCommandController(this);
             _listViewInputController = new ListViewInputController(this);
+            _keyboardAcceleratorController = new KeyboardAcceleratorController(this);
             _tabTooltipController = new TabTooltipController(this);
             _windowManagementController = new WindowManagementController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
@@ -982,93 +967,6 @@ namespace QTTabBarLib {
                 }
             }
             ListViewInputController.HandleF5();
-        }
-          
-        /**
-         * 添加到标签组事件
-         */
-        private void menuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            // TODO we should be using tags I think
-            string groupName = e.ClickedItem.Text;
-            string currentPath = ContextMenuedTab.CurrentPath;
-            bool addSame = ModifierKeys == Keys.Control;
-            Group g = GroupsManager.GetGroup(groupName);
-            if(g == null) return;
-            if(addSame || !g.Paths.Any(p => p.PathEquals(currentPath))) {
-                g.Paths.Add(currentPath);
-                GroupsManager.SaveGroups();
-            }
-        }
-
-        private void menuitemExecuted_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            try {
-                string toolTipText = e.ClickedItem.ToolTipText;
-                ProcessStartInfo startInfo = new ProcessStartInfo(toolTipText);
-                startInfo.WorkingDirectory = Path.GetDirectoryName(toolTipText);
-                startInfo.ErrorDialog = true;
-                startInfo.ErrorDialogParentHandle = ExplorerHandle;
-                Process.Start(startInfo);
-                StaticReg.ExecutedPathsList.Add(toolTipText);
-            }
-            catch {
-                QTUtility.SoundPlay();
-            }
-        }
-
-        private void menuitemExecuted_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
-            using(IDLWrapper wrapper = new IDLWrapper(e.ClickedItem.ToolTipText)) {
-                e.HRESULT = shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
-            }
-            if(e.HRESULT == 0xffff) {
-                StaticReg.ExecutedPathsList.Remove(e.ClickedItem.ToolTipText);
-                e.ClickedItem.Dispose();
-            }
-        }
-
-        private void menuitemGroups_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            Keys modifierKeys = ModifierKeys;
-            string groupName = e.ClickedItem.Text;
-            if(modifierKeys == (Keys.Control | Keys.Shift)) {
-                Group g = GroupsManager.GetGroup(groupName);
-                g.Startup = !g.Startup;
-                GroupsManager.SaveGroups();
-            }
-            else {
-                OpenGroup(groupName, modifierKeys == Keys.Control);
-            }
-        }
-
-        private void menuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-            GroupsManager.HandleReorder(tsmiGroups.DropDownItems.Cast<ToolStripItem>());
-            SyncTaskBarMenu();
-        }
-
-        private void menuitemHistory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-            if((ContextMenuedTab != null) && (clickedItem != null)) {
-                MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
-                switch(ModifierKeys) {
-                    case Keys.Shift:
-                        CloneTabButton(ContextMenuedTab, null, true, -1);
-                        NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
-                        return;
-
-                    case Keys.Control: {
-                            using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
-                                OpenNewWindow(wrapper);
-                                return;
-                            }
-                        }
-                    default:
-                        tabControl1.SelectTab(ContextMenuedTab);
-                        NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
-                        return;
-                }
-            }
-        }
-
-        private void menuitemTabOrder_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            _tabManager.menuitemTabOrder_DropDownItemClicked(sender, e);
         }
 
         private void MinimizeToTray() {
@@ -1471,95 +1369,11 @@ namespace QTTabBarLib {
         }
 
         public override int TranslateAcceleratorIO(ref MSG msg) {
-            if(msg.message == WM.KEYDOWN) {
-                Keys wParam = (Keys)((int)((long)msg.wParam));
-                bool flag = (((int)((long)msg.lParam)) & 0x40000000) != 0;
-                switch(wParam) {
-                    case Keys.Delete: {
-                            if(!tabControl1.Focused || ((subDirTip_Tab != null) && subDirTip_Tab.MenuIsShowing)) {
-                                break;
-                            }
-                            int focusedTabIndex = tabControl1.GetFocusedTabIndex();
-                            if((-1 < focusedTabIndex) && (focusedTabIndex < tabControl1.TabCount)) {
-                                bool flag3 = focusedTabIndex == (tabControl1.TabCount - 1);
-                                if(CloseTab(tabControl1.TabPages[focusedTabIndex]) && flag3) {
-                                    tabControl1.FocusNextTab(true, false, false);
-                                }
-                            }
-                            return 0;
-                        }
-                    case Keys.Apps:
-                        if(!flag) {
-                            int index = tabControl1.GetFocusedTabIndex();
-                            if((-1 >= index) || (index >= tabControl1.TabCount)) {
-                                break;
-                            }
-                            ContextMenuedTab = tabControl1.TabPages[index];
-                            Rectangle tabRect = tabControl1.GetTabRect(index, true);
-                            contextMenuTab.Show(PointToScreen(new Point(tabRect.Right + 10, tabRect.Bottom - 10)));
-                        }
-                        return 0;
-
-                    case Keys.F6:
-                    case Keys.Tab:
-                    case Keys.Left:
-                    case Keys.Right: {
-                            if(!tabControl1.Focused || ((subDirTip_Tab != null) && subDirTip_Tab.MenuIsShowing)) {
-                                break;
-                            }
-                            bool fBack = (ModifierKeys == Keys.Shift) || (wParam == Keys.Left);
-                            if(!tabControl1.FocusNextTab(fBack, false, false)) {
-                                break;
-                            }
-                            return 0;
-                        }
-                    case Keys.Back:
-                        return 0;
-
-                    case Keys.Return:
-                    case Keys.Space:
-                        if(!flag && !tabControl1.SelectFocusedTab()) {
-                            break;
-                        }
-                        listView.SetFocus();
-                        return 0;
-
-                    case Keys.Escape:
-                        if(tabControl1.Focused && ((subDirTip_Tab == null) || !subDirTip_Tab.MenuIsShowing)) {
-                            listView.SetFocus();
-                        }
-                        break;
-
-                    case Keys.End:
-                    case Keys.Home:
-                        if((!tabControl1.Focused || ((subDirTip_Tab != null) && subDirTip_Tab.MenuIsShowing)) || !tabControl1.FocusNextTab(wParam == Keys.Home, false, true)) {
-                            break;
-                        }
-                        return 0;
-
-                    case Keys.Up:
-                    case Keys.Down:
-                        if(((!Config.Tabs.ShowSubDirTipOnTab || !tabControl1.Focused) || ((subDirTip_Tab != null) && subDirTip_Tab.MenuIsShowing)) || (!flag && !tabControl1.PerformFocusedFolderIconClick(wParam == Keys.Up))) {
-                            break;
-                        }
-                        return 0;
-                }
+            int result;
+            if(_keyboardAcceleratorController.TranslateAccelerator(ref msg, out result)) {
+                return result;
             }
             return base.TranslateAcceleratorIO(ref msg);
-        }
-
-        private bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
-            QTUtility2.log("QTTabBarClass FolderLinkClicked");
-            MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
-            BindAction action;
-            if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
-                DoBindAction(action, false, null, wrapper);
-                return true;
-            }
-            else {
-                QTUtility2.log("QTTabBarClass FolderLinkClicked δ��ȡ�����õĶ���");
-                return false;
-            }
         }
 
         public static bool TryCallButtonBar(Func<QTButtonBar, bool> func) {

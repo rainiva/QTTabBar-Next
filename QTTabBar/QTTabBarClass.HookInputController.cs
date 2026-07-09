@@ -84,7 +84,7 @@ namespace QTTabBarLib {
                                                         _owner.treeViewWrapper.Dispose();
                                                     }
                                                     _owner.treeViewWrapper = new TreeViewWrapper(hwnd, control);
-                                                    _owner.treeViewWrapper.TreeViewClicked += _owner.FolderLinkClicked;
+                                                    _owner.treeViewWrapper.TreeViewClicked += (wrapper, modifierKeys, middle) => _owner._menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
                                                     QTUtility2.log("CallbackGetMsgProc regedit TreeViewClicked");
                                                     obj = null;
                                                 }

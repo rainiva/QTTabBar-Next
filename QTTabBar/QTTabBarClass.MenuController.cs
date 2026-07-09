@@ -322,7 +322,7 @@ namespace QTTabBarLib {
                             _owner.tsmiTabOrder.DropDownItems.Add(item4);
                             _owner.tsmiTabOrder.DropDownItems.Add(separator);
                             _owner.tsmiTabOrder.DropDownItems.Add(item5);
-                            _owner.tsmiTabOrder.DropDownItemClicked += _owner.menuitemTabOrder_DropDownItemClicked;
+                            _owner.tsmiTabOrder.DropDownItemClicked += _owner._tabManager.menuitemTabOrder_DropDownItemClicked;
                         }
                         if((_owner.lstPluginMenuItems_Tab != null) && (_owner.lstPluginMenuItems_Tab.Count > 0)) {
                             foreach(ToolStripItem item6 in _owner.lstPluginMenuItems_Tab) {
@@ -458,23 +458,23 @@ namespace QTTabBarLib {
                     }
 
                     DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_owner.components, true, false);
-                    reorderable.ReorderFinished += _owner.menuitemGroups_ReorderFinished;
+                    reorderable.ReorderFinished += MenuitemGroups_ReorderFinished;
                     reorderable.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
-                    reorderable.ItemMiddleClicked += _owner.ddrmrGroups_ItemMiddleClicked;
+                    reorderable.ItemMiddleClicked += DdrmrGroups_ItemMiddleClicked;
                     reorderable.ImageList = QTUtility.ImageListGlobal;
                     _owner.tsmiGroups.DropDown = reorderable;
-                    _owner.tsmiGroups.DropDownItemClicked += _owner.menuitemGroups_DropDownItemClicked;
+                    _owner.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
                     DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_owner.components);
                     reorderable2.ReorderEnabled = false;
                     reorderable2.MessageParent = _owner.Handle;
                     reorderable2.ImageList = QTUtility.ImageListGlobal;
-                    reorderable2.ItemRightClicked += _owner.ddmrUndoClose_ItemRightClicked;
+                    reorderable2.ItemRightClicked += DdmrUndoClose_ItemRightClicked;
                     _owner.tsmiUndoClose.DropDown = reorderable2;
                     _owner.tsmiUndoClose.DropDownItemClicked += _owner._tabManager.menuitemUndoClose_DropDownItemClicked;
                     DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_owner.components);
                     reorderable3.MessageParent = _owner.Handle;
-                    reorderable3.ItemRightClicked += _owner.menuitemExecuted_ItemRightClicked;
-                    reorderable3.ItemClicked += _owner.menuitemExecuted_DropDownItemClicked;
+                    reorderable3.ItemRightClicked += MenuitemExecuted_ItemRightClicked;
+                    reorderable3.ItemClicked += MenuitemExecuted_DropDownItemClicked;
                     reorderable3.ImageList = QTUtility.ImageListGlobal;
                     _owner.tsmiExecuted.DropDown = reorderable3;
                     _owner.tssep_Sys1.Enabled = false;
@@ -541,10 +541,10 @@ namespace QTTabBarLib {
                             _owner.NowTabDragging = false;
                         };
 
-                        _owner.tsmiAddToGroup.DropDownItemClicked += _owner.menuitemAddToGroup_DropDownItemClicked;
+                        _owner.tsmiAddToGroup.DropDownItemClicked += MenuitemAddToGroup_DropDownItemClicked;
                         (_owner.tsmiAddToGroup.DropDown).ImageList = QTUtility.ImageListGlobal;
                         _owner.tsmiHistory.DropDown = new DropDownMenuBase(_owner.components, true, true, true);
-                        _owner.tsmiHistory.DropDownItemClicked += _owner.menuitemHistory_DropDownItemClicked;
+                        _owner.tsmiHistory.DropDownItemClicked += MenuitemHistory_DropDownItemClicked;
                         (_owner.tsmiHistory.DropDown).ImageList = QTUtility.ImageListGlobal;
                         _owner.menuTextBoxTabAlias.Text = _owner.menuTextBoxTabAlias.ToolTipText = QTUtility.ResMain[0x1b];
                         _owner.menuTextBoxTabAlias.GotFocus += _owner._tabManager.menuTextBoxTabAlias_GotFocus;
@@ -576,6 +576,114 @@ namespace QTTabBarLib {
                 catch(Exception e) {
                     QTUtility2.MakeErrorLog(e);
                 }
+            }
+
+            public void MenuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                string groupName = e.ClickedItem.Text;
+                string currentPath = _owner.ContextMenuedTab.CurrentPath;
+                bool addSame = ModifierKeys == Keys.Control;
+                Group g = GroupsManager.GetGroup(groupName);
+                if(g == null) return;
+                if(addSame || !g.Paths.Any(p => p.PathEquals(currentPath))) {
+                    g.Paths.Add(currentPath);
+                    GroupsManager.SaveGroups();
+                }
+            }
+
+            public void MenuitemExecuted_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                try {
+                    string toolTipText = e.ClickedItem.ToolTipText;
+                    ProcessStartInfo startInfo = new ProcessStartInfo(toolTipText);
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(toolTipText);
+                    startInfo.ErrorDialog = true;
+                    startInfo.ErrorDialogParentHandle = _owner.ExplorerHandle;
+                    Process.Start(startInfo);
+                    StaticReg.ExecutedPathsList.Add(toolTipText);
+                }
+                catch {
+                    QTUtility.SoundPlay();
+                }
+            }
+
+            public void MenuitemExecuted_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
+                using(IDLWrapper wrapper = new IDLWrapper(e.ClickedItem.ToolTipText)) {
+                    e.HRESULT = _owner.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                }
+                if(e.HRESULT == 0xffff) {
+                    StaticReg.ExecutedPathsList.Remove(e.ClickedItem.ToolTipText);
+                    e.ClickedItem.Dispose();
+                }
+            }
+
+            public void MenuitemGroups_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                Keys modifierKeys = ModifierKeys;
+                string groupName = e.ClickedItem.Text;
+                if(modifierKeys == (Keys.Control | Keys.Shift)) {
+                    Group g = GroupsManager.GetGroup(groupName);
+                    g.Startup = !g.Startup;
+                    GroupsManager.SaveGroups();
+                }
+                else {
+                    _owner.OpenGroup(groupName, modifierKeys == Keys.Control);
+                }
+            }
+
+            public void MenuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
+                GroupsManager.HandleReorder(_owner.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
+                QTTabBarClass.SyncTaskBarMenu();
+            }
+
+            public void MenuitemHistory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                QMenuItem clickedItem = e.ClickedItem as QMenuItem;
+                if((_owner.ContextMenuedTab != null) && (clickedItem != null)) {
+                    MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
+                    switch(ModifierKeys) {
+                        case Keys.Shift:
+                            _owner.CloneTabButton(_owner.ContextMenuedTab, null, true, -1);
+                            _owner.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            return;
+
+                        case Keys.Control: {
+                                using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
+                                    _owner.OpenNewWindow(wrapper);
+                                    return;
+                                }
+                            }
+                        default:
+                            _owner.tabControl1.SelectTab(_owner.ContextMenuedTab);
+                            _owner.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            return;
+                    }
+                }
+            }
+
+            public void DdmrUndoClose_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
+                QMenuItem clickedItem = e.ClickedItem as QMenuItem;
+                if(clickedItem != null) {
+                    using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
+                        e.HRESULT = _owner.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                    }
+                    if(e.HRESULT == 0xffff) {
+                        StaticReg.ClosedTabHistoryList.Remove(clickedItem.Path);
+                        e.ClickedItem.Dispose();
+                    }
+                }
+            }
+
+            public void DdrmrGroups_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
+                _owner.ReplaceByGroup(e.ClickedItem.Text);
+            }
+
+            public bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
+                QTUtility2.log("QTTabBarClass FolderLinkClicked");
+                MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
+                BindAction action;
+                if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
+                    _owner.DoBindAction(action, false, null, wrapper);
+                    return true;
+                }
+                QTUtility2.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");
+                return false;
             }
         }
     }

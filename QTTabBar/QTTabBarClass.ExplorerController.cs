@@ -1130,7 +1130,7 @@ namespace QTTabBarLib {
                     if(hwndBreadcrumbBar != IntPtr.Zero) {
                         _owner.breadcrumbBar = new BreadcrumbBar(hwndBreadcrumbBar);
                         QTUtility2.log("QTTabBarClass BreadcrumbBar set FolderLinkClicked ");
-                        _owner.breadcrumbBar.ItemClicked += _owner.FolderLinkClicked;
+                        _owner.breadcrumbBar.ItemClicked += (wrapper, modifierKeys, middle) => _owner._menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
                     }
                 }
             }

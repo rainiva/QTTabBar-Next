@@ -863,6 +863,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 | 3j | 菜单初始化 | 2 | 高 | InitializeSysMenu/InitializeTabMenu → MenuController |
 | 3k | 窗口引导 | 3 | 高 | InitializeNavBtns/InitializeOpenedWindow/InstallHooks → ExplorerControllerModule |
 | 3l | 项激活/Travel 栏 | 4 | 高 | HandleItemActivate/HandleF5 → ListViewInputController；TravelToolbar → ExplorerControllerModule |
+| 3m | 次级菜单/快捷键 | 8 | 高 | menuitem* 次级处理器 + FolderLinkClicked → MenuController；TranslateAccelerator → KeyboardAcceleratorController |
 
 **每批验收标准**
 
@@ -985,7 +986,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 - [x] 三维 Ultra Review
 
 **验收结论：第三批 1/5 项完全修复（W1），3 项部分修复（C6、C7、W3），1 项已验证（W2）。**
-- C6：ListView 项激活与 Travel 栏消息处理已提取（3l）；主文件约 1,802 行，拆解仍在进行
+- C6：次级菜单处理器、FolderLinkClicked、TranslateAccelerator 已提取（3m）；主文件约 1,616 行，拆解仍在进行
 - C7：OSDetector/QTLogger/RegistryHelper 等已创建；ReadLanguageFile 调用方已迁移至 QTResourceManager
 - W1：纯 registry façade 已移除；InstanceManager 仅保留 IPC/跨进程协调方法
 - W2：已验证 — DesktopTooltipController 已提取，主文件 2,191 行
@@ -1200,7 +1201,7 @@ public static void Initialize() {
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 改为按需读取，消除引用拷贝 |
 | W10 | ✅ 已修复 | WriteConfig + PersistConfigChanges 统一入口，版本追踪完善 |
-| C6 | ⬜ 部分修复 | 11 个 controller/partial + MenuController（3j）+ Explorer 模块扩展（3k/3l），主文件约 1,900 行 |
+| C6 | ⬜ 部分修复 | 12 个 controller/partial + MenuController 扩展（3j/3m）+ KeyboardAcceleratorController（3m）+ Explorer 模块扩展（3k/3l），主文件约 1,616 行 |
 | C7 | ⬜ 部分修复 | 5 个辅助类已创建，QTUtility 仍保留部分 façade |
 | W1 | ✅ 已修复 | 纯 registry façade 已移除，IPC 方法保留 |
 | W2 | ✅ 已验证 | DesktopTooltipController 已提取，主文件 2,191 行 |
@@ -1215,7 +1216,7 @@ public static void Initialize() {
 ### 待办优先级建议
 
 1. **W3（QTSecondViewBar 去重）** — 唯一完全未启动项，依赖 C1 已满足
-2. **C6 继续拆解** — 主文件约 1,900 行，按 3m+ 继续（FolderLinkClicked、TranslateAcceleratorIO 等大区域）
+2. **C6 继续拆解** — 主文件约 1,616 行，按 3n+ 继续（RefreshOptions、ToggleTopMost、ShowFolderTree 等大区域）
 3. **C7 façade 清理** — 清理 QTUtility 剩余 façade 转发方法
 4. **W1 façade 清理** — 清理 InstanceManager 剩余 13 个方法
 5. **W9 改为按需读取** — 消除 ResMain/ResMisc 引用拷贝
