@@ -18,7 +18,7 @@ namespace QTTabBarLib {
     /// </summary>
     internal static class ConfigVersionTracker {
         // Authoritative, monotonically increasing configuration version for this
-        // process. Bumped by WriteConfig after a successful registry write.
+        // process. Bumped by UpdateConfig / PersistPartialWindowSetting broadcasts.
         private static long currentVersion;
 
         // Highest version already applied on this process via an inbound IPC
@@ -60,14 +60,14 @@ namespace QTTabBarLib {
 
         /// <summary>
         /// Decide whether an inbound ReloadConfig carrying <paramref name="version"/>
-        /// should be applied on this client. A version of 0 means "unspecified"
-        /// (legacy sender or no-payload broadcast) and is always applied to preserve
-        /// the previous behavior. A non-zero version that is not strictly newer than
-        /// the last applied one is treated as stale / duplicate and ignored.
+        /// should be applied on this client. Version 0 is rejected (legacy unspecified
+        /// payloads are no longer applied). A non-zero version that is not strictly
+        /// newer than the last applied one is treated as stale / duplicate and ignored.
         /// </summary>
         internal static bool ShouldApply(long version) {
             if(version == 0) {
-                return true;
+                QTLogger.log("ConfigVersionTracker: rejecting legacy ReloadConfig version 0");
+                return false;
             }
             while(true) {
                 long prev = Interlocked.Read(ref lastAppliedVersion);

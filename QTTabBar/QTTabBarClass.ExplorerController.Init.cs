@@ -127,7 +127,7 @@ namespace QTTabBarLib {
                 _owner.toolStrip.Renderer = new ToolbarRenderer();
                 _owner.toolStrip.Width = 0x3f;
                 _owner.toolStrip.TabStop = false;
-                _owner.toolStrip.BackColor = QTUtility.InNightMode ? Color.Black : Color.WhiteSmoke;
+                _owner.toolStrip.BackColor = ThemeRefreshService.IsDark ? Color.Black : Color.WhiteSmoke;
 
                 _owner.buttonBack.AutoSize = false;
                 _owner.buttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
@@ -283,33 +283,6 @@ namespace QTTabBarLib {
                     }
                 }
                 return path;
-            }
-
-            #endregion
-
-            #region Helpers
-
-            private ITravelLogEntry GetCurrentLogEntry() {
-                IEnumTravelLogEntry ppenum = null;
-                ITravelLogEntry rgElt = null;
-                ITravelLogEntry entry3;
-                try {
-                    if(_owner.TravelLog.EnumEntries(1, out ppenum) == 0) {
-                        ppenum.Next(1, out rgElt, 0);
-                    }
-                    entry3 = rgElt;
-                }
-                catch(Exception exception) {
-                    QTLogger.MakeErrorLog(exception);
-                    entry3 = null;
-                }
-                finally {
-                    if(ppenum != null) {
-                        QTLogger.log("ReleaseComObject ppenum");
-                        Marshal.ReleaseComObject(ppenum);
-                    }
-                }
-                return entry3;
             }
 
             #endregion
