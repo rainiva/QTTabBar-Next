@@ -41,9 +41,9 @@ using System.Text;
 
 namespace QTTabBarLib {
     internal static class QTUtility {
-        // 1.5.6.1  edit this 
+        // 1.5.6.3  edit this 
         internal static readonly Version BetaRevision = new Version(1, 0); // ���汾 beta  �ΰ汾 alpha
-        internal static readonly Version CurrentVersion = new Version(1, 5, 6, 0);
+        internal static readonly Version CurrentVersion = new Version(1, 5, 6, 7);
         internal static readonly string BuildVerion = "build03";
         internal const int FIRST_MOUSE_ONLY_ACTION = 1000;
         internal static readonly string REG_PERSONALIZE = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
@@ -111,7 +111,13 @@ namespace QTTabBarLib {
         internal static bool RestoreFolderTree_Hide;
         // internal static SolidBrush sbAlternate;
        // internal static Font StartUpTabFont;
-        internal static Dictionary<string, string[]> TextResourcesDic { get { return ResourceCache.TextResourcesDic; } set { ResourceCache.TextResourcesDic = value; } }
+        internal static Dictionary<string, string[]> TextResourcesDic {
+            get { return ResourceCache.TextResourcesDic; }
+            set {
+                ResourceCache.TextResourcesDic = value;
+                RefreshResMainMiscFromTextResources();
+            }
+        }
         internal static byte WindowAlpha { get { return System.Threading.Volatile.Read(ref SessionState.WindowAlpha); } set { System.Threading.Volatile.Write(ref SessionState.WindowAlpha, value); } }
 
         // �Ƿ�Ϊ����ģʽ
@@ -183,23 +189,7 @@ namespace QTTabBarLib {
                 return;
             }
 
-            // Register a callback for AssemblyResolve in order to load embedded assemblies.
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
-                var requestedName = new AssemblyName(args.Name);
-                foreach(var loaded in AppDomain.CurrentDomain.GetAssemblies()) {
-                    if(string.Equals(loaded.GetName().Name, requestedName.Name, StringComparison.OrdinalIgnoreCase)) {
-                        return loaded;
-                    }
-                }
-                String resourceName = "QTTabBarLib.Resources." + requestedName.Name + ".dll";
-                using(var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)) {
-                    if(stream == null) return null;
-                    byte[] assemblyData = new byte[stream.Length];
-                    stream.Read(assemblyData, 0, assemblyData.Length);
-                    QTUtility2.Close(stream);
-                    return Assembly.Load(assemblyData);
-                }
-            };
+            EmbeddedAssemblyLoader.EnsureRegistered();
 
             InitializationOrchestrator.Initialize();
         }
@@ -649,6 +639,10 @@ namespace QTTabBarLib {
             value = ValidateMinMax(value, min, max);
         }
 
+        public static void RefreshNightMode() {
+            InNightMode = getNightMode();
+        }
+
         // �ж��Ƿ�Ϊ����ģʽ  Environment.OSVersion.Version.Major
         public static bool getNightMode()
         {
@@ -707,6 +701,19 @@ namespace QTTabBarLib {
 
         public static void ValidateTextResources() {
             QTResourceManager.ValidateTextResources();
+        }
+
+        private static void RefreshResMainMiscFromTextResources() {
+            Dictionary<string, string[]> dict = ResourceCache.TextResourcesDic;
+            if(dict == null) {
+                return;
+            }
+            if(dict.TryGetValue("TabBar_Menu", out string[] main)) {
+                ResMain = main;
+            }
+            if(dict.TryGetValue("Misc_Strings", out string[] misc)) {
+                ResMisc = misc;
+            }
         }
 
         public static void ValidateTextResources(ref Dictionary<string, string[]> dict)

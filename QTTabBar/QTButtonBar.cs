@@ -1030,7 +1030,7 @@ namespace QTTabBarLib {
                 dropTargetWrapper = new DropTargetWrapper(this);
                 QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
                 // add by indiff dark mode
-                QTUtility.InNightMode = QTUtility.getNightMode();
+                QTUtility.RefreshNightMode();
                 QTUtility2.log("OnExplorerAttached SwitchNighMode");
                 Config.Skin.SwitchNighMode(QTUtility.InNightMode);
                 ConfigManager.UpdateConfig(true);

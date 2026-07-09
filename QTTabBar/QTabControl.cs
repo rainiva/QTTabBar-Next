@@ -136,7 +136,7 @@ namespace QTTabBarLib {
             // | ControlStyles.OptimizedDoubleBuffer//��ؼ������Ȼ��Ƶ�������������ֱ�ӻ��Ƶ���Ļ������Լ�����˸
        
             // ��ʼ��֮ǰ���л�ȡһ�ΰ���ģʽ
-            QTUtility.InNightMode = QTUtility.getNightMode();
+            QTUtility.RefreshNightMode();
 
             SetStyle(ControlStyles.UserPaint
                      | ControlStyles.OptimizedDoubleBuffer 
@@ -158,7 +158,8 @@ namespace QTTabBarLib {
             // MeasureTrailingSpaces ����ÿһ�н�β����β��ո� ��Ĭ������£�MeasureString �������صı߽���ζ����ų�ÿһ�н�β���Ŀո� ���ô˱���Ա��ڲⶨʱ���ո������ȥ��
             // NoWrap �ھ��������ø�ʽʱ�������Զ����й��ܡ� �����ݵ��ǵ�����Ǿ���ʱ������ָ�����ε��г���Ϊ��ʱ���������˱�ǡ�
             sfTypoGraphic.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces | StringFormatFlags.NoWrap;
-            sfTypoGraphic.LineAlignment = StringAlignment.Far;  // StringAlignment.Center StringAlignment.Near StringAlignment.Far
+            // Figure-2 style: title vertically centered with the icon (not bottom-aligned).
+            sfTypoGraphic.LineAlignment = StringAlignment.Center;
             sfTypoGraphic.Trimming = StringTrimming.EllipsisCharacter;
             if (QTUtility.IsRTL)
             {
@@ -917,10 +918,9 @@ namespace QTTabBarLib {
                 // QTUtility2.log(" textPosY " + Math.Max(((textRect.Height - baseTabItem.TitleTextSize.Height) / 2f) - 5, 0f));
                 // float textPosY = Math.Max(((textRect.Height - baseTabItem.TitleTextSize.Height) / 2f) - 5 , 0f);
                 // float textPosY = 0;
-                // ����Ϊ������ʾ
-                float textPosY = -(textRect.Height - baseTabItem.TitleTextSize.Height) / 2;
-                // float textPosY = 5f;
-                // �����ǩ�ı�����������ƫ��ֵ
+                // 垂直居中：Y 偏移到标题中线，绘制高度用标题高度（勿用整栏高度再 Center，会偏下）
+                float textPosY = ComputeTabTitleTopOffset(textRect.Height, baseTabItem.TitleTextSize.Height);
+                // 计算标签文本水平对齐的偏移值
                 float textPosX = (tabTextAlignment == StringAlignment.Center)
                               ? Math.Max(((textRect.Width - textWidth) / 2f), 0f) :
                               0f; 
@@ -928,7 +928,7 @@ namespace QTTabBarLib {
                                             textRect.X + textPosX, 
                                             textRect.Y + textPosY,
                                             Math.Min((baseTabItem.TitleTextSize.Width + 2f), (textRect.Width - textPosX)), 
-                                            textRect.Height);
+                                            Math.Max(baseTabItem.TitleTextSize.Height, 1f));
                 // ������Ӱ���� dark mode
                 if(fDrawShadow)
                 {
@@ -973,14 +973,7 @@ namespace QTTabBarLib {
                 }
 				// �Ƿ����ñ�ע����
                 if(isComment && (textRect.Width > baseTabItem.TitleTextSize.Width)) {
-                    // ����Ϊ���е�����, �ı��߶� - ��ע�ı��߶ȵ�һ��
-                    // float posY = Math.Max(((textRect.Height - baseTabItem.SubTitleTextSize.Height) / 2f), 0f);
-                    float posY = Math.Max(((textRect.Height - baseTabItem.SubTitleTextSize.Height) / 2f), 0f);
-					// PointF	����ʾ������������Ͻ�
-					// SizeF	����ʾ��������Ŀ��Ⱥ͸߶ȡ�
-					// posY = textRect.Y + posY;
-					posY = textRect.Y  - posY; // �޸�������ǩ����������
-                    // float posY = textRect.Y + Math.Max( baseTabItem.SubTitleTextSize.Height, 0f );
+                    float posY = ComputeTabCommentTop(textRect.Y, textRect.Height, baseTabItem.SubTitleTextSize.Height);
 					RectangleF drawStrRectF = new RectangleF(
                         textRct.Right, 
                         posY, 
@@ -988,7 +981,7 @@ namespace QTTabBarLib {
                             (baseTabItem.SubTitleTextSize.Width + 2f),
                             (textRect.Width - ((baseTabItem.TitleTextSize.Width + textPosX) + 4f))
                         ), 
-                        textRect.Height);  // �ı�����
+                        Math.Max(baseTabItem.SubTitleTextSize.Height, 1f));
                     if(fDrawShadow) {
                         // QTUtility2.log("DrawTextWithShadow2 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
                         DrawTextWithShadow(g, 
@@ -1678,7 +1671,8 @@ namespace QTTabBarLib {
                 maxAllowedTabWidth = Config.Skin.TabMaxWidth;
                 minAllowedTabWidth = Config.Skin.TabMinWidth;
             }
-            itemSize = new Size(maxAllowedTabWidth, Config.Skin.TabHeight);
+            int scaledTabHeight = ScaleTabHeight(Config.Skin.TabHeight);
+            itemSize = new Size(maxAllowedTabWidth, scaledTabHeight);
             fActiveTxtBold = Config.Skin.ActiveTabInBold;
             fForceClassic = Config.Skin.UseTabSkin;
             SetFont(Config.Skin.TabTextFont);
@@ -2147,6 +2141,35 @@ namespace QTTabBarLib {
                 }
                 Owner.Refresh();
             }
+        }
+
+        /// <summary>
+        /// Vertical offset so the title sits centered in the tab (icon-left layout).
+        /// Do not subtract an extra bias — that pushed text toward the top/bottom.
+        /// </summary>
+        internal static float ComputeTabTitleTopOffset(int textRectHeight, float titleTextHeight) {
+            return Math.Max((textRectHeight - titleTextHeight) / 2f, 0f);
+        }
+
+        internal static float ComputeTabCommentTop(int textRectY, int textRectHeight, float subTitleTextHeight) {
+            float offset = Math.Max((textRectHeight - subTitleTextHeight) / 2f, 0f);
+            return textRectY + offset;
+        }
+
+        private static int ScaleTabHeight(int logicalTabHeight) {
+            int deviceCapsDpi = 0;
+            try {
+                IntPtr hdc = PInvoke.GetDC(IntPtr.Zero);
+                if(hdc != IntPtr.Zero) {
+                    deviceCapsDpi = PInvoke.GetDeviceCaps(hdc, 88);
+                    PInvoke.ReleaseDC(IntPtr.Zero, hdc);
+                }
+            }
+            catch {
+                // ignore and fall through to AppliedDPI
+            }
+            float scale = TabBarBase.ResolveDpiScale(0, 0, deviceCapsDpi, TabBarBase.TryReadAppliedDpi());
+            return Graphic.ScaleBy(scale, logicalTabHeight);
         }
     }
 
