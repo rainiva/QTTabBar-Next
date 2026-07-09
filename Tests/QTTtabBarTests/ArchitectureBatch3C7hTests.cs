@@ -7,9 +7,6 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C7hTests {
         private static readonly string[] InitializeEntryFiles = {
             "QTTabBarClass.cs",
-            "QTButtonBar.cs",
-            "QTSecondViewBar.cs",
-            "QTDesktopTool.cs",
             "OptionsDialog/OptionsDialog.xaml.cs",
         };
 

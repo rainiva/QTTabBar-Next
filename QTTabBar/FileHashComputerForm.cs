@@ -58,7 +58,7 @@ namespace QTTabBarLib {
 
         public FileHashComputerForm() {
             InitializeComponent();
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     chbFullPath.Checked = (int)key.GetValue("MD5FormFullPath", 0) == 1;
                     chbClearOnClose.Checked = (int)key.GetValue("MD5FormClearOnClose", 0) == 1;
@@ -514,7 +514,7 @@ namespace QTTabBarLib {
         }
 
         public void SaveMD5FormStat() {
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 key.SetValue("MD5FormLocation", QTUtility2.Make_INT(Left, Top));
                 key.SetValue("MD5FormSize", Width | (Height << 0x10));
                 key.SetValue("HashType", cmbHashType.SelectedIndex);

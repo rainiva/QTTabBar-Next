@@ -3,7 +3,8 @@ using Microsoft.Win32;
 namespace QTTabBarLib {
     /// <summary>
     /// Unified registry access for QTTabBar user settings under RegConst.Root.
-    /// Config.cs and StaticReg.cs may still use specialized paths directly.
+    /// Domain boundaries: Config (ConfigManager), Groups (GroupsManager),
+    /// Apps (AppsManager), and session/static state (StaticReg / WindowSessionPersistence).
     /// </summary>
     internal static class RegistryAccess {
         public static RegistryKey OpenRoot(bool writable) {

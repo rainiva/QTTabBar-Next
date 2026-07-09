@@ -97,7 +97,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTButtonBar_Constructor_Calls_QTUtility_Initialize() {
+        public void QTButtonBar_Constructor_Does_Not_Call_QTUtility_Initialize() {
             string sourcePath = Path.Combine(FindRepoRoot(), "QTTabBar", "QTButtonBar.cs");
             string content = File.ReadAllText(sourcePath);
             int ctorIndex = content.IndexOf("public QTButtonBar()", StringComparison.Ordinal);
@@ -109,12 +109,12 @@ namespace QTTtabBarTests {
                 ? content.Substring(braceIndex, nextCtor - braceIndex)
                 : content.Substring(braceIndex, Math.Min(500, content.Length - braceIndex));
 
-            Assert.IsTrue(ctorBody.Contains("QTUtility.Initialize()"),
-                "QTButtonBar constructor should call QTUtility.Initialize() explicitly");
+            Assert.IsFalse(ctorBody.Contains("QTUtility.Initialize()"),
+                "QTButtonBar constructor should rely on QTUtility static ctor instead of explicit Initialize");
         }
 
         [Test]
-        public void QTSecondViewBar_Constructor_Calls_QTUtility_Initialize() {
+        public void QTSecondViewBar_Constructor_Does_Not_Call_QTUtility_Initialize() {
             string sourcePath = Path.Combine(FindRepoRoot(), "QTTabBar", "QTSecondViewBar.cs");
             string content = File.ReadAllText(sourcePath);
             int ctorIndex = content.IndexOf("public QTSecondViewBar()", StringComparison.Ordinal);
@@ -126,8 +126,8 @@ namespace QTTtabBarTests {
                 ? content.Substring(braceIndex, nextMethod - braceIndex)
                 : content.Substring(braceIndex, Math.Min(800, content.Length - braceIndex));
 
-            Assert.IsTrue(ctorBody.Contains("QTUtility.Initialize()"),
-                "QTSecondViewBar constructor should call QTUtility.Initialize() explicitly");
+            Assert.IsFalse(ctorBody.Contains("QTUtility.Initialize()"),
+                "QTSecondViewBar constructor should rely on QTUtility static ctor instead of explicit Initialize");
         }
 
         [Test]

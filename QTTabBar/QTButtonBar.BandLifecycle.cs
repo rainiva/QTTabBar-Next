@@ -125,7 +125,7 @@ namespace QTTabBarLib {
             bmpLarge.Dispose();
             bmpSmall.Dispose();
             if(fWriteReg) {
-                using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+                using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                     key.SetValue("Buttons_ImagePath", string.Empty);
                 }
             }
@@ -515,7 +515,7 @@ namespace QTTabBarLib {
                 }
             }
             set {
-                using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+                using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                     key.SetValue("SearchBoxWidth", value);
                 }
             }
@@ -672,7 +672,7 @@ namespace QTTabBarLib {
 
         protected override bool ShouldHaveBreak() {
             bool breakBar = true;
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     breakBar = ((int)key.GetValue("BreakButtonBar", 1) == 1);
                 }
@@ -683,7 +683,7 @@ namespace QTTabBarLib {
         public override void ShowDW(bool fShow) {
             base.ShowDW(fShow);
             if(!fShow) {
-                using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+                using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                     key.SetValue("BreakButtonBar", BandHasBreak() ? 1 : 0);
                 }
             }

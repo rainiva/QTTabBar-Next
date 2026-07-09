@@ -111,7 +111,6 @@ namespace QTTabBarLib {
         #region Construction & Lifecycle
 
         public QTButtonBar() {
-            QTUtility.Initialize();
             // BarHeight = Config.Skin.TabHeight + 100;
             InitializeComponent();
         }

@@ -340,7 +340,7 @@ namespace QTTabBarLib {
         }
 
         private static void ReadCache() {
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     iPingTimeOutMS = (int)key.GetValue("NetworkTimeout", 0);
                     using(RegistryKey key2 = key.CreateSubKey("Cache")) {

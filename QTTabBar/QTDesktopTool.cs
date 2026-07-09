@@ -165,7 +165,6 @@ namespace QTTabBarLib {
             // Methods are called in this order:
             // ctor -> SetSite -> InitializeComponent -> 
             // (touches Handle property, WM_CREATE) -> OnHandleCreated -> (OnVisibleChanged)
-            QTUtility.Initialize();
         }
 
 
