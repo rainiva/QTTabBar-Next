@@ -30,6 +30,17 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        public void QTUtility_Source_Has_No_C7n_Process_Methods() {
+            // Source scan (not production call-site scan): GetParent had zero external callers,
+            // so a call-site scan passes vacuously during RED and cannot prove migration.
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTUtility.cs"));
+            Assert.IsFalse(content.Contains("public static Process GetParent("),
+                "QTUtility.cs should not define GetParent after C7n");
+            Assert.IsFalse(content.Contains("public static string GetParentProcessName("),
+                "QTUtility.cs should not define GetParentProcessName after C7n");
+        }
+
+        [Test]
         public void Production_Code_Does_Not_Call_QTUtility_C7n_Process_Methods() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories)) {
