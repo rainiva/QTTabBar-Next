@@ -569,7 +569,7 @@ namespace QTTabBarLib {
                             catch (Exception e)
                             {
                                 QTLogger.MakeErrorLog(e, "ShellViewIncrementalSearch new Regex");
-                                QTUtility.AsteriskPlay();
+                                SoundFeedbackService.AsteriskPlay();
                                 return false;
                             }
                         }

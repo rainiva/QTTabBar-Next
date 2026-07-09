@@ -14,11 +14,14 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTUtility_SaveMethods_Delegate_To_WindowSessionPersistence() {
-            string content = ReadQtTabBarFile("QTUtility.cs");
-            Assert.IsTrue(content.Contains("WindowSessionPersistence.SaveClosing"));
-            Assert.IsTrue(content.Contains("WindowSessionPersistence.SaveRecentFiles"));
-            Assert.IsTrue(content.Contains("WindowSessionPersistence.SaveRecentlyClosed"));
+        public void Session_Persistence_Callers_Use_WindowSessionPersistence_Directly() {
+            string utility = ReadQtTabBarFile("QTUtility.cs");
+            Assert.IsFalse(utility.Contains("public static void SaveClosing"),
+                "QTUtility should not facade SaveClosing after C7m");
+            Assert.IsTrue(ReadQtTabBarFile("TabBarBase.Close.cs").Contains("WindowSessionPersistence.SaveClosing"));
+            string shutdown = ReadQtTabBarFile("QTTabBarClass.ShutdownController.cs");
+            Assert.IsTrue(shutdown.Contains("WindowSessionPersistence.SaveRecentlyClosed"));
+            Assert.IsTrue(shutdown.Contains("WindowSessionPersistence.SaveRecentFiles"));
         }
 
         [Test]

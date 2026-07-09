@@ -56,7 +56,7 @@ namespace QTTabBarLib {
         internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
             if(idlwGiven == null || !idlwGiven.Available || !idlwGiven.HasPath || !idlwGiven.IsReadyIfDrive
                     || idlwGiven.IsLinkToDeadFolder) {
-                QTUtility.SoundPlay();
+                SoundFeedbackService.SoundPlay();
                 return false;
             }
 
@@ -64,7 +64,7 @@ namespace QTTabBarLib {
                 IDLWrapper idlw = idlwLink ?? idlwGiven;
 
                 if(!idlw.Available || !idlw.HasPath || !idlw.IsReadyIfDrive || !idlw.IsFolder) {
-                    QTUtility.SoundPlay();
+                    SoundFeedbackService.SoundPlay();
                     return false;
                 }
 

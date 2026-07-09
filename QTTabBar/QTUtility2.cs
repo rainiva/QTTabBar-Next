@@ -463,12 +463,12 @@ namespace QTTabBarLib {
         internal static void SetStringClipboard(string str) {
             try {
                 Clipboard.SetDataObject(str, true);
-                QTUtility.AsteriskPlay();
+                SoundFeedbackService.AsteriskPlay();
             }
             catch (Exception e)
             {
                 QTLogger.MakeErrorLog(e, "SetStringClipboard");
-                QTUtility.SoundPlay();
+                SoundFeedbackService.SoundPlay();
             }
         }
 
@@ -482,13 +482,13 @@ namespace QTTabBarLib {
                 if (Clipboard.ContainsText(TextDataFormat.Text))
                 {
                     string clipboardText = Clipboard.GetText(TextDataFormat.Text);
-                    QTUtility.AsteriskPlay();
+                    SoundFeedbackService.AsteriskPlay();
                     return clipboardText;
                 }
             }
             catch
             {
-                QTUtility.SoundPlay();
+                SoundFeedbackService.SoundPlay();
             }
             return "";
         }

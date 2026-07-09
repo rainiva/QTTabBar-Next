@@ -55,7 +55,7 @@ namespace QTTabBarLib {
                             if(tabControl1.TabCount > 0) {
                                 return true;
                             }
-                            QTUtility.SaveClosing(closingPaths);
+                            WindowSessionPersistence.SaveClosing(closingPaths);
                             return false;
                         }
                         Keys modifierKeys = Control.ModifierKeys;
@@ -64,7 +64,7 @@ namespace QTTabBarLib {
                                 closingPaths.Add(item2.CurrentPath);
                                 AddToHistory(item2);
                             }
-                            QTUtility.SaveClosing(closingPaths);
+                            WindowSessionPersistence.SaveClosing(closingPaths);
                             return false;
                         }
                         if(modifierKeys == Keys.Control) {
@@ -77,11 +77,11 @@ namespace QTTabBarLib {
                         if(tabControl1.TabCount > 0) {
                             return true;
                         }
-                        QTUtility.SaveClosing(closingPaths);
+                        WindowSessionPersistence.SaveClosing(closingPaths);
                         return false;
                     }
             }
-            QTUtility.SaveClosing(closingPaths);
+            WindowSessionPersistence.SaveClosing(closingPaths);
             return false;
         }
     }

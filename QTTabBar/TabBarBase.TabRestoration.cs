@@ -26,7 +26,7 @@ namespace QTTabBarLib {
 
         internal void RestoreTabsOnInitialize(int iIndex, string openingPath) {
             QTLogger.log("QTTabBarClass RestoreTabsOnInitialize");
-            QTUtility.RefreshLockedTabsList();
+            LockedTabsService.RefreshFromRegistry();
             TabPos num = Config.Tabs.NewTabPosition;
             Config.Tabs.NewTabPosition = TabPos.Rightmost;
             try {

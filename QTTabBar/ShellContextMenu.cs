@@ -111,7 +111,7 @@ namespace QTTabBarLib {
                                             }
                                             catch {
                                                 // System.Media.
-                                                QTUtility.AsteriskPlay();
+                                                SoundFeedbackService.AsteriskPlay();
                                             }
                                         }
                                     }

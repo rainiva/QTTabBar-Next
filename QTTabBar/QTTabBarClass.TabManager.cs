@@ -130,7 +130,7 @@ namespace QTTabBarLib {
 
             internal void OpenNewWindow(IDLWrapper idlwGiven) {
                 if(idlwGiven == null || !idlwGiven.Available || !idlwGiven.HasPath || !idlwGiven.IsReadyIfDrive || idlwGiven.IsLinkToDeadFolder) {
-                    QTUtility.SoundPlay();
+                    SoundFeedbackService.SoundPlay();
                     return;
                 }
                 
@@ -138,7 +138,7 @@ namespace QTTabBarLib {
                     IDLWrapper idlw = idlwLink ?? idlwGiven;
 
                     if(!idlw.Available || !idlw.HasPath || !idlw.IsReadyIfDrive || !idlw.IsFolder) {
-                        QTUtility.SoundPlay();
+                        SoundFeedbackService.SoundPlay();
                         return;
                     }
 

@@ -12,11 +12,11 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch2Tests {
 
         [Test]
-        public void QTUtility_Has_Public_Static_SaveLockedTabs() {
-            MethodInfo method = typeof(QTUtility).GetMethod("SaveLockedTabs",
-                BindingFlags.Public | BindingFlags.Static,
+        public void LockedTabsService_Has_Public_Static_Persist() {
+            MethodInfo method = typeof(LockedTabsService).GetMethod("Persist",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
                 null, new[] { typeof(string[]) }, null);
-            Assert.IsNotNull(method, "QTUtility.SaveLockedTabs(string[]) should exist");
+            Assert.IsNotNull(method, "LockedTabsService.Persist(string[]) should exist");
             Assert.AreEqual(typeof(void), method.ReturnType);
         }
 
@@ -24,14 +24,14 @@ namespace QTTtabBarTests {
         public void SaveLockedTabs_Updates_LockedTabsToRestoreList_Immediately() {
             string[] paths = { @"C:\TestLockedPath1", @"C:\TestLockedPath2" };
             try {
-                QTUtility.SaveLockedTabs(paths);
+                LockedTabsService.Persist(paths);
                 var list = StaticReg.LockedTabsToRestoreList;
                 Assert.AreEqual(2, list.Count);
                 Assert.AreEqual(paths[0], list[0]);
                 Assert.AreEqual(paths[1], list[1]);
             }
             finally {
-                QTUtility.SaveLockedTabs(Array.Empty<string>());
+                LockedTabsService.Persist(Array.Empty<string>());
             }
         }
 

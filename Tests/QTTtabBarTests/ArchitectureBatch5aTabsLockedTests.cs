@@ -73,7 +73,7 @@ namespace QTTtabBarTests {
             string[] paths = { @"C:\Batch5aLockedA", @"C:\Batch5aLockedB" };
             try {
                 LockedTabsService.Persist(paths);
-                QTUtility.RefreshLockedTabsList();
+                LockedTabsService.RefreshFromRegistry();
                 var list = StaticReg.LockedTabsToRestoreList;
                 Assert.AreEqual(2, list.Count);
                 Assert.IsTrue(list.Any(p => string.Equals(p, paths[0], StringComparison.OrdinalIgnoreCase)));
@@ -81,7 +81,7 @@ namespace QTTtabBarTests {
             }
             finally {
                 LockedTabsService.Persist(Array.Empty<string>());
-                QTUtility.RefreshLockedTabsList();
+                LockedTabsService.RefreshFromRegistry();
             }
         }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace QTTabBarLib {
     /// <summary>
@@ -20,7 +21,24 @@ namespace QTTabBarLib {
         }
 
         internal static void Persist(string[] paths) {
-            QTUtility.SaveLockedTabs(paths);
+            ReplaceInMemory(paths ?? System.Array.Empty<string>());
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
+                if(key != null) {
+                    RegistryHelper.WriteRegBinary(paths, "TabsLocked", key);
+                }
+            }
+        }
+
+        internal static void RefreshFromRegistry() {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
+                if(key != null) {
+                    string[] collection = RegistryHelper.ReadRegBinary<string>("TabsLocked", key);
+                    ReplaceInMemory(
+                        (collection != null) && (collection.Length != 0)
+                            ? collection
+                            : System.Array.Empty<string>());
+                }
+            }
         }
 
         internal static void ToggleTab(QTabItem tab, IEnumerable<QTabItem> allTabs) {
@@ -50,6 +68,21 @@ namespace QTTabBarLib {
             var tabList = tabs.Where(t => t != null).ToList();
             bool lockState = !tabList.Any(t => t.TabLocked);
             SetAllTabsLocked(tabList, lockState);
+        }
+
+        private static void ReplaceInMemory(string[] paths) {
+            UniqueList<string> list = StaticReg.LockedTabsToRestoreList;
+            while(list.Count > 0) {
+                list.Remove(list[0]);
+            }
+            if(paths == null) {
+                return;
+            }
+            foreach(string path in paths) {
+                if(!string.IsNullOrEmpty(path)) {
+                    list.Add(path);
+                }
+            }
         }
     }
 }

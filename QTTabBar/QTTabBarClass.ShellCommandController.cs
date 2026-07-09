@@ -31,7 +31,7 @@ namespace QTTabBarLib {
                     string path = _owner.pluginServer.SelectedTab.Address.Path;
 
                     if(String.IsNullOrEmpty(path) || !Directory.Exists(path)) {
-                        QTUtility.SoundPlay();
+                        SoundFeedbackService.SoundPlay();
                         return;
                     }
 
@@ -73,7 +73,7 @@ namespace QTTabBarLib {
                         Marshal.FreeCoTaskMem(pIDL);
                 }
 
-                QTUtility.SoundPlay();
+                SoundFeedbackService.SoundPlay();
             }
 
             public void OpenCmd(QTabItem tab) {

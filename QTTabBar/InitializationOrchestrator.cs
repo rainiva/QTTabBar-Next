@@ -92,7 +92,7 @@ namespace QTTabBarLib {
                 ThemeRefreshService.ApplyLoadedSkinFromSystemTheme();
 
                 WindowSessionPersistence.LoadRecentFilesAndClosedTabs();
-                QTUtility.RefreshLockedTabsList();
+                LockedTabsService.RefreshFromRegistry();
 
                 QTUtility.GetShellClickMode();
                 QTLogger.log("QTUtility Get Shell Click Mode");

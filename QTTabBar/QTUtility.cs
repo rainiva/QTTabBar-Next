@@ -23,7 +23,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -34,10 +33,6 @@ using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using QTPlugin;
 using QTTabBarLib.Interop;
-using System.Media;
-using System.Runtime.Serialization;
-using System.Text;
-// using NetSerializer;
 
 namespace QTTabBarLib {
     internal static class QTUtility {
@@ -250,73 +245,6 @@ namespace QTTabBarLib {
 
         private static Regex singleLinebreakAtStart = new Regex(@"^(\r\n)?");
 
-        public static void AsteriskPlay()
-        {
-            if (Config.Misc.SoundBox) {
-                SystemSounds.Asterisk.Play();
-            }
-        }
-
-
-        public static void SoundPlay()
-        {
-            if (Config.Misc.SoundBox)
-            {
-                SystemSounds.Hand.Play();
-            }
-        }
-
-        public static void RefreshLockedTabsList() {
-            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
-                if(key != null) {
-                    string[] collection = RegistryHelper.ReadRegBinary<string>("TabsLocked", key);
-                    ReplaceLockedTabsInMemory(
-                        (collection != null) && (collection.Length != 0)
-                            ? collection
-                            : System.Array.Empty<string>());
-                }
-            }
-        }
-
-        public static void SaveLockedTabs(string[] paths) {
-            ReplaceLockedTabsInMemory(paths ?? System.Array.Empty<string>());
-            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
-                if(key != null) {
-                    RegistryHelper.WriteRegBinary(paths, "TabsLocked", key);
-                }
-            }
-        }
-
-        private static void ReplaceLockedTabsInMemory(string[] paths) {
-            UniqueList<string> list = StaticReg.LockedTabsToRestoreList;
-            while(list.Count > 0) {
-                list.Remove(list[0]);
-            }
-            if(paths == null) {
-                return;
-            }
-            foreach(string path in paths) {
-                if(!string.IsNullOrEmpty(path)) {
-                    list.Add(path);
-                }
-            }
-        }
-
-        /**
-         * �ǲ��� path ���Ե�
-         */
-        public static void SaveClosing(List<string> closingPaths) {
-            WindowSessionPersistence.SaveClosing(closingPaths);
-        }
-
-        public static void SaveRecentFiles(RegistryKey rkUser) {
-            WindowSessionPersistence.SaveRecentFiles(rkUser);
-        }
-
-        public static void SaveRecentlyClosed(RegistryKey rkUser) {
-            WindowSessionPersistence.SaveRecentlyClosed(rkUser);
-        }
-        
         public static void SetTabBarOption(TabBarOption tabBarOption, QTTabBarClass tabBar) {
             // TODO
         }
@@ -360,48 +288,6 @@ namespace QTTabBarLib {
         {
             return isChinese() ? "�½��ı��ĵ�" : "newDocument";
         }
-
-        // c# ��ȡ��ǰ���̵ĸ�����
-        public static string GetParentProcessName()
-        {
-            Process currentProcess = Process.GetCurrentProcess();
-            var process = GetParent( currentProcess );
-            if (process == null)
-            {
-                return "";
-            }
-            else
-            {
-                return process.ProcessName;
-            }
-        }
-
-        /// <summary>
-        /// ��ȡ�����̡�����������ܷ���null
-        /// </summary>
-        /// <param name="process"></param>
-        /// <returns></returns>
-        public static Process GetParent(Process process)
-        {
-            try
-            {
-                //using (var query = new ManagementObjectSearcher("SELECT * FROM Win32_Process WHERE ProcessId=" + process.Id))
-                using (var query = new ManagementObjectSearcher("root\\CIMV2", "SELECT ParentProcessId FROM Win32_Process WHERE ProcessId=" + process.Id))
-                {
-                    return query
-                        .Get()
-                        .OfType<ManagementObject>()
-                        .Select(p => Process.GetProcessById((int)(uint)p["ParentProcessId"]))
-                        .FirstOrDefault();
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-     
 
         /// <summary>
         /// Gets the parent process of a specified process.

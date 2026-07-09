@@ -352,7 +352,7 @@ namespace QTTabBarLib {
             i = startIdx.Pop();
             if(i + reordered.Count > appList.Count) {
                 // This should never happen
-                QTUtility.SoundPlay();
+                SoundFeedbackService.SoundPlay();
             }
             else {
                 for(int j = 0; j < reordered.Count; j++) {

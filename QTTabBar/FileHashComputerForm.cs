@@ -199,10 +199,10 @@ namespace QTTabBarLib {
                     }
                 }
                 else if(cMatched_Prv != num2) {
-                    QTUtility.AsteriskPlay();
+                    SoundFeedbackService.AsteriskPlay();
                 }
                 else if(cErr_Prv != count) {
-                    QTUtility.SoundPlay();
+                    SoundFeedbackService.SoundPlay();
                 }
                 cMatched_Prv = num2;
                 cErr_Prv = count;

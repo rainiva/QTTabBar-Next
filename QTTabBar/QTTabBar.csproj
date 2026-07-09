@@ -818,6 +818,8 @@
     <Compile Include="RegistryHelper.cs" />
     <Compile Include="ValidationHelper.cs" />
     <Compile Include="AssemblyInfoHelper.cs" />
+    <Compile Include="ProcessHelper.cs" />
+    <Compile Include="SoundFeedbackService.cs" />
     <Compile Include="ThemeRefreshService.cs" />
     <Compile Include="QTUtility2.cs" />
     <Compile Include="SubDirTipForm.cs">

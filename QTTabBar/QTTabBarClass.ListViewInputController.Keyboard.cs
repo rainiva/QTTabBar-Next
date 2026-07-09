@@ -50,7 +50,7 @@ namespace QTTabBarLib {
                                         _owner.OpenNewWindow(wrapper);
                                     }
                                     else {
-                                        QTUtility.SoundPlay();
+                                        SoundFeedbackService.SoundPlay();
                                     }
                                 }
                                 else if(modKeys == (Keys.Alt | Keys.Control | Keys.Shift)) {
@@ -71,7 +71,7 @@ namespace QTTabBarLib {
                                             _owner.tabControl1.SetRedraw(true);
                                         }
                                         else {
-                                            QTUtility.SoundPlay();
+                                            SoundFeedbackService.SoundPlay();
                                         }
                                     }
                                 }

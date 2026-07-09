@@ -175,7 +175,7 @@ namespace QTTabBarLib {
                     StaticReg.ExecutedPathsList.Add(toolTipText);
                 }
                 catch {
-                    QTUtility.SoundPlay();
+                    SoundFeedbackService.SoundPlay();
                 }
             }
         }

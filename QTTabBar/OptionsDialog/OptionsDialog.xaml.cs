@@ -635,7 +635,7 @@ namespace QTTabBarLib {
                 // case Keys.Alt | Keys.Left:
                 // case Keys.Alt | Keys.Right:
                 case Keys.Alt | Keys.F4:
-                    QTUtility.SoundPlay();
+                    SoundFeedbackService.SoundPlay();
                     return false;
             }
 
