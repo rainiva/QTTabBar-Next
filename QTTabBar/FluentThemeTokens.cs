@@ -39,7 +39,7 @@ namespace QTTabBarLib {
 
         public static void RefreshFromSystem() {
             ThemeRefreshService.RefreshCacheOnly();
-            IsDark = QTUtility.InNightMode;
+            IsDark = ThemeRefreshService.IsDark;
             AccentColor = ReadSystemAccentColor();
         }
 

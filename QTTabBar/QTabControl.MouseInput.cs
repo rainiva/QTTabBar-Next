@@ -224,7 +224,7 @@ namespace QTTabBarLib {
             Font drawFont = new Font("Arial", 16, FontStyle.Bold);
 
             Color color = Color.Blue;
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
             {
                 color = Color.White;
             }

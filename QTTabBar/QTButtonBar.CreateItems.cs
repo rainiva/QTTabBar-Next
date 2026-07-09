@@ -45,7 +45,7 @@ namespace QTTabBarLib {
                 // button.ForeColor = Color.White;
             }
 
-            /*if (QTUtility.InNightMode)
+            /*if (ThemeRefreshService.IsDark)
             {
                 button.BackColor = Color.Black;
                 button.ForeColor = Color.White;
@@ -189,7 +189,7 @@ namespace QTTabBarLib {
                             Tag = index,
                             ToolTipText = ButtonItemsDisplayName[19]  // 半透明
                         };
-                        /*if (QTUtility.InNightMode)
+                        /*if (ThemeRefreshService.IsDark)
                         {
                             bar.BackColor = Color.Black;
                             bar.ForeColor = Color.White;
@@ -254,7 +254,7 @@ namespace QTTabBarLib {
                 }
                 
                 /*
-                if (QTUtility.InNightMode)
+                if (ThemeRefreshService.IsDark)
                 {
                     item.BackColor = Color.Black;
                 }
@@ -262,7 +262,7 @@ namespace QTTabBarLib {
                 {
                     item.BackColor = SystemColors.Window;
                 }*/
-                /*if (QTUtility.InNightMode)
+                /*if (ThemeRefreshService.IsDark)
                 {
                     item.BackColor = Config.Skin.TabShadActiveColor;
                 }*/

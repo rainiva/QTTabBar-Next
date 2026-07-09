@@ -80,7 +80,7 @@ namespace QTTabBarLib {
             toolStrip.ImeMode = ImeMode.Disable;
             toolStrip.Renderer = new ToolbarRenderer();
             toolStrip.BackColor = Color.Transparent;
-            /*if (QTUtility.InNightMode)
+            /*if (ThemeRefreshService.IsDark)
             {
                 this.BackColor = Color.Black;
             }
@@ -110,7 +110,7 @@ namespace QTTabBarLib {
             // 如果是 darkmode， 则换成白色背景
             Bitmap bmpLarge = null;
             Bitmap bmpSmall = null;
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
             {
                 bmpLarge = Resources_Image.ButtonStripWhite24;
                 bmpSmall = Resources_Image.ButtonStripWhite16;
@@ -480,15 +480,17 @@ namespace QTTabBarLib {
             }
         }
 
+        internal void ApplySearchBoxWidth(int width) {
+            if(searchBox != null) {
+                searchBox.Width = width;
+                toolStrip.RaiseOnResize();
+            }
+        }
+
         private void searchBox_ResizeComplete(object sender, EventArgs e) {
             int width = SearchBoxWidth = searchBox.Width;
             toolStrip.RaiseOnResize();
-            InstanceManager.ButtonBarBroadcast(bbar => {
-                if(bbar.searchBox != null) {
-                    bbar.searchBox.Width = width;
-                    bbar.toolStrip.RaiseOnResize();
-                }
-            }, false);
+            InstanceManager.BroadcastSyncSearchBoxWidth(width, false);
         }
 
         private void searchBox_TextChanged(object sender, EventArgs e) {

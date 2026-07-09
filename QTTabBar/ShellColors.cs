@@ -44,7 +44,7 @@ namespace QTTabBarLib
 
         public static Color NightModeViewHeaderHiliteColor = Color.FromArgb(67, 67, 67);
 
-        public static Color FaceColor17666 = !QTUtility.InNightMode ? ShellColors.LightModeColor : ShellColors.NightModeColor;
+        public static Color FaceColor17666 = !ThemeRefreshService.IsDark ? ShellColors.LightModeColor : ShellColors.NightModeColor;
 
         public static Color NightModeOptionColor = Color.FromArgb(44, 44, 44);
 
@@ -137,7 +137,7 @@ namespace QTTabBarLib
 
         private static ShellColors.ShellColorSet Create()
         {
-            if (!QTUtility.InNightMode)
+            if (!ThemeRefreshService.IsDark)
                 return new ShellColors.ShellColorSet();
             return OSDetector.IsWin11 ?
                 new ShellColors.Windows10Dark() : 

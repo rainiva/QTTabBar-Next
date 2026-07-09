@@ -96,7 +96,7 @@ namespace QTTabBarLib {
         private void DrawBackground(Graphics g, bool bSelected, bool fHot, Rectangle rctItem, Edges edges, bool fVisualStyle, int index) {
             // add by indiff for dark mode
             Brush rectBrush = null;
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
             {
                 // QTLogger.log("QTabControl DrawBackground InNightMode ");
                 rectBrush = new SolidBrush(Config.Skin.TabShadActiveColor);
@@ -106,7 +106,7 @@ namespace QTTabBarLib {
                 // Color defaultColor2 = Color.FromArgb(240, 240, 240);
                 // defaultColor = Color.Black;
                 /*Graphic.FillRectangleRTL(g, 
-                    QTUtility.InNightMode ?
+                    ThemeRefreshService.IsDark ?
                         (bSelected ? ShellColors.Light : ShellColors.Default) : 
                         (QTUtility.LaterThan10Beta17666 ? 
                             (bSelected ? ShellColors.Light : ShellColors.Default) :
@@ -258,14 +258,14 @@ namespace QTTabBarLib {
                         renderer = vsr_MPressed;
                     }
                     // QTLogger.log("DrawBackground renderer.DrawBackground1");
-                    if (!QTUtility.InNightMode)
+                    if (!ThemeRefreshService.IsDark)
                     {
                         renderer.DrawBackground(g, rctItem);
                     }
                     return;
                 }
                 // QTLogger.log("DrawBackground renderer.DrawBackground2");
-                if (!QTUtility.InNightMode)
+                if (!ThemeRefreshService.IsDark)
                 {
                     renderer.DrawBackground(g, rctItem);
                 }
@@ -457,7 +457,7 @@ namespace QTTabBarLib {
                     
                     // Color clrTxtColor = bSelected ? colorSet[0] : colorSet[1];
                     // Color clrShdwColor = bSelected ? colorSet[3] : colorSet[4];
-                    // QTLogger.log("DrawTextWithShadow1 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
+                    // QTLogger.log("DrawTextWithShadow1 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + ThemeRefreshService.IsDark);
                     DrawTextWithShadow(g, 
                         baseTabItem.Text, 
                         bSelected ? colorSet[0] : colorSet[1], 
@@ -469,8 +469,8 @@ namespace QTTabBarLib {
                         sfTypoGraphic);
                 }
                 else {
-                    // QTLogger.log("g.DrawString1 color " + brshInactv.Color + " InNightMode " + QTUtility.InNightMode);
-                    if (QTUtility.InNightMode)
+                    // QTLogger.log("g.DrawString1 color " + brshInactv.Color + " InNightMode " + ThemeRefreshService.IsDark);
+                    if (ThemeRefreshService.IsDark)
                     {
                         brshActive = new SolidBrush(Config.Skin.TabTextActiveColor);
                         brshInactv = new SolidBrush(Config.Skin.TabTextInactiveColor);
@@ -505,7 +505,7 @@ namespace QTTabBarLib {
                         ), 
                         Math.Max(baseTabItem.SubTitleTextSize.Height, 1f));
                     if(fDrawShadow) {
-                        // QTLogger.log("DrawTextWithShadow2 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
+                        // QTLogger.log("DrawTextWithShadow2 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + ThemeRefreshService.IsDark);
                         DrawTextWithShadow(g, 
                             (fAutoSubText ? "@" : ":") + baseTabItem.Comment, 
                             bSelected ? colorSet[0] : colorSet[1], 
@@ -515,7 +515,7 @@ namespace QTTabBarLib {
                             sfTypoGraphic);
                     }
                     else {
-                        // QTLogger.log("g.DrawString2 color " + brshInactv.Color + " InNightMode " + QTUtility.InNightMode);
+                        // QTLogger.log("g.DrawString2 color " + brshInactv.Color + " InNightMode " + ThemeRefreshService.IsDark);
                         g.DrawString((fAutoSubText ? "@" : ":") + baseTabItem.Comment, 
                             fntSubText, 
                             brshInactv, 

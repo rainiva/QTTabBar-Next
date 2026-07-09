@@ -166,7 +166,7 @@ namespace QTTabBarLib {
                 this.sfTypoGraphic.FormatFlags |= StringFormatFlags.DirectionRightToLeft;
             }
 
-            /*if (QTUtility.InNightMode)
+            /*if (ThemeRefreshService.IsDark)
             {
                 this.colorSet = new Color[]
                 {
@@ -194,7 +194,7 @@ namespace QTTabBarLib {
             // ���䰵�� by indiff dark mode
             /*brshActive = new SolidBrush(Config.Skin.TabTextActiveColor);  // ��ǩ���ˢ
             brshInactv = new SolidBrush(Config.Skin.TabTextInactiveColor); // ��ǩ�Ǽ��ˢ
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
             {
                 BackColor = Config.Skin.TabShadActiveColor;
             }
@@ -206,7 +206,7 @@ namespace QTTabBarLib {
             InitializeColors();
             this.BackColor = Color.Transparent;
             /*
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
             {
                 // this.BackColor = SystemColors.ControlDarkDark;;
                 this.BackColor = Color.Black;
@@ -226,7 +226,7 @@ namespace QTTabBarLib {
 
         public  void InitializeColors()
         {
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
                 this.colorSet = new Color[5]
                 {
                     Config.Skin.TabTextActiveColor,
@@ -259,7 +259,7 @@ namespace QTTabBarLib {
         public static Color selectedColor(bool fSelected)
         {
             Color[] colorSet = new Color[5];
-            if (QTUtility.InNightMode)
+            if (ThemeRefreshService.IsDark)
                 colorSet = new Color[5]
                 {
                     ShellColors.Text,
