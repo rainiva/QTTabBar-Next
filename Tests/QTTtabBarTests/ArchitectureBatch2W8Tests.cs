@@ -19,11 +19,11 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTUtility_Has_RefreshNightMode_Entry() {
-            MethodInfo method = typeof(QTUtility).GetMethod(
-                "RefreshNightMode",
+        public void ThemeRefreshService_Owns_RefreshFromSystem_Entry() {
+            MethodInfo method = typeof(ThemeRefreshService).GetMethod(
+                "RefreshFromSystem",
                 BindingFlags.Public | BindingFlags.Static);
-            Assert.IsNotNull(method, "QTUtility.RefreshNightMode should exist as the single refresh entry");
+            Assert.IsNotNull(method, "ThemeRefreshService.RefreshFromSystem should be the night-mode refresh entry");
             Assert.AreEqual(typeof(void), method.ReturnType);
         }
 
@@ -38,12 +38,12 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void RefreshNightMode_Updates_InNightMode_Cache() {
+        public void RefreshFromSystem_Updates_IsDark_Cache() {
             ConfigManager.Initialize();
-            bool before = QTUtility.InNightMode;
-            QTUtility.RefreshNightMode();
-            Assert.AreEqual(before, QTUtility.InNightMode,
-                "RefreshNightMode should refresh InNightMode from the registry reader");
+            bool before = ThemeRefreshService.IsDark;
+            ThemeRefreshService.RefreshFromSystem();
+            Assert.AreEqual(before, ThemeRefreshService.IsDark,
+                "RefreshFromSystem should refresh IsDark from the registry reader");
         }
 
         private static void AssertNoDirectGetNightMode(string filePath, string label) {

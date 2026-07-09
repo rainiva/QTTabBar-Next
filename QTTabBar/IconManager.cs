@@ -144,7 +144,7 @@ namespace QTTabBarLib {
                     // imageListLock inside AddImageToGlobal; never nest the two locks.
                     bool found;
                     lock(QTUtility.syncRoot) {
-                        found = QTUtility.ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer);
+                        found = SessionState.ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer);
                     }
                     if(found) {
                         using(IDLWrapper w = new IDLWrapper(buffer)) {
@@ -240,7 +240,7 @@ namespace QTTabBarLib {
                     byte[] buffer;
                     bool found5;
                     lock(QTUtility.syncRoot) {
-                        found5 = QTUtility.ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer);
+                        found5 = SessionState.ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer);
                     }
                     if(found5) {
                         using(IDLWrapper w = new IDLWrapper(buffer)) {
@@ -280,31 +280,31 @@ namespace QTTabBarLib {
         // short and only ever covers the collection operation itself.
         internal static void AddImageToGlobal(string key, Image image) {
             lock(QTUtility.imageListLock) {
-                if(!QTUtility.ImageListGlobal.Images.ContainsKey(key)) {
-                    QTUtility.ImageListGlobal.Images.Add(key, image);
+                if(!ResourceCache.ImageListGlobal.Images.ContainsKey(key)) {
+                    ResourceCache.ImageListGlobal.Images.Add(key, image);
                 }
             }
         }
 
         internal static void AddImageToGlobal(string key, Icon icon) {
             lock(QTUtility.imageListLock) {
-                if(!QTUtility.ImageListGlobal.Images.ContainsKey(key)) {
-                    QTUtility.ImageListGlobal.Images.Add(key, icon);
+                if(!ResourceCache.ImageListGlobal.Images.ContainsKey(key)) {
+                    ResourceCache.ImageListGlobal.Images.Add(key, icon);
                 }
             }
         }
 
         internal static bool ImageGlobalContainsKey(string key) {
             lock(QTUtility.imageListLock) {
-                return QTUtility.ImageListGlobal != null
-                    && QTUtility.ImageListGlobal.Images != null
-                    && QTUtility.ImageListGlobal.Images.ContainsKey(key);
+                return ResourceCache.ImageListGlobal != null
+                    && ResourceCache.ImageListGlobal.Images != null
+                    && ResourceCache.ImageListGlobal.Images.ContainsKey(key);
             }
         }
 
         internal static Image GetImageFromGlobal(string key) {
             lock(QTUtility.imageListLock) {
-                return QTUtility.ImageListGlobal.Images[key];
+                return ResourceCache.ImageListGlobal.Images[key];
             }
         }
 

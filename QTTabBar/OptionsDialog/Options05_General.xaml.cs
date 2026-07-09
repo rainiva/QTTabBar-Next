@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -44,8 +44,8 @@ namespace QTTabBarLib {
         private void btnRecentFilesClear_Click(object sender, RoutedEventArgs e) {
             // TODO: sync
             var resp = MessageBox.Show(
-                    QTUtility.TextResourcesDic["Options_Page05_General"][13],
-                    QTUtility.TextResourcesDic["OptionsDialog"][3],
+                    ResourceCache.TextResourcesDic["Options_Page05_General"][13],
+                    ResourceCache.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(resp == MessageBoxResult.Cancel) return;
             StaticReg.ExecutedPathsList.Clear();
@@ -55,8 +55,8 @@ namespace QTTabBarLib {
         private void btnRecentTabsClear_Click(object sender, RoutedEventArgs e) {
             // TODO: sync
             var resp = MessageBox.Show(
-                    QTUtility.TextResourcesDic["Options_Page05_General"][14],
-                    QTUtility.TextResourcesDic["OptionsDialog"][3],
+                    ResourceCache.TextResourcesDic["Options_Page05_General"][14],
+                    ResourceCache.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(resp == MessageBoxResult.Cancel) return;
             StaticReg.ClosedTabHistoryList.Clear();

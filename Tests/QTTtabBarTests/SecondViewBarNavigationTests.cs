@@ -13,7 +13,7 @@ namespace QTTtabBarTests {
             if(ConfigManager.LoadedConfig == null) {
                 ConfigManager.LoadedConfig = new Config();
             }
-            if(QTUtility.TextResourcesDic == null) {
+            if(ResourceCache.TextResourcesDic == null) {
                 ConfigManager.LoadTextResources();
             }
         }

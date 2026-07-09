@@ -639,7 +639,7 @@ namespace QTTabBarLib {
                             iSearchResultCount,
                             " / ", 
                             iSearchResultCount + lstPUITEMIDCHILD.Count,
-                            QTUtility.TextResourcesDic["ButtonBar_Misc"][5]
+                            ResourceCache.TextResourcesDic["ButtonBar_Misc"][5]
                     ));
                 }
             }

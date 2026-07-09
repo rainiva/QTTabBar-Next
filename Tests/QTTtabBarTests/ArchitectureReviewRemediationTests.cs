@@ -141,17 +141,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void RefreshShellStateValues_Uses_RefreshNightMode() {
-            string content = ReadQtTabBarFile("QTUtility.cs");
-            int methodIndex = content.IndexOf("void RefreshShellStateValues()", StringComparison.Ordinal);
+        public void RefreshShellStateValues_Uses_ThemeRefreshService() {
+            string content = ReadQtTabBarFile("ShellStateService.cs");
+            int methodIndex = content.IndexOf("RefreshShellStateValues", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
-            int brace = content.IndexOf('{', methodIndex);
-            int nextMethod = content.IndexOf("\n        public static ", brace + 1, StringComparison.Ordinal);
-            string body = nextMethod > 0
-                ? content.Substring(brace, nextMethod - brace)
-                : content.Substring(brace, Math.Min(600, content.Length - brace));
-            Assert.IsTrue(body.Contains("RefreshNightMode()"),
-                "RefreshShellStateValues should delegate to RefreshNightMode");
+            string body = content.Substring(methodIndex, Math.Min(400, content.Length - methodIndex));
+            Assert.IsTrue(body.Contains("ThemeRefreshService.RefreshFromSystem"),
+                "ShellStateService.RefreshShellStateValues should refresh theme via ThemeRefreshService");
             Assert.IsFalse(body.Contains("InNightMode = true"),
                 "RefreshShellStateValues must not hardcode InNightMode = true");
         }
@@ -166,9 +162,8 @@ namespace QTTtabBarTests {
             Assert.IsTrue(
                 System.Text.RegularExpressions.Regex.IsMatch(
                     configContent,
-                    @"lock\s*\(\s*QTUtility\.syncRoot\s*\)\s*\{[\s\S]*?TextResourcesDic\s*="),
-                "TextResourcesDic assignment should occur inside lock(QTUtility.syncRoot)");
-
+                    @"lock\s*\(\s*QTUtility\.syncRoot\s*\)\s*\{[\s\S]*?ResourceCache\.TextResourcesDic\s*="),
+                "TextResourcesDic assignment should target ResourceCache under lock(QTUtility.syncRoot)");
             string orchestratorContent = ReadQtTabBarFile("InitializationOrchestrator.cs");
             Assert.IsTrue(orchestratorContent.Contains("ConfigManager.LoadTextResources"),
                 "InitializationOrchestrator should delegate text-resource load to ConfigManager");

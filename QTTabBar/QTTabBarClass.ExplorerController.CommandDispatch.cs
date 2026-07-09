@@ -23,7 +23,7 @@ namespace QTTabBarLib {
                 internal void TryHandleNewWindowCapture(string path, ref bool ensureOpenedWindow) {
                     QTLogger.log("DoFirstNavigation path: " + path + " IsNoCapturePaths:" + PathValidator.IsNoCapturePaths(path));
                     if(
-                        QTUtility.NoCapturePathsList.Any(ncPath => ncPath.PathEquals(path))
+                        SessionState.NoCapturePathsList.Any(ncPath => ncPath.PathEquals(path))
                          || PathValidator.IsNoCapturePaths(path)
                         ) {
                         ensureOpenedWindow = true;

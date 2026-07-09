@@ -516,7 +516,7 @@ namespace QTTabBarLib {
                             bool flag5 = Config.Tweaks.DetailsGridLines;
                             bool flag6 = Config.Tweaks.ToggleFullRowSelect ^ !OSDetector.IsXP;
                             bool flag7 = false;
-                            if(OSDetector.IsXP && QTUtility.fSingleClick) {
+                            if(OSDetector.IsXP && ShellStateService.fSingleClick) {
                                 flag7 = (dwItemSpec == GetHotItem());
                             }
                             LVITEM lvitem = new LVITEM();
@@ -555,7 +555,7 @@ namespace QTTabBarLib {
                                             if(flag4) {
                                                 graphics2.FillRectangle(SystemBrushes.Highlight, rectangle2);
                                             }
-                                            else if(QTUtility.fSingleClick && flag7) {
+                                            else if(ShellStateService.fSingleClick && flag7) {
                                                 graphics2.FillRectangle(fListViewHasFocus ? SystemBrushes.HotTrack : SystemBrushes.Control, rectangle2);
                                             }
                                             else {
@@ -582,12 +582,12 @@ namespace QTTabBarLib {
                             }
                             IntPtr zero = IntPtr.Zero;
                             IntPtr hgdiobj = IntPtr.Zero;
-                            if(OSDetector.IsXP && QTUtility.fSingleClick) {
+                            if(OSDetector.IsXP && ShellStateService.fSingleClick) {
                                 LOGFONT logfont;
                                 zero = PInvoke.GetCurrentObject(structure.nmcd.hdc, 6);
                                 PInvoke.GetObject(zero, Marshal.SizeOf(typeof(LOGFONT)), out logfont);
                                 if((structure.iSubItem == 0) || flag6) {
-                                    logfont.lfUnderline = ((QTUtility.iIconUnderLineVal == 3) || flag7) ? ((byte)1) : ((byte)0);
+                                    logfont.lfUnderline = ((ShellStateService.iIconUnderLineVal == 3) || flag7) ? ((byte)1) : ((byte)0);
                                 }
                                 else {
                                     logfont.lfUnderline = 0;

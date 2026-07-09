@@ -59,7 +59,7 @@ namespace QTTabBarLib {
             if(menuTextBoxTabAlias.TextBox.ImeMode != ImeMode.On) {
                 menuTextBoxTabAlias.TextBox.ImeMode = ImeMode.On;
             }
-            if(menuTextBoxTabAlias.Text == QTUtility.ResMain[0x1b]) {
+            if(menuTextBoxTabAlias.Text == ResourceCache.ResMain[0x1b]) {
                 menuTextBoxTabAlias.Text = string.Empty;
             }
         }
@@ -74,9 +74,9 @@ namespace QTTabBarLib {
         internal void menuTextBoxTabAlias_LostFocus(object sender, EventArgs e) {
             string text = menuTextBoxTabAlias.Text;
             if(text.Length == 0) {
-                menuTextBoxTabAlias.Text = QTUtility.ResMain[0x1b];
+                menuTextBoxTabAlias.Text = ResourceCache.ResMain[0x1b];
             }
-            if((text != QTUtility.ResMain[0x1b]) && (ContextMenuedTab != null)) {
+            if((text != ResourceCache.ResMain[0x1b]) && (ContextMenuedTab != null)) {
                 ContextMenuedTab.Comment = text;
                 ContextMenuedTab.RefreshRectangle();
                 tabControl1.Refresh();

@@ -131,11 +131,11 @@ namespace QTTabBarLib {
             MessageForm.Show(IntPtr.Zero,
                 String.Format(
                     "{0}: {1} {2}",
-                    QTUtility.TextResourcesDic["ErrorDialogs"][4],
-                    QTUtility.TextResourcesDic["ErrorDialogs"][5],
-                    QTUtility.TextResourcesDic["ErrorDialogs"][7]
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][4],
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][5],
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][7]
                 ),
-                QTUtility.TextResourcesDic["ErrorDialogs"][1],
+                ResourceCache.TextResourcesDic["ErrorDialogs"][1],
                 MessageBoxIcon.Hand,
                 30000, false, true
             );
@@ -229,11 +229,11 @@ namespace QTTabBarLib {
                 MessageForm.Show(IntPtr.Zero,
                     String.Format(
                         "{0}: {1} {2}",
-                        QTUtility.TextResourcesDic["ErrorDialogs"][4],
-                        QTUtility.TextResourcesDic["ErrorDialogs"][5],
-                        QTUtility.TextResourcesDic["ErrorDialogs"][7]
+                        ResourceCache.TextResourcesDic["ErrorDialogs"][4],
+                        ResourceCache.TextResourcesDic["ErrorDialogs"][5],
+                        ResourceCache.TextResourcesDic["ErrorDialogs"][7]
                     ),
-                    QTUtility.TextResourcesDic["ErrorDialogs"][1],
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][1],
                     MessageBoxIcon.Hand, 
                     30000, false, true
                 );
@@ -282,7 +282,7 @@ namespace QTTabBarLib {
                         || InstanceManager.GetTotalInstanceCount() == 0
                         || QTUtility2.IsShellPathButNotFileSystem(wrapper.Path)
                         || wrapper.Path.PathEquals(OSDetector.PATH_SEARCHFOLDER)
-                        || QTUtility.NoCapturePathsList.Any(path => wrapper.Path.PathEquals(path))
+                        || SessionState.NoCapturePathsList.Any(path => wrapper.Path.PathEquals(path))
                         || (Control.ModifierKeys & Keys.Control) != Keys.None) {
                     return false;
                 }
@@ -323,11 +323,11 @@ namespace QTTabBarLib {
                     MessageForm.Show(IntPtr.Zero,
                         String.Format(
                             "{0}: {1} {2}",
-                            QTUtility.TextResourcesDic["ErrorDialogs"][4],
-                            QTUtility.TextResourcesDic["ErrorDialogs"][6],
-                            QTUtility.TextResourcesDic["ErrorDialogs"][7]
+                            ResourceCache.TextResourcesDic["ErrorDialogs"][4],
+                            ResourceCache.TextResourcesDic["ErrorDialogs"][6],
+                            ResourceCache.TextResourcesDic["ErrorDialogs"][7]
                         ),
-                        QTUtility.TextResourcesDic["ErrorDialogs"][1],
+                        ResourceCache.TextResourcesDic["ErrorDialogs"][1],
                         MessageBoxIcon.Hand, 30000, false, true
                     );
                 }

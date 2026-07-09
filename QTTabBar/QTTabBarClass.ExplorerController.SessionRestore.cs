@@ -59,8 +59,8 @@ namespace QTTabBarLib {
                         ensureOpenedWindow = true;
                         return true;
                     }
-                    if(path.StartsWith(QTUtility.ResMisc[0]) ||
-                       (path.EndsWith(QTUtility.ResMisc[0]) && QTUtility2.IsShellPathButNotFileSystem(path)) ||
+                    if(path.StartsWith(ResourceCache.ResMisc[0]) ||
+                       (path.EndsWith(ResourceCache.ResMisc[0]) && QTUtility2.IsShellPathButNotFileSystem(path)) ||
                        path.PathEquals(OSDetector.PATH_SEARCHFOLDER)) {
                         QTLogger.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
                         ensureOpenedWindow = true;

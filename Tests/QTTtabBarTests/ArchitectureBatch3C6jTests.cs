@@ -38,7 +38,7 @@ namespace QTTtabBarTests {
                 "InitializeTabMenu should move out of QTTabBarClass.cs main partial");
             Assert.IsTrue(menuController.Contains("void InitializeSysMenu("));
             Assert.IsTrue(menuController.Contains("void InitializeTabMenu("));
-            Assert.IsTrue(menuController.Contains("tsmiOpenCmd = new ToolStripMenuItem(QTUtility.ResMain[len - 1])"),
+            Assert.IsTrue(menuController.Contains("tsmiOpenCmd = new ToolStripMenuItem(ResourceCache.ResMain[len - 1])"),
                 "Tab menu item creation should live in MenuController");
         }
 

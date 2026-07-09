@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -210,8 +210,8 @@ namespace QTTabBarLib {
             if(b) {
                 text = WatermarkText ?? (
                     File ?
-                    QTUtility.TextResourcesDic["Misc_Strings"][4] :
-                    QTUtility.TextResourcesDic["Misc_Strings"][5]
+                    ResourceCache.TextResourcesDic["Misc_Strings"][4] :
+                    ResourceCache.TextResourcesDic["Misc_Strings"][5]
                 );
             }
             else {

@@ -221,7 +221,7 @@ namespace QTTtabBarTests {
 
         #region P0-4 — ImageListGlobal 图标缓存并发线程安全
 
-        // 通过反射保证 QTUtility.ImageListGlobal 已初始化（静态构造函数在测试环境
+        // 通过反射保证 ResourceCache.ImageListGlobal 已初始化（静态构造函数在测试环境
         // 中可能因原生依赖初始化失败而未创建该图片列表）。
         private static FieldInfo GetImageListGlobalField() {
             var field = typeof(QTUtility).Assembly.GetType("QTTabBarLib.ResourceCache").GetField("ImageListGlobal",

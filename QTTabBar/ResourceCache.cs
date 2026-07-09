@@ -27,6 +27,12 @@ namespace QTTabBarLib {
         internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
         internal static volatile Dictionary<string, string[]> TextResourcesDic;
 
+        internal static string[] ResMain =>
+            TextResourcesDic != null && TextResourcesDic.TryGetValue("TabBar_Menu", out string[] main) ? main : null;
+
+        internal static string[] ResMisc =>
+            TextResourcesDic != null && TextResourcesDic.TryGetValue("Misc_Strings", out string[] misc) ? misc : null;
+
         internal static void ResetForInitRetry() {
             if(ImageListGlobal != null) {
                 ImageListGlobal.Dispose();

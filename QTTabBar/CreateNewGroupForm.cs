@@ -22,34 +22,34 @@ using System.Windows.Forms;
 
 namespace QTTabBarLib {
     internal sealed class CreateNewGroupForm : Form {
-        // È¡Ïû°´Å¥
+        // å–æ¶ˆæŒ‰é’®
         private Button buttonCancel;
-        // È·¶¨°´Å¥
+        // ç¡®å®šæŒ‰é’®
         private Button buttonOK;
-        // ¼ÓÈëËùÓĞ±êÇ©
+        // åŠ å…¥æ‰€æœ‰æ ‡ç­¾
         private CheckBox chkAllTabs;
         private Label label1;
-        // Â·¾¶ĞÅÏ¢
+        // è·¯å¾„ä¿¡æ¯
         private string newPath;
         private QTabControl.QTabCollection Tabs;
-        // ·Ö×éÃû³Æ
+        // åˆ†ç»„åç§°
         private TextBox textBox1;
         
         public CreateNewGroupForm(string currentPath, QTabControl.QTabCollection tabs) {
             newPath = currentPath;
             Tabs = tabs;
             InitializeComponent();
-            // Í¨¹ıÂ·¾¶ÏÔÊ¾·Ö×éÃû³Æ
+            // é€šè¿‡è·¯å¾„æ˜¾ç¤ºåˆ†ç»„åç§°
             textBox1.Text = QTUtility2.MakePathDisplayText(newPath, false);
-            string[] strArray = QTUtility.TextResourcesDic["TabBar_NewGroup"]; // ĞÂÔö±êÇ©×é;±êÇ©×éÃû³Æ:;¼ÓÈëËùÓĞ±êÇ©
-            // ÉèÖÃ form ±êÌâÎªÂ·¾¶ĞÅÏ¢
-            Text = strArray[0] + " " + currentPath ; // ĞÂÔö±êÇ©×é Ìí¼ÓÂ·¾¶µÄÃû³Æ
-            label1.Text = strArray[1]; // ±êÇ©×éÃû³Æ
-            chkAllTabs.Text = strArray[2]; // Ñ¡Ôñ¿ò
-            ActiveControl = textBox1;  // ÎÄ±¾¿ò
+            string[] strArray = ResourceCache.TextResourcesDic["TabBar_NewGroup"]; // æ–°å¢æ ‡ç­¾ç»„;æ ‡ç­¾ç»„åç§°:;åŠ å…¥æ‰€æœ‰æ ‡ç­¾
+            // è®¾ç½® form æ ‡é¢˜ä¸ºè·¯å¾„ä¿¡æ¯
+            Text = strArray[0] + " " + currentPath ; // æ–°å¢æ ‡ç­¾ç»„ æ·»åŠ è·¯å¾„çš„åç§°
+            label1.Text = strArray[1]; // æ ‡ç­¾ç»„åç§°
+            chkAllTabs.Text = strArray[2]; // é€‰æ‹©æ¡†
+            ActiveControl = textBox1;  // æ–‡æœ¬æ¡†
         }
         /**
-         * È·¶¨°´Å¥²Ù×÷
+         * ç¡®å®šæŒ‰é’®æ“ä½œ
          */
         private void buttonOK_Click(object sender, EventArgs e) {
             string key = textBox1.Text;
@@ -64,7 +64,7 @@ namespace QTTabBarLib {
                     : new string[] { newPath });
         }
         /**
-         * ³õÊ¼»¯×é¼ş
+         * åˆå§‹åŒ–ç»„ä»¶
          */
         private void InitializeComponent() {
             buttonOK = new Button();
@@ -74,7 +74,7 @@ namespace QTTabBarLib {
             chkAllTabs = new CheckBox();
             SuspendLayout();
 
-            // 355 * 162  0x133 0x73  ¿í¶ÈÉèÖÃÎªÆÁÄ» 1/3 ¸ß¶ÈÎªÆÁÄ» 1/6
+            // 355 * 162  0x133 0x73  å®½åº¦è®¾ç½®ä¸ºå±å¹• 1/3 é«˜åº¦ä¸ºå±å¹• 1/6
             int width = Screen.PrimaryScreen.WorkingArea.Size.Width / 3;
             int height = Screen.PrimaryScreen.WorkingArea.Size.Height / 6;
             ClientSize = new Size(width, height);
@@ -82,16 +82,16 @@ namespace QTTabBarLib {
 
             buttonOK.DialogResult = DialogResult.OK;
             buttonOK.Enabled = false;
-            buttonOK.Location = new Point(369, 87); // È·¶¨°´Å¥Î»ÖÃ
+            buttonOK.Location = new Point(369, 87); // ç¡®å®šæŒ‰é’®ä½ç½®
             buttonOK.Size = new Size(94, 29);
             buttonOK.TabIndex = 0;
-            buttonOK.Text = QTUtility.TextResourcesDic["DialogButtons"][0]; // È·¶¨
+            buttonOK.Text = ResourceCache.TextResourcesDic["DialogButtons"][0]; // ç¡®å®š
             buttonOK.Click += buttonOK_Click;
             buttonCancel.DialogResult = DialogResult.Cancel;
-            buttonCancel.Location = new Point(516, 87);  // È¡Ïû°´Å¥Î»ÖÃ
+            buttonCancel.Location = new Point(516, 87);  // å–æ¶ˆæŒ‰é’®ä½ç½®
             buttonCancel.Size = new Size(94, 29); // 0x17 -> 0x19 by indiff
             buttonCancel.TabIndex = 1;
-            buttonCancel.Text = QTUtility.TextResourcesDic["DialogButtons"][1];// È¡Ïû
+            buttonCancel.Text = ResourceCache.TextResourcesDic["DialogButtons"][1];// å–æ¶ˆ
             label1.AutoSize = true;
             label1.Location = new Point(21, 30);
             label1.Size = new Size(0x41, 12);
@@ -105,7 +105,7 @@ namespace QTTabBarLib {
             chkAllTabs.TabIndex = 3;
             AcceptButton = buttonOK;
            // AutoScaleDimensions = new SizeF(6f, 13f);
-            AutoScaleMode = AutoScaleMode.Font ; // DPI Ä£Ê½»áÔì³É½çÃæÂÒ by indiff
+            AutoScaleMode = AutoScaleMode.Font ; // DPI æ¨¡å¼ä¼šé€ æˆç•Œé¢ä¹± by indiff
             CancelButton = buttonCancel;
 
             Controls.Add(chkAllTabs);
@@ -117,9 +117,9 @@ namespace QTTabBarLib {
             MaximizeBox = false;
             MinimizeBox = false;
             ShowIcon = false;
-            // ÊÇ·ñÏÔÊ¾ÔÚÈÎÎñÀ¸
+            // æ˜¯å¦æ˜¾ç¤ºåœ¨ä»»åŠ¡æ 
             ShowInTaskbar = false;
-            // ½øĞĞ¾ÓÖĞ
+            // è¿›è¡Œå±…ä¸­
             StartPosition = FormStartPosition.CenterParent;
             ResumeLayout(false);
             PerformLayout();

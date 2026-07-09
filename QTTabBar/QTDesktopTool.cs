@@ -193,7 +193,7 @@ namespace QTTabBarLib {
             contextMenu.ProhibitedKey.Add(MENUKEY_ITEM_RECENT);
             contextMenu.ReorderEnabled = reorderEnabled;
             contextMenu.MessageParent = Handle;
-            contextMenu.ImageList = QTUtility.ImageListGlobal;
+            contextMenu.ImageList = ResourceCache.ImageListGlobal;
             contextMenu.ItemClicked += dropDowns_ItemClicked;
             contextMenu.Closing += contextMenu_Closing;
             contextMenu.ReorderFinished += contextMenu_ReorderFinished;
@@ -206,7 +206,7 @@ namespace QTTabBarLib {
             //
             ddmrGroups = new DropDownMenuReorderable(components, true, false);
             ddmrGroups.ReorderEnabled = reorderEnabled;
-            ddmrGroups.ImageList = QTUtility.ImageListGlobal;
+            ddmrGroups.ImageList = ResourceCache.ImageListGlobal;
             ddmrGroups.ReorderFinished += dropDowns_ReorderFinished;
             ddmrGroups.ItemClicked += dropDowns_ItemClicked;
             ddmrGroups.ItemRightClicked += dropDowns_ItemRightClicked;
@@ -219,7 +219,7 @@ namespace QTTabBarLib {
             //
             ddmrHistory = new DropDownMenuReorderable(components, true, false);
             ddmrHistory.ReorderEnabled = false;
-            ddmrHistory.ImageList = QTUtility.ImageListGlobal;
+            ddmrHistory.ImageList = ResourceCache.ImageListGlobal;
             ddmrHistory.MessageParent = Handle;
             ddmrHistory.ItemClicked += dropDowns_ItemClicked;
             ddmrHistory.ItemRightClicked += dropDowns_ItemRightClicked;
@@ -233,7 +233,7 @@ namespace QTTabBarLib {
             //
             ddmrUserapps = new DropDownMenuReorderable(components);
             ddmrUserapps.ReorderEnabled = reorderEnabled;
-            ddmrUserapps.ImageList = QTUtility.ImageListGlobal;
+            ddmrUserapps.ImageList = ResourceCache.ImageListGlobal;
             ddmrUserapps.MessageParent = Handle;
             ddmrUserapps.ReorderFinished += dropDowns_ReorderFinished;
             ddmrUserapps.ItemClicked += dropDowns_ItemClicked;
@@ -247,7 +247,7 @@ namespace QTTabBarLib {
             // ddmrRecentFile
             //
             ddmrRecentFile = new DropDownMenuReorderable(components, false, false, false);
-            ddmrRecentFile.ImageList = QTUtility.ImageListGlobal;
+            ddmrRecentFile.ImageList = ResourceCache.ImageListGlobal;
             ddmrRecentFile.MessageParent = Handle;
             ddmrRecentFile.ItemClicked += dropDowns_ItemClicked;
             ddmrRecentFile.ItemRightClicked += dropDowns_ItemRightClicked;
@@ -281,8 +281,8 @@ namespace QTTabBarLib {
             tsmiOneClick.Checked = Config.Desktop.OneClickMenu;
             tsmiAppKeys.Checked = Config.Desktop.EnableAppShortcuts;
             
-            tsmiExperimental = new ToolStripMenuItem(QTUtility.TextResourcesDic["Misc_Strings"][6]);
-            tsmiExperimental.DropDown.Items.Add(new ToolStripMenuItem(QTUtility.TextResourcesDic["Misc_Strings"][7]));
+            tsmiExperimental = new ToolStripMenuItem(ResourceCache.TextResourcesDic["Misc_Strings"][6]);
+            tsmiExperimental.DropDown.Items.Add(new ToolStripMenuItem(ResourceCache.TextResourcesDic["Misc_Strings"][7]));
             //TODO does this respect RTL settings?
             tsmiExperimental.DropDownDirection = ToolStripDropDownDirection.Left;
             tsmiExperimental.DropDownItemClicked += tsmiExperimental_DropDownItemClicked;

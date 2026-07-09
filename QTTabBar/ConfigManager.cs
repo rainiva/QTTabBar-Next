@@ -33,7 +33,7 @@ namespace QTTabBarLib {
                     : null;
             QTResourceManager.ValidateTextResources(ref newTextResources);
             lock(QTUtility.syncRoot) {
-                QTUtility.TextResourcesDic = newTextResources;
+                ResourceCache.TextResourcesDic = newTextResources;
             }
             QTResourceManager.ValidateTextResources();
         }
@@ -167,7 +167,7 @@ namespace QTTabBarLib {
             List<string> list = paths == null ? new List<string>() : paths.ToList();
             Config.Window.NoCaptureAt = string.Join(";", list.ToArray());
             lock(QTUtility.syncRoot) {
-                QTUtility.NoCapturePathsList = new List<string>(list);
+                SessionState.NoCapturePathsList = new List<string>(list);
             }
         }
 

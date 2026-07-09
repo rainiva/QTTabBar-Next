@@ -50,9 +50,9 @@ namespace QTTabBarLib {
 
                     if(code == 2) {
                         MessageForm.Show(
-                                QTUtility.TextResourcesDic["UpdateCheck"][0] +
+                                ResourceCache.TextResourcesDic["UpdateCheck"][0] +
                                 Environment.NewLine + Environment.NewLine + msg + Environment.NewLine + Environment.NewLine +
-                                QTUtility.TextResourcesDic["UpdateCheck"][1],
+                                ResourceCache.TextResourcesDic["UpdateCheck"][1],
                                 strMsgCaption,
                                 Resources_String.SiteURL,
                                 MessageBoxIcon.Information,
@@ -179,34 +179,34 @@ namespace QTTabBarLib {
             string strMsg = String.Empty;
             switch(code) {
                 case -1:
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][4];
+                    strMsg = ResourceCache.TextResourcesDic["UpdateCheck"][4];
                     break;
                 case -2:
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][5];
+                    strMsg = ResourceCache.TextResourcesDic["UpdateCheck"][5];
                     break;
                 case -3:
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][6];
+                    strMsg = ResourceCache.TextResourcesDic["UpdateCheck"][6];
                     break;
                 case -4:
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][7];
+                    strMsg = ResourceCache.TextResourcesDic["UpdateCheck"][7];
                     break;
 
                 case 0:
                     // current is up to date.
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][2];
+                    strMsg = ResourceCache.TextResourcesDic["UpdateCheck"][2];
                     break;
 
                 case 1:
                     // beta found.
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][3] + " " + strOptional;
+                    strMsg = ResourceCache.TextResourcesDic["UpdateCheck"][3] + " " + strOptional;
                     break;
 
                 case 2:
                     // New version found.
                     if(DialogResult.OK == MessageBox.Show(
-                            QTUtility.TextResourcesDic["UpdateCheck"][0] +
+                            ResourceCache.TextResourcesDic["UpdateCheck"][0] +
                             Environment.NewLine + Environment.NewLine + strOptional + Environment.NewLine + Environment.NewLine +
-                            QTUtility.TextResourcesDic["UpdateCheck"][1],
+                            ResourceCache.TextResourcesDic["UpdateCheck"][1],
                             strMsgCaption,
                             MessageBoxButtons.OKCancel,
                             MessageBoxIcon.Information)) {

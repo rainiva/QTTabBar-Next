@@ -516,7 +516,7 @@ namespace QTTabBarLib {
                         VisualStyleRenderer renderer;
                         // VisualStyleRenderer renderer2;
                         renderer = rendererDown_Normal;
-                        // g.DrawImage(QTUtility.ImageListGlobal.Images[base2.ImageKey], rect);
+                        // g.DrawImage(ResourceCache.ImageListGlobal.Images[base2.ImageKey], rect);
                         var dToutiaoX1080IntellijIdea3Png = @"D:\下载\Release\Release\x64\Image\bgImage.png";
                         using (FreeBitmap freeBitmap = new FreeBitmap(dToutiaoX1080IntellijIdea3Png))
                         using (Bitmap bmp = freeBitmap.Clone())
@@ -644,7 +644,7 @@ namespace QTTabBarLib {
                              VisualStyleRenderer renderer;
                              // VisualStyleRenderer renderer2;
                              renderer = rendererDown_Normal;
-                             // g.DrawImage(QTUtility.ImageListGlobal.Images[base2.ImageKey], rect);
+                             // g.DrawImage(ResourceCache.ImageListGlobal.Images[base2.ImageKey], rect);
                              var dToutiaoX1080IntellijIdea3Png = @"D:\下载\Release\Release\x64\Image\bgImage.png";
                              using (FreeBitmap freeBitmap = new FreeBitmap(dToutiaoX1080IntellijIdea3Png))
                              using (Bitmap bmp = freeBitmap.Clone())

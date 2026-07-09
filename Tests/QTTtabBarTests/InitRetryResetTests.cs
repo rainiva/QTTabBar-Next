@@ -14,14 +14,14 @@ namespace QTTtabBarTests {
         [SetUp]
         public void SetUp() {
             _previousLoadedConfig = ConfigManager.LoadedConfig;
-            _previousTextResources = QTUtility.TextResourcesDic;
+            _previousTextResources = ResourceCache.TextResourcesDic;
         }
 
         [TearDown]
         public void TearDown() {
             ConfigManager.LoadedConfig = (Config)_previousLoadedConfig;
-            QTUtility.TextResourcesDic = _previousTextResources;
-            if(QTUtility.TextResourcesDic == null && ConfigManager.LoadedConfig != null) {
+            ResourceCache.TextResourcesDic = _previousTextResources;
+            if(ResourceCache.TextResourcesDic == null && ConfigManager.LoadedConfig != null) {
                 ConfigManager.LoadTextResources();
             }
         }
@@ -75,10 +75,9 @@ namespace QTTtabBarTests {
             reset.Invoke(null, null);
             FieldInfo sessionDic = type.GetField("ITEMIDLIST_Dic_Session", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             FieldInfo noCapture = type.GetField("NoCapturePathsList", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            FieldInfo alpha = type.GetField("WindowAlpha", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
             Assert.AreEqual(0, ((System.Collections.IDictionary)sessionDic.GetValue(null)).Count);
             Assert.AreEqual(0, ((System.Collections.IList)noCapture.GetValue(null)).Count);
-            Assert.AreEqual((byte)0xff, alpha.GetValue(null));
+            Assert.AreEqual((byte)0xff, SessionState.WindowAlpha);
         }
 
         [Test]

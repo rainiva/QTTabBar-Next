@@ -116,7 +116,7 @@ namespace QTTabBarLib {
         }
 
         private void RefreshStringResources() {
-            string[] ResTaskbar = QTUtility.TextResourcesDic["TaskBar_Menu"];
+            string[] ResTaskbar = ResourceCache.TextResourcesDic["TaskBar_Menu"];
 
             tsmiTaskBar.Text = ResTaskbar[0];
             tsmiDesktop.Text = ResTaskbar[1];
@@ -125,7 +125,7 @@ namespace QTTabBarLib {
             tsmiOneClick.Text = ResTaskbar[4];
             tsmiAppKeys.Text = ResTaskbar[5];
 
-            string[] titles = QTUtility.TextResourcesDic["TaskBar_Titles"];
+            string[] titles = ResourceCache.TextResourcesDic["TaskBar_Titles"];
 
             tsmiOnGroup.Text =
                     tmiLabel_Group.Text =

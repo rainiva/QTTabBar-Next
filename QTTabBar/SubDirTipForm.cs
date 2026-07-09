@@ -75,7 +75,7 @@ namespace QTTabBarLib {
             hwndDialogParent = listView.Handle;
             fDesktop = !fEnableShiftKeyOnDDMR;
             InitializeComponent();
-            contextMenuSubDir.ImageList = QTUtility.ImageListGlobal;
+            contextMenuSubDir.ImageList = ResourceCache.ImageListGlobal;
             contextMenuSubDir.MessageParent = hwndMessageReflect;
             IntPtr handle = lblSubDirBtn.Handle;
             PInvoke.SetWindowLongPtr(handle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(handle, -20), 0x8000000));
@@ -473,7 +473,7 @@ namespace QTTabBarLib {
                 target.CheckOnEdgeClick = true;
                 target.MessageParent = hwndMessageReflect;
                 target.Items.Add(new ToolStripMenuItem("dummy"));
-                target.ImageList = QTUtility.ImageListGlobal;
+                target.ImageList = ResourceCache.ImageListGlobal;
                 target.SpaceKeyExecute = true;
                 target.MouseLeave += ddmr_MouseLeave;
                 target.ItemRightClicked += ddmr_ItemRightClicked;
@@ -649,7 +649,7 @@ namespace QTTabBarLib {
                 target.CheckOnEdgeClick = true;
                 target.MessageParent = hwndMessageReflect;
                 target.Items.Add(new ToolStripMenuItem("dummy"));
-                target.ImageList = QTUtility.ImageListGlobal;
+                target.ImageList = ResourceCache.ImageListGlobal;
                 target.SpaceKeyExecute = true;
                 target.Path = path;
                 target.MouseLeave += ddmr_MouseLeave;
@@ -689,7 +689,7 @@ namespace QTTabBarLib {
                 target.CheckOnEdgeClick = true;
                 target.MessageParent = hwndMessageReflect;
                 target.Items.Add(new ToolStripMenuItem("dummy"));
-                target.ImageList = QTUtility.ImageListGlobal;
+                target.ImageList = ResourceCache.ImageListGlobal;
                 target.SpaceKeyExecute = true;
                 target.Path = item.TargetPath;
                 target.MouseLeave += ddmr_MouseLeave;

@@ -42,7 +42,7 @@ namespace QTTtabBarTests {
                 "SessionRestore should apply alpha from Config.Window.WindowAlpha");
             Assert.IsFalse(
                 Regex.IsMatch(content, @"QTUtility\.WindowAlpha\s*<\s*0xff"),
-                "SessionRestore should not gate layered-window setup on QTUtility.WindowAlpha alone");
+                "SessionRestore should not gate layered-window setup on SessionState.WindowAlpha alone");
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace QTTtabBarTests {
             ConfigManager.UpdateConfig(false);
             Assert.AreEqual((byte)0x7A, Config.Window.WindowAlpha,
                 "Config.Window.WindowAlpha should retain the configured value");
-            Assert.AreEqual((byte)0x7A, QTUtility.WindowAlpha,
+            Assert.AreEqual((byte)0x7A, SessionState.WindowAlpha,
                 "UpdateConfig should sync SessionState facade from Config.Window.WindowAlpha");
         }
 
@@ -65,7 +65,7 @@ namespace QTTtabBarTests {
                 "Shutdown should persist sampled alpha through ConfigManager.PersistWindowAlpha");
             Assert.IsFalse(
                 Regex.IsMatch(content, @"QTUtility\.WindowAlpha\s*="),
-                "Shutdown should not assign QTUtility.WindowAlpha before persist; PersistWindowAlpha syncs session state");
+                "Shutdown should not assign SessionState.WindowAlpha before persist; PersistWindowAlpha syncs session state");
         }
     }
 }

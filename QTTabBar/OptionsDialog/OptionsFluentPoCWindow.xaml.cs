@@ -74,7 +74,7 @@ namespace QTTabBarLib {
 
         static string GetResx(string key, int index) {
             string[] res;
-            if(!QTUtility.TextResourcesDic.TryGetValue(key, out res) || index >= res.Length) return string.Empty;
+            if(!ResourceCache.TextResourcesDic.TryGetValue(key, out res) || index >= res.Length) return string.Empty;
             return res[index].Replace("&", "_");
         }
     }

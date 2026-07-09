@@ -23,7 +23,12 @@ namespace QTTabBarLib {
         // exactly equivalent to the original field declarations.
         internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
         internal static volatile List<string> NoCapturePathsList = new List<string>();
-        internal static byte WindowAlpha = 0xff;
+        private static byte _windowAlpha = 0xff;
+
+        internal static byte WindowAlpha {
+            get { return System.Threading.Volatile.Read(ref _windowAlpha); }
+            set { System.Threading.Volatile.Write(ref _windowAlpha, value); }
+        }
 
         internal static void ResetForInitRetry() {
             ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();

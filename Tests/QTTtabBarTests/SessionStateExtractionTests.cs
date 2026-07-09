@@ -73,50 +73,38 @@ namespace QTTtabBarTests {
 
         #endregion
 
-        #region QTUtility facade still present (consumers keep compiling)
+        #region C7q: QTUtility facades removed (callers use SessionState directly)
 
         [Test]
-        public void QTUtility_Still_Exposes_ITEMIDLIST_Dic_Session_Facade() {
-            Assert.IsTrue(HasStaticMember(typeof(QTUtility), "ITEMIDLIST_Dic_Session"),
-                "QTUtility should still expose ITEMIDLIST_Dic_Session facade");
-        }
-
-        [Test]
-        public void QTUtility_Still_Exposes_NoCapturePathsList_Facade() {
-            Assert.IsTrue(HasStaticMember(typeof(QTUtility), "NoCapturePathsList"),
-                "QTUtility should still expose NoCapturePathsList facade");
-        }
-
-        [Test]
-        public void QTUtility_Still_Exposes_WindowAlpha_Facade() {
-            Assert.IsTrue(HasStaticMember(typeof(QTUtility), "WindowAlpha"),
-                "QTUtility should still expose WindowAlpha facade");
+        public void QTUtility_Does_Not_Expose_SessionState_Facades() {
+            Assert.IsFalse(HasStaticMember(typeof(QTUtility), "ITEMIDLIST_Dic_Session"),
+                "QTUtility should not expose ITEMIDLIST_Dic_Session facade after C7q");
+            Assert.IsFalse(HasStaticMember(typeof(QTUtility), "NoCapturePathsList"),
+                "QTUtility should not expose NoCapturePathsList facade after C7q");
+            Assert.IsFalse(HasStaticMember(typeof(QTUtility), "WindowAlpha"),
+                "QTUtility should not expose WindowAlpha facade after C7q");
         }
 
         #endregion
 
-        #region Semantic equivalence: same instance / same lock (no behavior change)
+        #region Semantic equivalence: direct container access
 
         [Test]
-        public void QTUtility_ITEMIDLIST_Dic_Session_Facade_Is_SameInstance_As_SessionState() {
+        public void SessionState_ITEMIDLIST_Dic_Session_Is_Mutable_Dictionary() {
             Type ss = SessionStateType;
             Assert.IsNotNull(ss, "SessionState type should exist");
             object viaSession = GetStaticMemberValue(ss, "ITEMIDLIST_Dic_Session");
-            object viaFacade = GetStaticMemberValue(typeof(QTUtility), "ITEMIDLIST_Dic_Session");
-            Assert.IsNotNull(viaFacade, "facade dictionary should not be null");
-            Assert.AreSame(viaSession, viaFacade,
-                "QTUtility.ITEMIDLIST_Dic_Session must return the same instance as SessionState (index write equivalence)");
+            Assert.IsNotNull(viaSession, "session dictionary should not be null");
+            Assert.IsInstanceOf<Dictionary<string, byte[]>>(viaSession);
         }
 
         [Test]
-        public void QTUtility_NoCapturePathsList_Facade_Is_SameInstance_As_SessionState() {
+        public void SessionState_NoCapturePathsList_Is_Mutable_List() {
             Type ss = SessionStateType;
             Assert.IsNotNull(ss, "SessionState type should exist");
             object viaSession = GetStaticMemberValue(ss, "NoCapturePathsList");
-            object viaFacade = GetStaticMemberValue(typeof(QTUtility), "NoCapturePathsList");
-            Assert.IsNotNull(viaFacade, "facade list should not be null");
-            Assert.AreSame(viaSession, viaFacade,
-                "QTUtility.NoCapturePathsList must return the same instance as SessionState (Add/iteration equivalence)");
+            Assert.IsNotNull(viaSession, "no-capture list should not be null");
+            Assert.IsInstanceOf<List<string>>(viaSession);
         }
 
         [Test]

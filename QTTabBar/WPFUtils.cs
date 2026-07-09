@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -276,7 +276,7 @@ namespace QTTabBarLib {
             if(idx < 0) idx = Index;
             if(DebugMode) return Key + "[" + idx + "]";
             string[] res;
-            if(!QTUtility.TextResourcesDic.TryGetValue(Key, out res) || idx >= res.Length) return "";
+            if(!ResourceCache.TextResourcesDic.TryGetValue(Key, out res) || idx >= res.Length) return "";
             string ret = res[idx];
             string param = targetObject == null ? null : GetParam(targetObject);
             if(param != null) ret = string.Format(ret, param);

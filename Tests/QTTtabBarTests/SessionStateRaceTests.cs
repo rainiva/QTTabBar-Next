@@ -19,7 +19,7 @@ namespace QTTtabBarTests {
     ///  * 2.5.2 WindowAlpha: must STAY a non-volatile byte because
     ///    InitializationOrchestrator passes it via an out parameter
     ///    (C# forbids ref/out on volatile fields); visibility is provided by
-    ///    the QTUtility.WindowAlpha facade via Volatile.Read/Volatile.Write.
+    ///    the SessionState.WindowAlpha facade via Volatile.Read/Volatile.Write.
     ///  * 2.5.3 TextResourcesDic: the true-source field is volatile so a fully
     ///    validated dictionary published under lock is never observed as null
     ///    or half-initialized by the 20+ lock-free readers.
@@ -56,8 +56,8 @@ namespace QTTtabBarTests {
                 // Write side (as in InitializationOrchestrator) replaces the whole
                 // reference; facade readers must see the new instance immediately.
                 SessionState.NoCapturePathsList = replacement;
-                Assert.AreSame(replacement, QTUtility.NoCapturePathsList,
-                    "QTUtility.NoCapturePathsList facade must forward the current volatile reference");
+                Assert.AreSame(replacement, SessionState.NoCapturePathsList,
+                    "SessionState.NoCapturePathsList facade must forward the current volatile reference");
             }
             finally {
                 SessionState.NoCapturePathsList = original;
@@ -67,24 +67,23 @@ namespace QTTtabBarTests {
         // ---- 2.5.2 WindowAlpha (fallback: non-volatile byte) --------------
 
         [Test]
-        public void WindowAlpha_TrueSourceField_StaysNonVolatile_ForOutParameter() {
-            Assert.IsFalse(FieldIsVolatile(typeof(SessionState), "WindowAlpha"),
-                "SessionState.WindowAlpha must remain a NON-volatile byte because " +
-                "InitializationOrchestrator passes it via 'out' (C# forbids ref/out on volatile)");
+        public void WindowAlpha_BackingField_StaysNonVolatile_ForOutParameter() {
+            Assert.IsFalse(FieldIsVolatile(typeof(SessionState), "_windowAlpha"),
+                "SessionState._windowAlpha must remain NON-volatile; Volatile.Read/Write is on the WindowAlpha property");
         }
 
         [Test]
         public void WindowAlpha_Facade_RoundTrips() {
-            byte original = QTUtility.WindowAlpha;
+            byte original = SessionState.WindowAlpha;
             try {
-                QTUtility.WindowAlpha = 0x80;
-                Assert.AreEqual((byte)0x80, QTUtility.WindowAlpha,
+                SessionState.WindowAlpha = 0x80;
+                Assert.AreEqual((byte)0x80, SessionState.WindowAlpha,
                     "WindowAlpha facade (Volatile.Write/Read) must round-trip values");
-                QTUtility.WindowAlpha = 0xff;
-                Assert.AreEqual((byte)0xff, QTUtility.WindowAlpha);
+                SessionState.WindowAlpha = 0xff;
+                Assert.AreEqual((byte)0xff, SessionState.WindowAlpha);
             }
             finally {
-                QTUtility.WindowAlpha = original;
+                SessionState.WindowAlpha = original;
             }
         }
 
@@ -105,8 +104,8 @@ namespace QTTtabBarTests {
                     { "TabBar_Menu", new[] { "x" } }
                 };
                 ResourceCache.TextResourcesDic = replacement;
-                Assert.AreSame(replacement, QTUtility.TextResourcesDic,
-                    "QTUtility.TextResourcesDic facade must forward the current volatile reference");
+                Assert.AreSame(replacement, ResourceCache.TextResourcesDic,
+                    "ResourceCache.TextResourcesDic facade must forward the current volatile reference");
             }
             finally {
                 ResourceCache.TextResourcesDic = original;
@@ -136,9 +135,9 @@ namespace QTTtabBarTests {
                     ResourceCache.TextResourcesDic = dict;
                 }
 
-                // The lock-free read point (QTUtility.TextResourcesDic facade) must observe
+                // The lock-free read point (ResourceCache.TextResourcesDic facade) must observe
                 // the fully built dictionary, never null / half-initialized.
-                Dictionary<string, string[]> viaReader = QTUtility.TextResourcesDic;
+                Dictionary<string, string[]> viaReader = ResourceCache.TextResourcesDic;
                 Assert.IsNotNull(viaReader, "published TextResourcesDic must not be null at the read point");
                 Assert.AreSame(dict, viaReader, "reader must observe the exact published reference");
 
@@ -172,7 +171,7 @@ namespace QTTtabBarTests {
                         while(!Volatile.Read(ref stop)) {
                             // Same lock-free .Any() read path as HookLibManager /
                             // QTUtility2 / QTTabBarClass; the predicate forces enumeration.
-                            bool unused = QTUtility.NoCapturePathsList.Any(p => p.StartsWith("::"));
+                            bool unused = SessionState.NoCapturePathsList.Any(p => p.StartsWith("::"));
                         }
                     }
                     catch(Exception ex) {
@@ -206,7 +205,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void WindowAlpha_ConcurrentReadWrite_NeverTearsAndRoundTrips() {
-            byte saved = QTUtility.WindowAlpha;
+            byte saved = SessionState.WindowAlpha;
             try {
                 byte[] allowed = { 0x00, 0x40, 0x80, 0xC0, 0xFF };
                 Exception readerError = null;
@@ -215,7 +214,7 @@ namespace QTTtabBarTests {
                 Thread reader = new Thread(() => {
                     try {
                         while(!Volatile.Read(ref stop)) {
-                            byte v = QTUtility.WindowAlpha;
+                            byte v = SessionState.WindowAlpha;
                             if(Array.IndexOf(allowed, v) < 0) {
                                 throw new Exception("observed unexpected/torn WindowAlpha value: " + v);
                             }
@@ -229,7 +228,7 @@ namespace QTTtabBarTests {
                 reader.Start();
 
                 for(int i = 0; i < 20000; i++) {
-                    QTUtility.WindowAlpha = allowed[i % allowed.Length];
+                    SessionState.WindowAlpha = allowed[i % allowed.Length];
                 }
 
                 Volatile.Write(ref stop, true);
@@ -237,12 +236,12 @@ namespace QTTtabBarTests {
                 Assert.IsNull(readerError,
                     readerError == null ? "" : readerError.Message);
 
-                QTUtility.WindowAlpha = 0x7F;
-                Assert.AreEqual((byte)0x7F, QTUtility.WindowAlpha,
+                SessionState.WindowAlpha = 0x7F;
+                Assert.AreEqual((byte)0x7F, SessionState.WindowAlpha,
                     "WindowAlpha facade (Volatile.Write/Read) must round-trip the last written value");
             }
             finally {
-                QTUtility.WindowAlpha = saved;
+                SessionState.WindowAlpha = saved;
             }
         }
     }

@@ -44,7 +44,7 @@ namespace QTTabBarLib {
                 DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null);
                 reorderable.MessageParent = eventPack.MessageParentHandle;
                 reorderable.ItemRightClicked += eventPack.ItemRightClickEventHandler;
-                reorderable.ImageList = QTUtility.ImageListGlobal;
+                reorderable.ImageList = ResourceCache.ImageListGlobal;
                 DirectoryMenuItem item = new DirectoryMenuItem(text);
                 item.SetImageReservationKey(info2.FullName, null);
                 item.Path = info2.FullName;
@@ -162,7 +162,7 @@ namespace QTTabBarLib {
                 mia.Target = MenuTarget.Folder;
                 DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null) {
                     MessageParent = ep.MessageParentHandle,
-                    ImageList = QTUtility.ImageListGlobal
+                    ImageList = ResourceCache.ImageListGlobal
                 };
                 reorderable.ItemRightClicked += ep.ItemRightClickEventHandler;
                 DirectoryMenuItem item = new DirectoryMenuItem(app.Name) {
@@ -190,7 +190,7 @@ namespace QTTabBarLib {
             DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null) {
                 ReorderEnabled = fReorderEnabled,
                 MessageParent = ep.MessageParentHandle,
-                ImageList = QTUtility.ImageListGlobal
+                ImageList = ResourceCache.ImageListGlobal
             };
             reorderable.AddItemsRange(items, "userappItem");
             reorderable.ItemRightClicked += ep.ItemRightClickEventHandler;
@@ -301,10 +301,10 @@ namespace QTTabBarLib {
                 QTLogger.MakeErrorLog(ex, "realDirectory_DropDownItemClicked");
                 MessageBox.Show(
                     String.Format(
-                        QTUtility.TextResourcesDic["ErrorDialogs"][0],
+                        ResourceCache.TextResourcesDic["ErrorDialogs"][0],
                         e.ClickedItem.Name
                     ),
-                    QTUtility.TextResourcesDic["ErrorDialogs"][1],
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][1],
                     MessageBoxButtons.OK, 
                     MessageBoxIcon.Hand
                 );

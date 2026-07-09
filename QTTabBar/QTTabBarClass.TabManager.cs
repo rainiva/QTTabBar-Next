@@ -177,7 +177,7 @@ namespace QTTabBarLib {
                         QTLogger.MakeErrorLog(null, string.Format("Failed navigation: {0}", idlw.Path));
                         if (Config.Window.ShowFailNavMsg)
                         {
-                            MessageBox.Show(string.Format(QTUtility.TextResourcesDic["TabBar_Message"][0], idlw.Path));
+                            MessageBox.Show(string.Format(ResourceCache.TextResourcesDic["TabBar_Message"][0], idlw.Path));
                         }
                         StaticReg.CreateWindowGroup = string.Empty;
                         StaticReg.SkipNextCapture = false;

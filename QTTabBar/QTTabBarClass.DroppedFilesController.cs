@@ -28,14 +28,14 @@ namespace QTTabBarLib {
                     _owner.contextMenuDropped.ResumeLayout(false);
                 }
 
-                string strMenu = QTUtility.ResMain[21];
+                string strMenu = ResourceCache.ResMain[21];
                 strMenu += listDroppedPaths.Count > 1
-                        ? listDroppedPaths.Count + QTUtility.ResMain[22]
+                        ? listDroppedPaths.Count + ResourceCache.ResMain[22]
                         : Path.GetFileName(listDroppedPaths[0]).Enquote();
 
                 _owner.contextMenuDropped.SuspendLayout();
                 _owner.contextMenuDropped.Items[0].Text = strMenu;
-                _owner.contextMenuDropped.Items[1].Text = QTUtility.ResMain[23];
+                _owner.contextMenuDropped.Items[1].Text = ResourceCache.ResMain[23];
                 _owner.contextMenuDropped.Tag = listDroppedPaths;
                 _owner.contextMenuDropped.ResumeLayout();
                 _owner.contextMenuDropped.Show(MousePosition);

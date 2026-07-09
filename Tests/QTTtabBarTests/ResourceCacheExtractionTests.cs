@@ -73,59 +73,89 @@ namespace QTTtabBarTests {
 
         #endregion
 
-        #region QTUtility facade still present (consumers keep compiling)
+        #region C7q: QTUtility facades removed (callers use ResourceCache directly)
 
         [Test]
-        public void QTUtility_Still_Exposes_ImageListGlobal_Facade() {
-            Assert.IsTrue(HasStaticMember(typeof(QTUtility), "ImageListGlobal"),
-                "QTUtility should still expose ImageListGlobal facade");
+        public void QTUtility_Does_Not_Expose_ResourceCache_Facades() {
+            Assert.IsFalse(HasStaticMember(typeof(QTUtility), "ImageListGlobal"),
+                "QTUtility should not expose ImageListGlobal facade after C7q");
+            Assert.IsFalse(HasStaticMember(typeof(QTUtility), "DisplayNameCacheDic"),
+                "QTUtility should not expose DisplayNameCacheDic facade after C7q");
+            Assert.IsFalse(HasStaticMember(typeof(QTUtility), "TextResourcesDic"),
+                "QTUtility should not expose TextResourcesDic facade after C7q");
         }
 
         [Test]
-        public void QTUtility_Still_Exposes_DisplayNameCacheDic_Facade() {
-            Assert.IsTrue(HasStaticMember(typeof(QTUtility), "DisplayNameCacheDic"),
-                "QTUtility should still expose DisplayNameCacheDic facade");
-        }
-
-        [Test]
-        public void QTUtility_Still_Exposes_TextResourcesDic_Facade() {
-            Assert.IsTrue(HasStaticMember(typeof(QTUtility), "TextResourcesDic"),
-                "QTUtility should still expose TextResourcesDic facade");
+        public void ResourceCache_Exposes_ResMain_And_ResMisc() {
+            Assert.IsTrue(HasStaticMember(ResourceCacheType, "ResMain"),
+                "ResourceCache should expose ResMain after C7q");
+            Assert.IsTrue(HasStaticMember(ResourceCacheType, "ResMisc"),
+                "ResourceCache should expose ResMisc after C7q");
         }
 
         #endregion
 
-        #region Semantic equivalence: same instance / same lock (no behavior change)
+        #region Semantic equivalence: direct container access
 
         [Test]
-        public void QTUtility_DisplayNameCacheDic_Facade_Is_SameInstance_As_ResourceCache() {
+        public void ResourceCache_DisplayNameCacheDic_Is_Mutable_Dictionary() {
             Type rc = ResourceCacheType;
             Assert.IsNotNull(rc, "ResourceCache type should exist");
-            object viaCache = GetStaticMemberValue(rc, "DisplayNameCacheDic");
-            object viaFacade = GetStaticMemberValue(typeof(QTUtility), "DisplayNameCacheDic");
-            Assert.IsNotNull(viaFacade, "facade dictionary should not be null");
-            Assert.AreSame(viaCache, viaFacade,
-                "QTUtility.DisplayNameCacheDic must return the same instance as ResourceCache (index write equivalence)");
+            object dic = GetStaticMemberValue(rc, "DisplayNameCacheDic");
+            Assert.IsNotNull(dic, "DisplayNameCacheDic should not be null");
+            Assert.IsInstanceOf<Dictionary<string, string>>(dic);
         }
 
         [Test]
-        public void QTUtility_ImageListGlobal_Facade_Is_SameInstance_As_ResourceCache() {
+        public void ResourceCache_TextResourcesDic_Accepts_Publish() {
+            Type rc = ResourceCacheType;
+            Assert.IsNotNull(rc, "ResourceCache type should exist");
+            var saved = ResourceCache.TextResourcesDic;
+            try {
+                var replacement = new Dictionary<string, string[]>();
+                ResourceCache.TextResourcesDic = replacement;
+                Assert.AreSame(replacement, ResourceCache.TextResourcesDic);
+            }
+            finally {
+                ResourceCache.TextResourcesDic = saved;
+            }
+        }
+
+        #endregion
+
+        #region Lock sharing unchanged
+
+        [Test]
+        public void ResourceCache_ImageListGlobal_Accepts_Assignment() {
             Type rc = ResourceCacheType;
             Assert.IsNotNull(rc, "ResourceCache type should exist");
             object viaCache = GetStaticMemberValue(rc, "ImageListGlobal");
-            object viaFacade = GetStaticMemberValue(typeof(QTUtility), "ImageListGlobal");
-            Assert.AreSame(viaCache, viaFacade,
-                "QTUtility.ImageListGlobal must return the same instance as ResourceCache");
+            Assert.IsNull(viaCache, "ImageListGlobal defaults to null until init");
+        }
+
+        #endregion
+
+        #region Semantic equivalence: same instance / same lock (no behavior change) — legacy lock tests
+
+        [Test]
+        public void ResourceCache_DisplayNameCacheDic_Direct_Access() {
+            object viaCache = GetStaticMemberValue(ResourceCacheType, "DisplayNameCacheDic");
+            Assert.IsNotNull(viaCache,
+                "ResourceCache.DisplayNameCacheDic must be directly accessible after C7q");
         }
 
         [Test]
-        public void QTUtility_TextResourcesDic_Facade_Is_SameInstance_As_ResourceCache() {
-            Type rc = ResourceCacheType;
-            Assert.IsNotNull(rc, "ResourceCache type should exist");
-            object viaCache = GetStaticMemberValue(rc, "TextResourcesDic");
-            object viaFacade = GetStaticMemberValue(typeof(QTUtility), "TextResourcesDic");
-            Assert.AreSame(viaCache, viaFacade,
-                "QTUtility.TextResourcesDic must return the same instance as ResourceCache");
+        public void ResourceCache_ImageListGlobal_Direct_Access() {
+            object viaCache = GetStaticMemberValue(ResourceCacheType, "ImageListGlobal");
+            Assert.AreSame(viaCache, ResourceCache.ImageListGlobal,
+                "ResourceCache.ImageListGlobal must be directly accessible after C7q");
+        }
+
+        [Test]
+        public void ResourceCache_TextResourcesDic_Direct_Access() {
+            object viaCache = GetStaticMemberValue(ResourceCacheType, "TextResourcesDic");
+            Assert.AreSame(viaCache, ResourceCache.TextResourcesDic,
+                "ResourceCache.TextResourcesDic must be directly accessible after C7q");
         }
 
         [Test]

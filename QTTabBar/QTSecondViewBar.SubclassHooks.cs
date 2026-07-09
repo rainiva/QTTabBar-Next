@@ -39,11 +39,11 @@ namespace QTTabBarLib
             IsShown = true;
             QTLogger.log("QTSecondViewBar InitializeOpenedWindow InstallHooks");
             InstallHooks();
-            /*if (QTUtility.WindowAlpha < 0xff)
+            /*if (SessionState.WindowAlpha < 0xff)
             {
                 QTLogger.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
                 PInvoke.SetWindowLongPtr(ExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000));
-                PInvoke.SetLayeredWindowAttributes(ExplorerHandle, 0, QTUtility.WindowAlpha, 2);
+                PInvoke.SetLayeredWindowAttributes(ExplorerHandle, 0, SessionState.WindowAlpha, 2);
             }*/
             if(ShellBrowser != null) {
                 listViewManager = new ListViewMonitor(ShellBrowser, ExplorerHandle, Handle);

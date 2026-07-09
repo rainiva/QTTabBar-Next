@@ -150,16 +150,16 @@ namespace QTTabBarLib {
                 bool flag = false;
                 if(_owner.tsmiGroups == null) {
                     flag = true;
-                    _owner.tsmiGroups = new ToolStripMenuItem(QTUtility.ResMain[12]);
-                    _owner.tsmiUndoClose = new ToolStripMenuItem(QTUtility.ResMain[13]);
-                    _owner.tsmiLastActiv = new ToolStripMenuItem(QTUtility.ResMain[14]);
-                    _owner.tsmiExecuted = new ToolStripMenuItem(QTUtility.ResMain[15]);
-                    _owner.tsmiBrowseFolder = new ToolStripMenuItem(QTUtility.ResMain[0x10] + "...");
-                    _owner.tsmiCloseAllButCurrent = new ToolStripMenuItem(QTUtility.ResMain[0x11]);
-                    _owner.tsmiCloseWindow = new ToolStripMenuItem(QTUtility.ResMain[0x12]);
-                    _owner.tsmiOption = new ToolStripMenuItem(QTUtility.ResMain[0x13]);
-                    _owner.tsmiLockToolbar = new ToolStripMenuItem(QTUtility.ResMain[0x20]);
-                    _owner.tsmiMergeWindows = new ToolStripMenuItem(QTUtility.ResMain[0x21]);
+                    _owner.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
+                    _owner.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
+                    _owner.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
+                    _owner.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
+                    _owner.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
+                    _owner.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
+                    _owner.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
+                    _owner.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
+                    _owner.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
+                    _owner.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
                     _owner.tssep_Sys1 = new ToolStripSeparator();
                     _owner.tssep_Sys2 = new ToolStripSeparator();
                     if(_owner.contextMenuSys != null) {
@@ -177,13 +177,13 @@ namespace QTTabBarLib {
                     reorderable.ReorderFinished += MenuitemGroups_ReorderFinished;
                     reorderable.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
                     reorderable.ItemMiddleClicked += DdrmrGroups_ItemMiddleClicked;
-                    reorderable.ImageList = QTUtility.ImageListGlobal;
+                    reorderable.ImageList = ResourceCache.ImageListGlobal;
                     _owner.tsmiGroups.DropDown = reorderable;
                     _owner.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
                     DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_owner.components);
                     reorderable2.ReorderEnabled = false;
                     reorderable2.MessageParent = _owner.Handle;
-                    reorderable2.ImageList = QTUtility.ImageListGlobal;
+                    reorderable2.ImageList = ResourceCache.ImageListGlobal;
                     reorderable2.ItemRightClicked += DdmrUndoClose_ItemRightClicked;
                     _owner.tsmiUndoClose.DropDown = reorderable2;
                     _owner.tsmiUndoClose.DropDownItemClicked += _owner.menuitemUndoClose_DropDownItemClicked;
@@ -191,7 +191,7 @@ namespace QTTabBarLib {
                     reorderable3.MessageParent = _owner.Handle;
                     reorderable3.ItemRightClicked += MenuitemExecuted_ItemRightClicked;
                     reorderable3.ItemClicked += MenuitemExecuted_DropDownItemClicked;
-                    reorderable3.ImageList = QTUtility.ImageListGlobal;
+                    reorderable3.ImageList = ResourceCache.ImageListGlobal;
                     _owner.tsmiExecuted.DropDown = reorderable3;
                     _owner.tssep_Sys1.Enabled = false;
                     _owner.tssep_Sys2.Enabled = false;
@@ -200,16 +200,16 @@ namespace QTTabBarLib {
                     }
                 }
                 if(!flag && fText) {
-                    _owner.tsmiGroups.Text = QTUtility.ResMain[12];
-                    _owner.tsmiUndoClose.Text = QTUtility.ResMain[13];
-                    _owner.tsmiLastActiv.Text = QTUtility.ResMain[14];
-                    _owner.tsmiExecuted.Text = QTUtility.ResMain[15];
-                    _owner.tsmiBrowseFolder.Text = QTUtility.ResMain[0x10] + "...";
-                    _owner.tsmiCloseAllButCurrent.Text = QTUtility.ResMain[0x11];
-                    _owner.tsmiCloseWindow.Text = QTUtility.ResMain[0x12];
-                    _owner.tsmiOption.Text = QTUtility.ResMain[0x13];
-                    _owner.tsmiLockToolbar.Text = QTUtility.ResMain[0x20];
-                    _owner.tsmiMergeWindows.Text = QTUtility.ResMain[0x21];
+                    _owner.tsmiGroups.Text = ResourceCache.ResMain[12];
+                    _owner.tsmiUndoClose.Text = ResourceCache.ResMain[13];
+                    _owner.tsmiLastActiv.Text = ResourceCache.ResMain[14];
+                    _owner.tsmiExecuted.Text = ResourceCache.ResMain[15];
+                    _owner.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
+                    _owner.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
+                    _owner.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
+                    _owner.tsmiOption.Text = ResourceCache.ResMain[0x13];
+                    _owner.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
+                    _owner.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
                 }
             }
 

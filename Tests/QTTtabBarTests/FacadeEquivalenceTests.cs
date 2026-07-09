@@ -28,8 +28,8 @@ namespace QTTtabBarTests {
                 ConfigManager.LoadedConfig = new Config();
             }
             // IconManager.GetImageKey / AddImageToGlobal touch the global ImageList.
-            if(QTUtility.ImageListGlobal == null) {
-                QTUtility.ImageListGlobal = new ImageList();
+            if(ResourceCache.ImageListGlobal == null) {
+                ResourceCache.ImageListGlobal = new ImageList();
             }
         }
 

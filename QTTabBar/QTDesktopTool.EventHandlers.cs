@@ -263,8 +263,8 @@ namespace QTTabBarLib {
             }
             catch {
                 MessageBox.Show(
-                    String.Format(QTUtility.TextResourcesDic["ErrorDialogs"][9], path),
-                    QTUtility.TextResourcesDic["ErrorDialogs"][4], 
+                    String.Format(ResourceCache.TextResourcesDic["ErrorDialogs"][9], path),
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][4], 
                     MessageBoxButtons.OK, 
                     MessageBoxIcon.Error
                 );
@@ -280,7 +280,7 @@ namespace QTTabBarLib {
                 tsmiExperimental.DropDown.SuspendLayout();
                 for(int i = 0; i < 4; i++) {
                     tsmiExperimental.DropDown.Items.Add(
-                        QTUtility.TextResourcesDic["Desktop"][i]
+                        ResourceCache.TextResourcesDic["Desktop"][i]
                     );
                 }
                 tsmiExperimental.DropDown.ResumeLayout();

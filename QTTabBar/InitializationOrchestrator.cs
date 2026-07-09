@@ -62,7 +62,7 @@ namespace QTTabBarLib {
                 if(_initialized) return;
             try {
                 QTLogger.log("QTUtility RefreshShellStateValues");
-                QTUtility.RefreshShellStateValues();
+                ShellStateService.RefreshShellStateValues();
 
                 // Load the config
                 ConfigManager.Initialize();
@@ -77,7 +77,7 @@ namespace QTTabBarLib {
                 QTLogger.log("QTUtility 创建并启用 API hooks");
 
                 // Create the global imagelist
-                QTUtility.ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
+                ResourceCache.ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
                 IconManager.AddImageToGlobal("folder", IconManager.GetIcon(string.Empty, false));
                 QTLogger.log("QTUtility 创建全局文件夹图片列表");
 
@@ -94,7 +94,7 @@ namespace QTTabBarLib {
                 WindowSessionPersistence.LoadRecentFilesAndClosedTabs();
                 LockedTabsService.RefreshFromRegistry();
 
-                QTUtility.GetShellClickMode();
+                ShellStateService.GetShellClickMode();
                 QTLogger.log("QTUtility Get Shell Click Mode");
 
                 // Initialize plugins

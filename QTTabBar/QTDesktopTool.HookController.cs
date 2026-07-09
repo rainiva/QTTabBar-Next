@@ -34,7 +34,7 @@ namespace QTTabBarLib {
                         if(++iHookTimeout > 5) {
                             timerHooks.Stop();
                             MessageBox.Show(
-                                QTUtility.TextResourcesDic["ErrorDialogs"][8]
+                                ResourceCache.TextResourcesDic["ErrorDialogs"][8]
                             );
                             return;
                         }

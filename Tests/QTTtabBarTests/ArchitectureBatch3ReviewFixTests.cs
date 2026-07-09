@@ -51,7 +51,7 @@ namespace QTTtabBarTests {
             string content = SecondViewBarSource;
             Assert.IsTrue(content.Contains("WM.SYSCOLORCHANGE"));
             Assert.IsTrue(content.Contains("HandleSysColorChangeHookMessage()"));
-            Assert.IsFalse(content.Contains("Config.Skin.SwitchNighMode(QTUtility.InNightMode);"));
+            Assert.IsFalse(content.Contains("Config.Skin.SwitchNighMode(ThemeRefreshService.IsDark);"));
         }
 
         [Test]

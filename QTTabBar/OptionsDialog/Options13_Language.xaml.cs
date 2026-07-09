@@ -65,7 +65,7 @@ namespace QTTabBarLib {
                  */
 
                 foreach (var kv in
-                            QTUtility.TextResourcesDic.OrderBy(kv => kv.Key))
+                            ResourceCache.TextResourcesDic.OrderBy(kv => kv.Key))
                 {
                     if(metatags.Contains(kv.Key)) continue;
                     for(int i = 0; i < kv.Value.Length; i++) {
@@ -74,7 +74,7 @@ namespace QTTabBarLib {
                     }
                 }
 
-                QTLogger.log("init LangEntry success count: " + QTUtility.TextResourcesDic.Count);
+                QTLogger.log("init LangEntry success count: " + ResourceCache.TextResourcesDic.Count);
                 ICollectionView view = CollectionViewSource.GetDefaultView(LangItems);
                 PropertyGroupDescription groupDescription = new PropertyGroupDescription("Location");
                 view.GroupDescriptions.Add(groupDescription);
@@ -115,7 +115,7 @@ namespace QTTabBarLib {
 
         private void btnPluginAdd_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
-                ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
+                ofd.Filter = ResourceCache.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
                 var dict = QTResourceManager.ReadLanguageFile(ofd.FileName);
@@ -138,8 +138,8 @@ namespace QTTabBarLib {
 
         private void btnClear_Click(object sender, RoutedEventArgs e) {
             var resp = MessageBox.Show(
-                    QTUtility.TextResourcesDic["Options_Page13_Language"][9],
-                    QTUtility.TextResourcesDic["OptionsDialog"][3],
+                    ResourceCache.TextResourcesDic["Options_Page13_Language"][9],
+                    ResourceCache.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(resp == MessageBoxResult.Cancel) return;
             foreach(LangEntry entry in LangItems) {
@@ -149,7 +149,7 @@ namespace QTTabBarLib {
 
         private void btnLoad_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
-                ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
+                ofd.Filter = ResourceCache.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
                 var dict = QTResourceManager.ReadLanguageFile(ofd.FileName);
@@ -204,7 +204,7 @@ namespace QTTabBarLib {
         {
             string path;
             using(SaveFileDialog sfd = new SaveFileDialog()) {
-                sfd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.txt";
+                sfd.Filter = ResourceCache.TextResourcesDic["FileFilters"][1] + "|*.txt";
                 sfd.RestoreDirectory = true;
                 sfd.FileName = "Lng_QTTabBar_" + LangItems[1].Translated + ".txt";
                 if(DialogResult.OK != sfd.ShowDialog()) return;
@@ -252,7 +252,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(XmlException) {
-                MessageBox.Show(QTUtility.TextResourcesDic["Options_Page13_Language"][10]);
+                MessageBox.Show(ResourceCache.TextResourcesDic["Options_Page13_Language"][10]);
             }
             catch(Exception exception2) {
                 QTLogger.MakeErrorLog(exception2);
@@ -262,7 +262,7 @@ namespace QTTabBarLib {
         private void btnSave_Click(object sender, RoutedEventArgs e) {
             string path;
             using(SaveFileDialog sfd = new SaveFileDialog()) {
-                sfd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
+                sfd.Filter = ResourceCache.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 sfd.RestoreDirectory = true;
                 sfd.FileName = "Lng_QTTabBar_" + LangItems[1].Translated + ".xml";
                 if(DialogResult.OK != sfd.ShowDialog()) return;
@@ -325,7 +325,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(XmlException) {
-                MessageBox.Show(QTUtility.TextResourcesDic["Options_Page13_Language"][10]);
+                MessageBox.Show(ResourceCache.TextResourcesDic["Options_Page13_Language"][10]);
             }
             catch(Exception exception2) {
                 QTLogger.MakeErrorLog(exception2);
@@ -372,12 +372,12 @@ namespace QTTabBarLib {
             public event PropertyChangedEventHandler PropertyChanged;
             public string Original { get
                 {
-                    var strArr = QTUtility.TextResourcesDic[Key];
-                    if (Index > QTUtility.TextResourcesDic[Key].Length - 1)
+                    var strArr = ResourceCache.TextResourcesDic[Key];
+                    if (Index > ResourceCache.TextResourcesDic[Key].Length - 1)
                     {
                         return "";
                     }
-                    return  Index < 0 ? Key : QTUtility.TextResourcesDic[Key][Index];
+                    return  Index < 0 ? Key : ResourceCache.TextResourcesDic[Key][Index];
                 }
             }
             public int Index { get; set; }
@@ -430,14 +430,14 @@ namespace QTTabBarLib {
                     Translated = res[0];
                 }
                 */
-                if (!QTUtility.TextResourcesDic.ContainsKey(Key))
+                if (!ResourceCache.TextResourcesDic.ContainsKey(Key))
                 {
                     QTLogger.flog("*** TextResourcesDic not contains key " + Key );
                 }
                 else
                 {
                     string[] res2;
-                    QTUtility.TextResourcesDic.TryGetValue(Key, out res2);
+                    ResourceCache.TextResourcesDic.TryGetValue(Key, out res2);
                     if (res2 == null)
                     {
                         QTLogger.flog("*** TextResourcesDic key " + Key + " res2 is null");
@@ -451,8 +451,8 @@ namespace QTTabBarLib {
                 {
                     Translated = Original;
                 } 
-                else if (QTUtility.TextResourcesDic.ContainsKey( Key ) && 
-                         QTUtility.TextResourcesDic.TryGetValue(Key, out res) &&
+                else if (ResourceCache.TextResourcesDic.ContainsKey( Key ) && 
+                         ResourceCache.TextResourcesDic.TryGetValue(Key, out res) &&
                          res != null && 
                          res.Length > 0 // 修复超出数组越界bug
                          )

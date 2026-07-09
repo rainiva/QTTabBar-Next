@@ -100,8 +100,8 @@ namespace QTTabBarLib {
                 QTLogger.MakeErrorLog(e, "ActivateIt");
                 MessageForm.Show(
                     IntPtr.Zero,
-                    QTUtility.TextResourcesDic["ErrorDialogs"][2],
-                    QTUtility.TextResourcesDic["ErrorDialogs"][3],
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][2],
+                    ResourceCache.TextResourcesDic["ErrorDialogs"][3],
                     MessageBoxIcon.Warning,
                     30000,
                     false,

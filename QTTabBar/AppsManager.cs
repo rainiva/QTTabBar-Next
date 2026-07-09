@@ -306,8 +306,8 @@ namespace QTTabBarLib {
                 path += ", " + work;
 
             MessageBox.Show(
-                String.Format(QTUtility.TextResourcesDic["ErrorDialogs"][0], path),
-                QTUtility.TextResourcesDic["ErrorDialogs"][1],
+                String.Format(ResourceCache.TextResourcesDic["ErrorDialogs"][0], path),
+                ResourceCache.TextResourcesDic["ErrorDialogs"][1],
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );

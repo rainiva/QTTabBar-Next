@@ -10,9 +10,9 @@ namespace QTTtabBarTests {
         [Test]
         public void TextResourcesDic_Assignment_Refreshes_ResMain_And_ResMisc() {
             ConfigManager.Initialize();
-            string[] savedMain = QTUtility.ResMain;
-            string[] savedMisc = QTUtility.ResMisc;
-            Dictionary<string, string[]> savedDic = QTUtility.TextResourcesDic;
+            string[] savedMain = ResourceCache.ResMain;
+            string[] savedMisc = ResourceCache.ResMisc;
+            Dictionary<string, string[]> savedDic = ResourceCache.TextResourcesDic;
             try {
                 var replacement = new Dictionary<string, string[]>(savedDic ?? new Dictionary<string, string[]>());
                 string[] newMain = { "replacement-main" };
@@ -20,15 +20,15 @@ namespace QTTtabBarTests {
                 replacement["TabBar_Menu"] = newMain;
                 replacement["Misc_Strings"] = newMisc;
 
-                QTUtility.TextResourcesDic = replacement;
+                ResourceCache.TextResourcesDic = replacement;
 
-                Assert.AreSame(newMain, QTUtility.ResMain,
+                Assert.AreSame(newMain, ResourceCache.ResMain,
                     "ResMain should point at the new TabBar_Menu array after TextResourcesDic replacement");
-                Assert.AreSame(newMisc, QTUtility.ResMisc,
+                Assert.AreSame(newMisc, ResourceCache.ResMisc,
                     "ResMisc should point at the new Misc_Strings array after TextResourcesDic replacement");
             }
             finally {
-                QTUtility.TextResourcesDic = savedDic;
+                ResourceCache.TextResourcesDic = savedDic;
                 MethodInfo validate = typeof(QTUtility).GetMethod(
                     "ValidateTextResources",
                     BindingFlags.Public | BindingFlags.Static,

@@ -56,10 +56,10 @@ namespace QTTabBarLib {
                 List<ToolStripItem> list = new List<ToolStripItem>();
                 List<LogData> branches = item.Branches;
                 if(branches.Count > 0) {
-                    ToolStripMenuItem item2 = new ToolStripMenuItem(QTUtility.ResMain[0x18]);
+                    ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x18]);
                     item2.Tag = item;
                     item2.DropDown = new DropDownMenuBase(container, true, true);
-                    item2.DropDown.ImageList = QTUtility.ImageListGlobal;
+                    item2.DropDown.ImageList = ResourceCache.ImageListGlobal;
                     item2.DropDownItemClicked += itemClickedEvent;
                     int index = -1;
                     foreach(LogData data in branches) {

@@ -60,7 +60,7 @@ namespace QTTabBarLib {
                 case -1:
                     if(NavDropDown == null) {
                         NavDropDown = new DropDownMenuBase(components, true, true, true);
-                        NavDropDown.ImageList = QTUtility.ImageListGlobal;
+                        NavDropDown.ImageList = ResourceCache.ImageListGlobal;
                         NavDropDown.ItemClicked += dropDownButtons_DropDown_ItemClicked;
                         NavDropDown.Closed += dropDownButtons_DropDown_Closed;
                     }
@@ -72,7 +72,7 @@ namespace QTTabBarLib {
                 case 3:
                     if(ddmrGroupButton == null) {
                         ddmrGroupButton = new DropDownMenuReorderable(components, true, false);
-                        ddmrGroupButton.ImageList = QTUtility.ImageListGlobal;
+                        ddmrGroupButton.ImageList = ResourceCache.ImageListGlobal;
                         ddmrGroupButton.ReorderEnabled = !Config.BBar.LockDropDownButtons;
                         ddmrGroupButton.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
                         ddmrGroupButton.ItemMiddleClicked += ddmrGroupButton_ItemMiddleClicked;
@@ -87,7 +87,7 @@ namespace QTTabBarLib {
                 case 4:
                     if(ddmrRecentlyClosed == null) {
                         ddmrRecentlyClosed = new DropDownMenuReorderable(components, true, false);
-                        ddmrRecentlyClosed.ImageList = QTUtility.ImageListGlobal;
+                        ddmrRecentlyClosed.ImageList = ResourceCache.ImageListGlobal;
                         ddmrRecentlyClosed.ReorderEnabled = false;
                         ddmrRecentlyClosed.MessageParent = Handle;
                         ddmrRecentlyClosed.ItemRightClicked += ddmr45_ItemRightClicked;
@@ -101,7 +101,7 @@ namespace QTTabBarLib {
                 case 5:
                     if(ddmrUserAppButton == null) {
                         ddmrUserAppButton = new DropDownMenuReorderable(components);
-                        ddmrUserAppButton.ImageList = QTUtility.ImageListGlobal;
+                        ddmrUserAppButton.ImageList = ResourceCache.ImageListGlobal;
                         ddmrUserAppButton.ReorderEnabled = !Config.BBar.LockDropDownButtons;
                         ddmrUserAppButton.MessageParent = Handle;
                         ddmrUserAppButton.ItemRightClicked += ddmr45_ItemRightClicked;
@@ -123,7 +123,7 @@ namespace QTTabBarLib {
         internal bool CreateItems()
         {
             // 工具栏按钮标签文字
-            string[] ButtonItemsDisplayName = QTUtility.TextResourcesDic["ButtonBar_BtnName"];
+            string[] ButtonItemsDisplayName = ResourceCache.TextResourcesDic["ButtonBar_BtnName"];
             ManageImageList();
             toolStrip.SuspendLayout();
             if(iSearchResultCount != -1) {
@@ -161,7 +161,7 @@ namespace QTTabBarLib {
                         break;
 
                     case BII_MISCTOOL: // 复制工具的
-                        string[] strArray = QTUtility.TextResourcesDic["ButtonBar_Misc"];
+                        string[] strArray = ResourceCache.TextResourcesDic["ButtonBar_Misc"];
                         DropDownMenuBase base2 = new DropDownMenuBase(components) {
                                 ShowCheckMargin = !OSDetector.IsXP,
                                 ShowImageMargin = false

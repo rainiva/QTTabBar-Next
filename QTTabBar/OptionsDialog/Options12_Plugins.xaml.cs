@@ -146,10 +146,10 @@ namespace QTTabBarLib {
             if(pluginAssembly.PluginInformations.Count > 1) {
                 string plugins = pluginAssembly.PluginInformations.Select(info => info.Name).StringJoin(", ");
                 if(MessageBox.Show(
-                        QTUtility.TextResourcesDic["Options_Page12_Plugins"][8] +
+                        ResourceCache.TextResourcesDic["Options_Page12_Plugins"][8] +
                         Environment.NewLine + Environment.NewLine + plugins + Environment.NewLine + Environment.NewLine +
-                        QTUtility.TextResourcesDic["Options_Page12_Plugins"][9],
-                        QTUtility.TextResourcesDic["OptionsDialog"][3],
+                        ResourceCache.TextResourcesDic["Options_Page12_Plugins"][9],
+                        ResourceCache.TextResourcesDic["OptionsDialog"][3],
                         MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
                     return;
                 }
@@ -173,7 +173,7 @@ namespace QTTabBarLib {
 
         private void btnBrowsePlugin_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
-                ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][2] + "|*.dll";
+                ofd.Filter = ResourceCache.TextResourcesDic["FileFilters"][2] + "|*.dll";
                 ofd.RestoreDirectory = true;
                 ofd.Multiselect = true;
 

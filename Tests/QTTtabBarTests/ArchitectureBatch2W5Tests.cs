@@ -36,18 +36,18 @@ namespace QTTtabBarTests {
         public void NoCapturePathsList_AlwaysInSync_WithConfig() {
             ConfigManager.Initialize();
             string savedNoCaptureAt = Config.Window.NoCaptureAt;
-            List<string> savedList = QTUtility.NoCapturePathsList == null
+            List<string> savedList = SessionState.NoCapturePathsList == null
                 ? new List<string>()
-                : new List<string>(QTUtility.NoCapturePathsList);
+                : new List<string>(SessionState.NoCapturePathsList);
             try {
                 MethodInfo update = GetUpdateNoCapturePathsMethod();
                 Assert.IsNotNull(update);
                 update.Invoke(null, new object[] { new[] { @"C:\Path1", @"C:\Path2" } });
 
-                Assert.That(QTUtility.NoCapturePathsList, Is.Not.Null);
-                Assert.That(QTUtility.NoCapturePathsList.Count, Is.EqualTo(2));
-                Assert.That(QTUtility.NoCapturePathsList, Does.Contain(@"C:\Path1"));
-                Assert.That(QTUtility.NoCapturePathsList, Does.Contain(@"C:\Path2"));
+                Assert.That(SessionState.NoCapturePathsList, Is.Not.Null);
+                Assert.That(SessionState.NoCapturePathsList.Count, Is.EqualTo(2));
+                Assert.That(SessionState.NoCapturePathsList, Does.Contain(@"C:\Path1"));
+                Assert.That(SessionState.NoCapturePathsList, Does.Contain(@"C:\Path2"));
                 Assert.That(Config.Window.NoCaptureAt, Does.Contain(@"C:\Path1"));
                 Assert.That(Config.Window.NoCaptureAt, Does.Contain(@"C:\Path2"));
             }

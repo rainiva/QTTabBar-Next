@@ -28,7 +28,7 @@ namespace QTTabBarLib {
                 switch(msg.Msg) {
                     case WM.SETTINGCHANGE:
                         if(OSDetector.IsXP) {
-                            QTUtility.GetShellClickMode();
+                            ShellStateService.GetShellClickMode();
                         }
                         if(Marshal.PtrToStringUni(msg.LParam) == "Environment") {
                             QTTabBarClass.SyncTaskBarMenu();

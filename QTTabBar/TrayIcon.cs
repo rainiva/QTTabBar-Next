@@ -117,7 +117,7 @@ namespace QTTabBarLib
                     if (notifyIcon != null) return; // double check to prevent race conditions
                     icoNotify = IconManager.GetIcon(string.Empty, false);
                     contextMenuNotifyIcon = new ContextMenuStripEx(null, false);
-                    contextMenuNotifyIcon.ImageList = QTUtility.ImageListGlobal;
+                    contextMenuNotifyIcon.ImageList = ResourceCache.ImageListGlobal;
                     contextMenuNotifyIcon.ItemClicked += contextMenuNotifyIcon_ItemClicked;
                     contextMenuNotifyIcon.EnsureHandleCreated();
                     notifyIcon = new NotifyIcon
@@ -189,8 +189,8 @@ namespace QTTabBarLib
                 {
                     var count = dicNotifyIcon.Count;
                     notifyIcon.Text = count == 1
-                        ? QTUtility.TextResourcesDic["TrayIcon"][0]
-                        : string.Format(QTUtility.TextResourcesDic["TrayIcon"][1], count);
+                        ? ResourceCache.TextResourcesDic["TrayIcon"][0]
+                        : string.Format(ResourceCache.TextResourcesDic["TrayIcon"][1], count);
                 }
             }
             catch (Exception exception)
@@ -237,15 +237,15 @@ namespace QTTabBarLib
                     if (item.DropDownItems.Count > 0)
                     {
                         item.DropDownItemClicked += contextMenuNotifyIcon_SubItems_DropDownItemClicked;
-                        item.DropDown.ImageList = QTUtility.ImageListGlobal;
+                        item.DropDown.ImageList = ResourceCache.ImageListGlobal;
                     }
                 }
 
                 contextMenuNotifyIcon.Items.Add(item);
             }
 
-            // QTUtility.TextResourcesDic["OptionsDialog"] 设置国际化
-            var resDic = QTUtility.TextResourcesDic["TrayIcon"];
+            // ResourceCache.TextResourcesDic["OptionsDialog"] 设置国际化
+            var resDic = ResourceCache.TextResourcesDic["TrayIcon"];
             var isRightFlag = null != resDic && resDic.Length > 2;
             var strRestore = isRightFlag ? resDic[2] : "Restore All";
             var strClose = isRightFlag ? resDic[3] : "Close All";

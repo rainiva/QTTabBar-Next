@@ -92,7 +92,7 @@ namespace QTTabBarLib {
                 if(Config.Tabs.DragOverTabOpensSDT && (iState != -1)) {
                     Rectangle tabRect = tabControl1.GetTabRect(tab);
                     Point lpPoints = new Point(tabRect.X + ((tabRect.Width * 3) / 4), tabRect.Bottom + 0x10);
-                    string[] strArray = QTUtility.TextResourcesDic["DragDropToolTip"];
+                    string[] strArray = ResourceCache.TextResourcesDic["DragDropToolTip"];
                     string str;
                     switch((grfKeyState & 12)) {
                         case 4:

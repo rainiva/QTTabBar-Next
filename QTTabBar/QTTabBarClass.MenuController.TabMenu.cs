@@ -148,7 +148,7 @@ namespace QTTabBarLib {
                             _owner.tsmiTabOrder.Enabled = _owner.tsmiCloseAllButThis.Enabled = true;
                         }
                         _owner.tsmiClose.Enabled = !_owner.ContextMenuedTab.TabLocked;
-                        _owner.tsmiLockThis.Text = _owner.ContextMenuedTab.TabLocked ? QTUtility.ResMain[20] : QTUtility.ResMain[6];
+                        _owner.tsmiLockThis.Text = _owner.ContextMenuedTab.TabLocked ? ResourceCache.ResMain[20] : ResourceCache.ResMain[6];
                         if(GroupsManager.GroupCount > 0) {
                             _owner.tsmiAddToGroup.DropDown.SuspendLayout();
                             _owner.tsmiAddToGroup.Enabled = true;
@@ -186,18 +186,18 @@ namespace QTTabBarLib {
                                 _owner.menuTextBoxTabAlias.ForeColor = SystemColors.WindowText;
                             }
                             else {
-                                _owner.menuTextBoxTabAlias.Text = QTUtility.ResMain[0x1b];
+                                _owner.menuTextBoxTabAlias.Text = ResourceCache.ResMain[0x1b];
                                 _owner.menuTextBoxTabAlias.ForeColor = SystemColors.GrayText;
                             }
                             _owner.menuTextBoxTabAlias.Enabled = !_owner.tabControl1.AutoSubText;
                         }
                         if(_owner.tsmiTabOrder.DropDownItems.Count == 0) {
                             ((ToolStripDropDownMenu)_owner.tsmiTabOrder.DropDown).ShowImageMargin = false;
-                            ToolStripMenuItem item2 = new ToolStripMenuItem(QTUtility.ResMain[0x1d]);
-                            ToolStripMenuItem item3 = new ToolStripMenuItem(QTUtility.ResMain[30]);
-                            ToolStripMenuItem item4 = new ToolStripMenuItem(QTUtility.ResMain[0x1f]);
+                            ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x1d]);
+                            ToolStripMenuItem item3 = new ToolStripMenuItem(ResourceCache.ResMain[30]);
+                            ToolStripMenuItem item4 = new ToolStripMenuItem(ResourceCache.ResMain[0x1f]);
                             ToolStripSeparator separator = new ToolStripSeparator();
-                            ToolStripMenuItem item5 = new ToolStripMenuItem(QTUtility.ResMain[0x22]);
+                            ToolStripMenuItem item5 = new ToolStripMenuItem(ResourceCache.ResMain[0x22]);
                             item2.Name = "Name";
                             item3.Name = "Drive";
                             item4.Name = "Active";
@@ -255,22 +255,22 @@ namespace QTTabBarLib {
                     bool flag = false;
                     if(_owner.tsmiClose == null) {
                         flag = true;
-                        _owner.tsmiClose = new ToolStripMenuItem(QTUtility.ResMain[0]);
-                        _owner.tsmiCloseRight = new ToolStripMenuItem(QTUtility.ResMain[1]);
-                        _owner.tsmiCloseLeft = new ToolStripMenuItem(QTUtility.ResMain[2]);
-                        _owner.tsmiCloseAllButThis = new ToolStripMenuItem(QTUtility.ResMain[3]);
-                        _owner.tsmiAddToGroup = new ToolStripMenuItem(QTUtility.ResMain[4]);
-                        _owner.tsmiCreateGroup = new ToolStripMenuItem(QTUtility.ResMain[5] + "...");
-                        _owner.tsmiLockThis = new ToolStripMenuItem(QTUtility.ResMain[6]);
-                        _owner.tsmiCloneThis = new ToolStripMenuItem(QTUtility.ResMain[7]);
-                        _owner.tsmiCreateWindow = new ToolStripMenuItem(QTUtility.ResMain[8]);
-                        _owner.tsmiCopy = new ToolStripMenuItem(QTUtility.ResMain[9]);
-                        _owner.tsmiProp = new ToolStripMenuItem(QTUtility.ResMain[10]);
-                        _owner.tsmiHistory = new ToolStripMenuItem(QTUtility.ResMain[11]);
-                        _owner.tsmiTabOrder = new ToolStripMenuItem(QTUtility.ResMain[0x1c]);
+                        _owner.tsmiClose = new ToolStripMenuItem(ResourceCache.ResMain[0]);
+                        _owner.tsmiCloseRight = new ToolStripMenuItem(ResourceCache.ResMain[1]);
+                        _owner.tsmiCloseLeft = new ToolStripMenuItem(ResourceCache.ResMain[2]);
+                        _owner.tsmiCloseAllButThis = new ToolStripMenuItem(ResourceCache.ResMain[3]);
+                        _owner.tsmiAddToGroup = new ToolStripMenuItem(ResourceCache.ResMain[4]);
+                        _owner.tsmiCreateGroup = new ToolStripMenuItem(ResourceCache.ResMain[5] + "...");
+                        _owner.tsmiLockThis = new ToolStripMenuItem(ResourceCache.ResMain[6]);
+                        _owner.tsmiCloneThis = new ToolStripMenuItem(ResourceCache.ResMain[7]);
+                        _owner.tsmiCreateWindow = new ToolStripMenuItem(ResourceCache.ResMain[8]);
+                        _owner.tsmiCopy = new ToolStripMenuItem(ResourceCache.ResMain[9]);
+                        _owner.tsmiProp = new ToolStripMenuItem(ResourceCache.ResMain[10]);
+                        _owner.tsmiHistory = new ToolStripMenuItem(ResourceCache.ResMain[11]);
+                        _owner.tsmiTabOrder = new ToolStripMenuItem(ResourceCache.ResMain[0x1c]);
 
-                        int len = QTUtility.ResMain.Length;
-                        _owner.tsmiOpenCmd = new ToolStripMenuItem(QTUtility.ResMain[len - 1]);
+                        int len = ResourceCache.ResMain.Length;
+                        _owner.tsmiOpenCmd = new ToolStripMenuItem(ResourceCache.ResMain[len - 1]);
                         _owner.enableApiHook = new ToolStripMenuItem("Enable Image Hook");
 
                         _owner.menuTextBoxTabAlias = new ToolStripTextBox();
@@ -295,11 +295,11 @@ namespace QTTabBarLib {
                         };
 
                         _owner.tsmiAddToGroup.DropDownItemClicked += MenuitemAddToGroup_DropDownItemClicked;
-                        (_owner.tsmiAddToGroup.DropDown).ImageList = QTUtility.ImageListGlobal;
+                        (_owner.tsmiAddToGroup.DropDown).ImageList = ResourceCache.ImageListGlobal;
                         _owner.tsmiHistory.DropDown = new DropDownMenuBase(_owner.components, true, true, true);
                         _owner.tsmiHistory.DropDownItemClicked += MenuitemHistory_DropDownItemClicked;
-                        (_owner.tsmiHistory.DropDown).ImageList = QTUtility.ImageListGlobal;
-                        _owner.menuTextBoxTabAlias.Text = _owner.menuTextBoxTabAlias.ToolTipText = QTUtility.ResMain[0x1b];
+                        (_owner.tsmiHistory.DropDown).ImageList = ResourceCache.ImageListGlobal;
+                        _owner.menuTextBoxTabAlias.Text = _owner.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
                         _owner.menuTextBoxTabAlias.GotFocus += _owner.menuTextBoxTabAlias_GotFocus;
                         _owner.menuTextBoxTabAlias.LostFocus += _owner.menuTextBoxTabAlias_LostFocus;
                         _owner.menuTextBoxTabAlias.KeyPress += _owner.menuTextBoxTabAlias_KeyPress;
@@ -310,20 +310,20 @@ namespace QTTabBarLib {
                         _owner.contextMenuTab.ResumeLayout(false);
                     }
                     if(!flag && fText) {
-                        _owner.tsmiClose.Text = QTUtility.ResMain[0];
-                        _owner.tsmiCloseRight.Text = QTUtility.ResMain[1];
-                        _owner.tsmiCloseLeft.Text = QTUtility.ResMain[2];
-                        _owner.tsmiCloseAllButThis.Text = QTUtility.ResMain[3];
-                        _owner.tsmiAddToGroup.Text = QTUtility.ResMain[4];
-                        _owner.tsmiCreateGroup.Text = QTUtility.ResMain[5] + "...";
-                        _owner.tsmiLockThis.Text = QTUtility.ResMain[6];
-                        _owner.tsmiCloneThis.Text = QTUtility.ResMain[7];
-                        _owner.tsmiCreateWindow.Text = QTUtility.ResMain[8];
-                        _owner.tsmiCopy.Text = QTUtility.ResMain[9];
-                        _owner.tsmiProp.Text = QTUtility.ResMain[10];
-                        _owner.tsmiHistory.Text = QTUtility.ResMain[11];
-                        _owner.tsmiTabOrder.Text = QTUtility.ResMain[0x1c];
-                        _owner.menuTextBoxTabAlias.Text = _owner.menuTextBoxTabAlias.ToolTipText = QTUtility.ResMain[0x1b];
+                        _owner.tsmiClose.Text = ResourceCache.ResMain[0];
+                        _owner.tsmiCloseRight.Text = ResourceCache.ResMain[1];
+                        _owner.tsmiCloseLeft.Text = ResourceCache.ResMain[2];
+                        _owner.tsmiCloseAllButThis.Text = ResourceCache.ResMain[3];
+                        _owner.tsmiAddToGroup.Text = ResourceCache.ResMain[4];
+                        _owner.tsmiCreateGroup.Text = ResourceCache.ResMain[5] + "...";
+                        _owner.tsmiLockThis.Text = ResourceCache.ResMain[6];
+                        _owner.tsmiCloneThis.Text = ResourceCache.ResMain[7];
+                        _owner.tsmiCreateWindow.Text = ResourceCache.ResMain[8];
+                        _owner.tsmiCopy.Text = ResourceCache.ResMain[9];
+                        _owner.tsmiProp.Text = ResourceCache.ResMain[10];
+                        _owner.tsmiHistory.Text = ResourceCache.ResMain[11];
+                        _owner.tsmiTabOrder.Text = ResourceCache.ResMain[0x1c];
+                        _owner.menuTextBoxTabAlias.Text = _owner.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
                     }
                 }
                 catch(Exception e) {

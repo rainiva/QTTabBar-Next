@@ -68,83 +68,11 @@ namespace QTTabBarLib {
         // ImageListGlobal 图标缓存的专用锁（P0-4 线程安全）。仅覆盖集合操作本身，
         // 严禁在锁内嵌套其他锁，以避免与 syncRoot 等锁交叉造成死锁。
         internal static readonly object imageListLock = new object();
-        internal static Dictionary<string, string> DisplayNameCacheDic { get { return ResourceCache.DisplayNameCacheDic; } set { ResourceCache.DisplayNameCacheDic = value; } }
         internal static bool fExplorerPrevented;
         internal static bool fRestoreFolderTree;
-        internal static bool fSingleClick;
-        internal static int iIconUnderLineVal;
-        internal static ImageList ImageListGlobal { get { return ResourceCache.ImageListGlobal; } set { ResourceCache.ImageListGlobal = value; } }
-        internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session { get { return SessionState.ITEMIDLIST_Dic_Session; } set { SessionState.ITEMIDLIST_Dic_Session = value; } }
-        internal static List<string> NoCapturePathsList { get { return SessionState.NoCapturePathsList; } set { SessionState.NoCapturePathsList = value; } }
-        internal static string[] ResMain =>
-            TextResourcesDic != null && TextResourcesDic.TryGetValue("TabBar_Menu", out string[] main) ? main : null;
-        internal static string[] ResMisc =>
-            TextResourcesDic != null && TextResourcesDic.TryGetValue("Misc_Strings", out string[] misc) ? misc : null;
         internal static bool RestoreFolderTree_Hide;
         // internal static SolidBrush sbAlternate;
        // internal static Font StartUpTabFont;
-        internal static Dictionary<string, string[]> TextResourcesDic {
-            get { return ResourceCache.TextResourcesDic; }
-            set { ResourceCache.TextResourcesDic = value; }
-        }
-        internal static byte WindowAlpha { get { return System.Threading.Volatile.Read(ref SessionState.WindowAlpha); } set { System.Threading.Volatile.Write(ref SessionState.WindowAlpha, value); } }
-
-        // �Ƿ�Ϊ����ģʽ
-        internal static bool InNightMode => ThemeRefreshService.IsDark;
-
-        // {
-        //     get { return getNightMode(); }
-        //     set { InNightMode = value;  }
-        // }
-
-
-        ///////////////////////// ���� by indiff ////////////////////////////////////
-        internal static bool SingleClickMode { get; private set; }
-
-        internal static bool ShowInfoTip { get; private set; }
-        /**
-         * ˢ��״̬
-         */
-        public static void RefreshShellStateValues()
-        {
-            // try
-            // {
-                /*bool flag1 = false;
-                bool flag2 = true;
-                using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", false))
-                {
-                    if (registryKey != null)
-                    {
-                        var value = registryKey.GetValue("ShellState");
-                        if (value != null)
-                        {
-                            if (value.GetType().BaseType == typeof(Array))
-                            {
-                                byte[] numArray = (byte[]) value;
-                                if (numArray.Length > 3)
-                                    flag1 = ((int)numArray[4] & 32) == 0;
-                            }
-                        }
-                        
-                        using (RegistryKey rk = registryKey.OpenSubKey("Advanced", false))
-                        {
-                            if (rk != null)
-                                flag2 = QTUtility2.GetValueSafe<int>(rk, "ShowInfoTip", 1) != 0;
-                        }
-                    }
-                }
-                SingleClickMode = flag1;
-                ShowInfoTip = flag2;*/
-                RefreshNightMode();
-            // }
-            // catch (Exception ex)
-            // {
-            //     QTLogger.MakeErrorLog(ex, "QTUtility.RefreshShellStateValues" );
-            // }
-        }
-        ///////////////////////// ���� by indiff ////////////////////////////////////
-
-
 
         /// <summary>
         /// ִֻ��һ��
@@ -174,37 +102,6 @@ namespace QTTabBarLib {
             var e = dict.GetEnumerator();
             while(e.MoveNext()) {
                 yield return new KeyValuePair<string, string>((string)e.Key, (string)e.Value);
-            }
-        }
-
-        public static void GetShellClickMode() {
-            const string lpSubKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer";
-            iIconUnderLineVal = 0;
-            int lpcbData = 4;
-            try {
-                IntPtr ptr;
-                if(PInvoke.RegOpenKeyEx((IntPtr)(-2147483647), lpSubKey, 0, 0x20019, out ptr) == 0) {
-                    using(SafePtr lpData = new SafePtr(4)) {
-                        int num2;
-                        if(PInvoke.RegQueryValueEx(ptr, "IconUnderline", IntPtr.Zero, out num2, lpData, ref lpcbData) == 0) {
-                            byte[] destination = new byte[4];
-                            Marshal.Copy(lpData, destination, 0, 4);
-                            iIconUnderLineVal = destination[0];
-                        }                        
-                    }
-                    PInvoke.RegCloseKey(ptr);
-                }
-                using(RegistryKey key = Registry.CurrentUser.OpenSubKey(lpSubKey, false)) {
-                    byte[] buffer2 = (byte[])key.GetValue("ShellState");
-                    fSingleClick = false;
-                    if((buffer2 != null) && (buffer2.Length > 3)) {
-                        byte num3 = buffer2[4];
-                        fSingleClick = (num3 & 0x20) == 0;
-                    }
-                }
-            }
-            catch(Exception exception) {
-                QTLogger.MakeErrorLog(exception);
             }
         }
 
@@ -247,10 +144,6 @@ namespace QTTabBarLib {
 
         public static void SetTabBarOption(TabBarOption tabBarOption, QTTabBarClass tabBar) {
             // TODO
-        }
-
-        public static void RefreshNightMode() {
-            ThemeRefreshService.RefreshFromSystem();
         }
 
         // �ж��Ƿ�Ϊ����ģʽ  Environment.OSVersion.Version.Major

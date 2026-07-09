@@ -150,7 +150,7 @@ namespace QTTabBarLib {
             public string PluginName { get; set; }
             public string KeyActionText { get
             {
-                var actionNames = QTUtility.TextResourcesDic["ShortcutKeys_ActionNames"];
+                var actionNames = ResourceCache.TextResourcesDic["ShortcutKeys_ActionNames"];
                 var actionName = "unknown action";
                 if (Index <= actionNames.Length - 1)
                 {

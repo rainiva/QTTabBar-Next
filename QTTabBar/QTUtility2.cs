@@ -285,7 +285,7 @@ namespace QTTabBarLib {
             if(((path.Length == 3) && path.EndsWith(@":\")) || (path.StartsWith("::") || (length != -1))) {
                 string driveDisplayText;
                 lock(QTUtility.syncRoot) {
-                    if(QTUtility.DisplayNameCacheDic.TryGetValue(path, out driveDisplayText)) {
+                    if(ResourceCache.DisplayNameCacheDic.TryGetValue(path, out driveDisplayText)) {
                         return driveDisplayText;
                     }
                 }
@@ -306,7 +306,7 @@ namespace QTTabBarLib {
                 }
                 if(!String.IsNullOrEmpty(driveDisplayText)) {
                     lock(QTUtility.syncRoot) {
-                        QTUtility.DisplayNameCacheDic[path] = driveDisplayText;
+                        ResourceCache.DisplayNameCacheDic[path] = driveDisplayText;
                     }
                     return driveDisplayText;
                 }
@@ -531,7 +531,7 @@ namespace QTTabBarLib {
             if(pIDL != IntPtr.Zero) {
                 path = ShellMethods.GetPath(pIDL);
             }
-            return !String.IsNullOrEmpty(path) && QTUtility.NoCapturePathsList.Any(path2 => path.PathEquals(path2));
+            return !String.IsNullOrEmpty(path) && SessionState.NoCapturePathsList.Any(path2 => path.PathEquals(path2));
         }
 
         // [MethodImpl(MethodImplOptions.InternalCall)]

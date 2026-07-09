@@ -329,7 +329,7 @@ namespace QTTabBarLib {
         private void AddMouseAction(MouseChord chord, MouseTarget target) {
             MouseChord button = chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
             if(!MouseTargetButtons[target].Contains(button)) {
-                var dict = QTUtility.TextResourcesDic["Options_Page07_Mouse"];
+                var dict = ResourceCache.TextResourcesDic["Options_Page07_Mouse"];
                 MessageBox.Show(
                         dict[18] + Environment.NewLine +
                         dict[19] + Environment.NewLine +

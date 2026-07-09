@@ -37,16 +37,17 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTUtility_InNightMode_Is_Forwarder_Only() {
-            string content = ReadQtTabBarFile("QTUtility.cs");
-            Assert.IsTrue(
-                content.Contains("ThemeRefreshService.IsDark"),
-                "QTUtility.InNightMode should forward to ThemeRefreshService.IsDark");
-            Assert.IsTrue(
-                content.Contains("ThemeRefreshService.RefreshFromSystem"),
-                "QTUtility.RefreshNightMode should delegate to ThemeRefreshService.RefreshFromSystem");
+        public void ThemeRefreshService_Is_Sole_NightMode_Cache() {
+            string utility = ReadQtTabBarFile("QTUtility.cs");
+            Assert.IsFalse(utility.Contains("internal static bool InNightMode"),
+                "QTUtility should not forward InNightMode after C7o/q");
+            Assert.IsFalse(utility.Contains("public static void RefreshNightMode("),
+                "QTUtility should not expose RefreshNightMode after C7o");
+            string theme = ReadQtTabBarFile("ThemeRefreshService.cs");
+            Assert.IsTrue(theme.Contains("RefreshFromSystem"),
+                "ThemeRefreshService should own RefreshFromSystem");
             Assert.IsFalse(
-                Regex.IsMatch(content, @"public\s+static\s+bool\s+getNightMode\s*\("),
+                Regex.IsMatch(theme, @"public\s+static\s+bool\s+getNightMode\s*\("),
                 "getNightMode implementation should live in ThemeRefreshService, not QTUtility");
         }
 
@@ -81,8 +82,8 @@ namespace QTTtabBarTests {
             bool darkAfter = (bool)isDark.GetValue(null);
             Assert.AreEqual(darkBefore, darkAfter,
                 "ApplyPreviewTheme should use ThemeRefreshService.IsDark after RefreshFromSystem");
-            Assert.AreEqual(darkAfter, QTUtility.InNightMode,
-                "QTUtility.InNightMode should forward ThemeRefreshService.IsDark for compatibility");
+            Assert.AreEqual(darkAfter, ThemeRefreshService.IsDark,
+                "ThemeRefreshService.IsDark should reflect RefreshFromSystem cache");
         }
     }
 }

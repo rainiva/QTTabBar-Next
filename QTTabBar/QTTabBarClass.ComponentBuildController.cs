@@ -37,7 +37,7 @@ namespace QTTabBarLib {
                 _owner.buttonNavHistoryMenu.DropDown = new DropDownMenuBase(_owner.components, true, true, true);
                 _owner.buttonNavHistoryMenu.DropDown.ItemClicked += _owner._explorerControllerModule.NavigationButton_DropDownMenu_ItemClicked;
                 _owner.buttonNavHistoryMenu.DropDownOpening += _owner._explorerControllerModule.NavigationButtons_DropDownOpening;
-                _owner.buttonNavHistoryMenu.DropDown.ImageList = QTUtility.ImageListGlobal;
+                _owner.buttonNavHistoryMenu.DropDown.ImageList = ResourceCache.ImageListGlobal;
 
                 _owner.tabControl1.SetRedraw(false);
                 _owner.tabControl1.TabPages.Add(_owner.CurrentTab);

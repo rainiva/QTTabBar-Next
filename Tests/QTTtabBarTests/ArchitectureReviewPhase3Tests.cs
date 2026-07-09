@@ -30,7 +30,7 @@ namespace QTTtabBarTests {
             string windowMessages = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "TabBarBase.WindowMessages.cs"));
             Assert.IsTrue(windowMessages.Contains("ThemeRefreshService.RefreshLocalThemeAndUi"),
                 "SYSCOLORCHANGE should use local theme refresh without IPC broadcast");
-            Assert.IsFalse(windowMessages.Contains("Config.Skin.SwitchNighMode(QTUtility.InNightMode);"),
+            Assert.IsFalse(windowMessages.Contains("Config.Skin.SwitchNighMode(ThemeRefreshService.IsDark);"),
                 "WindowMessages should delegate skin switch to ThemeRefreshService");
         }
 

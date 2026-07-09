@@ -179,7 +179,7 @@ namespace QTTabBarLib
             if (Config.Window.ShowFailNavMsg)
             {
                 MessageForm.Show(ExplorerHandle,
-                    string.Format(QTUtility.TextResourcesDic["TabBar_Message"][0], failedPath),
+                    string.Format(ResourceCache.TextResourcesDic["TabBar_Message"][0], failedPath),
                     string.Empty,
                     MessageBoxIcon.Asterisk,
                     0x2710,
@@ -200,7 +200,7 @@ namespace QTTabBarLib
                 {
                     return true;
                 }
-                if (!path.PathStartsWith(QTUtility.ResMisc[0]) && (!path.EndsWith(QTUtility.ResMisc[0], StringComparison.OrdinalIgnoreCase) || Path.IsPathRooted(path)))
+                if (!path.PathStartsWith(ResourceCache.ResMisc[0]) && (!path.EndsWith(ResourceCache.ResMisc[0], StringComparison.OrdinalIgnoreCase) || Path.IsPathRooted(path)))
                 {
                     return false;
                 }
