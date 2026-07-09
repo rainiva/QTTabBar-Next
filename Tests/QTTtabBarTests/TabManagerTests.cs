@@ -122,9 +122,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_TabControl1_SelectedIndexChanged() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_SelectedIndexChanged", AnyInstance),
-                "TabManager should host tabControl1_SelectedIndexChanged");
+        public void TabBarBase_Owns_TabControl1_SelectedIndexChanged() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_SelectedIndexChanged",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_SelectedIndexChanged after W3d");
         }
 
         [Test]

@@ -69,7 +69,7 @@ namespace QTTabBarLib {
                 _owner.tabControl1.RowCountChanged += _owner.tabControl1_RowCountChanged;
                 _owner.tabControl1.Deselecting += _owner.tabControl1_Deselecting;
                 _owner.tabControl1.Selecting += _owner.tabControl1_Selecting;
-                _owner.tabControl1.SelectedIndexChanged += _owner._tabManager.tabControl1_SelectedIndexChanged;
+                _owner.tabControl1.SelectedIndexChanged += _owner.tabControl1_SelectedIndexChanged;
                 _owner.tabControl1.GotFocus += _owner.Controls_GotFocus;
                 _owner.tabControl1.MouseEnter += _owner._tabManager.tabControl1_MouseEnter;
                 _owner.tabControl1.MouseLeave += _owner._tabManager.tabControl1_MouseLeave;

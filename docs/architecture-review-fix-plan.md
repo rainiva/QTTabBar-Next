@@ -999,7 +999,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 - C7：OSDetector/QTLogger/RegistryHelper 等已创建；ReadLanguageFile 调用方已迁移至 QTResourceManager
 - W1：纯 registry façade 已移除；InstanceManager 仅保留 IPC/跨进程协调方法
 - W2：已验证 — DesktopTooltipController 已提取，主文件 2,191 行
-- W3：部分修复 — TabOperations + PlusButton + Selection + Close 簇已上提 TabBarBase（W3a–W3c）；QTSecondViewBar ~1,680 行；579/579 测试绿
+- W3：部分修复 — TabOperations + PlusButton + Selection + Close + TabSelection 簇已上提 TabBarBase（W3a–W3d）；QTSecondViewBar ~1,560 行；586/586 测试绿
 
 ---
 

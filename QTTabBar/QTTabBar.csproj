@@ -420,6 +420,9 @@
     <Compile Include="TabBarBase.Close.cs">
       <DependentUpon>TabBarBase.cs</DependentUpon>
     </Compile>
+    <Compile Include="TabBarBase.TabSelection.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Toolbar.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />

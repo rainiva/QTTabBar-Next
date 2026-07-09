@@ -239,7 +239,7 @@ namespace QTTabBarLib {
             return (tabControl1.TabCount > 1) && CloseTab(closingTab, false);
         }
 
-        protected internal void CancelFailedTabChanging(string newPath) {
+        protected internal virtual void CancelFailedTabChanging(string newPath) {
             if(!CloseTab(tabControl1.SelectedTab, true)) {
                 if(tabControl1.TabCount == 1) {
                     WindowUtils.CloseExplorer(ExplorerHandle, 2);
