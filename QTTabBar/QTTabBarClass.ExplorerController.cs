@@ -1146,7 +1146,7 @@ namespace QTTabBarLib {
                     _owner.TravelToolBarHandle = _owner.GetTravelToolBarWindow32();
                     if(_owner.TravelToolBarHandle != IntPtr.Zero) {
                         _owner.travelBtnController = new NativeWindowController(_owner.TravelToolBarHandle);
-                        _owner.travelBtnController.MessageCaptured += _owner.travelBtnController_MessageCaptured;
+                        _owner.travelBtnController.MessageCaptured += TravelToolbarMessageCaptured;
                     }
                 }
                 _owner.dropTargetWrapper = new DropTargetWrapper(_owner);
@@ -1154,6 +1154,127 @@ namespace QTTabBarLib {
                 _owner.dropTargetWrapper.DragFileOver += _owner.dropTargetWrapper_DragFileOver;
                 _owner.dropTargetWrapper.DragFileLeave += _owner.dropTargetWrapper_DragFileLeave;
                 _owner.dropTargetWrapper.DragFileDrop += _owner.dropTargetWrapper_DragFileDrop;
+            }
+
+            public bool TravelToolbarMessageCaptured(ref Message m) {
+                if(_owner.CurrentTab == null) {
+                    QTUtility2.log("QTTabBarClass travelBtnController_MessageCaptured CurrentTab == null");
+                    return false;
+                }
+                switch(m.Msg) {
+                    case WM.LBUTTONDOWN:
+                    case WM.LBUTTONUP: {
+                            Point pt = QTUtility2.PointFromLPARAM(m.LParam);
+                            int num = (int)PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x445, IntPtr.Zero, ref pt);
+                            bool flag = _owner.CurrentTab.HistoryCount_Back > 1;
+                            bool flag2 = _owner.CurrentTab.HistoryCount_Forward > 0;
+                            if(m.Msg != 0x202) {
+                                PInvoke.SetCapture(_owner.travelBtnController.Handle);
+                                if(((flag && (num == 0)) || (flag2 && (num == 1))) || ((flag || flag2) && (num == 2))) {
+                                    int num5 = (int)PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x412, (IntPtr)(0x100 + num), IntPtr.Zero);
+                                    int num6 = num5 | 2;
+                                    PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x411, (IntPtr)(0x100 + num), (IntPtr)num6);
+                                }
+                                if((num == 2) && (flag || flag2)) {
+                                    RECT rect;
+                                    IntPtr hWnd = PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x423, IntPtr.Zero, IntPtr.Zero);
+                                    if(hWnd != IntPtr.Zero) {
+                                        PInvoke.SendMessage(hWnd, 0x41c, IntPtr.Zero, IntPtr.Zero);
+                                    }
+                                    PInvoke.GetWindowRect(_owner.travelBtnController.Handle, out rect);
+                                    NavigationButtons_DropDownOpening(_owner.buttonNavHistoryMenu, new EventArgs());
+                                    _owner.buttonNavHistoryMenu.DropDown.Show(new Point(rect.left - 2, rect.bottom + 1));
+                                }
+                                break;
+                            }
+                            PInvoke.ReleaseCapture();
+                            for(int i = 0; i < 3; i++) {
+                                int num3 = (int)PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x412, (IntPtr)(0x100 + i), IntPtr.Zero);
+                                int num4 = num3 & -3;
+                                PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x411, (IntPtr)(0x100 + i), (IntPtr)num4);
+                            }
+                            if((num == 0) && flag) {
+                                NavigateCurrentTab(true);
+                            }
+                            else if((num == 1) && flag2) {
+                                NavigateCurrentTab(false);
+                            }
+                            break;
+                        }
+                    case WM.LBUTTONDBLCLK:
+                        m.Result = IntPtr.Zero;
+                        return true;
+
+                    case WM.USER+1:
+                        if(((((int)((long)m.LParam)) >> 0x10) & 0xffff) == 1) {
+                            return false;
+                        }
+                        m.Result = (IntPtr)1;
+                        return true;
+
+                    case WM.MOUSEACTIVATE:
+                        if(_owner.buttonNavHistoryMenu.DropDown.Visible) {
+                            m.Result = (IntPtr)4;
+                            _owner.buttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppClicked);
+                            return true;
+                        }
+                        return false;
+
+                    case WM.NOTIFY: {
+                            NMHDR nmhdr = (NMHDR)Marshal.PtrToStructure(m.LParam, typeof(NMHDR));
+                            if(nmhdr.code != -530) {
+                                return false;
+                            }
+                            NMTTDISPINFO nmttdispinfo = (NMTTDISPINFO)Marshal.PtrToStructure(m.LParam, typeof(NMTTDISPINFO));
+                            string str;
+                            if(nmttdispinfo.hdr.idFrom == ((IntPtr)0x100)) {
+                                str = MakeTravelBtnTooltipText(true);
+                                if(str.Length > 0x4f) {
+                                    str = "Back";
+                                }
+                            }
+                            else if(nmttdispinfo.hdr.idFrom == ((IntPtr)0x101)) {
+                                str = MakeTravelBtnTooltipText(false);
+                                if(str.Length > 0x4f) {
+                                    str = "Forward";
+                                }
+                            }
+                            else {
+                                return false;
+                            }
+                            nmttdispinfo.szText = str;
+                            Marshal.StructureToPtr(nmttdispinfo, m.LParam, false);
+                            m.Result = IntPtr.Zero;
+                            return true;
+                        }
+                    default:
+                        return false;
+                }
+                m.Result = IntPtr.Zero;
+                return true;
+            }
+
+            private string MakeTravelBtnTooltipText(bool fBack) {
+                string path = string.Empty;
+                if(fBack) {
+                    string[] historyBack = _owner.CurrentTab.GetHistoryBack();
+                    if(historyBack.Length > 1) {
+                        path = historyBack[1];
+                    }
+                }
+                else {
+                    string[] historyForward = _owner.CurrentTab.GetHistoryForward();
+                    if(historyForward.Length > 0) {
+                        path = historyForward[0];
+                    }
+                }
+                if(path.Length > 0) {
+                    string str2 = QTUtility2.MakePathDisplayText(path, false);
+                    if(!string.IsNullOrEmpty(str2)) {
+                        return str2;
+                    }
+                }
+                return path;
             }
 
             #endregion

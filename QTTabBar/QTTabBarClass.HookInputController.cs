@@ -102,7 +102,7 @@ namespace QTTabBarLib {
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
                         else if(msg.message == _owner.WM_LISTREFRESHED) {
-                            HandleF5();
+                            ListViewInputController.HandleF5();
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
                         else if(msg.message == _owner.WM_SELECTFILE) {

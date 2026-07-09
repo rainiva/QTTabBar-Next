@@ -665,28 +665,7 @@ namespace QTTabBarLib {
             return null;
         }
 
-        // todo: handle links
-        private static IEnumerable<string> CreateTMPPathsToOpenNew(Address[] addresses, string pathExclude) {
-            List<string> list = new List<string>();
-            QTUtility2.InitializeTemporaryPaths();
-            for(int i = 0; i < addresses.Length; i++) {
-                try {
-                    using(IDLWrapper wrapper = new IDLWrapper(addresses[i].ITEMIDLIST)) {
-                        if(wrapper.Available && wrapper.HasPath) {
-                            string path = wrapper.Path;
-                            if(path.Length > 0 && !path.PathEquals(pathExclude) && 
-                                    !QTUtility2.IsShellPathButNotFileSystem(path) && 
-                                    wrapper.IsFolder && !wrapper.IsLinkToDeadFolder) {
-                                list.Add(path);
-                            }
-                        }
-                    }
-                }
-                catch {
-                }
-            }
-            return list;
-        }
+        // todo: handle links — CreateTMPPathsToOpenNew moved to ListViewInputController (3l)
 
         private void ddmrUndoClose_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
             QMenuItem clickedItem = e.ClickedItem as QMenuItem;
@@ -853,162 +832,8 @@ namespace QTTabBarLib {
             return DragDropController.HandleDragEnter(hDrop, out strDraggingDrive, out strDraggingStartPath);
         }
 
-        private static void HandleF5() {
-            TryCallButtonBar(bbar => { return bbar.RefreshSearchBox(false); });
-        }
-
         private void HandleFileDrop(IntPtr hDrop) {
             _dragDropController.HandleFileDrop(hDrop);
-        }
-
-        // todo: clean this crap up...
-        private bool HandleItemActivate(Keys modKeys, bool fEnqExec) {
-            IntPtr zero = IntPtr.Zero;
-            IntPtr ppidl = IntPtr.Zero;
-            try {
-                Address[] addressArray;
-                IDLWrapper wrapper1;
-                bool fOpenFirstInTab;
-                string str;
-                if(ShellBrowser.TryGetSelection(out addressArray, out str, false) && (addressArray.Length > 0)) {
-                    List<Address> list = new List<Address>(addressArray);
-                    wrapper1 = new IDLWrapper(list[0]);
-                    list.RemoveAt(0);
-                    addressArray = list.ToArray();
-                    fOpenFirstInTab = (addressArray.Length > 0) || (modKeys == Keys.Shift);
-                }
-                else {
-                    return false;
-                }
-                using(IDLWrapper wrapper = wrapper1) {
-                    if((wrapper.Available && wrapper.HasPath) && wrapper.IsReadyIfDrive) {
-                        if(wrapper.IsFolder) {
-                            if(modKeys == Keys.Control) {
-                                if(!wrapper.IsLinkToDeadFolder) {
-                                    StaticReg.CreateWindowPaths.AddRange(CreateTMPPathsToOpenNew(addressArray, wrapper.Path));
-                                    OpenNewWindow(wrapper);
-                                }
-                                else {
-                                    QTUtility.SoundPlay();
-                                }
-                            }
-                            else if(modKeys == (Keys.Alt | Keys.Control | Keys.Shift)) {
-                                DirectoryInfo info = new DirectoryInfo(wrapper.Path);
-                                if(info.Exists) {
-                                    DirectoryInfo[] directories = info.GetDirectories();
-                                    if((directories.Length + tabControl1.TabCount) < 0x41) {
-                                        tabControl1.SetRedraw(false);
-                                        foreach(DirectoryInfo info2 in directories) {
-                                            if(info2.Name != "System Volume Information") {
-                                                using(IDLWrapper wrapper2 = new IDLWrapper(info2.FullName)) {
-                                                    if(wrapper2.Available && (!wrapper2.IsLink || Directory.Exists(ShellMethods.GetLinkTargetPath(info2.FullName)))) {
-                                                        // MessageBox.Show("Open New Tab");
-                                                        OpenNewTab(wrapper2, true);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        tabControl1.SetRedraw(true);
-                                    }
-                                    else {
-                                        QTUtility.SoundPlay();
-                                    }
-                                }
-                            }
-                            else {
-                                if(addressArray.Length > 1) {
-                                    tabControl1.SetRedraw(false);
-                                }
-                                try {
-                                    if(fOpenFirstInTab) {
-                                        OpenNewTab(wrapper, (modKeys & Keys.Shift) == Keys.Shift);
-                                    }
-                                    else if(!wrapper.IsFileSystemFile) {
-                                        ShellBrowser.Navigate(wrapper);
-                                    }
-                                    else {
-                                        return false;
-                                    }
-                                    for(int i = 0; i < addressArray.Length; i++) {
-                                        using(IDLWrapper wrapper3 = new IDLWrapper(addressArray[i].ITEMIDLIST)) {
-                                            if(((wrapper3.Available && wrapper3.HasPath) && (wrapper3.IsReadyIfDrive && wrapper3.IsFolder)) && !wrapper3.IsLinkToDeadFolder) {
-                                                string path = wrapper3.Path;
-                                                if(((path != wrapper.Path) && (path.Length > 0)) && !QTUtility2.IsShellPathButNotFileSystem(path)) {
-                                                    OpenNewTab(wrapper3, true);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                finally {
-                                    if(addressArray.Length > 1) {
-                                        tabControl1.SetRedraw(true);
-                                    }
-                                }
-                            }
-                            return true;
-                        }
-                        if(wrapper.IsLink) {
-                            using(IDLWrapper wrapper4 = new IDLWrapper(ShellMethods.GetLinkTargetIDL(wrapper.Path))) {
-                                if(((wrapper4.Available && wrapper4.HasPath) && (wrapper4.IsReadyIfDrive && wrapper4.IsFolder)) && !wrapper.IsLinkToDeadFolder) {
-                                    if(modKeys == Keys.Control) {
-                                        StaticReg.CreateWindowPaths.AddRange(CreateTMPPathsToOpenNew(addressArray, wrapper.Path));
-                                        OpenNewWindow(wrapper4);
-                                    }
-                                    else {
-                                        if(fOpenFirstInTab) {
-                                            OpenNewTab(wrapper4, (modKeys & Keys.Shift) == Keys.Shift);
-                                        }
-                                        else {
-                                            ShellBrowser.Navigate(wrapper4);
-                                        }
-                                        for(int j = 0; j < addressArray.Length; j++) {
-                                            using(IDLWrapper wrapper5 = new IDLWrapper(addressArray[j].ITEMIDLIST)) {
-                                                if(((wrapper5.Available && wrapper5.HasPath) && (wrapper5.IsReadyIfDrive && wrapper5.IsFolder)) && !wrapper5.IsLinkToDeadFolder) {
-                                                    string str3 = wrapper5.Path;
-                                                    if(((str3 != wrapper4.Path) && (str3.Length > 0)) && !QTUtility2.IsShellPathButNotFileSystem(str3)) {
-                                                        OpenNewTab(wrapper5, true);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return true;
-                                }
-                            }
-                        }
-                        if(fEnqExec) {
-                            List<string> list2 = new List<string>();
-                            list2.Add(wrapper.Path);
-                            foreach(Address address in addressArray) {
-                                using(IDLWrapper wrapper6 = new IDLWrapper(address.ITEMIDLIST)) {
-                                    if(wrapper6.IsFolder) {
-                                        return true;
-                                    }
-                                    if(wrapper6.HasPath && !wrapper6.IsLinkToDeadFolder) {
-                                        list2.Add(wrapper6.Path);
-                                    }
-                                }
-                            }
-                            foreach(string str4 in list2) {
-                                StaticReg.ExecutedPathsList.Add(str4);
-                            }
-                        }
-                    }
-                }
-            }
-            catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
-            }
-            finally {
-                if(zero != IntPtr.Zero) {
-                    PInvoke.CoTaskMemFree(zero);
-                }
-                if(ppidl != IntPtr.Zero) {
-                    PInvoke.CoTaskMemFree(ppidl);
-                }
-            }
-            return false;
         }
 
         private void HideSubDirTip_Tab_Menu() {
@@ -1156,33 +981,11 @@ namespace QTTabBarLib {
                     elvc.RefreshViewWatermark(true);
                 }
             }
-            HandleF5();
+            ListViewInputController.HandleF5();
         }
           
-        private string MakeTravelBtnTooltipText(bool fBack) {
-            string path = string.Empty;
-            if(fBack) {
-                string[] historyBack = CurrentTab.GetHistoryBack();
-                if(historyBack.Length > 1) {
-                    path = historyBack[1];
-                }
-            }
-            else {
-                string[] historyForward = CurrentTab.GetHistoryForward();
-                if(historyForward.Length > 0) {
-                    path = historyForward[0];
-                }
-            }
-            if(path.Length > 0) {
-                string str2 = QTUtility2.MakePathDisplayText(path, false);
-                if(!string.IsNullOrEmpty(str2)) {
-                    return str2;
-                }
-            }
-            return path;
-        }
         /**
-         * ��������ǩ���¼�
+         * 添加到标签组事件
          */
         private void menuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             // TODO we should be using tags I think
@@ -1744,104 +1547,6 @@ namespace QTTabBarLib {
             }
             return base.TranslateAcceleratorIO(ref msg);
         }
-
-        private bool travelBtnController_MessageCaptured(ref Message m) {
-            if(CurrentTab == null) {
-                QTUtility2.log("QTTabBarClass travelBtnController_MessageCaptured CurrentTab == null");
-                return false;
-            }
-            switch(m.Msg) {
-                case WM.LBUTTONDOWN:
-                case WM.LBUTTONUP: {
-                        Point pt = QTUtility2.PointFromLPARAM(m.LParam);
-                        int num = (int)PInvoke.SendMessage(travelBtnController.Handle, 0x445, IntPtr.Zero, ref pt);
-                        bool flag = CurrentTab.HistoryCount_Back > 1;
-                        bool flag2 = CurrentTab.HistoryCount_Forward > 0;
-                        if(m.Msg != 0x202) {
-                            PInvoke.SetCapture(travelBtnController.Handle);
-                            if(((flag && (num == 0)) || (flag2 && (num == 1))) || ((flag || flag2) && (num == 2))) {
-                                int num5 = (int)PInvoke.SendMessage(travelBtnController.Handle, 0x412, (IntPtr)(0x100 + num), IntPtr.Zero);
-                                int num6 = num5 | 2;
-                                PInvoke.SendMessage(travelBtnController.Handle, 0x411, (IntPtr)(0x100 + num), (IntPtr)num6);
-                            }
-                            if((num == 2) && (flag || flag2)) {
-                                RECT rect;
-                                IntPtr hWnd = PInvoke.SendMessage(travelBtnController.Handle, 0x423, IntPtr.Zero, IntPtr.Zero);
-                                if(hWnd != IntPtr.Zero) {
-                                    PInvoke.SendMessage(hWnd, 0x41c, IntPtr.Zero, IntPtr.Zero);
-                                }
-                                PInvoke.GetWindowRect(travelBtnController.Handle, out rect);
-                                _explorerControllerModule.NavigationButtons_DropDownOpening(buttonNavHistoryMenu, new EventArgs());
-                                buttonNavHistoryMenu.DropDown.Show(new Point(rect.left - 2, rect.bottom + 1));
-                            }
-                            break;
-                        }
-                        PInvoke.ReleaseCapture();
-                        for(int i = 0; i < 3; i++) {
-                            int num3 = (int)PInvoke.SendMessage(travelBtnController.Handle, 0x412, (IntPtr)(0x100 + i), IntPtr.Zero);
-                            int num4 = num3 & -3;
-                            PInvoke.SendMessage(travelBtnController.Handle, 0x411, (IntPtr)(0x100 + i), (IntPtr)num4);
-                        }
-                        if((num == 0) && flag) {
-                            NavigateCurrentTab(true);
-                        }
-                        else if((num == 1) && flag2) {
-                            NavigateCurrentTab(false);
-                        }
-                        break;
-                    }
-                case WM.LBUTTONDBLCLK:
-                    m.Result = IntPtr.Zero;
-                    return true;
-
-                case WM.USER+1:
-                    if(((((int)((long)m.LParam)) >> 0x10) & 0xffff) == 1) {
-                        return false;
-                    }
-                    m.Result = (IntPtr)1;
-                    return true;
-
-                case WM.MOUSEACTIVATE:
-                    if(buttonNavHistoryMenu.DropDown.Visible) {
-                        m.Result = (IntPtr)4;
-                        buttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppClicked);
-                        return true;
-                    }
-                    return false;
-
-                case WM.NOTIFY: {
-                        NMHDR nmhdr = (NMHDR)Marshal.PtrToStructure(m.LParam, typeof(NMHDR));
-                        if(nmhdr.code != -530) {
-                            return false;
-                        }
-                        NMTTDISPINFO nmttdispinfo = (NMTTDISPINFO)Marshal.PtrToStructure(m.LParam, typeof(NMTTDISPINFO));
-                        string str;
-                        if(nmttdispinfo.hdr.idFrom == ((IntPtr)0x100)) {
-                            str = MakeTravelBtnTooltipText(true);
-                            if(str.Length > 0x4f) {
-                                str = "Back";
-                            }
-                        }
-                        else if(nmttdispinfo.hdr.idFrom == ((IntPtr)0x101)) {
-                            str = MakeTravelBtnTooltipText(false);
-                            if(str.Length > 0x4f) {
-                                str = "Forward";
-                            }
-                        }
-                        else {
-                            return false;
-                        }
-                        nmttdispinfo.szText = str;
-                        Marshal.StructureToPtr(nmttdispinfo, m.LParam, false);
-                        m.Result = IntPtr.Zero;
-                        return true;
-                    }
-                default:
-                    return false;
-            }
-            m.Result = IntPtr.Zero;
-            return true;
-       }
 
         private bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
             QTUtility2.log("QTTabBarClass FolderLinkClicked");
