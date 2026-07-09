@@ -54,31 +54,26 @@ namespace QTTabBarLib {
         internal const string IMAGEKEY_NOEXT = "noext";
         internal const string IMAGEKEY_NOIMAGE = "noimage";
         internal const bool IS_DEV_VERSION = true;  // <----------------- Change me before releasing!
-        internal static readonly bool IsRTL = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
-        internal static readonly bool IsWin7 = Environment.OSVersion.Version >= new Version(6, 1);
-        internal static readonly bool IsWin8 = Environment.OSVersion.Version.Major == 6 &&  (Environment.OSVersion.Version.Minor == 2 || Environment.OSVersion.Version.Minor == 3);
+        internal static readonly bool IsRTL = OSDetector.IsRTL;
+        internal static readonly bool IsWin7 = OSDetector.IsWin7;
+        internal static readonly bool IsWin8 = OSDetector.IsWin8;
 
-        internal static readonly bool IsWin10 = CheckIsWin10(Environment.OSVersion.Version);
+        internal static readonly bool IsWin10 = OSDetector.IsWin10;
 
         internal static bool CheckIsWin10(Version version) {
-            return (version.Major == 10 && version.Build < 22000)
-                || (version.Major == 6 && version.Minor == 4);
+            return OSDetector.CheckIsWin10(version);
         }
 
-        internal static readonly bool IsWin11 = (Environment.OSVersion.Version.Major == 10 && Environment.OSVersion.Version.Build >= 22000);
+        internal static readonly bool IsWin11 = OSDetector.IsWin11;
 
-        internal static readonly bool IsThanWin11 = (Environment.OSVersion.Version.Major >= 10 && Environment.OSVersion.Version.Build >= 22000);
+        internal static readonly bool IsThanWin11 = OSDetector.IsThanWin11;
 
-        private static Version osVersion = Environment.OSVersion.Version;
+        private static Version osVersion = OSDetector.OsVersion;
 
-        internal static readonly bool IsXP = Environment.OSVersion.Version.Major <= 5;
+        internal static readonly bool IsXP = OSDetector.IsXP;
 
-        internal static readonly string PATH_MYNETWORK = IsXP
-                ? "::{208D2C60-3AEA-1069-A2D7-08002B30309D}"
-                : "::{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}";
-        internal static readonly string PATH_SEARCHFOLDER = IsXP
-                ? "::{E17D4FC0-5564-11D1-83F2-00A0C90DC849}"
-                : "::{9343812E-1C37-4A49-A12E-4B2D810D956B}";
+        internal static readonly string PATH_MYNETWORK = OSDetector.PATH_MYNETWORK;
+        internal static readonly string PATH_SEARCHFOLDER = OSDetector.PATH_SEARCHFOLDER;
         internal const string REGUSER = RegConst.Root;
         internal static readonly char[] SEPARATOR_CHAR = new char[] { ';' };
         internal const string SEPARATOR_PATH_HASH_SESSION = "*?*?*";
@@ -573,7 +568,7 @@ namespace QTTabBarLib {
                 if(key != null)
                 {
                     string newCloseList =
-                        string.Join(";", closingPaths.Where(p => !IsNoCapturePaths(p)).ToArray())
+                        string.Join(";", closingPaths.Where(p => !PathValidator.IsNoCapturePaths(p)).ToArray())
                         ;
                     key.SetValue("TabsOnLastClosedWindow", newCloseList);
                 }
@@ -755,32 +750,6 @@ namespace QTTabBarLib {
         internal static string DefaultNewFileName()
         {
             return isChinese() ? "�½��ı��ĵ�" : "newDocument";
-        }
-
-
-        public static bool IsEmptyStr(string strs)
-        {
-            return PathValidator.IsEmptyStr(strs);
-        }
-
-        public static bool IsNetPath(string path)
-        {
-            return PathValidator.IsNetPath(path);
-        }
-
-        public static bool IsNoCapturePaths(string path)
-        {
-            return PathValidator.IsNoCapturePaths(path);
-        }
-
-        public static bool IsSimpleDateStr(string input)
-        {
-            return PathValidator.IsSimpleDateStr(input);
-        }
-
-        public static bool IsShortDateStr(string input)
-        {
-            return PathValidator.IsShortDateStr(input);
         }
 
         // c# ��ȡ��ǰ���̵ĸ�����

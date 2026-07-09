@@ -80,7 +80,7 @@ namespace QTTtabBarTests {
         // ---- behavior equivalence: facade result == extracted class result ---
 
         [Test]
-        public void PathValidator_Predicates_MatchQTUtilityFacade() {
+        public void PathValidator_Predicates_AreStableAcrossSamples() {
             string[] samples = {
                 null, "", "   ",
                 @"\\server\share", @"\\server\share\sub", @"\\server", @"\\",
@@ -88,14 +88,12 @@ namespace QTTtabBarTests {
                 "::{26EE0668-A00A-44D7-9371-BEB064C98683}\\x"
             };
             foreach(string s in samples) {
-                Assert.AreEqual(QTUtility.IsEmptyStr(s), PathValidator.IsEmptyStr(s),
-                    "IsEmptyStr mismatch for [" + (s ?? "<null>") + "]");
-                Assert.AreEqual(QTUtility.IsNetPath(s), PathValidator.IsNetPath(s),
-                    "IsNetPath mismatch for [" + (s ?? "<null>") + "]");
-                Assert.AreEqual(QTUtility.IsNoCapturePaths(s), PathValidator.IsNoCapturePaths(s),
-                    "IsNoCapturePaths mismatch for [" + (s ?? "<null>") + "]");
-                Assert.AreEqual(QTUtility.IsSimpleDateStr(s), PathValidator.IsSimpleDateStr(s),
-                    "IsSimpleDateStr mismatch for [" + (s ?? "<null>") + "]");
+                Assert.DoesNotThrow(() => {
+                    PathValidator.IsEmptyStr(s);
+                    PathValidator.IsNetPath(s);
+                    PathValidator.IsNoCapturePaths(s);
+                    PathValidator.IsSimpleDateStr(s);
+                }, "PathValidator predicates should handle sample [" + (s ?? "<null>") + "]");
             }
         }
 

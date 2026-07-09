@@ -33,98 +33,66 @@ namespace QTTtabBarTests {
             }
         }
 
-        #region PathValidator.IsShortDateStr facade equivalence
+        #region PathValidator.IsShortDateStr behavior coverage
 
         // Pattern: \d{1,2}/\d{1,2}/\d{1,2}\s周[一|二|三|四|五|六|日]\s\d{1,2}:\d{1,2}:\d{1,2}
         // 周一 = \u5468\u4E00, 周日 = \u5468\u65E5
 
         [Test]
-        public void IsShortDateStr_Facade_Equals_Extraction_MondaySample() {
+        public void IsShortDateStr_MondaySample() {
             string sample = "6/12/24 \u5468\u4E00 12:34:56";
-            bool facade = QTUtility.IsShortDateStr(sample);
-            bool extracted = PathValidator.IsShortDateStr(sample);
-            Assert.IsTrue(facade, "regex should match short date with weekday 周一");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsTrue(PathValidator.IsShortDateStr(sample), "regex should match short date with weekday 周一");
         }
 
         [Test]
-        public void IsShortDateStr_Facade_Equals_Extraction_SundaySample() {
+        public void IsShortDateStr_SundaySample() {
             string sample = "12/1/24 \u5468\u65E5 1:2:3";
-            bool facade = QTUtility.IsShortDateStr(sample);
-            bool extracted = PathValidator.IsShortDateStr(sample);
-            Assert.IsTrue(facade, "regex should match short date with weekday 周日");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsTrue(PathValidator.IsShortDateStr(sample), "regex should match short date with weekday 周日");
         }
 
         [Test]
-        public void IsShortDateStr_Facade_Equals_Extraction_SimpleDateNoWeekday() {
-            // SimpleDate format (IsSimpleDateStr) has no weekday -> must NOT match.
+        public void IsShortDateStr_SimpleDateNoWeekday() {
             string sample = "2024/06/12 12:34:56";
-            bool facade = QTUtility.IsShortDateStr(sample);
-            bool extracted = PathValidator.IsShortDateStr(sample);
-            Assert.IsFalse(facade, "SimpleDate format without weekday must not match");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsFalse(PathValidator.IsShortDateStr(sample), "SimpleDate format without weekday must not match");
         }
 
         [Test]
-        public void IsShortDateStr_Facade_Equals_Extraction_Null() {
-            bool facade = QTUtility.IsShortDateStr(null);
-            bool extracted = PathValidator.IsShortDateStr(null);
-            Assert.IsFalse(facade, "null must return false");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+        public void IsShortDateStr_Null() {
+            Assert.IsFalse(PathValidator.IsShortDateStr(null), "null must return false");
         }
 
         [Test]
-        public void IsShortDateStr_Facade_Equals_Extraction_Empty() {
-            bool facade = QTUtility.IsShortDateStr("");
-            bool extracted = PathValidator.IsShortDateStr("");
-            Assert.IsFalse(facade, "empty string must return false");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+        public void IsShortDateStr_Empty() {
+            Assert.IsFalse(PathValidator.IsShortDateStr(""), "empty string must return false");
         }
 
         #endregion
 
-        #region PathValidator.IsNetworkRootFolder facade equivalence
+        #region PathValidator.IsNetworkRootFolder behavior coverage
 
         [Test]
-        public void IsNetworkRootFolder_Facade_Equals_Extraction_ServerShare() {
+        public void IsNetworkRootFolder_ServerShare() {
             string path = @"\\server\share";
-            bool facade = QTUtility.IsNetworkRootFolder(path);
-            bool extracted = PathValidator.IsNetworkRootFolder(path);
-            Assert.IsTrue(facade, @"\\server\share is a network root folder");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsTrue(PathValidator.IsNetworkRootFolder(path), @"\\server\share is a network root folder");
         }
 
         [Test]
-        public void IsNetworkRootFolder_Facade_Equals_Extraction_WithSubfolder() {
+        public void IsNetworkRootFolder_WithSubfolder() {
             string path = @"\\server\share\sub";
-            bool facade = QTUtility.IsNetworkRootFolder(path);
-            bool extracted = PathValidator.IsNetworkRootFolder(path);
-            Assert.IsFalse(facade, @"\\server\share\sub is deeper than root");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsFalse(PathValidator.IsNetworkRootFolder(path), @"\\server\share\sub is deeper than root");
         }
 
         [Test]
-        public void IsNetworkRootFolder_Facade_Equals_Extraction_ServerOnly() {
+        public void IsNetworkRootFolder_ServerOnly() {
             string path = @"\\server";
-            bool facade = QTUtility.IsNetworkRootFolder(path);
-            bool extracted = PathValidator.IsNetworkRootFolder(path);
-            Assert.IsFalse(facade, @"\\server has no share component");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsFalse(PathValidator.IsNetworkRootFolder(path), @"\\server has no share component");
         }
 
         [Test]
-        public void IsNetworkRootFolder_Facade_Equals_Extraction_LocalPath() {
+        public void IsNetworkRootFolder_LocalPath() {
             string path = @"C:\Windows";
-            bool facade = QTUtility.IsNetworkRootFolder(path);
-            bool extracted = PathValidator.IsNetworkRootFolder(path);
-            // IsNetworkRootFolder does not check the \\ prefix; it assumes the
-            // caller already verified a network path (actual call site is guarded
-            // by IsNetworkPath). For C:\Windows, Substring(2) yields "\Windows"
-            // which the function treats as a root share, so it returns true.
-            // This matches the original QTUtility behavior exactly.
-            Assert.IsTrue(facade, @"C:\Windows returns true (no \\ prefix check; original behavior)");
-            Assert.AreEqual(extracted, facade, "facade and extraction must agree");
+            Assert.IsTrue(PathValidator.IsNetworkRootFolder(path),
+                @"C:\Windows returns true (no \\ prefix check; original behavior)");
         }
 
         #endregion

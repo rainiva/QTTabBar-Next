@@ -545,6 +545,7 @@
     </Compile>
     <Compile Include="NativeWindowController.cs" />
     <Compile Include="NavigationHelper.cs" />
+    <Compile Include="OSDetector.cs" />
     <Compile Include="UniqueList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QMenuItem.cs">

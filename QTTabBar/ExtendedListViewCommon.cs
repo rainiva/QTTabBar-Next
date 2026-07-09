@@ -1002,7 +1002,7 @@ namespace QTTabBarLib {
                             return;
                         }
                         path = ShellMethods.GetLinkTargetPath(path);
-                        if (string.IsNullOrEmpty(path) || !Directory.Exists(path) || QTUtility.IsNetPath(path)) // add by indiff
+                        if (string.IsNullOrEmpty(path) || !Directory.Exists(path) || PathValidator.IsNetPath(path)) // add by indiff
                         {
                             return;
                         }
@@ -1039,7 +1039,7 @@ namespace QTTabBarLib {
                         return false;
                     }
 
-                    if (QTUtility.IsNetPath(str))
+                    if (PathValidator.IsNetPath(str))
                     {
                         return false;
                     }

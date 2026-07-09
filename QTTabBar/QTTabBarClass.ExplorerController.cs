@@ -954,10 +954,10 @@ namespace QTTabBarLib {
                     _owner.InitializeOpenedWindow();
                 }
                 else {
-                    QTUtility2.log("DoFirstNavigation path: " + path + " IsNoCapturePaths:" + QTUtility.IsNoCapturePaths(path));
+                    QTUtility2.log("DoFirstNavigation path: " + path + " IsNoCapturePaths:" + PathValidator.IsNoCapturePaths(path));
                     if(
                         QTUtility.NoCapturePathsList.Any(ncPath => ncPath.PathEquals(path))
-                         || QTUtility.IsNoCapturePaths( path )
+                         || PathValidator.IsNoCapturePaths( path )
                         ) {
                         _owner.InitializeOpenedWindow();
                         return;
