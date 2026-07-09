@@ -860,6 +860,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 | 3g | BindAction | 1 | 高 | DoBindAction switch |
 | 3h | Shell 命令 | 4 | 高 | createNewFile/OpenCmd/Wait4Select/cmdPath |
 | 3i | ListView 输入 | 7 | 高 | SelectionChanged/鼠标/标签编辑 + 选择捕获 |
+| 3j | 菜单初始化 | 2 | 高 | InitializeSysMenu/InitializeTabMenu → MenuController |
 
 **每批验收标准**
 
