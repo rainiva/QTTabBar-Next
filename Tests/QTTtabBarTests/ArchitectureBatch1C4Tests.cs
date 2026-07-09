@@ -30,6 +30,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void PersistBreakTabBar_Increments_ConfigVersion() {
+            ConfigManager.Initialize();
             long before = GetConfigVersion();
             bool previous = Config.Window.BreakTabBar;
             try {
