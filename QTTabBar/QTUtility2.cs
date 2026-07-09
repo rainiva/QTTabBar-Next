@@ -460,14 +460,6 @@ namespace QTTabBarLib {
                 (short)((((int)lParam) >> 0x10) & 0xffff));
         }
 
-        public static T[] ReadRegBinary<T>(string regValueName, RegistryKey rkUserApps) {
-            return RegistryHelper.ReadRegBinary<T>(regValueName, rkUserApps);
-        }
-
-        public static IntPtr ReadRegHandle(string valName, RegistryKey rk) {
-            return RegistryHelper.ReadRegHandle(valName, rk);
-        }
-
         public static T GetValueSafe<T>(RegistryKey rk, string valName, T defaultVal)
         {
             object obj1 = rk.GetValue(valName, (object) defaultVal);
@@ -580,22 +572,6 @@ namespace QTTabBarLib {
                 path = ShellMethods.GetPath(pIDL);
             }
             return !String.IsNullOrEmpty(path) && QTUtility.NoCapturePathsList.Any(path2 => path.PathEquals(path2));
-        }
-
-        /// <summary>
-        ///  д��ע����� �ر���Ϣȥ��д��������ǩ�ĵ���
-        ///  qttabbarclass  public override void CloseDW(uint dwReserved)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="array"></param>
-        /// <param name="regValueName"></param>
-        /// <param name="rkUserApps"></param>
-        public static void WriteRegBinary<T>(T[] array, string regValueName, RegistryKey rkUserApps) {
-            RegistryHelper.WriteRegBinary(array, regValueName, rkUserApps);
-        }
-
-        public static void WriteRegHandle(string valName, RegistryKey rk, IntPtr hwnd) {
-            RegistryHelper.WriteRegHandle(valName, rk, hwnd);
         }
 
         // [MethodImpl(MethodImplOptions.InternalCall)]
