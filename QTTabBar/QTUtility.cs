@@ -467,7 +467,7 @@ namespace QTTabBarLib {
         public static void RefreshLockedTabsList() {
             using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
-                    string[] collection = QTUtility2.ReadRegBinary<string>("TabsLocked", key);
+                    string[] collection = RegistryHelper.ReadRegBinary<string>("TabsLocked", key);
                     if((collection != null) && (collection.Length != 0)) {
                         StaticReg.LockedTabsToRestoreList.Assign(collection);
                     }
@@ -482,7 +482,7 @@ namespace QTTabBarLib {
             StaticReg.LockedTabsToRestoreList.Assign(paths ?? Array.Empty<string>());
             using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
-                    QTUtility2.WriteRegBinary(paths, "TabsLocked", key);
+                    RegistryHelper.WriteRegBinary(paths, "TabsLocked", key);
                 }
             }
         }

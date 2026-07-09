@@ -216,11 +216,11 @@ namespace QTTabBarLib {
          * force log
          */
         public static void flog(string optional)
-        { Logger.flog(optional);
+        { QTLogger.flog(optional);
         }
 
         public static void log(string optional)
-        { Logger.log(optional);
+        { QTLogger.log(optional);
         }
 
 
@@ -236,13 +236,13 @@ namespace QTTabBarLib {
                 // ����һЩ���� ��־
                 
         public static void log(string level, string optional,Dictionary<String, String> dic=null)
-        { Logger.log(level, optional, dic);
+        { QTLogger.log(level, optional, dic);
         }
 
 
-        public static void MakeErrorLog(Exception ex, string optional = null) { Logger.MakeErrorLog(ex, optional);
+        public static void MakeErrorLog(Exception ex, string optional = null) { QTLogger.MakeErrorLog(ex, optional);
         }
-
+
         /*
         public static object lockObject = new object();
         //��д���������ļ�д��Ȩ�ޣ�ÿ���߳����εȴ��ϸ�д�����
@@ -260,7 +260,7 @@ namespace QTTabBarLib {
             ���ã�������ס���������ݣ�����ֹ�����߳̽���ô���飬ֱ���ô����������ɣ��ͷŸ�����
          * Mutex�����ǿ���ϵͳ����ģ������ǿ��Կ�Խ���̵ġ�
          */
-        
+        
         public static void Close(TextReader sr)
         {
             if (sr == null)
@@ -289,7 +289,7 @@ namespace QTTabBarLib {
         }
 
         public static void MakeErrorLog( string optional = null)
-        { Logger.MakeErrorLog(optional);
+        { QTLogger.MakeErrorLog(optional);
         }
 
         public static string MakeKeyString(Keys key) {
@@ -488,40 +488,11 @@ namespace QTTabBarLib {
         }
 
         public static T[] ReadRegBinary<T>(string regValueName, RegistryKey rkUserApps) {
-            byte[] buffer;
-            try {
-                buffer = (byte[])rkUserApps.GetValue(regValueName, null);
-            }
-            catch (Exception e)
-            {
-                QTUtility2.MakeErrorLog(e, "ReadRegBinary");
-                return null;
-            }
-            if((buffer != null) && (buffer.Length > 0)) {
-                using(MemoryStream stream = new MemoryStream(buffer)) {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    formatter.Binder = new PreMergeToMergedDeserializationBinder();
-                    return (T[])formatter.Deserialize(stream);
-                }
-            }
-            return null;
+            return RegistryHelper.ReadRegBinary<T>(regValueName, rkUserApps);
         }
 
         public static IntPtr ReadRegHandle(string valName, RegistryKey rk) {
-            if(IntPtr.Size == 4) {
-                object obj2 = rk.GetValue(valName, 0);
-                if(obj2 is int) {
-                    return (IntPtr)((int)obj2);
-                }
-                return (IntPtr)((uint)obj2);
-            }
-            else {
-                object obj2 = rk.GetValue(valName, 0L);
-                if(obj2 is long) {
-                    return (IntPtr)((long)obj2);
-                }
-                return (IntPtr)((ulong)obj2);
-            }
+            return RegistryHelper.ReadRegHandle(valName, rk);
         }
 
         public static T GetValueSafe<T>(RegistryKey rk, string valName, T defaultVal)
@@ -647,99 +618,11 @@ namespace QTTabBarLib {
         /// <param name="regValueName"></param>
         /// <param name="rkUserApps"></param>
         public static void WriteRegBinary<T>(T[] array, string regValueName, RegistryKey rkUserApps) {
-            // ���������ǩ·��������
-            if ("TabsLocked".Equals(regValueName))
-            {
-                // MessageBox.Show("д��������ǩ");
-                if (null != array && array.Length > 0)
-                {
-                    if (rkUserApps != null)
-                    {
-                        string[] newArray = (from string path in array
-                                            // where Directory.Exists(path)
-                                             where path.Trim().Length > 0 
-                                             select path).ToArray();
-
-                        if (null == newArray || newArray.Length == 0)
-                        {
-                            // MessageBox.Show("������ǩ����Ϊ�գ�" + array.StringJoin(";"));
-                            if (rkUserApps != null)
-                            {
-                                rkUserApps.SetValue("TabsLocked2", "");
-                            }
-                        }
-                        else
-                        {
-                            //  MessageBox.Show("������ǩ����Ϊ��" + array.StringJoin(";"));
-                            rkUserApps.SetValue("TabsLocked2", newArray.StringJoin(";"));
-                        }
-                        /*
-                        string value = array.StringJoin(";");
-                        if (value.Trim().Length > 0)
-                        {
-                            rkUserApps.SetValue("TabsLocked2", value );
-                        }
-                        else {
-                            rkUserApps.SetValue("TabsLocked2", "");
-                        } */
-                    }
-                }
-                else if (null == array || array.Length == 0  )
-                {
-                    //   MessageBox.Show("������ǩ����Ϊ�գ�" + array.StringJoin(";"));
-                    if (rkUserApps != null)
-                    {
-                        rkUserApps.SetValue("TabsLocked2", "");
-                    }
-                }
-            }
-            
-
-            if(array != null) {
-                byte[] buffer;
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Binder = new PreMergeToMergedDeserializationBinder();
-                using(MemoryStream stream = new MemoryStream()) {
-                    formatter.Serialize(stream, array);
-                    buffer = stream.GetBuffer();
-                    Close( stream );
-                }
-                int num = 0;
-                for(int i = 0; i < buffer.Length; i++) {
-                    if(buffer[i] == 0) {
-                        if(num == 0) {
-                            num = i;
-                        }
-                    }
-                    else {
-                        num = 0;
-                    }
-                }
-                byte[] buffer2 = new byte[num];
-                if(num != 0) {
-                    for(int j = 0; j < num; j++) {
-                        buffer2[j] = buffer[j];
-                    }
-                }
-                else {
-                    buffer2 = buffer;
-                }
-                if(rkUserApps != null) {
-                    rkUserApps.SetValue(regValueName, buffer2);
-                }
-            }
-            // rkUserApps.Close();
+            RegistryHelper.WriteRegBinary(array, regValueName, rkUserApps);
         }
 
         public static void WriteRegHandle(string valName, RegistryKey rk, IntPtr hwnd) {
-            if(IntPtr.Size == 4) {
-                rk.SetValue(valName, (int)hwnd);
-               // rk.Close();
-            }
-            else {
-                rk.SetValue(valName, (long)hwnd, RegistryValueKind.QWord);
-             //   rk.Close();
-            }
+            RegistryHelper.WriteRegHandle(valName, rk, hwnd);
         }
 
         // [MethodImpl(MethodImplOptions.InternalCall)]
