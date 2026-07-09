@@ -281,7 +281,7 @@ namespace QTTabBarLib {
                 if(!Config.Window.CaptureNewWindows
                         || InstanceManager.GetTotalInstanceCount() == 0
                         || QTUtility2.IsShellPathButNotFileSystem(wrapper.Path)
-                        || wrapper.Path.PathEquals(QTUtility.PATH_SEARCHFOLDER)
+                        || wrapper.Path.PathEquals(OSDetector.PATH_SEARCHFOLDER)
                         || QTUtility.NoCapturePathsList.Any(path => wrapper.Path.PathEquals(path))
                         || (Control.ModifierKeys & Keys.Control) != Keys.None) {
                     return false;

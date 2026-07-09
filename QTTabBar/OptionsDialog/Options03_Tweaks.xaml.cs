@@ -24,9 +24,9 @@ namespace QTTabBarLib {
             InitializeComponent();
         }
 
-        public static bool IsXP { get { return QTUtility.IsXP; } }
-        public static bool IsNotXP { get { return !QTUtility.IsXP; } }
-        public static bool IsWin7 { get { return QTUtility.IsWin7; } }
+        public static bool IsXP { get { return OSDetector.IsXP; } }
+        public static bool IsNotXP { get { return !OSDetector.IsXP; } }
+        public static bool IsWin7 { get { return OSDetector.IsWin7; } }
 
         public override void InitializeConfig() {
             // Not needed; everything is done through bindings

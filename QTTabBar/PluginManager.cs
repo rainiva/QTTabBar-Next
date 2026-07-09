@@ -102,7 +102,7 @@ namespace QTTabBarLib {
                 }
             }
              /* Config.BBar.ActivePluginIDs = new string[] { "QTConfig1.0.0.0(9CD80883)+Qwop.QTConfigPluginButton" };
-                Config.BBar.ButtonIndexes = QTUtility.IsXP
+                Config.BBar.ButtonIndexes = OSDetector.IsXP
                      ? new int[] { 1, 2, 0, 3, 4, 5, 0, 6, 7, 0, 11, 13, 12, 14, 15, 0, 65536, 9, 20 }
                      : new System.Int32[] { 3, 4, 5, 0, 6, 7, 0, 17, 11, 12, 14, 15, 13, 0, 65536, 9, 19, 10 };
 				*/

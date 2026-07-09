@@ -13,7 +13,7 @@ namespace QTTabBarLib {
         /// On XP, uses ResMisc[2]; on later OS, uses PATH_SEARCHFOLDER.
         /// </summary>
         public static bool IsSearchResultFolder(string path) {
-            return path.PathStartsWith(QTUtility.IsXP ? QTUtility.ResMisc[2] : QTUtility.PATH_SEARCHFOLDER);
+            return path.PathStartsWith(OSDetector.IsXP ? QTUtility.ResMisc[2] : OSDetector.PATH_SEARCHFOLDER);
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace QTTabBarLib {
         /// </summary>
         public static string SearchFolderPath {
             get {
-                return QTUtility.IsXP ? QTUtility.ResMisc[2] : QTUtility.PATH_SEARCHFOLDER;
+                return OSDetector.IsXP ? QTUtility.ResMisc[2] : OSDetector.PATH_SEARCHFOLDER;
             }
         }
     }

@@ -33,7 +33,7 @@ namespace QTTabBarLib {
             ShellBrowser = shellBrowser;
             this.hwndExplorer = hwndExplorer;
             this.hwndSubDirTipMessageReflect = hwndSubDirTipMessageReflect;
-            hwndShellContainer = QTUtility.IsXP 
+            hwndShellContainer = OSDetector.IsXP 
                     ? hwndExplorer
                     : WindowUtils.FindChildWindow(hwndExplorer, hwnd => PInvoke.GetClassName(hwnd) == "ShellTabWindowClass");
             if(hwndShellContainer != IntPtr.Zero) {
@@ -79,7 +79,7 @@ namespace QTTabBarLib {
                     fIsSysListView = true;
                     return true;
                 }
-                else if(!QTUtility.IsXP && name == "DirectUIHWND") {
+                else if(!OSDetector.IsXP && name == "DirectUIHWND") {
                     fIsSysListView = false;
                     return true;
                 }

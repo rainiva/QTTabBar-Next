@@ -359,7 +359,7 @@ namespace QTTabBarLib {
 
                 /* qwop's default value. */
                 CaptureNewWindows = true;
-                if (QTUtility.IsThanWin11)
+                if (OSDetector.IsThanWin11)
                 {
                     CaptureWeChatSelection = false;
                 }
@@ -466,12 +466,12 @@ namespace QTTabBarLib {
             public Color AltRowForegroundColor   { get; set; }
 
             public _Tweaks() {
-               /* AlwaysShowHeaders = !QTUtility.IsXP && !QTUtility.IsWin7;
+               /* AlwaysShowHeaders = !OSDetector.IsXP && !OSDetector.IsWin7;
                 KillExtWhileRenaming = true;
                 RedirectLibraryFolders = false;
                 F2Selection = true;
                 WrapArrowKeySelection = false;
-                BackspaceUpLevel = QTUtility.IsXP;
+                BackspaceUpLevel = OSDetector.IsXP;
                 HorizontalScroll = true;
                 ForceSysListView = false;
                 ToggleFullRowSelect = false;
@@ -481,7 +481,7 @@ namespace QTTabBarLib {
                 AltRowBackgroundColor = QTUtility2.MakeColor(0xfaf5f1); */
 
                 /* qwop's default value.*/
-                if (QTUtility.IsWin7)
+                if (OSDetector.IsWin7)
                 {
                     AlwaysShowHeaders = true;  // 显示列标题
                 }
@@ -496,7 +496,7 @@ namespace QTTabBarLib {
                 BackspaceUpLevel = true;  // backupspace 键回到上一级目录
                 HorizontalScroll = true;  // 同时按住shift滚轮水平滚动
                 ForceSysListView = false; // 启用旧版列表视图控件
-                ToggleFullRowSelect = QTUtility.IsXP; // 详细视图选中整行
+                ToggleFullRowSelect = OSDetector.IsXP; // 详细视图选中整行
                 DetailsGridLines = false;  // 网格线
                 AlternateRowColors = false;// 交替行颜色
                 ViewWatermarking = false;
@@ -821,7 +821,7 @@ namespace QTTabBarLib {
             
             public _BBar() {
                 /* // the old 
-                ButtonIndexes = QTUtility.IsXP 
+                ButtonIndexes = OSDetector.IsXP 
                         ? new int[] {1, 2, 0, 3, 4, 5, 0, 6, 7, 0, 11, 13, 12, 14, 15, 0, 9, 20} 
                         : new int[] {3, 4, 5, 0, 6, 7, 0, 11, 13, 12, 14, 15, 0, 9, 20};
                 ActivePluginIDs = new string[0];
@@ -832,7 +832,7 @@ namespace QTTabBarLib {
                 ImageStripPath = ""; */
 
                 /* indiff 's default. */
-                ButtonIndexes	=	QTUtility.IsXP
+                ButtonIndexes	=	OSDetector.IsXP
                         // ? new int[] { 1, 2, 0, 3, 4, 5, 0, 6, 7, 0, 11, 13, 12, 14, 15, 0, 21, 9, 20  }
                         // : new System.Int32[] { 3, 4, 5, 0, 6, 7, 0, 17, 11, 12, 14, 15, 13, 0, 21, 9, 19, 10 };
                 // 去掉分割线
@@ -1366,11 +1366,11 @@ namespace QTTabBarLib {
                 foreach(var pair in Config.Keys.PluginShortcuts.Where(p => p.Value == null).ToList()) {
                     Config.Keys.PluginShortcuts.Remove(pair.Key);
                 }
-                if(QTUtility.IsXP) Config.Tweaks.AlwaysShowHeaders = false;
-                if(!QTUtility.IsWin7) Config.Tweaks.RedirectLibraryFolders = false;
-                if(!QTUtility.IsXP) Config.Tweaks.KillExtWhileRenaming = true;
-                if(QTUtility.IsXP) Config.Tweaks.BackspaceUpLevel = true;
-                if(!QTUtility.IsWin7) Config.Tweaks.ForceSysListView = true;
+                if(OSDetector.IsXP) Config.Tweaks.AlwaysShowHeaders = false;
+                if(!OSDetector.IsWin7) Config.Tweaks.RedirectLibraryFolders = false;
+                if(!OSDetector.IsXP) Config.Tweaks.KillExtWhileRenaming = true;
+                if(OSDetector.IsXP) Config.Tweaks.BackspaceUpLevel = true;
+                if(!OSDetector.IsWin7) Config.Tweaks.ForceSysListView = true;
             } catch (Exception e)
             {
                 QTUtility2.MakeErrorLog(e, "ReadConfig foreach category");

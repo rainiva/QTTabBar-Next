@@ -71,7 +71,7 @@ namespace QTTabBarLib {
                 }
                 return Resources_Image.icoEmpty;
             }
-            if(!QTUtility.IsXP && path.StartsWith("::")) {
+            if(!OSDetector.IsXP && path.StartsWith("::")) {
                 IntPtr pszPath = PInvoke.ILCreateFromPath(path);
                 if(pszPath != IntPtr.Zero) {
                     if((IntPtr.Zero != PInvoke.SHGetFileInfo(pszPath, 0, ref psfi, Marshal.SizeOf(psfi), 0x109)) && (psfi.hIcon != IntPtr.Zero)) {
@@ -109,7 +109,7 @@ namespace QTTabBarLib {
                         SetImageKey(path, path);
                         return path;
                     }
-                    SetImageKey("mynetwork", QTUtility.PATH_MYNETWORK);
+                    SetImageKey("mynetwork", OSDetector.PATH_MYNETWORK);
                     return "mynetwork";
                 }
                 if(path.StartsWith("::")) {
