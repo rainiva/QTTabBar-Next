@@ -71,6 +71,7 @@ namespace QTTabBarLib {
         private FileToolsController _fileToolsController;
         private BindActionController _bindActionController;
         private ShellCommandController _shellCommandController;
+        private ListViewInputController _listViewInputController;
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
 
@@ -84,6 +85,20 @@ namespace QTTabBarLib {
         private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
 
         private void Wait4Select() => _shellCommandController.Wait4Select();
+
+        private void ListView_ItemCountChanged(int count) => _listViewInputController.OnItemCountChanged(count);
+
+        private bool ListView_SelectionActivated(Keys modKeys) => _listViewInputController.OnSelectionActivated(modKeys);
+
+        private void ListView_SelectionChanged() => _listViewInputController.OnSelectionChanged();
+
+        private bool ListView_MiddleClick(Point pt) => _listViewInputController.OnMiddleClick(pt);
+
+        private bool ListView_MouseActivate(ref int result) => _listViewInputController.OnMouseActivate(ref result);
+
+        private bool ListView_DoubleClick(Point pt) => _listViewInputController.OnDoubleClick(pt);
+
+        private void ListView_EndLabelEdit(LVITEM item) => _listViewInputController.OnEndLabelEdit(item);
 
         private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
 
@@ -127,7 +142,6 @@ namespace QTTabBarLib {
         private QTabItem tabForDD;
         private TabSwitchForm tabSwitcher;
         private Timer timerOnTab;
-        private Timer timerSelectionChanged;
         
         private ToolTip toolTipForDD;
         private NativeWindowController travelBtnController;
@@ -1057,6 +1071,7 @@ namespace QTTabBarLib {
             _fileToolsController = new FileToolsController(this);
             _bindActionController = new BindActionController(this);
             _shellCommandController = new ShellCommandController(this);
+            _listViewInputController = new ListViewInputController(this);
             _tabTooltipController = new TabTooltipController(this);
             _windowManagementController = new WindowManagementController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
@@ -1412,241 +1427,6 @@ namespace QTTabBarLib {
 
 
         
-
-        private void ListView_ItemCountChanged(int count) {
-            TryCallButtonBar(bbar => { return bbar.RefreshStatusText(); });
-        }
-
-        private bool ListView_SelectionActivated(Keys modKeys) {
-            QTUtility2.log("ListView_SelectionActivated");
-            if(timerSelectionChanged != null) {
-                timerSelectionChanged.Enabled = false;
-            }
-            int num = ShellBrowser.GetSelectedCount();
-            bool fEnqExec = Config.Misc.KeepRecentFiles;
-            return (fEnqExec || num != 1 || (modKeys != Keys.None && modKeys != Keys.Alt)) &&
-                    HandleItemActivate(modKeys, fEnqExec);
-        }
-
-        /// <summary>
-        /// ��ͼѡ���¼�����
-        /// ���ӻ�ȡѡ���ļ�����
-        /// </summary>
-        private void ListView_SelectionChanged(/*object sender, SelectionChangedEventArgs e*/)
-        {
-            // QTUtility2.log("ListView_SelectionChanged e.AddedItems " + e.AddedItems);
-            // QTUtility2.log("ListView_SelectionChanged e.OriginalSource " + e.OriginalSource);
-            if(pluginServer != null && pluginServer.SelectionChangedAttached) {
-                if(timerSelectionChanged == null) {
-                    timerSelectionChanged = new Timer(components);
-                    timerSelectionChanged.Interval = 250;
-                    timerSelectionChanged.Tick += timerSelectionChanged_Tick;
-                    timerSelectionChanged.Enabled = true; // moved by indiff
-                }
-                else {
-                    timerSelectionChanged.Enabled = false;
-                }
-                // timerSelectionChanged.Enabled = true;
-            }
-
-            // ��ȡѡ���ļ�����
-            try
-            {
-                // var selectedCount = ShellBrowser.GetSelectedCount();
-                var tabText = tabControl1.TabPages[0].Text;
-                QTUtility2.log("ListView_SelectionChanged this.TabCount " + this.TabCount +
-                               " fHideExplorer " + fHideExplorer +
-                               // " selectedCount " + selectedCount +
-                               " mCmdType " + mCmdType +
-                               " tabItem Text " + tabText
-                );
-
-                // other cmd ��ʽ�ᱨ��  �Ҳ���Ԫ�ء� (�쳣���� HRESULT:0x80070490)
-                if (this.TabCount == 1 && // ��ǰ���񵽵��½�����ֻ��һ������
-                    fHideExplorer && // ��Ҫ�����˳��Ĵ���
-                    (mCmdType == 2) && // factory ���� // || mCmdType == 3
-                    Config.Window.CaptureWeChatSelection && // �Ƿ������˽��в���΢��ѡ�е��ļ�
-                    QTUtility2.IsEmpty(tabText) // ��ǩ�ı��ǿյ�
-                   )
-                {
-                    try
-                    {
-                        // var tabItem = tabControl1.TabPages[0];
-                        IShellView shellView = null;
-                        if (0 == ShellBrowser.GetIShellBrowser().QueryActiveShellView(out shellView))
-                        {
-                            var iid = new Guid("{0000010e-0000-0000-C000-000000000046}");
-                            object ppv;
-                            // QTTabBarLib.Common.HResult hr = shellView.GetItemObject((uint)SVSIF.SELECT, ref iid, out ppv);
-                            var hr = shellView.GetItemObject((uint)SVSIF.SELECT, ref iid, out ppv);
-                            if (hr == QTTabBarLib.Common.HResult.Ok)
-                            {
-                                if (ppv != null)
-                                {
-                                    IDataObject pDataObject = (IDataObject)ppv;
-                                    var shellObjectCollection = ShellObjectCollection.FromDataObject(pDataObject);
-                                    if (shellObjectCollection.Count > 0)
-                                    {
-                                        string key = "";
-                                        foreach (ShellObject so in shellObjectCollection)
-                                        {
-                                            FileInfo info = new FileInfo(so.ParsingName);
-                                            if (info.Exists)
-                                            {
-                                                key = info.Directory.FullName;
-
-                                                if (QTUtility2.IsNotEmpty(key))
-                                                {
-                                                    RegistryUtil.WriteSelection(key, so.ParsingName);
-                                                    QTUtility2.log(
-                                                        " WriteSelection " +
-                                                        key +
-                                                        " path " + so.ParsingName
-                                                    );
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // release com object
-                                if (hr != QTTabBarLib.Common.HResult.Ok && null != ppv)
-                                {
-                                    Marshal.ReleaseComObject(ppv);
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            if (fHideExplorer)
-                            {
-                                Explorer.Quit();
-                                WindowUtils.CloseExplorer(ExplorerHandle, 0);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            QTUtility2.MakeErrorLog(e, "�رմ���");
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                QTUtility2.MakeErrorLog(e, "��ȡѡ���ļ�����");
-            }
-            
-            if (
-                this.TabCount == 1 &&
-                fHideExplorer && // ��Ҫ�����˳��Ĵ���
-                (mCmdType == 3) && // other cmd ���� vscode ��visual studio �򿪵Ķ��ǵ����̣� ��һ�Թرյ�ǰ��ǩ
-                QTUtility2.IsEmpty(tabControl1.TabPages[0].Text)) // ��ǩ�ı��ǿյ�)
-            {
-                try
-                {
-                    // string focushed;
-                    // CurrentTab.GetSelectedItemsAt(CurrentAddress, out focushed);
-                    // ����ִ�� quit�� ��Ϊ��ͬһ������
-                    QTUtility2.log("other cmd close windows  " );
-                    // WindowUtils.CloseExplorer(ExplorerHandle, 0);
-                    // WindowUtils.CloseExplorer(ExplorerHandle, 1);
-                    // WindowUtils.CloseExplorer(ExplorerHandle, 2);
-                    WindowUtils.CloseExplorer(ExplorerHandle, 2, true);
-                    // WindowUtils.CloseExplorer(ExplorerHandle, 3);
-                    // MergeAllWindows();
-                }
-                finally
-                {
-                }
-            }
-
-
-            /*if (
-                this.TabCount == 1 &&
-                fHideExplorer && // ��Ҫ�����˳��Ĵ���
-                (mCmdType == 3) && // other cmd ����
-                QTUtility2.IsEmpty(tabControl1.TabPages[0].Text)) // ��ǩ�ı��ǿյ�)
-            {
-                try
-                {
-                }
-                finally
-                {
-                    try
-                    {
-                        Explorer.Quit();
-                        WindowUtils.CloseExplorer(ExplorerHandle, 0);
-                    }
-                    catch (Exception e)
-                    {
-                        QTUtility2.MakeErrorLog(e, "�رմ���");
-                    }
-                }
-            }*/
-        }
-
-        private bool ListView_MiddleClick(Point pt) {
-            MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Middle, ModifierKeys);
-            BindAction action;
-            if(Config.Mouse.MarginActions.TryGetValue(chord, out action)) {
-                QTUtility2.log("ListView_MiddleClick " + action);
-                if(listView.PointIsBackground(pt, false)) {
-                    return DoBindAction(action);
-                }
-            }
-            if(Config.Mouse.ItemActions.TryGetValue(chord, out action)) {
-                int index = listView.HitTest(pt, false);
-                if(index <= -1) {
-                    return false;
-                }
-                using(IDLWrapper wrapper = ShellBrowser.GetItem(index)) {
-                    QTUtility2.log("QTTabBarClass ListView_MiddleClick " + action);
-                    return DoBindAction(action, false, null, wrapper);
-                }
-            }
-            return false;
-        }
-
-        private bool ListView_MouseActivate(ref int result) {
-            // The purpose of this is to prevent accidentally
-            // renaming an item when clicking out of a SubDirTip menu.
-            bool ret = false;
-            if(listView.SubDirTipMenuIsShowing() || (subDirTip_Tab != null && subDirTip_Tab.MenuIsShowing)) {
-                if(ShellBrowser.GetSelectedCount() == 1 && listView.HotItemIsSelected()) {
-                    result = 2;
-                    listView.HideSubDirTipMenu();
-                    HideSubDirTip_Tab_Menu();
-                    listView.SetFocus();
-                    ret = true;
-                }
-            }
-            listView.RefreshSubDirTip(true);
-            return ret;
-        }
-
-        private bool ListView_DoubleClick(Point pt) {
-            MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Double, ModifierKeys);
-            BindAction action;
-            if(Config.Mouse.MarginActions.TryGetValue(chord, out action) && listView.PointIsBackground(pt, false)) {
-                QTUtility2.log("ListView_DoubleClick " + action);
-                DoBindAction(action);
-                return true;
-            }
-            return false;
-        }
-
-        private void ListView_EndLabelEdit(LVITEM item) {
-            if(item.pszText == IntPtr.Zero) return;
-            using(IDLWrapper wrapper = ShellBrowser.GetItem(item.iItem)) {
-                if(wrapper.DisplayName != Marshal.PtrToStringUni(item.pszText)) {
-                    HandleF5();
-                }
-            }
-        }
 
         private void ListViewMonitor_ListViewChanged(object sender, EventArgs args) {
             if (listViewManager != null) // �޸���ָ������ by indiff
@@ -2166,19 +1946,6 @@ namespace QTTabBarLib {
 
 
        
-
-        private void timerSelectionChanged_Tick(object sender, EventArgs e) {
-            try {
-                timerSelectionChanged.Enabled = false;
-                if((pluginServer != null) && (CurrentTab != null)) {
-                    pluginServer.OnSelectionChanged(tabControl1.SelectedIndex, CurrentTab.CurrentIDL, CurrentTab.CurrentPath);
-                    // timerSelectionChanged.Enabled = true;
-                }
-            }
-            catch( Exception e1 ) {
-                QTUtility2.MakeErrorLog( e1, "QTTabBarClass timerSelectionChanged_Tick");
-            }
-        }
 
         // ���ô����ö�����
         private void ToggleTopMost() {

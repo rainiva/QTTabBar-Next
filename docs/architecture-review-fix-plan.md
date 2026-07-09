@@ -859,6 +859,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 | 3f | 窗口管理 | 6 | 中 | Merge/Restore/Minimize 系列 |
 | 3g | BindAction | 1 | 高 | DoBindAction switch |
 | 3h | Shell 命令 | 4 | 高 | createNewFile/OpenCmd/Wait4Select/cmdPath |
+| 3i | ListView 输入 | 7 | 高 | SelectionChanged/鼠标/标签编辑 + 选择捕获 |
 
 **每批验收标准**
 
@@ -981,7 +982,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 - [x] 三维 Ultra Review
 
 **验收结论：第三批 1/5 项完全修复（W1），3 项部分修复（C6、C7、W3），1 项已验证（W2）。**
-- C6：已提取 10 个 partial/controller（含 ShellCommandController 3h），主文件约 2,623 行，拆解仍在进行
+- C6：已提取 11 个 partial/controller（含 ListViewInputController 3i），主文件约 2,390 行，拆解仍在进行
 - C7：OSDetector/QTLogger/RegistryHelper 等已创建；ReadLanguageFile 调用方已迁移至 QTResourceManager
 - W1：纯 registry façade 已移除；InstanceManager 仅保留 IPC/跨进程协调方法
 - W2：已验证 — DesktopTooltipController 已提取，主文件 2,191 行
@@ -1196,7 +1197,7 @@ public static void Initialize() {
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 改为按需读取，消除引用拷贝 |
 | W10 | ✅ 已修复 | WriteConfig + PersistConfigChanges 统一入口，版本追踪完善 |
-| C6 | ⬜ 部分修复 | 10 个 controller/partial 已提取，主文件约 2,623 行 |
+| C6 | ⬜ 部分修复 | 11 个 controller/partial 已提取，主文件约 2,390 行 |
 | C7 | ⬜ 部分修复 | 5 个辅助类已创建，QTUtility 仍保留部分 façade |
 | W1 | ✅ 已修复 | 纯 registry façade 已移除，IPC 方法保留 |
 | W2 | ✅ 已验证 | DesktopTooltipController 已提取，主文件 2,191 行 |
@@ -1211,7 +1212,7 @@ public static void Initialize() {
 ### 待办优先级建议
 
 1. **W3（QTSecondViewBar 去重）** — 唯一完全未启动项，依赖 C1 已满足
-2. **C6 继续拆解** — 主文件约 2,623 行，按 3i+ 顺序继续提取（导航/选择捕获等大区域）
+2. **C6 继续拆解** — 主文件约 2,390 行，按 3j+ 顺序继续提取（菜单初始化、Hook 回调等大区域）
 3. **C7 façade 清理** — 清理 QTUtility 剩余 façade 转发方法
 4. **W1 façade 清理** — 清理 InstanceManager 剩余 13 个方法
 5. **W9 改为按需读取** — 消除 ResMain/ResMisc 引用拷贝
