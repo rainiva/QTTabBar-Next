@@ -108,11 +108,17 @@ namespace QTTabBarLib {
         private Timer timerSerachBox_Search;
         private ToolStripClasses toolStrip;
 
+        #region Construction & Lifecycle
+
         public QTButtonBar() {
             QTUtility.Initialize();
             // BarHeight = Config.Skin.TabHeight + 100;
             InitializeComponent();
         }
+
+        #endregion
+
+        #region Event Handlers
 
         /**
          * 当点击在 splitbutton 则进行显示
@@ -1986,5 +1992,7 @@ namespace QTTabBarLib {
                 transparentColor = value;
             }
         }
+
+        #endregion
     }
 }
