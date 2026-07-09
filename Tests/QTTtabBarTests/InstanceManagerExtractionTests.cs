@@ -147,17 +147,17 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void InstanceManager_Still_Has_PutSelect_Facade() {
+        public void InstanceManager_No_Longer_Has_PutSelect_Facade() {
             bool hasMethod = typeof(InstanceManager).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Any(m => m.Name == "PutSelect");
-            Assert.IsTrue(hasMethod, "InstanceManager should still have PutSelect facade");
+            Assert.IsFalse(hasMethod, "PutSelect should be called via SelectionTracker directly");
         }
 
         [Test]
-        public void InstanceManager_Still_Has_GetSelect_Facade() {
+        public void InstanceManager_No_Longer_Has_GetSelect_Facade() {
             bool hasMethod = typeof(InstanceManager).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Any(m => m.Name == "GetSelect");
-            Assert.IsTrue(hasMethod, "InstanceManager should still have GetSelect facade");
+            Assert.IsFalse(hasMethod, "GetSelect should be called via SelectionTracker directly");
         }
 
         [Test]

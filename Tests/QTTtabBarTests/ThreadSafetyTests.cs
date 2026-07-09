@@ -18,11 +18,11 @@ namespace QTTtabBarTests {
         public void GetSelect_Returns_Stored_Value() {
             // Arrange
             var testList = new List<string> { "file1.txt", "file2.txt" };
-            InstanceManager.PutSelect("test_key_ts1", testList);
+            SelectionTracker.PutSelect("test_key_ts1", testList);
 
             try {
                 // Act
-                var result = InstanceManager.GetSelect("test_key_ts1");
+                var result = SelectionTracker.GetSelect("test_key_ts1");
 
                 // Assert
                 Assert.IsNotNull(result,
@@ -31,7 +31,7 @@ namespace QTTtabBarTests {
             }
             finally {
                 // Cleanup
-                InstanceManager.RemoveSelect("test_key_ts1");
+                SelectionTracker.RemoveSelect("test_key_ts1");
             }
         }
 
@@ -39,30 +39,30 @@ namespace QTTtabBarTests {
         public void PutSelect_Stores_Value_Correctly() {
             var testList = new List<string> { "fileA.txt" };
 
-            InstanceManager.PutSelect("test_key_ts2", testList);
+            SelectionTracker.PutSelect("test_key_ts2", testList);
 
             try {
                 // Verify it was stored
-                var result = InstanceManager.GetSelect("test_key_ts2");
+                var result = SelectionTracker.GetSelect("test_key_ts2");
                 Assert.IsNotNull(result,
                     "PutSelect should store value under normal conditions");
                 CollectionAssert.AreEqual(testList, result);
             }
             finally {
-                InstanceManager.RemoveSelect("test_key_ts2");
+                SelectionTracker.RemoveSelect("test_key_ts2");
             }
         }
 
         [Test]
         public void RemoveSelect_Removes_Value_Correctly() {
             // Store a value first
-            InstanceManager.PutSelect("test_key_ts3", new List<string> { "x" });
+            SelectionTracker.PutSelect("test_key_ts3", new List<string> { "x" });
 
             // Remove it
-            InstanceManager.RemoveSelect("test_key_ts3");
+            SelectionTracker.RemoveSelect("test_key_ts3");
 
             // Verify it was removed
-            var result = InstanceManager.GetSelect("test_key_ts3");
+            var result = SelectionTracker.GetSelect("test_key_ts3");
             Assert.IsNull(result,
                 "RemoveSelect should remove value under normal conditions");
         }
@@ -75,7 +75,7 @@ namespace QTTtabBarTests {
         public void GetSelect_Returns_Null_When_Reentrancy_Detected() {
             // Arrange: store a value
             var testList = new List<string> { "file1.txt" };
-            InstanceManager.PutSelect("test_key_ts4", testList);
+            SelectionTracker.PutSelect("test_key_ts4", testList);
 
             // Simulate reentrancy by setting inSelectDict=1 via reflection
             var stType = typeof(SelectionTracker);
@@ -85,7 +85,7 @@ namespace QTTtabBarTests {
 
             try {
                 // Act: GetSelect should return null when reentrancy is detected
-                var result = InstanceManager.GetSelect("test_key_ts4");
+                var result = SelectionTracker.GetSelect("test_key_ts4");
 
                 // Assert
                 Assert.IsNull(result,
@@ -94,7 +94,7 @@ namespace QTTtabBarTests {
             finally {
                 // Cleanup
                 inSelectDictField.SetValue(null, 0);
-                InstanceManager.RemoveSelect("test_key_ts4");
+                SelectionTracker.RemoveSelect("test_key_ts4");
             }
         }
 
@@ -109,14 +109,14 @@ namespace QTTtabBarTests {
 
             try {
                 // PutSelect should be a no-op because reentrancy is detected
-                InstanceManager.PutSelect("test_key_ts5", new List<string> { "skipped" });
+                SelectionTracker.PutSelect("test_key_ts5", new List<string> { "skipped" });
             }
             finally {
                 inSelectDictField.SetValue(null, 0);
             }
 
             // Verify it was NOT stored (because PutSelect was skipped)
-            var result = InstanceManager.GetSelect("test_key_ts5");
+            var result = SelectionTracker.GetSelect("test_key_ts5");
             Assert.IsNull(result,
                 "PutSelect should skip when reentrancy is detected");
         }
@@ -124,7 +124,7 @@ namespace QTTtabBarTests {
         [Test]
         public void RemoveSelect_Skips_When_Reentrancy_Detected() {
             // Store a value first
-            InstanceManager.PutSelect("test_key_ts6", new List<string> { "x" });
+            SelectionTracker.PutSelect("test_key_ts6", new List<string> { "x" });
 
             var stType = typeof(SelectionTracker);
             var inSelectDictField = stType.GetField("inSelectDict", BindingFlags.NonPublic | BindingFlags.Static);
@@ -132,19 +132,19 @@ namespace QTTtabBarTests {
 
             try {
                 // RemoveSelect should be a no-op because reentrancy is detected
-                InstanceManager.RemoveSelect("test_key_ts6");
+                SelectionTracker.RemoveSelect("test_key_ts6");
             }
             finally {
                 inSelectDictField.SetValue(null, 0);
             }
 
             // Verify it was NOT removed (because RemoveSelect was skipped)
-            var result = InstanceManager.GetSelect("test_key_ts6");
+            var result = SelectionTracker.GetSelect("test_key_ts6");
             Assert.IsNotNull(result,
                 "RemoveSelect should skip when reentrancy is detected");
 
             // Cleanup
-            InstanceManager.RemoveSelect("test_key_ts6");
+            SelectionTracker.RemoveSelect("test_key_ts6");
         }
 
         #endregion

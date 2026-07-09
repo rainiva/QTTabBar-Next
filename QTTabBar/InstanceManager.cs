@@ -641,12 +641,6 @@ namespace QTTabBarLib {
         }
 
         public static int GetTotalInstanceCount() { ICommService service = GetChannel(); return service == null ? TabInstanceRegistry.Count : service.GetTotalInstanceCount(); }
-                        
-        public static void PutSelect(string key , List<string> list) { SelectionTracker.PutSelect(key, list); }
-
-        public static void RemoveSelect(string key) { SelectionTracker.RemoveSelect(key); }
-
-        public static List<string> GetSelect(string key) { return SelectionTracker.GetSelect(key); }
 
         public static QTTabBarClass GetThreadTabBar() { return TabInstanceRegistry.GetThreadTabBar(); }
 

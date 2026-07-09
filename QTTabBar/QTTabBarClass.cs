@@ -217,7 +217,7 @@ namespace QTTabBarLib {
                 using(RegistryKey key = Registry.LocalMachine.OpenSubKey(RegConst.Root)) {
                     installDateString = key == null ? minDate : (string)key.GetValue("InstallDate", minDate);
                     // ʱ���ʽ������ ���ܻᵼ�³�ʼ��ʧ��
-                    if (QTUtility.IsSimpleDateStr(installDateString))  // �����ж������Ƿ�����ȷ��ʽ
+                    if (PathValidator.IsSimpleDateStr(installDateString))  // �����ж������Ƿ�����ȷ��ʽ
                     {
                         try
                         {
@@ -1885,7 +1885,7 @@ namespace QTTabBarLib {
                     var tabItem = tabControl1.TabPages[0];
                     var tabItemComment = tabItem.Text;
                     IShellView shellView = null;
-                    List<string> select = InstanceManager.GetSelect(tabItem.CurrentPath);
+                    List<string> select = SelectionTracker.GetSelect(tabItem.CurrentPath);
                     if (select != null)
                     {
                         timer.Stop();
@@ -1910,7 +1910,7 @@ namespace QTTabBarLib {
                                     QTUtility2.log("add so.Name " + so.Name + " so.ParsingName " + so.ParsingName);
                                     list.Add(so.ParsingName);
 
-                                    InstanceManager.PutSelect(tabItem.CurrentPath, list);
+                                    SelectionTracker.PutSelect(tabItem.CurrentPath, list);
                                     // InstanceManager.selectDict.Add(tabItem.CurrentPath, list);
                                     timer.Stop();
                                     Explorer.Quit();
