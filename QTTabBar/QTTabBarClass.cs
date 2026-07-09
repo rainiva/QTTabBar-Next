@@ -113,7 +113,6 @@ namespace QTTabBarLib {
         private string strDraggingDrive;
         private string strDraggingStartPath;
         private SubDirTipForm subDirTip_Tab;
-        public QTabControl tabControl1;
         private QTabItem tabForDD;
         private TabSwitchForm tabSwitcher;
         private Timer timerOnTab;
@@ -194,62 +193,6 @@ namespace QTTabBarLib {
         {
             return InstanceManager.GetThreadTabBar(); 
         }
-
-        /// <summary>
-        /// ����һ����ǰ�̵߳� ·����ǩ
-        /// </summary>
-        /// <param name="address">·��</param>
-        /// <param name="index">λ��</param>
-        /// <param name="fLocked">�Ƿ�����</param>
-        /// <param name="fSelect">�Ƿ�ѡ��</param>
-        /// <returns></returns>
-        public static bool CreateTab(QTTabBarClass tabBar, Address address, int index, bool fLocked, bool fSelect)
-        {
-            if (null == tabBar) {
-                tabBar = GetThreadTabBar();    
-            }
-            
-            if (null == tabBar)
-            {
-                tabBar = TabInstanceRegistry.PeekMainInstance();
-                if (tabBar == null)
-                {
-                    return false;
-                }
-            } 
-            
-            using (IDLWrapper wrapper = new IDLWrapper(address))
-            {
-                address.ITEMIDLIST = wrapper.IDL;
-                address.Path = wrapper.Path;
-            }
-            if ((address.ITEMIDLIST == null) || (address.ITEMIDLIST.Length <= 0))
-            {
-                return false;
-            }
-
-            QTabItem tab = new QTabItem(QTUtility2.MakePathDisplayText(address.Path, false), address.Path, tabBar.tabControl1);
-            tab.NavigatedTo(address.Path, address.ITEMIDLIST, -1, false);
-            tab.ToolTipText = QTUtility2.MakePathDisplayText(address.Path, true);
-            tab.TabLocked = fLocked;
-            if (index < 0)
-            {
-                tabBar.AddInsertTab(tab);
-            }
-            else
-            {
-                if (index > tabBar.tabControl1.TabCount)
-                {
-                    index = tabBar.tabControl1.TabCount;
-                }
-                tabBar.tabControl1.TabPages.Insert(index, tab);
-            }
-            if (fSelect)
-            {
-                tabBar.tabControl1.SelectTab(tab);
-            }
-            return true;
-        }
         #endregion
 
         public QTTabBarClass() {
@@ -324,9 +267,9 @@ namespace QTTabBarLib {
             if(!fInitialized) {
                 InitializeStaticFields();
             }
-            // ��ʼ���߶�
-            BandHeight = Config.Skin.TabHeight + BandHeightSpace;
-            // BandHeight = Config.Skin.TabHeight + 10;
+            // Initial height (DPI-scaled). GetBandDpiScale may still be 1.0 here;
+            // OnDpiChanged / SetBarRows refresh after the HWND exists.
+            BandHeight = ComputeBandHeight(1, Config.Skin.TabHeight, GetBandDpiScale());
             InitializeComponent();
             lstActivatedTabs.Add(CurrentTab);
 
@@ -2105,13 +2048,21 @@ namespace QTTabBarLib {
         // explorerController_MessageCaptured moved to ExplorerControllerModule (Batch 13)
 
         public override void GetBandInfo(uint dwBandID, uint dwViewMode, ref DESKBANDINFO dbi) {
+            // Keep BandHeight in sync with current DPI before reporting to Explorer.
+            int rows = 1;
+            if(tabControl1 != null && Config.Tabs.MultipleTabRows) {
+                rows = Math.Max(1, tabControl1.SetTabRowType(Config.Tabs.ActiveTabOnBottomRow ? 1 : 2));
+            }
+            BandHeight = ComputeBandHeight(rows, Config.Skin.TabHeight, GetBandDpiScale());
+
             if((dbi.dwMask & DBIM.ACTUAL) != (0)) {
                 dbi.ptActual.X = Size.Width;
                 dbi.ptActual.Y = BandHeight;
             }
             if((dbi.dwMask & DBIM.INTEGRAL) != (0)) {
                 dbi.ptIntegral.X = -1;
-                dbi.ptIntegral.Y = 10;
+                // Integral step of 1 lets Explorer honor the exact DPI-scaled height.
+                dbi.ptIntegral.Y = 1;
             }
             if((dbi.dwMask & DBIM.MAXSIZE) != (0)) {
                 dbi.ptMaxSize.X = -1;
@@ -3105,8 +3056,10 @@ namespace QTTabBarLib {
             if(flag) {
                 Controls.Add(toolStrip);
             }
-            MinSize = new Size(150, Config.Skin.TabHeight + 2);
-            Height = Config.Skin.TabHeight + 2;
+            int scaledHeight = ComputeBandHeight(1, Config.Skin.TabHeight, GetBandDpiScale());
+            MinSize = new Size(150, scaledHeight);
+            Height = scaledHeight;
+            BandHeight = scaledHeight;
             ContextMenuStrip = contextMenuSys;
             // ע�����˫���¼�
             MouseDoubleClick += _tabManager.QTTabBarClass_MouseDoubleClick;
@@ -4690,16 +4643,40 @@ namespace QTTabBarLib {
             }
         }
 
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            try {
+                int dpi = PInvoke.GetDpiForWindow(Handle);
+                if(dpi > 0) {
+                    Dpi = dpi;
+                }
+            }
+            catch {
+                // GetDpiForWindow may be unavailable on older OS builds.
+            }
+            RefreshBandHeightForCurrentDpi();
+        }
+
         protected override void OnDpiChanged(int oldDpi, int newDpi)
         {
-            QTUtility2.log("QTTabBarClass OnDpiChanged");
+            QTUtility2.log("QTTabBarClass OnDpiChanged old=" + oldDpi + " new=" + newDpi);
+            Dpi = newDpi;
+            RefreshBandHeightForCurrentDpi();
+        }
+
+        private void RefreshBandHeightForCurrentDpi()
+        {
             int iType = 0;
-            if (Config.Tabs.MultipleTabRows)
-            {
+            if(Config.Tabs.MultipleTabRows) {
                 iType = Config.Tabs.ActiveTabOnBottomRow ? 1 : 2;
             }
-            // this.SetBarRows(this.tabControl.RowCount);
-            SetBarRows(tabControl1.SetTabRowType(iType));
+            int rows = tabControl1 != null ? tabControl1.SetTabRowType(iType) : 1;
+            SetBarRows(rows);
+            if(tabControl1 != null) {
+                tabControl1.RefreshOptions(false);
+                tabControl1.Invalidate();
+            }
         }
 
 

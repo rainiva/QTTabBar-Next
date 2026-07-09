@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using BandObjectLib;
+using Microsoft.Win32;
 using QTPlugin;
 using QTTabBarLib.Interop;
 
@@ -91,7 +92,9 @@ namespace QTTabBarLib
         protected abstract bool IsTabSubFolderMenuVisible { get; }
         protected abstract int CalcBandHeight(int count);
 
-        protected QTabControl tabControl1;
+        // Must be the single field used by SyncTravelState and derived bars.
+        // Do not redeclare in QTTabBarClass — that shadows this and leaves it null.
+        public QTabControl tabControl1;
 
         #region --- Shared Fields (moved from QTTabBarClass / QTSecondViewBar) ---
 
@@ -256,7 +259,9 @@ namespace QTTabBarLib
                     buttonNavHistoryMenu.Enabled = navBtnsFlag != 0;
                 }
                 TryCallButtonBar(bbar => bbar.RefreshButtons());
-                QTabItem.CheckSubTexts(tabControl1);
+                if(tabControl1 != null) {
+                    QTabItem.CheckSubTexts(tabControl1);
+                }
                 SyncToolbarTravelButton();
             }
         }
@@ -280,9 +285,111 @@ namespace QTTabBarLib
             SetBarRows(e.RowCount);
         }
 
+        /// <summary>
+        /// Computes physical band height for Explorer rebar.
+        /// At high DPI (e.g. 200%), logical TabHeight must be scaled or the bar
+        /// collapses to ~half height and tab titles are clipped.
+        /// </summary>
+        public static int ComputeBandHeight(int rowCount, int tabHeight, float dpiScale)
+        {
+            int rows = rowCount < 1 ? 1 : rowCount;
+            float scale = dpiScale <= 0f ? 1f : dpiScale;
+            return Graphic.ScaleBy(scale, rows * tabHeight + BandHeightSpace);
+        }
+
+        /// <summary>
+        /// Picks the best DPI scale for band/tab sizing.
+        /// DPI-unaware Explorer often reports GetDeviceCaps/GetDpiForWindow=96
+        /// while the user display is 150%/200% (AppliedDPI 144/192). Prefer a
+        /// real per-monitor window/process DPI when it is above 96; otherwise
+        /// take the max of device-caps and AppliedDPI so titles are not clipped.
+        /// </summary>
+        public static float ResolveDpiScale(int windowDpi, int processDpi, int deviceCapsDpi, int appliedDpi)
+        {
+            // Genuine per-monitor awareness reports values above 96.
+            if(windowDpi > 96) {
+                return windowDpi / 96f;
+            }
+            if(processDpi > 96) {
+                return processDpi / 96f;
+            }
+            int dpi = 0;
+            if(windowDpi > 0) {
+                dpi = Math.Max(dpi, windowDpi);
+            }
+            if(processDpi > 0) {
+                dpi = Math.Max(dpi, processDpi);
+            }
+            if(deviceCapsDpi > 0) {
+                dpi = Math.Max(dpi, deviceCapsDpi);
+            }
+            if(appliedDpi > 0) {
+                dpi = Math.Max(dpi, appliedDpi);
+            }
+            if(dpi > 0) {
+                return dpi / 96f;
+            }
+            return 1f;
+        }
+
+        public static int TryReadAppliedDpi()
+        {
+            try {
+                using(RegistryKey key = Registry.CurrentUser.OpenSubKey(
+                    @"Control Panel\Desktop\WindowMetrics", false)) {
+                    if(key != null) {
+                        object value = key.GetValue("AppliedDPI");
+                        if(value is int) {
+                            return (int)value;
+                        }
+                        int parsed;
+                        if(value != null && int.TryParse(value.ToString(), out parsed)) {
+                            return parsed;
+                        }
+                    }
+                }
+            }
+            catch {
+                // Registry may be unavailable in some hosts.
+            }
+            return 0;
+        }
+
+        protected float GetBandDpiScale()
+        {
+            int windowDpi = 0;
+            try {
+                if(IsHandleCreated) {
+                    windowDpi = PInvoke.GetDpiForWindow(Handle);
+                }
+            }
+            catch {
+                // Fall through.
+            }
+            int deviceCapsDpi = 0;
+            try {
+                IntPtr hdc = PInvoke.GetDC(IntPtr.Zero);
+                if(hdc != IntPtr.Zero) {
+                    deviceCapsDpi = PInvoke.GetDeviceCaps(hdc, 88); // LOGPIXELSX
+                    PInvoke.ReleaseDC(IntPtr.Zero, hdc);
+                }
+            }
+            catch {
+                // ignore
+            }
+            return ResolveDpiScale(windowDpi, Dpi, deviceCapsDpi, TryReadAppliedDpi());
+        }
+
         protected void SetBarRows(int count)
         {
-            BandHeight = (count * (Config.Skin.TabHeight) + BandHeightSpace);
+            BandHeight = ComputeBandHeight(count, Config.Skin.TabHeight, GetBandDpiScale());
+            try {
+                Height = BandHeight;
+                MinSize = new Size(MinSize.Width, BandHeight);
+            }
+            catch {
+                // Handle may not be ready during early construction.
+            }
             if (null != rebarController)
             {
                 rebarController.RefreshHeight();

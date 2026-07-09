@@ -44,16 +44,12 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void CreateTab_Returns_False_When_No_Active_Instance() {
-            MethodInfo method = typeof(QTTabBarClass).GetMethod("CreateTab",
+        public void CreateTab_Static_Method_Removed_As_Dead_Code() {
+            MethodInfo method = typeof(QTTabBarClass).GetMethod(
+                "CreateTab",
                 BindingFlags.Public | BindingFlags.Static);
-            Assert.IsNotNull(method);
-
-            object result = method.Invoke(null, new object[] {
-                null, null, -1, false, false
-            });
-            Assert.IsFalse((bool)result,
-                "CreateTab should return false when no thread-local or main tab bar instance exists");
+            Assert.IsNull(method,
+                "Static QTTabBarClass.CreateTab should be removed when no callers exist");
         }
     }
 }
