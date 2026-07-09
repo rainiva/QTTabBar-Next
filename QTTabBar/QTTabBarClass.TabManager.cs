@@ -865,7 +865,7 @@ namespace QTTabBarLib {
                         }
                     }
                     else if(iIndex == 0) {
-                        using(RegistryKey key = Registry.CurrentUser.OpenSubKey(RegConst.Root, false)) {
+                        using(RegistryKey key = RegistryAccess.OpenRoot(false)) {
                             if(key != null) {
                                 string[] strArray = ((string)key.GetValue("TabsOnLastClosedWindow", string.Empty)).Split(QTUtility.SEPARATOR_CHAR);
                                 if((strArray.Length > 0) && (strArray[0].Length > 0)) {

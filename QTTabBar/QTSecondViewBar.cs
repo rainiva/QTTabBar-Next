@@ -381,7 +381,7 @@ namespace QTTabBarLib
 
             if (!fShow)
             {
-                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root))
+                using (RegistryKey key = RegistryAccess.OpenRootCreate())
                 {
                     key.SetValue("BreakTabBar", BandHasBreak() ? 1 : 0);
                 }

@@ -318,8 +318,13 @@ namespace QTTabBarLib {
             return PathValidator.IsNetworkRootFolder(path);
         }
 
+        /// <summary>
+        /// Triggers the static constructor, which calls InitializationOrchestrator.Initialize().
+        /// Entry points must call this method rather than InitializationOrchestrator directly so the
+        /// static constructor runs first and initialization stays idempotent.
+        /// </summary>
         public static void Initialize() {
-            // This method exists just to cause the static constructor to fire, if it hasn't already.
+            // Intentionally empty — triggers static constructor
         }
 
         public static void LoadReservedImage(ImageReservationKey irk) {
@@ -460,7 +465,7 @@ namespace QTTabBarLib {
         }
 
         public static void RefreshLockedTabsList() {
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     string[] collection = QTUtility2.ReadRegBinary<string>("TabsLocked", key);
                     if((collection != null) && (collection.Length != 0)) {
@@ -475,7 +480,7 @@ namespace QTTabBarLib {
 
         public static void SaveLockedTabs(string[] paths) {
             StaticReg.LockedTabsToRestoreList.Assign(paths ?? Array.Empty<string>());
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     QTUtility2.WriteRegBinary(paths, "TabsLocked", key);
                 }
@@ -564,7 +569,7 @@ namespace QTTabBarLib {
             {
                 return;
             }
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null)
                 {
                     string newCloseList =

@@ -41,6 +41,7 @@ namespace QTTabBarLib {
             if(_initialized) return;
             lock(_lock) {
                 if(_initialized) return;
+                _initialized = true;
             try {
                 QTUtility2.log("QTUtility RefreshShellStateValues");
                 // RefreshShellStateValues();
@@ -74,7 +75,7 @@ namespace QTTabBarLib {
                 }
                 QTUtility.ValidateTextResources();
 
-                using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
+                using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                     if(key != null) {
                         using(RegistryKey key2 = key.CreateSubKey("RecentlyClosed")) {
                             if(key2 != null) {
@@ -144,13 +145,9 @@ namespace QTTabBarLib {
                 // Initialize plugins
                 PluginManager.Initialize();
                 QTUtility2.log("QTUtility �������в��");
-
-                _initialized = true;
             }
             catch(Exception exception) {
-                // TODO: Any errors here would be very serious.  Alert the user as such.
                 QTUtility2.MakeErrorLog(exception);
-                _initialized = true;
             }
             }
         }

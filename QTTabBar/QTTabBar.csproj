@@ -227,7 +227,6 @@
     <Compile Include="ExplorerBrowser\NavigationLogEvents.cs" />
     <Compile Include="ExplorerBrowser\NavigationOptions.cs" />
     <Compile Include="ExplorerManager.cs" />
-    <Compile Include="ExplorerProcessCaptor.cs" />
     <Compile Include="FluentThemeManager.cs" />
     <Compile Include="FluentThemeTokens.cs" />
     <Compile Include="FluentOptionsPoCLauncher.cs" />
@@ -548,6 +547,7 @@
     </Compile>
     <Compile Include="NativeWindowController.cs" />
     <Compile Include="NavigationHelper.cs" />
+    <Compile Include="RegistryAccess.cs" />
     <Compile Include="OSDetector.cs" />
     <Compile Include="UniqueList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -580,6 +580,9 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.DragDropController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.HookInputController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTUtility.cs" />

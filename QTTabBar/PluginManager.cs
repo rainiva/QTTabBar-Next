@@ -364,7 +364,7 @@ namespace QTTabBarLib {
                 yield break;
             }
             List<string> paths = new List<string>();
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"Plugins\Paths")) {
+            using(RegistryKey key = RegistryAccess.OpenSubKeyCreate(@"Plugins\Paths")) {
                 if(key != null) {
                     foreach(string str in key.GetValueNames()) {
                         var path = (string)key.GetValue(str, string.Empty);
@@ -453,7 +453,7 @@ StackTrace ---
 
         public static void SavePluginAssemblyPaths(List<string> paths) {
             const string RegPath = RegConst.Root + @""; // TODO
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegPath + @"Plugins\Paths")) {
+            using(RegistryKey key = RegistryAccess.OpenSubKeyCreate(@"Plugins\Paths")) {
                 foreach(string str in key.GetValueNames()) {
                     key.DeleteValue(str);
                 }
