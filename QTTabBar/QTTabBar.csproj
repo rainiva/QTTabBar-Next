@@ -564,6 +564,9 @@
     <Compile Include="QTDesktopTool.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="QTDesktopTool.TooltipController.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -37,7 +37,7 @@ using Timer = System.Windows.Forms.Timer;
 namespace QTTabBarLib {
     [ComVisible(true)]
     [Guid("D2BF470E-ED1C-487F-A555-2BD8835EB6CE")]
-    public sealed class QTDesktopTool : BandObject, IDeskBand2 {
+    public sealed partial class QTDesktopTool : BandObject, IDeskBand2 {
         // FUNCTIONS  									  |	THREAD		
         // -----------------------------------------------+-----------
         // taskbar toolbar								  | taskbar
@@ -59,7 +59,10 @@ namespace QTTabBarLib {
         private HookProc hookProc_Keys_Desktop;
 
         private IntPtr hwndShellTray, hwndThis;
+        private IntPtr hwndListViewDesktop;
+        private IntPtr hwndShellViewDesktop;
         private ExtendedSysListView32 slvDesktop;
+        private DesktopTooltipController _tooltipController;
 
         private ShellContextMenu iContextMenu2 = new ShellContextMenu(); // for taskbar thread, events handled at WndProc
         private ShellBrowserEx ShellBrowser;
@@ -102,7 +105,7 @@ namespace QTTabBarLib {
         private SubDirTipForm subDirTip; // subDirTip_TB;
         private ShellContextMenu iContextMenu2_Desktop = new ShellContextMenu(); // for desktop thread, handled at shellViewListener_MessageCaptured
       //  private int thumbnailIndex = -1;
-       // private int itemIndexDROPHILITED = -1;
+        private int itemIndexDROPHILITED = -1;
        // private int thumbnailIndex_Inactive = -1;
        // private Timer timer_HoverSubDirTipMenu;
 
@@ -117,6 +120,13 @@ namespace QTTabBarLib {
 
         private bool fCancelClosing;
         private bool fNowMouseHovering;
+
+        internal IntPtr HwndListView =>
+                hwndListViewDesktop != IntPtr.Zero
+                        ? hwndListViewDesktop
+                        : slvDesktop != null ? slvDesktop.Handle : IntPtr.Zero;
+
+        internal IntPtr HwndShellView => hwndShellViewDesktop;
 
 
         // CONSTANTS
@@ -570,7 +580,10 @@ namespace QTTabBarLib {
             // todo: hmm, is this allowed here?  I would think you'd have to do this in the desktop's thread.
             const int GWL_HWNDPARENT = -8; // todo: constify
             IntPtr hwndShellView = PInvoke.GetWindowLongPtr(hwndDesktop, GWL_HWNDPARENT);
+            hwndListViewDesktop = hwndDesktop;
+            hwndShellViewDesktop = hwndShellView;
             slvDesktop = new ExtendedSysListView32(ShellBrowser, hwndShellView, hwndDesktop, hwndThis);
+            _tooltipController = new DesktopTooltipController(this);
             slvDesktop.SelectionActivated += ListView_SelectionActivated;
             slvDesktop.MiddleClick += ListView_MiddleClick;
             slvDesktop.MouseActivate += ListView_MouseActivate;
@@ -1108,7 +1121,7 @@ namespace QTTabBarLib {
                         thumbnailIndex = iItem;
                         thumbnailTooltip.IsShownByKey = fKey;
 
-                        RECT rct = GetLVITEMRECT(hwndListView, iItem, false, 0);
+                        RECT rct = DesktopTooltipController.GetLVITEMRECT(HwndListView, iItem, false, 0);
 
                         return thumbnailTooltip.ShowToolTip(path, new Point(rct.right - 16, rct.bottom - 8));
                     }
@@ -1170,13 +1183,13 @@ namespace QTTabBarLib {
                 return;
 
             Point pnt = MousePosition;
-            PInvoke.MapWindowPoints(IntPtr.Zero, hwndListView, ref pnt, 1);
+            PInvoke.MapWindowPoints(IntPtr.Zero, HwndListView, ref pnt, 1);
             if(thumbnailIndex_Inactive ==
-                    PInvoke.ListView_HitTest(hwndListView, QTUtility2.Make_LPARAM(pnt.X, pnt.Y))) {
+                    PInvoke.ListView_HitTest(HwndListView, QTUtility2.Make_LPARAM(pnt.X, pnt.Y))) {
                 IntPtr pidl = GetItemPIDL(thumbnailIndex_Inactive);
                 try {
                     if(pidl != IntPtr.Zero) {
-                        RECT rct = GetLVITEMRECT(hwndListView, thumbnailIndex_Inactive, false, 0);
+                        RECT rct = DesktopTooltipController.GetLVITEMRECT(HwndListView, thumbnailIndex_Inactive, false, 0);
                         ShowThumbnailTooltip(pidl, thumbnailIndex_Inactive,
                                 !PInvoke.PtInRect(ref rct, MousePosition));
                     }
@@ -1197,50 +1210,11 @@ namespace QTTabBarLib {
 
 
         private bool ShowSubDirTip(IntPtr pIDL, int iItem, bool fSkipFocusCheck) {
-            // desktop thread ( desktop hook -> mouse hottrack, desktop hook -> keydown )
-
-            if(fSkipFocusCheck || Config.Tips.SubDirTipForInactiveWindow ||
-                    hwndListView == PInvoke.GetFocus()) {
-                try {
-                    string path = ShellMethods.GetDisplayName(pIDL, false);
-                    byte[] idl = ShellMethods.GetIDLData(pIDL);
-                    bool fQTG;
-
-                    if(QTTabBarClass.TryMakeSubDirTipPath(ref path, ref idl, false, out fQTG)) {
-                        FOLDERVIEWMODE folderViewMode = FOLDERVIEWMODE.FVM_ICON;
-                                // folderView.GetCurrentViewMode( ref folderViewMode ); 
-
-                        RECT rct = GetLVITEMRECT(hwndListView, iItem, true, folderViewMode);
-                        Point pnt = new Point(rct.right - 16, rct.bottom - 16);
-
-                        if(subDirTip == null) {
-                            //IntPtr hwndMessageParent = shellViewListener != null ? shellViewListener.Handle : IntPtr.Zero;
-
-                            subDirTip = new SubDirTipForm(hwndShellView, hwndListView, false);
-                            subDirTip.MenuItemClicked += subDirTip_MenuItemClicked;
-                            subDirTip.MultipleMenuItemsClicked += subDirTip_MultipleMenuItemsClicked;
-                            subDirTip.MenuItemRightClicked += subDirTip_MenuItemRightClicked;
-                            subDirTip.MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
-                        }
-
-                        subDirTip.ShowSubDirTip(idl, pnt, hwndListView, fQTG);
-                        return true;
-                    }
-                }
-                catch(Exception ex) {
-                    DebugUtil.AppendToExceptionLog(ex, null);
-                }
-            }
-            return false;
+            return _tooltipController.ShowSubDirTip(pIDL, iItem, fSkipFocusCheck);
         }
 
         private void HideSubDirTip() {
-            // desktop thread
-            if(subDirTip != null && subDirTip.Visible) {
-                subDirTip.HideSubDirTip(false);
-            }
-
-            itemIndexDROPHILITED = -1;
+            _tooltipController.HideSubDirTip();
         }
 
         private void HideSubDirTip_DesktopInactivated() {
@@ -1253,7 +1227,7 @@ namespace QTTabBarLib {
         private void subDirTip_MenuItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             // this can run in both desktop and taskbar thread
 
-            IntPtr hwndDialogParent = sender == subDirTip ? hwndListView : hwndShellTray;
+            IntPtr hwndDialogParent = sender == subDirTip ? HwndListView : hwndShellTray;
                     // desktop thread or taskbar thread
 
             QMenuItem qmi = (QMenuItem)e.ClickedItem;
@@ -1334,7 +1308,7 @@ namespace QTTabBarLib {
             // this can run in both desktop and taskbar thread
 
             SubDirTipForm sdtf = (SubDirTipForm)sender;
-            IntPtr hwndDialogParent = sdtf == subDirTip ? hwndListView : hwndShellTray;
+            IntPtr hwndDialogParent = sdtf == subDirTip ? HwndListView : hwndShellTray;
 
             // SubDirTip_QTGRootItem
             string[] arrGrps = sdtf.ExecutedGroups;
@@ -1440,8 +1414,8 @@ namespace QTTabBarLib {
 
             if(MouseButtons != MouseButtons.None) {
                 Point pnt = MousePosition;
-                PInvoke.MapWindowPoints(IntPtr.Zero, hwndListView, ref pnt, 1);
-                if(iItem == PInvoke.ListView_HitTest(hwndListView, QTUtility2.Make_LPARAM(pnt.X, pnt.Y))) {
+                PInvoke.MapWindowPoints(IntPtr.Zero, HwndListView, ref pnt, 1);
+                if(iItem == PInvoke.ListView_HitTest(HwndListView, QTUtility2.Make_LPARAM(pnt.X, pnt.Y))) {
                     using(IDLWrapper idlw = new IDLWrapper(GetItemPIDL(iItem))) {
                         if(idlw.Available) {
                             if(subDirTip != null) {
@@ -1451,8 +1425,8 @@ namespace QTTabBarLib {
                             if(!String.Equals(idlw.Path, CLSIDSTR_TRASHBIN, StringComparison.OrdinalIgnoreCase)) {
                                 if(ShowSubDirTip(idlw.PIDL, iItem, true)) {
                                     itemIndexDROPHILITED = iItem;
-                                    PInvoke.SetFocus(hwndListView);
-                                    PInvoke.SetForegroundWindow(hwndListView);
+                                    PInvoke.SetFocus(HwndListView);
+                                    PInvoke.SetForegroundWindow(HwndListView);
                                     HideThumbnailTooltip();
                                     subDirTip.ShowMenuForDropHilited(GetDesktopIconSize());
                                     return;
@@ -1473,112 +1447,6 @@ namespace QTTabBarLib {
             HideSubDirTip();
         }
 
-
-        private static RECT GetLVITEMRECT(IntPtr hwndListView, int iItem, bool fSubDirTip, FOLDERVIEWMODE fvm) {
-            // get the bounding rectangle of item specified by iItem, in the screen coordinates.
-            // fSubDirTip	true to get RECT depending on view style, false to get RECT by LVIR_BOUNDS
-
-            const uint LVM_FIRST = 0x1000;
-            const uint LVM_GETVIEW = (LVM_FIRST + 143);
-            const uint LVM_GETITEMW = (LVM_FIRST + 75);
-            const uint LVM_GETSTRINGWIDTHW = (LVM_FIRST + 87);
-            const uint LVM_GETITEMSPACING = (LVM_FIRST + 51);
-            const int LVIR_BOUNDS = 0;
-            const int LVIR_ICON = 1;
-            const int LVIR_LABEL = 2;
-            const int LV_VIEW_ICON = 0x0000;
-            const int LV_VIEW_DETAILS = 0x0001;
-            const int LV_VIEW_LIST = 0x0003;
-            const int LV_VIEW_TILE = 0x0004;
-            const int LVIF_TEXT = 0x00000001;
-
-            int view = (int)PInvoke.SendMessage(hwndListView, LVM_GETVIEW, IntPtr.Zero, IntPtr.Zero);
-            int code = view == LV_VIEW_DETAILS ? LVIR_LABEL : LVIR_BOUNDS;
-
-            bool fIcon = false; // for XP
-            bool fList = false; // for XP
-
-            if(fSubDirTip) {
-                switch(view) {
-                    case LV_VIEW_ICON:
-                        fIcon = !QTUtility.IsVista;
-                        code = LVIR_ICON;
-                        break;
-
-                    case LV_VIEW_DETAILS:
-                        code = LVIR_LABEL;
-                        break;
-
-                    case LV_VIEW_LIST:
-                        if(!QTUtility.IsVista) {
-                            fList = true;
-                            code = LVIR_ICON;
-                        }
-                        else {
-                            code = LVIR_LABEL;
-                        }
-                        break;
-
-                    case LV_VIEW_TILE:
-                        code = LVIR_ICON;
-                        break;
-
-                    default:
-                        // Here only in case of Vista LV_VIEW_SMALLICON.
-                        code = LVIR_BOUNDS;
-                        break;
-                }
-            }
-
-            // get item rectangle
-            RECT rct = PInvoke.ListView_GetItemRect(hwndListView, iItem, 0, code);
-
-            // convert to screen coordinates
-            PInvoke.MapWindowPoints(hwndListView, IntPtr.Zero, ref rct, 2);
-
-            // adjust rct
-            // these magic numbers have no logical meanings
-            if(fIcon) {
-                // XP, subdirtip.
-                // THUMBNAIL, THUMBSTRIP or ICON.
-                if(fvm == FOLDERVIEWMODE.FVM_THUMBNAIL || fvm == FOLDERVIEWMODE.FVM_THUMBSTRIP) {
-                    rct.right -= 13;
-                }
-                else // fvm == FVM_ICON
-                {
-                    int currentIconSpacing =
-                            (int)(long)PInvoke.SendMessage(hwndListView, LVM_GETITEMSPACING, IntPtr.Zero, IntPtr.Zero);
-                    Size sz = SystemInformation.IconSize;
-                    rct.right = rct.left + (((currentIconSpacing & 0xFFFF) - sz.Width)/2) + sz.Width + 8;
-                    rct.bottom = rct.top + sz.Height + 6;
-                }
-            }
-            else if(fList) {
-                // XP, subdirtip.
-                // calculate item text rectangle
-                LVITEM lvitem = new LVITEM();
-                lvitem.pszText = Marshal.AllocCoTaskMem(520);
-                lvitem.cchTextMax = 260;
-                lvitem.iItem = iItem;
-                lvitem.mask = LVIF_TEXT;
-                IntPtr pLI = Marshal.AllocCoTaskMem(Marshal.SizeOf(lvitem));
-                Marshal.StructureToPtr(lvitem, pLI, false);
-
-                PInvoke.SendMessage(hwndListView, LVM_GETITEMW, IntPtr.Zero, pLI);
-
-                int w = (int)PInvoke.SendMessage(hwndListView, LVM_GETSTRINGWIDTHW, IntPtr.Zero, lvitem.pszText);
-                w += 20;
-
-                Marshal.FreeCoTaskMem(lvitem.pszText);
-                Marshal.FreeCoTaskMem(pLI);
-
-                rct.right += w;
-                rct.top += 2;
-                rct.bottom += 2;
-            }
-
-            return rct;
-        }
 
         private static int GetDesktopIconSize() {
             const string KEYNAME = @"Software\Microsoft\Windows\Shell\Bags\1\Desktop";
