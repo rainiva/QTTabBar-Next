@@ -247,10 +247,10 @@ namespace QTTabBarLib {
 
             public TabBarOption TabBarOption {
                 get {
-                    return QTUtility.GetTabBarOption();
+                    return TabBarOptionService.GetTabBarOption();
                 }
                 set {
-                    QTUtility.SetTabBarOption(value, tabBar);
+                    TabBarOptionService.SetTabBarOption(value, tabBar);
                 }
             }
         }

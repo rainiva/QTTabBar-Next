@@ -284,7 +284,7 @@ namespace QTTabBarLib {
             }
             if(((path.Length == 3) && path.EndsWith(@":\")) || (path.StartsWith("::") || (length != -1))) {
                 string driveDisplayText;
-                lock(QTUtility.syncRoot) {
+                lock(SessionState.SyncRoot) {
                     if(ResourceCache.DisplayNameCacheDic.TryGetValue(path, out driveDisplayText)) {
                         return driveDisplayText;
                     }
@@ -305,7 +305,7 @@ namespace QTTabBarLib {
                     driveDisplayText = ShellMethods.GetDisplayName(path);
                 }
                 if(!String.IsNullOrEmpty(driveDisplayText)) {
-                    lock(QTUtility.syncRoot) {
+                    lock(SessionState.SyncRoot) {
                         ResourceCache.DisplayNameCacheDic[path] = driveDisplayText;
                     }
                     return driveDisplayText;

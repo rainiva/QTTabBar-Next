@@ -152,14 +152,13 @@ namespace QTTtabBarTests {
         #region 4.4 — Static collection synchronization
 
         [Test]
-        public void QTUtility_Has_SyncRoot_For_Static_Collections() {
-            // Verify that QTUtility has a syncRoot field for thread-safe collection access
-            var syncRootField = typeof(QTUtility).GetField("syncRoot",
-                BindingFlags.NonPublic | BindingFlags.Static);
+        public void SessionState_Has_SyncRoot_For_Static_Collections() {
+            var syncRootField = typeof(SessionState).GetField("SyncRoot",
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
             Assert.IsNotNull(syncRootField,
-                "QTUtility should have a syncRoot field for thread-safe collection access");
+                "SessionState should have a SyncRoot field for thread-safe collection access");
             var syncRoot = syncRootField.GetValue(null);
-            Assert.IsNotNull(syncRoot, "syncRoot should not be null");
+            Assert.IsNotNull(syncRoot, "SyncRoot should not be null");
         }
 
         #endregion

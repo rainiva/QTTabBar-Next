@@ -108,14 +108,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void SessionState_And_QTUtility_Share_The_Same_SyncRoot() {
+        public void SessionState_Owns_SyncRoot() {
             Type ss = SessionStateType;
             Assert.IsNotNull(ss, "SessionState type should exist");
             object ssLock = GetStaticMemberValue(ss, "SyncRoot");
-            object quLock = GetStaticMemberValue(typeof(QTUtility), "syncRoot");
-            Assert.IsNotNull(quLock, "QTUtility.syncRoot should exist");
-            Assert.AreSame(quLock, ssLock,
-                "SessionState must reuse QTUtility.syncRoot (no second lock, global lock semantics preserved)");
+            Assert.IsNotNull(ssLock, "SessionState.SyncRoot should exist after C7s");
+            Assert.AreSame(ssLock, SessionState.SyncRoot,
+                "SessionState.SyncRoot must be the authoritative global lock object");
         }
 
         #endregion

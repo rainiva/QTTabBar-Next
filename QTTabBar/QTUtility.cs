@@ -63,11 +63,6 @@ namespace QTTabBarLib {
 
         
         // TODO: almost all of these need to be either sync'd or removed.
-        // TODO: we should store actual TabItems, not just strings.
-        internal static readonly object syncRoot = new object();
-        // ImageListGlobal 图标缓存的专用锁（P0-4 线程安全）。仅覆盖集合操作本身，
-        // 严禁在锁内嵌套其他锁，以避免与 syncRoot 等锁交叉造成死锁。
-        internal static readonly object imageListLock = new object();
         internal static bool fExplorerPrevented;
         internal static bool fRestoreFolderTree;
         internal static bool RestoreFolderTree_Hide;
@@ -87,27 +82,6 @@ namespace QTTabBarLib {
             Initialize();
         }
 
-
-        public static void GetHiddenFileSettings(out bool fShowHidden, out bool fShowSystem) {
-            const uint SSF_SHOWALLOBJECTS   = 0x00001;
-            const uint SSF_SHOWSUPERHIDDEN  = 0x40000;
-            SHELLSTATE ss = new SHELLSTATE();
-            PInvoke.SHGetSetSettings(ref ss, SSF_SHOWALLOBJECTS | SSF_SHOWSUPERHIDDEN, false);
-            fShowHidden = ss.fShowAllObjects != 0;
-            fShowSystem = ss.fShowSuperHidden != 0;
-        }
-
-        public static IEnumerable<KeyValuePair<string, string>> GetResourceStrings(this ResourceManager res) {
-            var dict = res.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
-            var e = dict.GetEnumerator();
-            while(e.MoveNext()) {
-                yield return new KeyValuePair<string, string>((string)e.Key, (string)e.Value);
-            }
-        }
-
-        public static TabBarOption GetTabBarOption() {
-            return null; // TODO
-        }
 
         /// <summary>
         /// Ensures initialization has run. The static constructor calls this on first type load;
@@ -142,11 +116,8 @@ namespace QTTabBarLib {
 
         private static Regex singleLinebreakAtStart = new Regex(@"^(\r\n)?");
 
-        public static void SetTabBarOption(TabBarOption tabBarOption, QTTabBarClass tabBar) {
-            // TODO
-        }
-
-        // �ж��Ƿ�Ϊ����ģʽ  Environment.OSVersion.Version.Major
+        /// <summary>
+        /// Ensures initialization has run. The static constructor calls this on first type load;
         public static bool isChinese()
         {
             var uiCulture = System.Globalization.CultureInfo.InstalledUICulture.Name;

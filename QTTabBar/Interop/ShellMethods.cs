@@ -732,7 +732,7 @@ namespace QTTabBarLib.Interop {
                 if(flag) {
                     bool fSearchHidden;
                     bool fSearchSystem;
-                    QTUtility.GetHiddenFileSettings(out fSearchHidden, out fSearchSystem);
+                    ShellFolderSettingsReader.GetHiddenFileSettings(out fSearchHidden, out fSearchSystem);
                     bool flag4 = Config.Tips.SubDirTipsFiles;
                     path = targetIfFolderLink.FullName;
                     using(FindFile file = new FindFile(path, fSearchHidden, fSearchSystem)) {

@@ -10,12 +10,10 @@ namespace QTTabBarLib {
     /// existing consumers keep the exact same behavior: they observe the very
     /// same collection instances and the very same single global lock.
     ///
-    /// Locking contract (unchanged): this container intentionally does NOT
-    /// introduce its own lock. It reuses QTUtility.syncRoot (surfaced via
-    /// SyncRoot) so the global cross-collection lock semantics are preserved
-    /// exactly. Callers keep locking on QTUtility.syncRoot as before. Known
-    /// pre-existing patterns (NoCapturePathsList check-then-act, WindowAlpha
-    /// lock-free read/write) are deliberately left as-is.
+    /// Locking contract: SessionState owns the single global <see cref="SyncRoot"/>
+    /// lock object. ResourceCache reuses it via <see cref="ResourceCache.SyncRoot"/>
+    /// for DisplayNameCacheDic and related cross-collection operations.
+    /// ResourceCache owns the dedicated <see cref="ResourceCache.ImageListLock"/>.
     /// </summary>
     internal static class SessionState {
         // Migrated from QTUtility (true source). Kept as fields so that index
@@ -30,18 +28,12 @@ namespace QTTabBarLib {
             set { System.Threading.Volatile.Write(ref _windowAlpha, value); }
         }
 
+        internal static readonly object SyncRoot = new object();
+
         internal static void ResetForInitRetry() {
             ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
             NoCapturePathsList = new List<string>();
             WindowAlpha = 0xff;
-        }
-
-        /// <summary>
-        /// The single global lock. Reuses QTUtility.syncRoot instead of creating
-        /// a second lock object, so global-lock semantics stay unchanged.
-        /// </summary>
-        internal static object SyncRoot {
-            get { return QTUtility.syncRoot; }
         }
     }
 }

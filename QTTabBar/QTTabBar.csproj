@@ -819,7 +819,10 @@
     <Compile Include="ValidationHelper.cs" />
     <Compile Include="AssemblyInfoHelper.cs" />
     <Compile Include="ProcessHelper.cs" />
+    <Compile Include="TabBarOptionService.cs" />
     <Compile Include="ShellStateService.cs" />
+    <Compile Include="ShellFolderSettingsReader.cs" />
+    <Compile Include="ResourceManagerExtensions.cs" />
     <Compile Include="SoundFeedbackService.cs" />
     <Compile Include="ThemeRefreshService.cs" />
     <Compile Include="QTUtility2.cs" />

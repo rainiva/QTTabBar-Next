@@ -49,7 +49,7 @@ namespace QTTtabBarTests {
         public void NoCapturePathsList_Facade_Observes_Replaced_Reference() {
             // QTUtility.Initialize runs from the static ctor; touch it first so the
             // facade read below does not re-enter init and reload NoCapturePathsList.
-            _ = QTUtility.syncRoot;
+            _ = SessionState.SyncRoot;
             List<string> original = SessionState.NoCapturePathsList;
             try {
                 List<string> replacement = new List<string> { "::{TEST-RACE}" };
@@ -131,7 +131,7 @@ namespace QTTtabBarTests {
                 Assert.IsNotNull(dict,
                     "ValidateTextResources must materialize a non-null dictionary from a null input");
 
-                lock(QTUtility.syncRoot) {
+                lock(SessionState.SyncRoot) {
                     ResourceCache.TextResourcesDic = dict;
                 }
 
@@ -185,7 +185,7 @@ namespace QTTtabBarTests {
                 // mutates the currently-published list in place.
                 for(int i = 0; i < 5000; i++) {
                     List<string> next = new List<string> { "::{seed}", "::{gen-" + i + "}" };
-                    lock(QTUtility.syncRoot) {
+                    lock(SessionState.SyncRoot) {
                         SessionState.NoCapturePathsList = next;
                     }
                 }

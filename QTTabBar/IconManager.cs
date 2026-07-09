@@ -28,8 +28,8 @@ namespace QTTabBarLib {
     // of QTUtility. Behavior is identical; QTUtility forwards to these via one-line
     // facades so cross-file callers are unchanged.
     //
-    // Lock ordering (unchanged, P0-4): read cached data under QTUtility.syncRoot,
-    // release it, THEN take QTUtility.imageListLock to write. The two locks are
+    // Lock ordering (unchanged, P0-4): read cached data under SessionState.SyncRoot,
+    // release it, THEN take ResourceCache.ImageListLock to write. The two locks are
     // never nested and imageListLock only ever guards the ImageList collection ops.
     internal static class IconManager {
 
@@ -143,7 +143,7 @@ namespace QTTabBarLib {
                     // Read the cached PIDL under syncRoot and release it, THEN take
                     // imageListLock inside AddImageToGlobal; never nest the two locks.
                     bool found;
-                    lock(QTUtility.syncRoot) {
+                    lock(SessionState.SyncRoot) {
                         found = SessionState.ITEMIDLIST_Dic_Session.TryGetValue(path, out buffer);
                     }
                     if(found) {
@@ -239,7 +239,7 @@ namespace QTTabBarLib {
                     // imageListLock, so the two locks are never nested.
                     byte[] buffer;
                     bool found5;
-                    lock(QTUtility.syncRoot) {
+                    lock(SessionState.SyncRoot) {
                         found5 = SessionState.ITEMIDLIST_Dic_Session.TryGetValue(irk.ImageKey, out buffer);
                     }
                     if(found5) {
@@ -276,10 +276,10 @@ namespace QTTabBarLib {
 
         // Unified entry points for the ImageListGlobal cache (P0-4 thread safety).
         // Every Add / ContainsKey / indexer access to ImageListGlobal.Images must go
-        // through these, guarded by QTUtility.imageListLock. The lock scope is kept
+        // through these, guarded by ResourceCache.ImageListLock. The lock scope is kept
         // short and only ever covers the collection operation itself.
         internal static void AddImageToGlobal(string key, Image image) {
-            lock(QTUtility.imageListLock) {
+            lock(ResourceCache.ImageListLock) {
                 if(!ResourceCache.ImageListGlobal.Images.ContainsKey(key)) {
                     ResourceCache.ImageListGlobal.Images.Add(key, image);
                 }
@@ -287,7 +287,7 @@ namespace QTTabBarLib {
         }
 
         internal static void AddImageToGlobal(string key, Icon icon) {
-            lock(QTUtility.imageListLock) {
+            lock(ResourceCache.ImageListLock) {
                 if(!ResourceCache.ImageListGlobal.Images.ContainsKey(key)) {
                     ResourceCache.ImageListGlobal.Images.Add(key, icon);
                 }
@@ -295,7 +295,7 @@ namespace QTTabBarLib {
         }
 
         internal static bool ImageGlobalContainsKey(string key) {
-            lock(QTUtility.imageListLock) {
+            lock(ResourceCache.ImageListLock) {
                 return ResourceCache.ImageListGlobal != null
                     && ResourceCache.ImageListGlobal.Images != null
                     && ResourceCache.ImageListGlobal.Images.ContainsKey(key);
@@ -303,7 +303,7 @@ namespace QTTabBarLib {
         }
 
         internal static Image GetImageFromGlobal(string key) {
-            lock(QTUtility.imageListLock) {
+            lock(ResourceCache.ImageListLock) {
                 return ResourceCache.ImageListGlobal.Images[key];
             }
         }

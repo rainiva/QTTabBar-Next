@@ -27,10 +27,10 @@ namespace QTTabBarLib {
     // facades so cross-file callers are unchanged.
     //
     // Deliberately NOT named ResourceManager to avoid clashing with
-    // System.Resources.ResourceManager (used by the GetResourceStrings extension).
+    // System.Resources.ResourceManager (used by ResourceManagerExtensions.GetResourceStrings).
     //
     // Publish semantics (Task 2.5, unchanged): the no-arg ValidateTextResources builds
-    // the dictionary off to the side, then publishes it under lock(QTUtility.syncRoot)
+    // the dictionary off to the side, then publishes it under lock(SessionState.SyncRoot)
     // in one shot. ResourceCache.TextResourcesDic is the single source of truth; the
     // ResMain / ResMisc snapshots are refreshed from the just-published dictionary.
     internal static class QTResourceManager {
@@ -99,7 +99,7 @@ namespace QTTabBarLib {
         public static void ValidateTextResources() {
             Dictionary<string, string[]> dict = ResourceCache.TextResourcesDic;
             ValidateTextResources(ref dict);
-            lock(QTUtility.syncRoot) {
+            lock(SessionState.SyncRoot) {
                 ResourceCache.TextResourcesDic = dict;
             }
             Resx.UpdateAll();

@@ -159,25 +159,24 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ResourceCache_Shares_QTUtility_SyncRoot() {
+        public void ResourceCache_Shares_SessionState_SyncRoot() {
             Type rc = ResourceCacheType;
             Assert.IsNotNull(rc, "ResourceCache type should exist");
             object rcLock = GetStaticMemberValue(rc, "SyncRoot");
-            object quLock = GetStaticMemberValue(typeof(QTUtility), "syncRoot");
-            Assert.IsNotNull(quLock, "QTUtility.syncRoot should exist");
-            Assert.AreSame(quLock, rcLock,
-                "ResourceCache must reuse QTUtility.syncRoot (no second lock, global lock semantics preserved)");
+            object ssLock = GetStaticMemberValue(typeof(QTUtility).Assembly.GetType("QTTabBarLib.SessionState"), "SyncRoot");
+            Assert.IsNotNull(ssLock, "SessionState.SyncRoot should exist");
+            Assert.AreSame(ssLock, rcLock,
+                "ResourceCache.SyncRoot must reference SessionState.SyncRoot (single global lock preserved)");
         }
 
         [Test]
-        public void ResourceCache_Shares_QTUtility_ImageListLock() {
+        public void ResourceCache_Owns_ImageListLock() {
             Type rc = ResourceCacheType;
             Assert.IsNotNull(rc, "ResourceCache type should exist");
             object rcLock = GetStaticMemberValue(rc, "ImageListLock");
-            object quLock = GetStaticMemberValue(typeof(QTUtility), "imageListLock");
-            Assert.IsNotNull(quLock, "QTUtility.imageListLock should exist");
-            Assert.AreSame(quLock, rcLock,
-                "ResourceCache must reuse QTUtility.imageListLock (dedicated ImageListGlobal lock preserved)");
+            Assert.IsNotNull(rcLock, "ResourceCache.ImageListLock should exist after C7s");
+            Assert.AreSame(rcLock, ResourceCache.ImageListLock,
+                "ResourceCache.ImageListLock must be the authoritative lock object");
         }
 
         #endregion

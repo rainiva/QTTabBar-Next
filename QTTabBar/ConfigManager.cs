@@ -32,7 +32,7 @@ namespace QTTabBarLib {
                     ? QTResourceManager.ReadLanguageFile(Config.Lang.LangFile)
                     : null;
             QTResourceManager.ValidateTextResources(ref newTextResources);
-            lock(QTUtility.syncRoot) {
+            lock(SessionState.SyncRoot) {
                 ResourceCache.TextResourcesDic = newTextResources;
             }
             QTResourceManager.ValidateTextResources();
@@ -166,7 +166,7 @@ namespace QTTabBarLib {
         private static void UpdateNoCapturePaths(IEnumerable<string> paths) {
             List<string> list = paths == null ? new List<string>() : paths.ToList();
             Config.Window.NoCaptureAt = string.Join(";", list.ToArray());
-            lock(QTUtility.syncRoot) {
+            lock(SessionState.SyncRoot) {
                 SessionState.NoCapturePathsList = new List<string>(list);
             }
         }

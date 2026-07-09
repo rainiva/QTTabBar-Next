@@ -225,7 +225,7 @@ namespace QTTabBarLib {
                             if(flag) {
                                 if((!_owner.ExNavigatedByCode && (idl != null)) && (idl.Length > 0)) {
                                     path = path + "*?*?*" + hash;
-                                    lock(QTUtility.syncRoot) SessionState.ITEMIDLIST_Dic_Session[path] = idl;
+                                    lock(SessionState.SyncRoot) SessionState.ITEMIDLIST_Dic_Session[path] = idl;
                                     _owner.ExCurrentTab.CurrentPath = _owner.ExCurrentAddress = path;
                                 }
                             }
@@ -265,7 +265,7 @@ namespace QTTabBarLib {
                         }
                         if(_owner.ExCurrentAddress.StartsWith("::")) {
                             _owner.ExCurrentTab.ToolTipText = _owner.ExCurrentTab.Text;
-                            lock(QTUtility.syncRoot) ResourceCache.DisplayNameCacheDic[_owner.ExCurrentAddress] = _owner.ExCurrentTab.Text;
+                            lock(SessionState.SyncRoot) ResourceCache.DisplayNameCacheDic[_owner.ExCurrentAddress] = _owner.ExCurrentTab.Text;
                         }
                         else if(flag2) {
                             _owner.ExCurrentTab.ToolTipText = (string)URL;
@@ -275,7 +275,7 @@ namespace QTTabBarLib {
                                  || (_owner.ExCurrentAddress.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
                                  || _owner.ExCurrentAddress.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase))) {
                             _owner.ExCurrentTab.ToolTipText = _owner.ExCurrentTab.CurrentPath;
-                            lock(QTUtility.syncRoot) ResourceCache.DisplayNameCacheDic[_owner.ExCurrentAddress] = _owner.ExCurrentTab.Text;
+                            lock(SessionState.SyncRoot) ResourceCache.DisplayNameCacheDic[_owner.ExCurrentAddress] = _owner.ExCurrentTab.Text;
                         }
                         else {
                             _owner.ExCurrentTab.ToolTipText = _owner.ExCurrentTab.CurrentPath;

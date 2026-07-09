@@ -208,7 +208,7 @@ namespace QTTabBarLib {
             }
             try {
                 bool flag2, flag3;
-                QTUtility.GetHiddenFileSettings(out flag3, out flag2);
+                ShellFolderSettingsReader.GetHiddenFileSettings(out flag3, out flag2);
                 const FileAttributes attributes = FileAttributes.ReparsePoint | FileAttributes.System | FileAttributes.Hidden;
                 int num = 0;
                 foreach(DirectoryInfo info in di.GetDirectories()) {
@@ -358,7 +358,7 @@ namespace QTTabBarLib {
                 }
                 bool dummy;
                 bool flag;
-                QTUtility.GetHiddenFileSettings(out flag, out dummy);
+                ShellFolderSettingsReader.GetHiddenFileSettings(out flag, out dummy);
                 int grfFlags = 0x60;
                 if(flag) {
                     grfFlags |= 0x80;
@@ -677,7 +677,7 @@ namespace QTTabBarLib {
             item.MouseUp += tsmi_MouseUp;
             bool fSearchHidden;
             bool fSearchSystem;
-            QTUtility.GetHiddenFileSettings(out fSearchHidden, out fSearchSystem);
+            ShellFolderSettingsReader.GetHiddenFileSettings(out fSearchHidden, out fSearchSystem);
             bool flag3 = Config.Tips.SubDirTipsFiles;
             bool flag4;
             using(FindFile file = new FindFile(item.TargetPath, fSearchHidden, fSearchSystem)) {
