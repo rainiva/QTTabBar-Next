@@ -102,8 +102,6 @@ namespace QTTabBarLib {
             lock(QTUtility.syncRoot) {
                 ResourceCache.TextResourcesDic = dict;
             }
-            QTUtility.ResMain = QTUtility.TextResourcesDic["TabBar_Menu"];
-            QTUtility.ResMisc = QTUtility.TextResourcesDic["Misc_Strings"];
             Resx.UpdateAll();
         }
 

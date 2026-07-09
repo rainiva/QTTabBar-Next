@@ -101,17 +101,16 @@ namespace QTTabBarLib {
         internal static ImageList ImageListGlobal { get { return ResourceCache.ImageListGlobal; } set { ResourceCache.ImageListGlobal = value; } }
         internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session { get { return SessionState.ITEMIDLIST_Dic_Session; } set { SessionState.ITEMIDLIST_Dic_Session = value; } }
         internal static List<string> NoCapturePathsList { get { return SessionState.NoCapturePathsList; } set { SessionState.NoCapturePathsList = value; } }
-        internal static string[] ResMain;
-        internal static string[] ResMisc;
+        internal static string[] ResMain =>
+            TextResourcesDic != null && TextResourcesDic.TryGetValue("TabBar_Menu", out string[] main) ? main : null;
+        internal static string[] ResMisc =>
+            TextResourcesDic != null && TextResourcesDic.TryGetValue("Misc_Strings", out string[] misc) ? misc : null;
         internal static bool RestoreFolderTree_Hide;
         // internal static SolidBrush sbAlternate;
        // internal static Font StartUpTabFont;
         internal static Dictionary<string, string[]> TextResourcesDic {
             get { return ResourceCache.TextResourcesDic; }
-            set {
-                ResourceCache.TextResourcesDic = value;
-                RefreshResMainMiscFromTextResources();
-            }
+            set { ResourceCache.TextResourcesDic = value; }
         }
         internal static byte WindowAlpha { get { return System.Threading.Volatile.Read(ref SessionState.WindowAlpha); } set { System.Threading.Volatile.Write(ref SessionState.WindowAlpha, value); } }
 
@@ -701,19 +700,6 @@ namespace QTTabBarLib {
 
         public static void ValidateTextResources() {
             QTResourceManager.ValidateTextResources();
-        }
-
-        private static void RefreshResMainMiscFromTextResources() {
-            Dictionary<string, string[]> dict = ResourceCache.TextResourcesDic;
-            if(dict == null) {
-                return;
-            }
-            if(dict.TryGetValue("TabBar_Menu", out string[] main)) {
-                ResMain = main;
-            }
-            if(dict.TryGetValue("Misc_Strings", out string[] misc)) {
-                ResMisc = misc;
-            }
         }
 
         public static void ValidateTextResources(ref Dictionary<string, string[]> dict)
