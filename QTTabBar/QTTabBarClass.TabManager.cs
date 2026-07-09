@@ -420,14 +420,6 @@ namespace QTTabBarLib {
 
             #region Tab closing
 
-            public List<string> CloseAllTabsExcept(QTabItem leaveThisOne, bool leaveLocked = true) {
-                List<QTabItem> tabs = _owner.tabControl1.TabPages.Where(item => 
-                    !(leaveLocked && item.TabLocked) && item != leaveThisOne).ToList();
-                List<string> paths = tabs.Select(tab => tab.CurrentPath).ToList();
-                CloseTabs(tabs, !leaveLocked);
-                return paths;
-            }
-
             public void CloseLeftRight(bool fLeft, int index) {
                 if(index == -1) {
                     index = _owner.tabControl1.SelectedIndex;

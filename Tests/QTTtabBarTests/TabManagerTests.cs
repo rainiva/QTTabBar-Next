@@ -103,9 +103,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_CloseAllTabsExcept() {
-            Assert.IsNotNull(TabManagerType.GetMethod("CloseAllTabsExcept", AnyInstance),
-                "TabManager should host CloseAllTabsExcept");
+        public void TabBarBase_Owns_CloseAllTabsExcept() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("CloseAllTabsExcept",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host CloseAllTabsExcept after W3c");
         }
 
         [Test]

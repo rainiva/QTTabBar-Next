@@ -282,7 +282,7 @@ namespace QTTabBarLib {
             return _tabManager.CloneTabButton(tab, optionURL, fSelect, index);
         }
         private List<string> CloseAllTabsExcept(QTabItem leaveThisOne, bool leaveLocked = true) {
-            return _tabManager.CloseAllTabsExcept(leaveThisOne, leaveLocked);
+            return base.CloseAllTabsExcept(leaveThisOne, leaveLocked);
         }
         /**
          *�����رմ����¼� by indiff

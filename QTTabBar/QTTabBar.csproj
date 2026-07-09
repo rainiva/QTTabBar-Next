@@ -417,6 +417,9 @@
     <Compile Include="TabBarBase.Selection.cs">
       <DependentUpon>TabBarBase.cs</DependentUpon>
     </Compile>
+    <Compile Include="TabBarBase.Close.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Toolbar.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />

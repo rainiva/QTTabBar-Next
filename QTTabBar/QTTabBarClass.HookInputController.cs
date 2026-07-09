@@ -487,63 +487,7 @@ namespace QTTabBarLib {
             }
 
             internal bool HandleCLOSE(IntPtr lParam) {
-                bool flag = Config.Window.CloseBtnClosesSingleTab;
-                bool flag2 = Config.Window.CloseBtnClosesUnlocked;
-                List<string> closingPaths = new List<string>();
-                int num = (int)lParam;
-                switch(num) {
-                    case 1:
-                        closingPaths = _owner.CloseAllTabsExcept(null, flag2);
-                        if(_owner.tabControl1.TabCount > 0) {
-                            return true;
-                        }
-                        break;
-
-                    case 2:
-                        return false;
-
-                    default: {
-                            bool flag3 = QTUtility2.PathExists(_owner.CurrentTab.CurrentPath);
-                            if((QTUtility.IsXP && flag3) && (num == 0)) {
-                                return true;
-                            }
-                            if(!flag3) {
-                                _owner.CloseTab(_owner.CurrentTab, true);
-                                return (_owner.tabControl1.TabCount > 0);
-                            }
-                            if(flag2 && !flag) {
-                                closingPaths = _owner.CloseAllTabsExcept(null);
-                                if(_owner.tabControl1.TabCount > 0) {
-                                    return true;
-                                }
-                                QTUtility.SaveClosing(closingPaths);
-                                return false;
-                            }
-                            Keys modifierKeys = ModifierKeys;
-                            if((modifierKeys == (Keys.Control | Keys.Shift)) || !flag) {
-                                foreach(QTabItem item2 in _owner.tabControl1.TabPages) {
-                                    closingPaths.Add(item2.CurrentPath);
-                                    _owner.AddToHistory(item2);
-                                }
-                                QTUtility.SaveClosing(closingPaths);
-                                return false;
-                            }
-                            if(modifierKeys == Keys.Control) {
-                                closingPaths = _owner.CloseAllTabsExcept(null);
-                            }
-                            else {
-                                closingPaths.Add(_owner.CurrentTab.CurrentPath);
-                                _owner.CloseTab(_owner.CurrentTab, false);
-                            }
-                            if(_owner.tabControl1.TabCount > 0) {
-                                return true;
-                            }
-                            QTUtility.SaveClosing(closingPaths);
-                            return false;
-                        }
-                }
-                QTUtility.SaveClosing(closingPaths);
-                return false;
+                return ((TabBarBase)_owner).HandleCLOSE(lParam);
             }
 
             private bool HandleKEYDOWN(Keys key, bool fRepeat) {
