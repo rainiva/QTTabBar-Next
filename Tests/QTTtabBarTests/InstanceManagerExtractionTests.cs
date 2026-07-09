@@ -161,10 +161,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void InstanceManager_Still_Has_RegisterButtonBar_Facade() {
+        public void InstanceManager_No_Longer_Has_RegisterButtonBar_Facade() {
             bool hasMethod = typeof(InstanceManager).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Any(m => m.Name == "RegisterButtonBar");
-            Assert.IsTrue(hasMethod, "InstanceManager should still have RegisterButtonBar facade");
+            Assert.IsFalse(hasMethod, "RegisterButtonBar should be called via ButtonBarRegistry directly");
         }
 
         #endregion

@@ -1049,7 +1049,7 @@ namespace QTTabBarLib {
                             else {
                                 RECT rect2;
                                 IntPtr ptr;
-                                if(InstanceManager.TryGetButtonBarHandle(_owner.ExplorerHandle, out ptr) && PInvoke.IsWindowVisible(ptr)) {
+                                if(ButtonBarRegistry.TryGetButtonBarHandle(_owner.ExplorerHandle, out ptr) && PInvoke.IsWindowVisible(ptr)) {
                                     PInvoke.GetWindowRect(ptr, out rect2);
                                     if(PInvoke.PtInRect(ref rect2, pt)) {
                                         cloning = true;

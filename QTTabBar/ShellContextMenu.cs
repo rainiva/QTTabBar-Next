@@ -98,7 +98,7 @@ namespace QTTabBarLib {
                                     else if(commandID == COMMANDID_OPENPARENT) {
                                         if(idlw.HasPath) {
                                             try {
-                                                QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+                                                QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
                                                 if(tabbar != null) {
                                                     using(IDLWrapper idlwParent = idlw.GetParent()) {
                                                         if(idlwParent.Available) {

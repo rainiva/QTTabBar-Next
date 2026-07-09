@@ -268,7 +268,7 @@ namespace QTTabBarLib {
                         tabBar.OpenNewTabOrWindow(idlw);
                     }
                 };
-                QTTabBarClass threadBar = InstanceManager.GetThreadTabBar();
+                QTTabBarClass threadBar = TabInstanceRegistry.GetThreadTabBar();
                 if(threadBar != null) {
                     open(threadBar);
                 }

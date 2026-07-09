@@ -1241,7 +1241,7 @@ namespace QTTabBarLib {
                 PluginManager.RefreshPlugins();
                 _lastPluginEnabledSnapshot = (string[])enabledPlugins.Clone();
             }
-            InstanceManager.LocalTabBroadcast(tabbar => tabbar.RefreshOptions());
+            TabInstanceRegistry.LocalTabBroadcast(tabbar => tabbar.RefreshOptions());
             if(fBroadcast) {
                 InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
             }

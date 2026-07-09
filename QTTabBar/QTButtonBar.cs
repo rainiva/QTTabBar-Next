@@ -148,7 +148,7 @@ namespace QTTabBarLib {
         }
 
         private void AddHistoryItems(ToolStripDropDownItem button) {
-            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
             if(tabBar != null) {
                 button.DropDownItems.Clear();
                 List<QMenuItem> list = tabBar.CreateNavBtnMenuItems(true);
@@ -171,7 +171,7 @@ namespace QTTabBarLib {
             }
 
             // todo: the button bar should have its *own* ShellBrowserEx!
-            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
             if(tabBar == null) return;
             List<ToolStripItem> lstItems = MenuUtility.CreateAppLauncherItems(Handle, tabBar.GetShellBrowser(),
                     !Config.BBar.LockDropDownButtons, ddmr45_ItemRightClicked, userAppsSubDir_DoubleClicked, false);
@@ -236,7 +236,7 @@ namespace QTTabBarLib {
                     dropTargetWrapper.Dispose();
                     dropTargetWrapper = null;
                 }
-                InstanceManager.UnregisterButtonBar();
+                ButtonBarRegistry.UnregisterButtonBar();
                 fFinalRelease = false;
                 base.CloseDW(dwReserved);
             }
@@ -246,7 +246,7 @@ namespace QTTabBarLib {
         }
         
         private void copyButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
             if(tabBar != null) {
                 tabBar.DoFileTools(((DropDownMenuBase)sender).Items.IndexOf(e.ClickedItem));
             }
@@ -267,7 +267,7 @@ namespace QTTabBarLib {
                     ((ToolStripMenuItem)base2.Items[i]).ShortcutKeyDisplayString = string.Empty;
                 }
             }
-            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
             if((tabBar != null) && tabBar.TryGetSelection(out addressArray, out str, false)) {
                 base2.Items[0].Enabled = base2.Items[1].Enabled = addressArray.Length > 0;
                 base2.Items[2].Enabled = base2.Items[3].Enabled = true;
@@ -540,7 +540,7 @@ namespace QTTabBarLib {
             }
 
             // todo: check
-            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
             if(tabBar != null) {
                 tabBar.rebarController.RefreshHeight();
             }
@@ -551,7 +551,7 @@ namespace QTTabBarLib {
         }
 
         private void CreatePluginItem(int buttonIndex) {
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar == null) return;
             QTTabBarClass.PluginServer pluginServer = tabbar.pluginServer;
             if(pluginServer == null) return;
@@ -682,7 +682,7 @@ namespace QTTabBarLib {
         }
 
         private static void ddmrGroupButton_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
-            InstanceManager.GetThreadTabBar().ReplaceByGroup(e.ClickedItem.Text);
+            TabInstanceRegistry.GetThreadTabBar().ReplaceByGroup(e.ClickedItem.Text);
         }
 
         protected override void Dispose(bool disposing) {
@@ -716,7 +716,7 @@ namespace QTTabBarLib {
             QMenuItem clickedItem = e.ClickedItem as QMenuItem;
             if(ownerItem == null || ownerItem.Tag == null || clickedItem == null) return;
             int tag = (int)ownerItem.Tag;
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             Keys modifierKeys = ModifierKeys;
             switch(tag) {
                 case BII_NAVIGATION_DROPDOWN:
@@ -1022,7 +1022,7 @@ namespace QTTabBarLib {
         }
 
         private static void navBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            InstanceManager.GetThreadTabBar()
+            TabInstanceRegistry.GetThreadTabBar()
                 .NavigateBranchCurrent(((QMenuItem)e.ClickedItem).MenuItemArguments.Index);
         }
 
@@ -1032,9 +1032,9 @@ namespace QTTabBarLib {
                 {
                     ExplorerHandle = (IntPtr)Explorer.HWND;
                 }
-                InstanceManager.RegisterButtonBar(this);
+                ButtonBarRegistry.RegisterButtonBar(this);
                 dropTargetWrapper = new DropTargetWrapper(this);
-                QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+                QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
                 // add by indiff dark mode
                 QTUtility.RefreshNightMode();
                 QTUtility2.log("OnExplorerAttached SwitchNighMode");
@@ -1078,7 +1078,7 @@ namespace QTTabBarLib {
             ToolStripItem item = (ToolStripItem)sender;
             Plugin plugin;
             string pluginID = Config.BBar.ActivePluginIDs[((int)item.Tag).HiWord() - 1];
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar != null && tabbar.pluginServer.TryGetPlugin(pluginID, out plugin)) {
                 try {
                     ((IBarButton)plugin.Instance).OnButtonClick();
@@ -1095,7 +1095,7 @@ namespace QTTabBarLib {
             item.DropDown.SuspendLayout();
             Plugin plugin;
             string pluginID = Config.BBar.ActivePluginIDs[((int)item.Tag).HiWord() - 1];
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar != null && tabbar.pluginServer.TryGetPlugin(pluginID, out plugin)) {
                 try {
                     ((IBarDropButton)plugin.Instance).OnDropDownOpening((ToolStripDropDownMenu)item.DropDown);
@@ -1111,7 +1111,7 @@ namespace QTTabBarLib {
             ToolStripDropDownItem ownerItem = (ToolStripDropDownItem)((DropDownMenuReorderable)sender).OwnerItem;
             Plugin plugin;
             string pluginID = Config.BBar.ActivePluginIDs[((int)ownerItem.Tag).HiWord() - 1];
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar != null && tabbar.pluginServer.TryGetPlugin(pluginID, out plugin)) {
                 try {
                     ((IBarDropButton)plugin.Instance).OnDropDownItemClick(e.ClickedItem, MouseButtons.Left);
@@ -1126,7 +1126,7 @@ namespace QTTabBarLib {
             ToolStripDropDownItem ownerItem = (ToolStripDropDownItem)((DropDownMenuReorderable)sender).OwnerItem;
             Plugin plugin;
             string pluginID = Config.BBar.ActivePluginIDs[((int)ownerItem.Tag).HiWord() - 1];
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar != null && tabbar.pluginServer.TryGetPlugin(pluginID, out plugin)) {
                 try {
                     ((IBarDropButton)plugin.Instance).OnDropDownItemClick(e.ClickedItem, MouseButtons.Right);
@@ -1223,7 +1223,7 @@ namespace QTTabBarLib {
             }
             else if(e.KeyChar == '\x001b') {
                 searchBox.Text = "";
-                QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+                QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
                 if(tabBar != null) {
                     tabBar.GetListView().SetFocus();
                     searchBox.RefreshText();
@@ -1273,7 +1273,7 @@ namespace QTTabBarLib {
 
         // TODO clean
         private bool ShellViewIncrementalSearch(string str) {
-            var listView = InstanceManager.GetThreadTabBar().GetListView();
+            var listView = TabInstanceRegistry.GetThreadTabBar().GetListView();
             listView.HideSubDirTip(9);
             listView.HideThumbnailTooltip(9);
 
@@ -1307,11 +1307,11 @@ namespace QTTabBarLib {
                         return false;
                     }
                     view2.ItemCount(SVGIO.ALLVIEW, out num);
-                    AbstractListView lvw = InstanceManager.GetThreadTabBar().GetListView();
+                    AbstractListView lvw = TabInstanceRegistry.GetThreadTabBar().GetListView();
                     lvw.SetRedraw(false);
                     try {
                         Regex regex;
-                        QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+                        QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
                         if(str.StartsWith("/") && str.EndsWith("/")) {
                             try {
                                 regex = new Regex(str.Substring(1, str.Length - 2), RegexOptions.IgnoreCase);
@@ -1460,7 +1460,7 @@ namespace QTTabBarLib {
 
         private void toolStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             if(e.ClickedItem == null || e.ClickedItem.Tag == null) return;
-            InstanceManager.GetThreadTabBar().ProcessButtonBarClick((int)e.ClickedItem.Tag);
+            TabInstanceRegistry.GetThreadTabBar().ProcessButtonBarClick((int)e.ClickedItem.Tag);
         }
 
         private void toolStrip_MouseActivated(object sender, EventArgs e) {
@@ -1469,7 +1469,7 @@ namespace QTTabBarLib {
 
         private void toolStrip_MouseDoubleClick(object sender, MouseEventArgs e) {
             if(toolStrip.GetItemAt(e.Location) == null) {
-                InstanceManager.GetThreadTabBar().OnMouseDoubleClick();
+                TabInstanceRegistry.GetThreadTabBar().OnMouseDoubleClick();
             }
         }
 
@@ -1665,7 +1665,7 @@ namespace QTTabBarLib {
         }
 
         private void UnloadPluginsOnCreation() {
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar == null) return;
             foreach(Plugin plugin in tabbar.pluginServer.Plugins) {
                 PluginType pluginType = plugin.PluginInformation.PluginType;
@@ -1699,7 +1699,7 @@ namespace QTTabBarLib {
         private void userAppsSubDir_DoubleClicked(object sender, EventArgs e) {
             ddmrUserAppButton.Close();
             using(IDLWrapper wrapper = new IDLWrapper(((QMenuItem)sender).Path)) {
-                InstanceManager.GetThreadTabBar().OpenNewTabOrWindow(wrapper);
+                TabInstanceRegistry.GetThreadTabBar().OpenNewTabOrWindow(wrapper);
             }
         }
 
@@ -1724,7 +1724,7 @@ namespace QTTabBarLib {
             if(ddmrUserAppButton != null && ddmrUserAppButton.Visible) {
                 ddmrUserAppButton.Close(ToolStripDropDownCloseReason.AppClicked);
             }
-            QTTabBarClass tabbar = InstanceManager.GetThreadTabBar();
+            QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             int index = 0;
             int count = 0;
             // 判断tabbar不为空
@@ -1828,7 +1828,7 @@ namespace QTTabBarLib {
                     break;
 
                 case WM.DROPFILES:
-                    PInvoke.SendMessage(InstanceManager.GetThreadTabBar().Handle, 0x233, m.WParam, IntPtr.Zero);
+                    PInvoke.SendMessage(TabInstanceRegistry.GetThreadTabBar().Handle, 0x233, m.WParam, IntPtr.Zero);
                     return;
 
                 case WM.APP:
@@ -1839,7 +1839,7 @@ namespace QTTabBarLib {
                     if(     (ddmrGroupButton == null || !ddmrGroupButton.Visible) &&
                             (ddmrUserAppButton == null || !ddmrUserAppButton.Visible) && 
                             (ddmrRecentlyClosed == null || !ddmrRecentlyClosed.Visible)) {
-                        InstanceManager.GetThreadTabBar().ShowContextMenu(false);
+                        TabInstanceRegistry.GetThreadTabBar().ShowContextMenu(false);
                     }
                     return;
             }
@@ -1849,7 +1849,7 @@ namespace QTTabBarLib {
         private ShellBrowserEx ShellBrowser {
             get {
                 if(shellBrowser == null) {
-                    QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+                    QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
                     if(tabBar != null) {
                         shellBrowser = tabBar.GetShellBrowser();
                     }

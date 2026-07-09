@@ -53,7 +53,7 @@ namespace QTTabBarLib {
                                 {
                                     QTUtility.RefreshShellStateValues();
                                     ShellColors.Refresh();
-                                    InstanceManager.SyncToolbarColorThreads();
+                                    TabInstanceRegistry.SyncToolbarColorThreads();
                                     this.fNoMoreImmersiveColorSet = true;
                                     ActionDelayer.Add((Action)(() => this.fNoMoreImmersiveColorSet = false), 3000);
                                 }

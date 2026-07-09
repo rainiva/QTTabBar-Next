@@ -447,7 +447,7 @@ StackTrace ---
                         if(info.Enabled) LoadStaticInstance(info, pa);
                     }
                 }
-                InstanceManager.LocalTabBroadcast(tabbar => tabbar.pluginServer.RefreshPlugins());
+                TabInstanceRegistry.LocalTabBroadcast(tabbar => tabbar.pluginServer.RefreshPlugins());
             }
         }
 
@@ -471,7 +471,7 @@ StackTrace ---
 
         public static void UninstallPluginAssembly(PluginAssembly pa) {
             List<string> pids = pa.PluginInformations.Select(pi => pi.PluginID).ToList();
-            InstanceManager.LocalTabBroadcast(tabbar => pids.ForEach(pid =>
+            TabInstanceRegistry.LocalTabBroadcast(tabbar => pids.ForEach(pid =>
                     tabbar.pluginServer.UnloadPluginInstance(pid, EndCode.Removed)));
 
             foreach(PluginInformation info in pa.PluginInformations) {

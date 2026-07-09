@@ -569,26 +569,22 @@ namespace QTTabBarLib {
         }
 
         public static void TabBarBroadcast(Action<QTTabBarClass> action, bool includeCurrent) {
-            LocalTabBroadcast(action, Thread.CurrentThread);
+            TabInstanceRegistry.LocalTabBroadcast(action, Thread.CurrentThread);
             if(includeCurrent) {
-                var tabbar = GetThreadTabBar();
+                var tabbar = TabInstanceRegistry.GetThreadTabBar();
                 if(tabbar != null) action(tabbar);
             }
-            StaticBroadcast(() => LocalTabBroadcast(action));
+            StaticBroadcast(() => TabInstanceRegistry.LocalTabBroadcast(action));
         }
-
-        public static void LocalTabBroadcast(Action<QTTabBarClass> action, Thread skip = null) { TabInstanceRegistry.LocalTabBroadcast(action, skip); }
 
         public static void ButtonBarBroadcast(Action<QTButtonBar> action, bool includeCurrent) {
-            LocalBBarBroadcast(action, Thread.CurrentThread);
+            ButtonBarRegistry.LocalBBarBroadcast(action, Thread.CurrentThread);
             if(includeCurrent) {
-                var bbar = GetThreadButtonBar();
+                var bbar = ButtonBarRegistry.GetThreadButtonBar();
                 if(bbar != null) action(bbar);
             }
-            StaticBroadcast(() => LocalBBarBroadcast(action));
+            StaticBroadcast(() => ButtonBarRegistry.LocalBBarBroadcast(action));
         }
-
-        public static void LocalBBarBroadcast(Action<QTButtonBar> action, Thread skip = null) { ButtonBarRegistry.LocalBBarBroadcast(action, skip); }
 
         private static void ExecuteOnMainProcess(Action action, bool doAsync) {
             ICommService service = GetChannel();
@@ -607,23 +603,15 @@ namespace QTTabBarLib {
 
         public static void InvokeMain(Action<QTTabBarClass> action) {
             // QTUtility2.log("InstanceManager InvokeMain");
-            ExecuteOnMainProcess(() => LocalInvokeMain(action), false);
+            ExecuteOnMainProcess(() => TabInstanceRegistry.LocalInvokeMain(action), false);
         }
 
         public static void BeginInvokeMain(Action<QTTabBarClass> action) {
             // QTUtility2.log("InstanceManager BeginInvokeMain");
-            ExecuteOnMainProcess(() => LocalInvokeMain(action, true), true);
+            ExecuteOnMainProcess(() => TabInstanceRegistry.LocalInvokeMain(action, true), true);
         }
 
-        public static void LocalInvokeMain(Action<QTTabBarClass> action, bool doAsync = false) { TabInstanceRegistry.LocalInvokeMain(action, doAsync); }
-
-        public static void RegisterButtonBar(QTButtonBar bbar) { ButtonBarRegistry.RegisterButtonBar(bbar); }
-
-        
-
         public static void PushTabBarInstance(QTTabBarClass tabbar) { TabInstanceRegistry.PushTabBarInstance(tabbar); ICommService service = GetChannel(); if(service != null) service.PushInstance(tabbar.Handle); }
-
-        public static void UnregisterButtonBar() { ButtonBarRegistry.UnregisterButtonBar(); }
 
         public static bool UnregisterTabBar() {
             IntPtr handle;
@@ -641,12 +629,6 @@ namespace QTTabBarLib {
         }
 
         public static int GetTotalInstanceCount() { ICommService service = GetChannel(); return service == null ? TabInstanceRegistry.Count : service.GetTotalInstanceCount(); }
-
-        public static QTTabBarClass GetThreadTabBar() { return TabInstanceRegistry.GetThreadTabBar(); }
-
-        public static QTButtonBar GetThreadButtonBar() { return ButtonBarRegistry.GetThreadButtonBar(); }
-
-        public static bool TryGetButtonBarHandle(IntPtr explorerHandle, out IntPtr ptr) { return ButtonBarRegistry.TryGetButtonBarHandle(explorerHandle, out ptr); }
 
         public static void ExecuteOnServerProcess(Action action, bool doAsync) {
             ExecuteOnServerProcessBytes(DelToByte(action), doAsync, action);
@@ -715,8 +697,5 @@ namespace QTTabBarLib {
             ICommService service = GetChannel();
             if(service != null) service.SelectTabOnOtherTabBar(tabBarHandle, index);
         }
-
-
-        public static void SyncToolbarColorThreads() { TabInstanceRegistry.SyncToolbarColorThreads(); }
     }
 }

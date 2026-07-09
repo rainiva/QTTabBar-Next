@@ -1129,7 +1129,7 @@ namespace QTTabBarLib {
                 // �м��½���ǩ
                 fMiddleButton = true;
                 QMenuItem item = (QMenuItem)sender;
-                var qtTabBarClass = InstanceManager.GetThreadTabBar();
+                var qtTabBarClass = TabInstanceRegistry.GetThreadTabBar();
                 if (null != qtTabBarClass)
                 {
                     using (IDLWrapper wrapper3 = new IDLWrapper(item.Path))

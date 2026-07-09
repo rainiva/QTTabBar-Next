@@ -106,14 +106,14 @@ namespace QTTabBarLib {
                     }
                 }
             }
-            InstanceManager.LocalBBarBroadcast(bbar => bbar.RefreshButtons());
+            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.RefreshButtons());
             InstanceManager.StaticBroadcastCommand(IpcCommand.ReloadGroups);
             // todo: desktop
         }
 
         internal static void ReloadFromBroadcast() {
             LoadGroups();
-            InstanceManager.LocalBBarBroadcast(bbar => bbar.RefreshButtons());
+            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.RefreshButtons());
         }
 
         public static void AddGroup(string key, IEnumerable<string> paths) {

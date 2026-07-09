@@ -83,7 +83,7 @@ namespace QTTabBarLib {
                         // TODO
                      
                         IntPtr ptr;
-                        if(InstanceManager.TryGetButtonBarHandle(this.hwndExplorer, out ptr)) {
+                        if(ButtonBarRegistry.TryGetButtonBarHandle(this.hwndExplorer, out ptr)) {
                             QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)13, null, (IntPtr)GetItemCount());
                         }
                      */

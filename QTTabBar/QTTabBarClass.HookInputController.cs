@@ -711,7 +711,7 @@ namespace QTTabBarLib {
                         return true;
                     }
                     flag = (control == _owner.tabControl1) || (handle == _owner.Handle);
-                    if(!flag && InstanceManager.TryGetButtonBarHandle(_owner.ExplorerHandle, out ptr2)) {
+                    if(!flag && ButtonBarRegistry.TryGetButtonBarHandle(_owner.ExplorerHandle, out ptr2)) {
                         flag = (handle == ptr2) || (handle == _owner.listView.Handle);
                     }
                 }

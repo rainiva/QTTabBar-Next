@@ -137,7 +137,7 @@ namespace QTTabBarLib
 
         protected static bool TryCallButtonBar(Action<QTButtonBar> action)
         {
-            QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
+            QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
             if (bbar == null) return false;
             action(bbar);
             return true;

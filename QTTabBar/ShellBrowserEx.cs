@@ -40,7 +40,7 @@ namespace QTTabBarLib {
         {
             get
             {
-                var shellBrowserEx = InstanceManager.GetThreadTabBar().GetShellBrowser();
+                var shellBrowserEx = TabInstanceRegistry.GetThreadTabBar().GetShellBrowser();
                 if (shellBrowserEx != null && shellBrowserEx.folderView != null)
                 {
                     QTUtility2.log("shellBrowserEx.folderView from thread");
@@ -136,7 +136,7 @@ namespace QTTabBarLib {
                 // QTUtility2.log("GetItem  folderView " + folderView + " idx " + idx );
                 /*if (InstanceManager.GetTotalInstanceCount() > 0)
                 {
-                    var shellBrowserEx = InstanceManager.GetThreadTabBar().GetShellBrowser();
+                    var shellBrowserEx = TabInstanceRegistry.GetThreadTabBar().GetShellBrowser();
                     var exeFlag = false;
                     if (shellBrowserEx != null && shellBrowserEx.folderView != null )
                     {
@@ -338,7 +338,7 @@ namespace QTTabBarLib {
             if(idlw != null && idlw.Available && shellBrowser != null) {
                 try
                 {
-                    // var qtTabBarClass = InstanceManager.GetThreadTabBar();
+                    // var qtTabBarClass = TabInstanceRegistry.GetThreadTabBar();
                     // var shellBrowserEx = qtTabBarClass.GetShellBrowser();
                     // shellBrowserEx.shellBrowser.BrowseObject(idlw.PIDL, flags);
                     return shellBrowser.BrowseObject(idlw.PIDL, flags);
