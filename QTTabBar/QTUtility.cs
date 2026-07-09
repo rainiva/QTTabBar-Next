@@ -189,10 +189,6 @@ namespace QTTabBarLib {
         }
 
 
-        public static object ByteArrayToObject(byte[] arrBytes) {
-            return SerializationHelper.ByteArrayToObject(arrBytes);
-        }
-
         // Task 3.3 facade: forwards to IconManager (extraction = move + forwarding).
         public static bool ExtHasIcon(string ext) {
             return IconManager.ExtHasIcon(ext);
@@ -342,10 +338,6 @@ namespace QTTabBarLib {
         public static IEnumerable<Type> GetSubclasses(Type type)
         {
             return type.Assembly.GetTypes().Where(t => t.IsSubclassOf(type));
-        }
-
-        public static byte[] ObjectToByteArray(SerializeDelegate obj) {
-            return SerializationHelper.ObjectToByteArray(obj);
         }
 
         private static Regex singleLinebreakAtStart = new Regex(@"^(\r\n)?");

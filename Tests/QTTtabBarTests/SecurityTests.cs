@@ -27,11 +27,11 @@ namespace QTTtabBarTests
             // SerializeDelegate is the type used by ObjectToByteArray.
             Action testAction = () => { };
             SerializeDelegate original = new SerializeDelegate(testAction);
-            byte[] bytes = QTUtility.ObjectToByteArray(original);
+            byte[] bytes = SerializationHelper.ObjectToByteArray(original);
             Assert.IsNotNull(bytes, "Serialized bytes should not be null");
             Assert.Greater(bytes.Length, 0, "Serialized bytes should have content");
 
-            object result = QTUtility.ByteArrayToObject(bytes);
+            object result = SerializationHelper.ByteArrayToObject(bytes);
             Assert.IsNotNull(result, "Deserialized object should not be null");
             Assert.IsInstanceOf<SerializeDelegate>(result, "Deserialized object should be a SerializeDelegate");
         }
@@ -40,8 +40,8 @@ namespace QTTtabBarTests
         public void ByteArrayToObject_Handles_Null_Input()
         {
             // Verify null/empty input is handled gracefully
-            Assert.IsNull(QTUtility.ByteArrayToObject(null));
-            Assert.IsNull(QTUtility.ByteArrayToObject(new byte[0]));
+            Assert.IsNull(SerializationHelper.ByteArrayToObject(null));
+            Assert.IsNull(SerializationHelper.ByteArrayToObject(new byte[0]));
         }
 
         // ---- Batch 1 (P0-1): deserialization whitelist hardening ----
@@ -85,7 +85,7 @@ namespace QTTtabBarTests
                 payload = ms.ToArray();
             }
 
-            object result = QTUtility.ByteArrayToObject(payload);
+            object result = SerializationHelper.ByteArrayToObject(payload);
 
             Assert.IsNull(result,
                 "Deserializing a non-whitelisted type must return null (graceful degradation).");
@@ -103,7 +103,7 @@ namespace QTTtabBarTests
                 payload = ms.ToArray();
             }
 
-            object result = QTUtility.ByteArrayToObject(payload);
+            object result = SerializationHelper.ByteArrayToObject(payload);
 
             Assert.IsNull(result,
                 "Non-whitelisted QTTabBarLib serializable types must be rejected.");
@@ -161,7 +161,7 @@ namespace QTTtabBarTests
                 payload = ms.ToArray();
             }
 
-            object result = QTUtility.ByteArrayToObject(payload);
+            object result = SerializationHelper.ByteArrayToObject(payload);
 
             Assert.IsNull(result,
                 "ISerializable types from core framework assemblies must be rejected end-to-end.");

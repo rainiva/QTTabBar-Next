@@ -401,12 +401,12 @@ namespace QTTabBarLib {
         // SelectTabOnOtherTabBar, OpenOptions, StaticBroadcast ReloadConfig/Groups/Apps.
 
         private static byte[] DelToByte(Delegate del) {
-            return QTUtility.ObjectToByteArray(new SerializeDelegate(del));
+            return SerializationHelper.ObjectToByteArray(new SerializeDelegate(del));
         }
 
         private static Delegate ByteToDel(byte[] buf) {
             if (buf == null || buf.Length == 0 ) { return null; }
-            object v = QTUtility.ByteArrayToObject(buf);
+            object v = SerializationHelper.ByteArrayToObject(buf);
             if (v == null) { return null; }
             return ((SerializeDelegate)v).Delegate;
             // return BinaryPack.BinaryConverter.Deserialize<SerializeDelegate>(buf);

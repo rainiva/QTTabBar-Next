@@ -98,17 +98,17 @@ namespace QTTtabBarTests {
         #region QTUtility facade still works after extraction
 
         [Test]
-        public void QTUtility_Still_Has_ByteArrayToObject_Facade() {
+        public void QTUtility_No_Longer_Has_ByteArrayToObject_Facade() {
             var method = typeof(QTUtility).GetMethod("ByteArrayToObject",
                 BindingFlags.Public | BindingFlags.Static);
-            Assert.IsNotNull(method, "QTUtility should still have ByteArrayToObject facade");
+            Assert.IsNull(method, "QTUtility should no longer forward ByteArrayToObject after C7a");
         }
 
         [Test]
-        public void QTUtility_Still_Has_ObjectToByteArray_Facade() {
+        public void QTUtility_No_Longer_Has_ObjectToByteArray_Facade() {
             var method = typeof(QTUtility).GetMethod("ObjectToByteArray",
                 BindingFlags.Public | BindingFlags.Static);
-            Assert.IsNotNull(method, "QTUtility should still have ObjectToByteArray facade");
+            Assert.IsNull(method, "QTUtility should no longer forward ObjectToByteArray after C7a");
         }
 
         #endregion
