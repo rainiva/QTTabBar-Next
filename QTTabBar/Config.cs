@@ -1269,6 +1269,8 @@ namespace QTTabBarLib {
                     key.SetValue("BreakTabBar", breakTabBar ? 1 : 0);
                 }
             }
+            ConfigVersionTracker.Increment();
+            InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
         }
 
         public static void ReadConfig() {
@@ -1336,7 +1338,7 @@ namespace QTTabBarLib {
                 // 调整标签最小宽度
 				Config.Skin.TabMinWidth = QTUtility.ValidateMinMax(Config.Skin.TabMinWidth, 10, 100);
                 Config.Skin.TabMaxWidth = QTUtility.ValidateMinMax(Config.Skin.TabMaxWidth, 50, 999);
-                Config.Skin.OverlapPixels = QTUtility.ValidateMinMax(Config.Skin.TabHeight, 0, 20);
+                Config.Skin.OverlapPixels = QTUtility.ValidateMinMax(Config.Skin.OverlapPixels, 0, 20);
                 Config.Skin.TabTextFont = Config.Skin.TabTextFont ?? Control.DefaultFont;
                 Func<Padding, Padding> validatePadding = p => {
                     p.Left   = QTUtility.ValidateMinMax(p.Left,   0, 99);
