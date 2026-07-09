@@ -81,6 +81,8 @@ namespace QTTabBarLib {
         private WindowManagementController _windowManagementController;
         private BandWindowController _bandWindowController;
         private ComponentBuildController _componentBuildController;
+        private DroppedFilesController _droppedFilesController;
+        private FolderTreeController _folderTreeController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -248,55 +250,9 @@ namespace QTTabBarLib {
         /**
          * �����ק����ļ��������������Ӧ�ó���˵��ĵ����˵�����
          */
-        private void AppendUserApps(IList<string> listDroppedPaths) {
-            WindowUtils.BringExplorerToFront(ExplorerHandle);
-            if(contextMenuDropped == null) {
-                ToolStripMenuItem tsmiDropped = new ToolStripMenuItem { Tag = 1 };
-                contextMenuDropped = new ContextMenuStripEx(components, false);
-                contextMenuDropped.SuspendLayout();
-                contextMenuDropped.Items.Add(tsmiDropped);
-                contextMenuDropped.Items.Add(new ToolStripMenuItem());
-                contextMenuDropped.ItemClicked += (sender, e) => {
-                    if(e.ClickedItem.Tag != null)
-                        AppsManager.CreateNewApp((List<string>)contextMenuDropped.Tag);
-                };
-                contextMenuDropped.ResumeLayout(false);
-            }
-
-            string strMenu = QTUtility.ResMain[21];
-            strMenu += listDroppedPaths.Count > 1
-                    ? listDroppedPaths.Count + QTUtility.ResMain[22] // "items"  ������Ӧ�ó���˵�
-                    : Path.GetFileName(listDroppedPaths[0]).Enquote();
-
-            contextMenuDropped.SuspendLayout();
-            contextMenuDropped.Items[0].Text = strMenu;
-            contextMenuDropped.Items[1].Text = QTUtility.ResMain[23];			// Cancel
-            contextMenuDropped.Tag = listDroppedPaths;
-            contextMenuDropped.ResumeLayout();
-            contextMenuDropped.Show(MousePosition);
-        }
-
-        // Async callback for FolderTree thread completion
-        private void AsyncComplete_FolderTree(IAsyncResult ar) {
-            AsyncResult result = (AsyncResult)ar;
-            ((WaitTimeoutCallback)result.AsyncDelegate).EndInvoke(ar);
-            if(IsHandleCreated) {
-                Invoke(new FormMethodInvoker(CallbackFolderTree), new object[] { result.AsyncState });
-            }
-        }
+        internal void AppendUserApps(IList<string> listDroppedPaths) => _droppedFilesController.AppendUserApps(listDroppedPaths);
 
         // BeforeNavigate moved to ExplorerControllerModule (Batch 13)
-
-        private void CallbackFolderTree(object obj) {
-            bool fShow = (bool)obj;
-            ShowFolderTree(fShow);
-            if(fShow) {
-                PInvoke.SetRedraw(ExplorerHandle, true);
-                PInvoke.RedrawWindow(ExplorerHandle, IntPtr.Zero, IntPtr.Zero, 0x289);
-            }
-        }
-
-        // CancelFailedNavigation moved to ExplorerControllerModule (Batch 13)
 
         
 

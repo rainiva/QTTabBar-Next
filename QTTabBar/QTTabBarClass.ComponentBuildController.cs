@@ -61,6 +61,8 @@ namespace QTTabBarLib {
                 _owner._tabTooltipController = new TabTooltipController(_owner);
                 _owner._windowManagementController = new WindowManagementController(_owner);
                 _owner._bandWindowController = new BandWindowController(_owner);
+                _owner._droppedFilesController = new DroppedFilesController(_owner);
+                _owner._folderTreeController = new FolderTreeController(_owner);
                 _owner.tabControl1.RowCountChanged += _owner.tabControl1_RowCountChanged;
                 _owner.tabControl1.Deselecting += _owner._tabManager.tabControl1_Deselecting;
                 _owner.tabControl1.Selecting += _owner._tabManager.tabControl1_Selecting;

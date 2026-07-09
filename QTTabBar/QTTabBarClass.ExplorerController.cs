@@ -359,7 +359,7 @@ namespace QTTabBarLib {
                         }
                         if(QTUtility.RestoreFolderTree_Hide) {
                             QTUtility2.log("QTTabBarClass Explorer_NavigateComplete2 QTUtility.RestoreFolderTree_Hide");
-                            new WaitTimeoutCallback(WaitTimeout).BeginInvoke(150, _owner.AsyncComplete_FolderTree, false);
+                            new WaitTimeoutCallback(WaitTimeout).BeginInvoke(150, _owner._folderTreeController.AsyncComplete_FolderTree, false);
                         }
                         if(_owner.fNowRestoring) {
                             _owner.fNowRestoring = false;

@@ -171,7 +171,7 @@ namespace QTTabBarLib {
                                 PInvoke.SetRedraw(_owner.ExplorerHandle, false);
                                 _owner.ShowFolderTree(false);
                                 wFlags |= SBSP.EXPLOREMODE;
-                                new WaitTimeoutCallback(WaitTimeout).BeginInvoke(200, _owner.AsyncComplete_FolderTree, true);
+                                new WaitTimeoutCallback(WaitTimeout).BeginInvoke(200, _owner._folderTreeController.AsyncComplete_FolderTree, true);
                             }
                             else {
                                 QTUtility.fRestoreFolderTree = true;
