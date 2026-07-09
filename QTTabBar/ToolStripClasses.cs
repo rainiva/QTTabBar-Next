@@ -95,7 +95,7 @@ namespace QTTabBarLib {
         public event EventHandler ValueChanged;
         
         /**
-         * ¹¤¾ßÀ¸ °ëÍ¸Ã÷×é¼þ
+         * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ï¿½ï¿½
          */
         public ToolStripTrackBar()
             : base(new TrackBar()) {
@@ -139,7 +139,7 @@ namespace QTTabBarLib {
         }
     }
 
-    // ËÑË÷¿ò
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     internal sealed class ToolStripSearchBox : ToolStripControlHost {
         private bool fLocked;
         private bool fNowDragging;
@@ -325,6 +325,7 @@ namespace QTTabBarLib {
     }
 
     internal sealed class VistaMenuRenderer : ToolStripSystemRenderer {
+        private static readonly int ensureAssemblyResolve = EmbeddedAssemblyLoader.EnsureInitialized();
         private static Bitmap bmpCheck = Resources_Image.imgVistaMenu_Check;
         private static Bitmap bmpLB = Resources_Image.imgVistaMenu_LB;
         private static Bitmap bmpLM = Resources_Image.imgVistaMenu_LM;
