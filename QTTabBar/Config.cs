@@ -1224,11 +1224,11 @@ namespace QTTabBarLib {
             Dictionary<string, string[]> newTextResources = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
                     ? QTResourceManager.ReadLanguageFile(Config.Lang.LangFile)
                     : null;
-            QTUtility.ValidateTextResources(ref newTextResources);
+            QTResourceManager.ValidateTextResources(ref newTextResources);
             lock(QTUtility.syncRoot) {
                 QTUtility.TextResourcesDic = newTextResources;
             }
-            QTUtility.ValidateTextResources();
+            QTResourceManager.ValidateTextResources();
             ApplyNoCapturePathsFromConfig();
             StaticReg.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
             StaticReg.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;

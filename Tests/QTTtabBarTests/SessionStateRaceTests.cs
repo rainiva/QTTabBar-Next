@@ -125,7 +125,7 @@ namespace QTTtabBarTests {
                 // Drive the exact publish chain used by ValidateTextResources()/UpdateConfig:
                 // start from null -> validate on a local -> publish once under the global lock.
                 Dictionary<string, string[]> dict = null;
-                QTUtility.ValidateTextResources(ref dict);
+                QTResourceManager.ValidateTextResources(ref dict);
                 Assert.IsNotNull(dict,
                     "ValidateTextResources must materialize a non-null dictionary from a null input");
 

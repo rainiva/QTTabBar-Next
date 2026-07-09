@@ -868,7 +868,7 @@ namespace QTTabBarLib {
 
         public static Dictionary<String,String[]> testQTUtilityReadLanguageFile(string path )
         {
-            return QTUtility.ReadLanguageFile( path );
+            return QTResourceManager.ReadLanguageFile( path );
         }
 
         protected override bool IsTabSubFolderMenuVisible

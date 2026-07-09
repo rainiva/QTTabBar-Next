@@ -42,7 +42,7 @@ namespace QTTtabBarTests {
             }
             finally {
                 QTUtility.TextResourcesDic = savedDic;
-                QTUtility.ValidateTextResources();
+                QTResourceManager.ValidateTextResources();
             }
         }
     }

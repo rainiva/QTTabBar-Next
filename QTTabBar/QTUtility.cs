@@ -432,9 +432,7 @@ namespace QTTabBarLib {
             }
         }
 
-        public static Dictionary<string, string[]> ReadLanguageFile(string path) {
-            return QTResourceManager.ReadLanguageFile(path);
-        }
+
        // private string QTTabBar = @"Software\QTTabBar\Config\Misc";
      
 
@@ -689,16 +687,6 @@ namespace QTTabBarLib {
             }
             return value;
         }
-
-        public static void ValidateTextResources() {
-            QTResourceManager.ValidateTextResources();
-        }
-
-        public static void ValidateTextResources(ref Dictionary<string, string[]> dict)
-        {
-            QTResourceManager.ValidateTextResources(ref dict);
-        }
-
 
         public static bool isChinese()
         {

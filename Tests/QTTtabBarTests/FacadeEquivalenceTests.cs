@@ -129,22 +129,21 @@ namespace QTTtabBarTests {
         #region QTResourceManager.ValidateTextResources(ref) facade equivalence
 
         [Test]
-        public void ValidateTextResources_Ref_Facade_Equals_Extraction() {
-            // Two independent snapshots of the same initial (empty) dictionary.
+        public void ValidateTextResources_Ref_Populates_Dictionary() {
             var dict1 = new Dictionary<string, string[]>();
             var dict2 = new Dictionary<string, string[]>();
 
-            QTUtility.ValidateTextResources(ref dict1);
+            QTResourceManager.ValidateTextResources(ref dict1);
             QTResourceManager.ValidateTextResources(ref dict2);
 
-            Assert.Greater(dict1.Count, 0, "facade must populate the dictionary from built-in resources");
-            Assert.AreEqual(dict1.Count, dict2.Count, "facade and extraction must produce the same key count");
+            Assert.Greater(dict1.Count, 0, "ValidateTextResources must populate the dictionary from built-in resources");
+            Assert.AreEqual(dict1.Count, dict2.Count, "repeated calls must produce the same key count");
 
             foreach(var kvp in dict1) {
                 Assert.IsTrue(dict2.ContainsKey(kvp.Key),
-                    "key '{0}' present in facade result but missing in extraction result", kvp.Key);
+                    "key '{0}' present in first result but missing in second result", kvp.Key);
                 CollectionAssert.AreEqual(kvp.Value, dict2[kvp.Key],
-                    "value array for key '{0}' must match between facade and extraction", kvp.Key);
+                    "value array for key '{0}' must match between repeated calls", kvp.Key);
             }
         }
 

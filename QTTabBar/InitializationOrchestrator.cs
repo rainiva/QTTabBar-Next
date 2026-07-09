@@ -73,7 +73,7 @@ namespace QTTabBarLib {
                 if(Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)) {
                     QTUtility.TextResourcesDic = QTResourceManager.ReadLanguageFile(Config.Lang.LangFile);
                 }
-                QTUtility.ValidateTextResources();
+                QTResourceManager.ValidateTextResources();
 
                 using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                     if(key != null) {

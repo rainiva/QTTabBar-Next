@@ -123,9 +123,7 @@ namespace QTTtabBarTests {
             string missing = Path.Combine(Path.GetTempPath(),
                 "qttab_missing_" + Guid.NewGuid().ToString("N") + ".xml");
             Assert.IsNull(QTResourceManager.ReadLanguageFile(missing),
-                "missing language file must yield null (extracted entry)");
-            Assert.IsNull(QTUtility.ReadLanguageFile(missing),
-                "missing language file must yield null (facade entry)");
+                "missing language file must yield null");
         }
     }
 }
