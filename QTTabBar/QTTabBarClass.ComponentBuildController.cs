@@ -82,7 +82,7 @@ namespace QTTabBarLib {
                 _owner.tabControl1.TabCountChanged += _owner._tabManager.tabControl1_TabCountChanged;
                 _owner.tabControl1.CloseButtonClicked += _owner._tabManager.tabControl1_CloseButtonClicked;
                 _owner.tabControl1.TabIconMouseDown += _owner._tabManager.tabControl1_TabIconMouseDown;
-                _owner.tabControl1.PlusButtonClicked += _owner._tabManager.tabControl1_PlusButtonClicked;
+                _owner.tabControl1.PlusButtonClicked += _owner.tabControl1_PlusButtonClicked;
 
                 _owner.contextMenuTab.Items.Add(new ToolStripMenuItem());
                 _owner.contextMenuTab.ShowImageMargin = false;

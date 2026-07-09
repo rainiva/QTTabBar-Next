@@ -833,10 +833,6 @@ namespace QTTabBarLib {
         }
         
 
-        // ����+�Ű�ť�������±�ǩ�¼�
-        private void openDefault() {
-            _tabManager.openDefault();
-        }
         #endregion
     }
 }

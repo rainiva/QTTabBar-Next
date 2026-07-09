@@ -212,9 +212,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_TabControl1_PlusButtonClicked() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_PlusButtonClicked", AnyInstance),
-                "TabManager should host tabControl1_PlusButtonClicked");
+        public void TabBarBase_Hosts_TabControl1_PlusButtonClicked() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_PlusButtonClicked",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_PlusButtonClicked after W3a");
         }
 
         [Test]
