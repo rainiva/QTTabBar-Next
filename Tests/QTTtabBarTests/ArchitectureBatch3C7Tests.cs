@@ -38,6 +38,7 @@ namespace QTTtabBarTests {
             Assert.IsNull(typeof(QTUtility).GetMethod("IsNoCapturePaths", BindingFlags.Public | BindingFlags.Static));
             Assert.IsNull(typeof(QTUtility).GetMethod("IsSimpleDateStr", BindingFlags.Public | BindingFlags.Static));
             Assert.IsNull(typeof(QTUtility).GetMethod("IsShortDateStr", BindingFlags.Public | BindingFlags.Static));
+            Assert.IsNull(typeof(QTUtility).GetMethod("IsNetworkRootFolder", BindingFlags.NonPublic | BindingFlags.Static));
         }
     }
 }

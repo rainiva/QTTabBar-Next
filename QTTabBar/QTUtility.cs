@@ -308,11 +308,6 @@ namespace QTTabBarLib {
             return null; // TODO
         }
 
-        // Task 3.3: relaxed private -> internal so the facade/tests can reach it.
-        internal static bool IsNetworkRootFolder(string path) {
-            return PathValidator.IsNetworkRootFolder(path);
-        }
-
         /// <summary>
         /// Triggers the static constructor, which calls InitializationOrchestrator.Initialize().
         /// Entry points must call this method rather than InitializationOrchestrator directly so the
@@ -489,7 +484,7 @@ namespace QTTabBarLib {
                 return new ImageReservationKey(ext, 1);
             }
             if(QTUtility2.IsNetworkPath(path)) {
-                if(IsNetworkRootFolder(path)) {
+                if(PathValidator.IsNetworkRootFolder(path)) {
                     return new ImageReservationKey(path, 4);
                 }
                 return new ImageReservationKey("folder", 3);
