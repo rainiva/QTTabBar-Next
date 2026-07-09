@@ -87,6 +87,11 @@ namespace QTTabBarLib {
         private DropDownMenuReorderable ddmrUserAppButton;
         private DropTargetWrapper dropTargetWrapper;
         private IntPtr ExplorerHandle;
+
+        internal IntPtr ExplorerWindowHandle {
+            get { return ExplorerHandle; }
+        }
+
         private bool fRearranging;
         private bool fSearchBoxInputStart;
         private ShellContextMenu shellContextMenu = new ShellContextMenu();

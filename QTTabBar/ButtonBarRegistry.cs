@@ -27,16 +27,28 @@ namespace QTTabBarLib {
     /// </summary>
     internal static class ButtonBarRegistry {
         private static Dictionary<Thread, QTButtonBar> dictBBarInstances = new Dictionary<Thread, QTButtonBar>();
+        private static StackDictionary<IntPtr, QTButtonBar> dictBBarByExplorerHandle = new StackDictionary<IntPtr, QTButtonBar>();
         private static ReaderWriterLock rwLockBtnBar = new ReaderWriterLock();
 
         public static void RegisterButtonBar(QTButtonBar bbar) {
             using(new Keychain(rwLockBtnBar, true)) {
                 dictBBarInstances[Thread.CurrentThread] = bbar;
+                IntPtr explorerHandle = bbar.ExplorerWindowHandle;
+                if(explorerHandle != IntPtr.Zero) {
+                    dictBBarByExplorerHandle.Push(explorerHandle, bbar);
+                }
             }
         }
 
         public static void UnregisterButtonBar() {
             using(new Keychain(rwLockBtnBar, true)) {
+                QTButtonBar bbar;
+                if(dictBBarInstances.TryGetValue(Thread.CurrentThread, out bbar)) {
+                    IntPtr explorerHandle = bbar.ExplorerWindowHandle;
+                    if(explorerHandle != IntPtr.Zero) {
+                        dictBBarByExplorerHandle.Remove(explorerHandle);
+                    }
+                }
                 dictBBarInstances.Remove(Thread.CurrentThread);
             }
         }
@@ -51,7 +63,8 @@ namespace QTTabBarLib {
         public static bool TryGetButtonBarHandle(IntPtr explorerHandle, out IntPtr ptr) {
             using(new Keychain(rwLockBtnBar, false)) {
                 QTButtonBar bbar;
-                if(dictBBarInstances.TryGetValue(Thread.CurrentThread, out bbar)) {
+                if(explorerHandle != IntPtr.Zero &&
+                    dictBBarByExplorerHandle.TryGetValue(explorerHandle, out bbar)) {
                     ptr = bbar.Handle;
                     return true;
                 }
