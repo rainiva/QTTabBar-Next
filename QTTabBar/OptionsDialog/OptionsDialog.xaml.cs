@@ -392,8 +392,7 @@ namespace QTTabBarLib {
                 tab.CommitConfig();
             }
             ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
-            ConfigManager.WriteConfig();
-            ConfigManager.UpdateConfig();
+            ConfigManager.PersistConfigChanges();
             ExplorerManager.ClearWatermarkCache();
         }
 

@@ -1634,7 +1634,7 @@ namespace QTTabBarLib {
             Config.Desktop.OneClickMenu = tsmiOneClick.Checked;
             Config.Desktop.EnableAppShortcuts = tsmiAppKeys.Checked;
             Config.Desktop.Width = Width;
-            ConfigManager.WriteConfig(true);
+            ConfigManager.PersistConfigChanges(true);
         }
 
         private void contextMenuForSetting_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {

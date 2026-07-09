@@ -1377,6 +1377,11 @@ namespace QTTabBarLib {
             }
         }
 
+        public static void PersistConfigChanges(bool desktopOnly = false, bool broadcast = true) {
+            WriteConfig(desktopOnly);
+            UpdateConfig(broadcast);
+        }
+
         public static void WriteConfig(bool DesktopOnly = false) {
             const string RegPath = RegConst.Root + RegConst.Config;
             QTUtility2.log("WriteConfig " + RegPath);

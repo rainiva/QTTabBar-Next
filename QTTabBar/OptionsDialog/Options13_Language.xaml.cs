@@ -355,8 +355,7 @@ namespace QTTabBarLib {
             {
                   WorkingConfig.lang.BuiltInLangSelectedIndex = buildinCbx.SelectedIndex;
                   ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
-                  ConfigManager.WriteConfig();
-                  ConfigManager.UpdateConfig();
+                  ConfigManager.PersistConfigChanges();
                     //QTUtility.ValidateTextResources
             }
          }
