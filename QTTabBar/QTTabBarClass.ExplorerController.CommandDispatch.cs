@@ -12,7 +12,6 @@ using QTPlugin;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             internal sealed class CommandDispatchController {
                 private readonly QTTabBarClass _owner;
@@ -37,7 +36,7 @@ namespace QTTabBarLib {
                         if(!String.IsNullOrEmpty(cmd)) {
                             string lcmd = cmd.ToLower();
                             if(lcmd.Contains("/select") || lcmd.Contains(",select")) {
-                                _owner.mCmdType = 1;
+                                _owner.ExMCmdType = 1;
                                 string selectMe = GetNameToSelectFromCommandLineArg(cmd);
                                 TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
                                 InstanceManager.BeginInvokeMainCaptureNewWindow(path, 1, selectMe);
@@ -47,36 +46,36 @@ namespace QTTabBarLib {
                             else if(lcmd.Contains("/factory")   ||
                                      lcmd.Contains("-embedding") ||
                                      lcmd.Contains("{75dff2b7-6936-4c06-a8bb-676a7b00b24b}")) {
-                                _owner.mCmdType = 2;
+                                _owner.ExMCmdType = 2;
                                 TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
                                 InstanceManager.BeginInvokeMainCaptureNewWindow(path, 2, string.Empty);
                                 TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
                                 QTLogger.log(string.Format("factory cmd typed IPC cost {0} ", abs.TotalMilliseconds));
                             }
                             else {
-                                _owner.mCmdType = 3;
+                                _owner.ExMCmdType = 3;
                                 InstanceManager.BeginInvokeMainCaptureNewWindow(path, 3, string.Empty);
                                 QTLogger.log("other cmd typed IPC RestoreWindow");
                             }
                         }
 
-                        _owner.fNowQuitting = true;
+                        _owner.ExfNowQuitting = true;
                         if(OSDetector.IsXP) {
                             QTLogger.log("Close Explorer WindowUtils.CloseExplorer");
-                            WindowUtils.CloseExplorer(_owner.ExplorerHandle, 0);
+                            WindowUtils.CloseExplorer(_owner.ExExplorerHandle, 0);
                         }
                         else {
-                            _owner.fHideExplorer = true;
+                            _owner.ExfHideExplorer = true;
 
-                            if(_owner.mCmdType == 3 || !Config.Window.CaptureWeChatSelection) {
+                            if(_owner.ExMCmdType == 3 || !Config.Window.CaptureWeChatSelection) {
                                 QTLogger.log("Close Explorer Explorer.Quit");
-                                _owner.Explorer.Quit();
+                                _owner.ExExplorer.Quit();
                             }
                         }
                         QTLogger.log("DoFirstNavigation return");
                     }
                     QTLogger.log("AddStartUpTabs ");
-                    _owner.AddStartUpTabs(string.Empty, path);
+                    _owner.ExAddStartUpTabs(string.Empty, path);
                     QTLogger.log("AddStartUpTabs InitializeOpenedWindow");
                     ensureOpenedWindow = true;
                 }
@@ -196,5 +195,4 @@ namespace QTTabBarLib {
                 return CommandDispatchController.TryParseCommandlineParams(param, out path, out selection);
             }
         }
-    }
 }

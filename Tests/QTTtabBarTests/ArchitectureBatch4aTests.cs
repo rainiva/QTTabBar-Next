@@ -8,7 +8,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch4aTests {
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).GetNestedType("ExplorerControllerModule", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
 
         private static Type CommandDispatchType =>
             ExplorerModuleType.GetNestedType("CommandDispatchController", BindingFlags.NonPublic);

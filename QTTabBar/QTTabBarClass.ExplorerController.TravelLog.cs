@@ -20,14 +20,13 @@ using System.Runtime.InteropServices;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             #region Travel log
 
             public void ClearTravelLogs() {
                 IEnumTravelLogEntry ppenum = null;
                 try {
-                    if((_owner.TravelLog.EnumEntries(0x30, out ppenum) != 0) || (ppenum == null)) {
+                    if((_owner.ExTravelLog.EnumEntries(0x30, out ppenum) != 0) || (ppenum == null)) {
                         return;
                     }
                     int num = 0;
@@ -39,8 +38,8 @@ namespace QTTabBarLib {
                             if((num++ != 0) && (entry2.GetURL(out ptr) == 0)) {
                                 string path = Marshal.PtrToStringUni(ptr);
                                 PInvoke.CoTaskMemFree(ptr);
-                                if(!_owner.IsSpecialFolderNeedsToTravel(path)) {
-                                    _owner.TravelLog.RemoveEntry(entry2);
+                                if(!_owner.ExIsSpecialFolderNeedsToTravel(path)) {
+                                    _owner.ExTravelLog.RemoveEntry(entry2);
                                 }
                             }
                             goto Label_0018;
@@ -69,7 +68,7 @@ namespace QTTabBarLib {
                 ITravelLogEntry rgElt = null;
                 try {
                     int num;
-                    if(((_owner.TravelLog.EnumEntries(0x20, out ppenum) == 0) && (_owner.TravelLog.GetCount(0x20, out num) == 0)) && (num > 0)) {
+                    if(((_owner.ExTravelLog.EnumEntries(0x20, out ppenum) == 0) && (_owner.ExTravelLog.GetCount(0x20, out num) == 0)) && (num > 0)) {
                         while(ppenum.Next(1, out rgElt, 0) == 0) {
                             if(--num == 0) {
                                 break;
@@ -81,7 +80,7 @@ namespace QTTabBarLib {
                             }
                         }
                         if(rgElt != null) {
-                            _owner.TravelLog.TravelTo(rgElt);
+                            _owner.ExTravelLog.TravelTo(rgElt);
                         }
                     }
                 }
@@ -105,7 +104,7 @@ namespace QTTabBarLib {
                 ITravelLogEntry rgElt = null;
                 ITravelLogEntry entry3;
                 try {
-                    if(_owner.TravelLog.EnumEntries(1, out ppenum) == 0) {
+                    if(_owner.ExTravelLog.EnumEntries(1, out ppenum) == 0) {
                         ppenum.Next(1, out rgElt, 0);
                     }
                     entry3 = rgElt;
@@ -125,5 +124,4 @@ namespace QTTabBarLib {
 
             #endregion
         }
-    }
 }

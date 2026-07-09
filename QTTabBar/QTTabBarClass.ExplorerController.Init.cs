@@ -49,35 +49,34 @@ using System.Management;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             #region OnExplorerAttached
 
             public void OnExplorerAttachedCore() {
                 QTLogger.flog("Win11Probe QTTabBarClass.OnExplorerAttached.Start");
-                _owner.ExplorerHandle = (IntPtr)_owner.Explorer.HWND;
+                _owner.ExExplorerHandle = (IntPtr)_owner.ExExplorer.HWND;
                 try {
                     object obj2;
                     object obj3;
-                    _IServiceProvider bandObjectSite = (_IServiceProvider)_owner.BandObjectSite;
+                    _IServiceProvider bandObjectSite = (_IServiceProvider)_owner.ExBandObjectSite;
                     QTLogger.flog("Win11Probe QTTabBarClass.OnExplorerAttached.QueryService.IShellBrowser");
                     bandObjectSite.QueryService(ExplorerGUIDs.IID_IShellBrowser, ExplorerGUIDs.IID_IUnknown, out obj2);
-                    _owner.ShellBrowser = new ShellBrowserEx((IShellBrowser)obj2);
+                    _owner.ExShellBrowser = new ShellBrowserEx((IShellBrowser)obj2);
                     QTLogger.flog("Win11Probe QTTabBarClass.OnExplorerAttached.InitShellBrowserHook");
-                    HookLibManager.InitShellBrowserHook(_owner.ShellBrowser.GetIShellBrowser());
+                    HookLibManager.InitShellBrowserHook(_owner.ExShellBrowser.GetIShellBrowser());
                     if(Config.Tweaks.ForceSysListView) {
-                        _owner.ShellBrowser.SetUsingListView(true);
+                        _owner.ExShellBrowser.SetUsingListView(true);
                     }
                     QTLogger.flog("Win11Probe QTTabBarClass.OnExplorerAttached.QueryService.ITravelLogStg");
                     bandObjectSite.QueryService(ExplorerGUIDs.IID_ITravelLogStg, ExplorerGUIDs.IID_ITravelLogStg, out obj3);
-                    _owner.TravelLog = (ITravelLogStg)obj3;
+                    _owner.ExTravelLog = (ITravelLogStg)obj3;
                 }
                 catch(COMException exception) {
                     QTLogger.MakeErrorLog(exception);
                 }
 
-                _owner.Explorer.BeforeNavigate2 += Explorer_BeforeNavigate2;
-                _owner.Explorer.NavigateComplete2 += Explorer_NavigateComplete2;
+                _owner.ExExplorer.BeforeNavigate2 += Explorer_BeforeNavigate2;
+                _owner.ExExplorer.NavigateComplete2 += Explorer_NavigateComplete2;
                 QTLogger.log("QTTabBarClass set BeforeNavigate2 NavigateComplete2");
             }
 
@@ -108,64 +107,64 @@ namespace QTTabBarLib {
             }
 
             public void InitializeNavBtns(bool fSync) {
-                _owner.toolStrip = new ToolStripClasses();
-                _owner.buttonBack = new ToolStripButton();
-                _owner.buttonForward = new ToolStripButton();
-                _owner.toolStrip.SuspendLayout();
+                _owner.ExtoolStrip = new ToolStripClasses();
+                _owner.ExbuttonBack = new ToolStripButton();
+                _owner.ExbuttonForward = new ToolStripButton();
+                _owner.ExtoolStrip.SuspendLayout();
                 if(!IconManager.ImageGlobalContainsKey("navBack")) {
                     IconManager.AddImageToGlobal("navBack", Resources_Image.imgNavBack);
                 }
                 if(!IconManager.ImageGlobalContainsKey("navFrwd")) {
                     IconManager.AddImageToGlobal("navFrwd", Resources_Image.imgNavFwd);
                 }
-                _owner.toolStrip.Dock = Config.Tabs.NavButtonsOnRight ? DockStyle.Right : DockStyle.Left;
-                _owner.toolStrip.AutoSize = false;
-                _owner.toolStrip.CanOverflow = false;
-                _owner.toolStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
-                _owner.toolStrip.GripStyle = ToolStripGripStyle.Hidden;
-                _owner.toolStrip.Items.AddRange(new ToolStripItem[] { _owner.buttonBack, _owner.buttonForward, _owner.buttonNavHistoryMenu });
-                _owner.toolStrip.Renderer = new ToolbarRenderer();
-                _owner.toolStrip.Width = 0x3f;
-                _owner.toolStrip.TabStop = false;
-                _owner.toolStrip.BackColor = ThemeRefreshService.IsDark ? Color.Black : Color.WhiteSmoke;
+                _owner.ExtoolStrip.Dock = Config.Tabs.NavButtonsOnRight ? DockStyle.Right : DockStyle.Left;
+                _owner.ExtoolStrip.AutoSize = false;
+                _owner.ExtoolStrip.CanOverflow = false;
+                _owner.ExtoolStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
+                _owner.ExtoolStrip.GripStyle = ToolStripGripStyle.Hidden;
+                _owner.ExtoolStrip.Items.AddRange(new ToolStripItem[] { _owner.ExbuttonBack, _owner.ExbuttonForward, _owner.ExbuttonNavHistoryMenu });
+                _owner.ExtoolStrip.Renderer = new ToolbarRenderer();
+                _owner.ExtoolStrip.Width = 0x3f;
+                _owner.ExtoolStrip.TabStop = false;
+                _owner.ExtoolStrip.BackColor = ThemeRefreshService.IsDark ? Color.Black : Color.WhiteSmoke;
 
-                _owner.buttonBack.AutoSize = false;
-                _owner.buttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
-                _owner.buttonBack.Enabled = fSync ? ((_owner.navBtnsFlag & 1) != 0) : false;
-                _owner.buttonBack.Image = IconManager.GetImageFromGlobal("navBack");
-                _owner.buttonBack.Size = new Size(0x15, 0x15);
-                _owner.buttonBack.Click += NavigationButtons_Click;
-                _owner.buttonForward.AutoSize = false;
-                _owner.buttonForward.DisplayStyle = ToolStripItemDisplayStyle.Image;
-                _owner.buttonForward.Enabled = fSync ? ((_owner.navBtnsFlag & 2) != 0) : false;
-                _owner.buttonForward.Image = IconManager.GetImageFromGlobal("navFrwd");
-                _owner.buttonForward.Size = new Size(0x15, 0x15);
-                _owner.buttonForward.Click += NavigationButtons_Click;
+                _owner.ExbuttonBack.AutoSize = false;
+                _owner.ExbuttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
+                _owner.ExbuttonBack.Enabled = fSync ? ((_owner.ExnavBtnsFlag & 1) != 0) : false;
+                _owner.ExbuttonBack.Image = IconManager.GetImageFromGlobal("navBack");
+                _owner.ExbuttonBack.Size = new Size(0x15, 0x15);
+                _owner.ExbuttonBack.Click += NavigationButtons_Click;
+                _owner.ExbuttonForward.AutoSize = false;
+                _owner.ExbuttonForward.DisplayStyle = ToolStripItemDisplayStyle.Image;
+                _owner.ExbuttonForward.Enabled = fSync ? ((_owner.ExnavBtnsFlag & 2) != 0) : false;
+                _owner.ExbuttonForward.Image = IconManager.GetImageFromGlobal("navFrwd");
+                _owner.ExbuttonForward.Size = new Size(0x15, 0x15);
+                _owner.ExbuttonForward.Click += NavigationButtons_Click;
             }
 
             public void InstallHooks() {
-                _owner._hookInputController.Install(PInvoke.GetCurrentThreadId());
-                _owner.explorerController = new NativeWindowController(_owner.ExplorerHandle);
-                _owner.explorerController.MessageCaptured += explorerController_MessageCaptured;
-                if(_owner.ReBarHandle != IntPtr.Zero) {
-                    _owner.rebarController = new RebarController(_owner, _owner.ReBarHandle, _owner.BandObjectSite as IOleCommandTarget);
+                _owner.Ex_hookInputController.Install(PInvoke.GetCurrentThreadId());
+                _owner.ExexplorerController = new NativeWindowController(_owner.ExExplorerHandle);
+                _owner.ExexplorerController.MessageCaptured += explorerController_MessageCaptured;
+                if(_owner.ExReBarHandle != IntPtr.Zero) {
+                    _owner.ExrebarController = new RebarController(_owner, _owner.ExReBarHandle, _owner.ExBandObjectSite as IOleCommandTarget);
                 }
                 if(!OSDetector.IsXP) {
-                    _owner.TravelToolBarHandle = _owner.GetTravelToolBarWindow32();
-                    if(_owner.TravelToolBarHandle != IntPtr.Zero) {
-                        _owner.travelBtnController = new NativeWindowController(_owner.TravelToolBarHandle);
-                        _owner.travelBtnController.MessageCaptured += TravelToolbarMessageCaptured;
+                    _owner.ExTravelToolBarHandle = _owner.ExGetTravelToolBarWindow32();
+                    if(_owner.ExTravelToolBarHandle != IntPtr.Zero) {
+                        _owner.ExtravelBtnController = new NativeWindowController(_owner.ExTravelToolBarHandle);
+                        _owner.ExtravelBtnController.MessageCaptured += TravelToolbarMessageCaptured;
                     }
                 }
-                _owner.dropTargetWrapper = new DropTargetWrapper(_owner);
-                _owner.dropTargetWrapper.DragFileEnter += _owner.dropTargetWrapper_DragFileEnter;
-                _owner.dropTargetWrapper.DragFileOver += _owner.dropTargetWrapper_DragFileOver;
-                _owner.dropTargetWrapper.DragFileLeave += _owner.dropTargetWrapper_DragFileLeave;
-                _owner.dropTargetWrapper.DragFileDrop += _owner.dropTargetWrapper_DragFileDrop;
+                _owner.ExdropTargetWrapper = new DropTargetWrapper(_owner);
+                _owner.ExdropTargetWrapper.DragFileEnter += _owner.ExdropTargetWrapper_DragFileEnter;
+                _owner.ExdropTargetWrapper.DragFileOver += _owner.ExdropTargetWrapper_DragFileOver;
+                _owner.ExdropTargetWrapper.DragFileLeave += _owner.ExdropTargetWrapper_DragFileLeave;
+                _owner.ExdropTargetWrapper.DragFileDrop += _owner.ExdropTargetWrapper_DragFileDrop;
             }
 
             public bool TravelToolbarMessageCaptured(ref Message m) {
-                if(_owner.CurrentTab == null) {
+                if(_owner.ExCurrentTab == null) {
                     QTLogger.log("QTTabBarClass travelBtnController_MessageCaptured CurrentTab == null");
                     return false;
                 }
@@ -173,33 +172,33 @@ namespace QTTabBarLib {
                     case WM.LBUTTONDOWN:
                     case WM.LBUTTONUP: {
                             Point pt = QTUtility2.PointFromLPARAM(m.LParam);
-                            int num = (int)PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x445, IntPtr.Zero, ref pt);
-                            bool flag = _owner.CurrentTab.HistoryCount_Back > 1;
-                            bool flag2 = _owner.CurrentTab.HistoryCount_Forward > 0;
+                            int num = (int)PInvoke.SendMessage(_owner.ExtravelBtnController.Handle, 0x445, IntPtr.Zero, ref pt);
+                            bool flag = _owner.ExCurrentTab.HistoryCount_Back > 1;
+                            bool flag2 = _owner.ExCurrentTab.HistoryCount_Forward > 0;
                             if(m.Msg != 0x202) {
-                                PInvoke.SetCapture(_owner.travelBtnController.Handle);
+                                PInvoke.SetCapture(_owner.ExtravelBtnController.Handle);
                                 if(((flag && (num == 0)) || (flag2 && (num == 1))) || ((flag || flag2) && (num == 2))) {
-                                    int num5 = (int)PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x412, (IntPtr)(0x100 + num), IntPtr.Zero);
+                                    int num5 = (int)PInvoke.SendMessage(_owner.ExtravelBtnController.Handle, 0x412, (IntPtr)(0x100 + num), IntPtr.Zero);
                                     int num6 = num5 | 2;
-                                    PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x411, (IntPtr)(0x100 + num), (IntPtr)num6);
+                                    PInvoke.SendMessage(_owner.ExtravelBtnController.Handle, 0x411, (IntPtr)(0x100 + num), (IntPtr)num6);
                                 }
                                 if((num == 2) && (flag || flag2)) {
                                     RECT rect;
-                                    IntPtr hWnd = PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x423, IntPtr.Zero, IntPtr.Zero);
+                                    IntPtr hWnd = PInvoke.SendMessage(_owner.ExtravelBtnController.Handle, 0x423, IntPtr.Zero, IntPtr.Zero);
                                     if(hWnd != IntPtr.Zero) {
                                         PInvoke.SendMessage(hWnd, 0x41c, IntPtr.Zero, IntPtr.Zero);
                                     }
-                                    PInvoke.GetWindowRect(_owner.travelBtnController.Handle, out rect);
-                                    NavigationButtons_DropDownOpening(_owner.buttonNavHistoryMenu, new EventArgs());
-                                    _owner.buttonNavHistoryMenu.DropDown.Show(new Point(rect.left - 2, rect.bottom + 1));
+                                    PInvoke.GetWindowRect(_owner.ExtravelBtnController.Handle, out rect);
+                                    NavigationButtons_DropDownOpening(_owner.ExbuttonNavHistoryMenu, new EventArgs());
+                                    _owner.ExbuttonNavHistoryMenu.DropDown.Show(new Point(rect.left - 2, rect.bottom + 1));
                                 }
                                 break;
                             }
                             PInvoke.ReleaseCapture();
                             for(int i = 0; i < 3; i++) {
-                                int num3 = (int)PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x412, (IntPtr)(0x100 + i), IntPtr.Zero);
+                                int num3 = (int)PInvoke.SendMessage(_owner.ExtravelBtnController.Handle, 0x412, (IntPtr)(0x100 + i), IntPtr.Zero);
                                 int num4 = num3 & -3;
-                                PInvoke.SendMessage(_owner.travelBtnController.Handle, 0x411, (IntPtr)(0x100 + i), (IntPtr)num4);
+                                PInvoke.SendMessage(_owner.ExtravelBtnController.Handle, 0x411, (IntPtr)(0x100 + i), (IntPtr)num4);
                             }
                             if((num == 0) && flag) {
                                 NavigateCurrentTab(true);
@@ -221,9 +220,9 @@ namespace QTTabBarLib {
                         return true;
 
                     case WM.MOUSEACTIVATE:
-                        if(_owner.buttonNavHistoryMenu.DropDown.Visible) {
+                        if(_owner.ExbuttonNavHistoryMenu.DropDown.Visible) {
                             m.Result = (IntPtr)4;
-                            _owner.buttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppClicked);
+                            _owner.ExbuttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppClicked);
                             return true;
                         }
                         return false;
@@ -265,13 +264,13 @@ namespace QTTabBarLib {
             private string MakeTravelBtnTooltipText(bool fBack) {
                 string path = string.Empty;
                 if(fBack) {
-                    string[] historyBack = _owner.CurrentTab.GetHistoryBack();
+                    string[] historyBack = _owner.ExCurrentTab.GetHistoryBack();
                     if(historyBack.Length > 1) {
                         path = historyBack[1];
                     }
                 }
                 else {
-                    string[] historyForward = _owner.CurrentTab.GetHistoryForward();
+                    string[] historyForward = _owner.ExCurrentTab.GetHistoryForward();
                     if(historyForward.Length > 0) {
                         path = historyForward[0];
                     }
@@ -287,5 +286,4 @@ namespace QTTabBarLib {
 
             #endregion
         }
-    }
 }

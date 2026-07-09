@@ -34,27 +34,26 @@ namespace QTTtabBarTests {
 
         private static Type ControllerType {
             get {
-                return typeof(QTTabBarClass).GetNestedType("ExplorerControllerModule",
-                    BindingFlags.Public | BindingFlags.NonPublic);
+                return typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
             }
         }
 
-        #region Nested ExplorerControllerModule type exists and is internal
+        #region Top-level ExplorerControllerModule type exists and is internal
 
         [Test]
-        public void ExplorerControllerModule_NestedType_Exists() {
+        public void ExplorerControllerModule_TopLevelType_Exists() {
             Assert.IsNotNull(ControllerType,
-                "QTTabBarClass should declare a nested ExplorerControllerModule type");
+                "ExplorerControllerModule should be a top-level type in QTTabBarLib");
         }
 
         [Test]
-        public void ExplorerControllerModule_Is_Internal_NestedClass() {
+        public void ExplorerControllerModule_Is_Internal_TopLevelClass() {
             Type t = ControllerType;
             Assert.IsNotNull(t, "ExplorerControllerModule type should exist");
             Assert.IsTrue(t.IsClass, "ExplorerControllerModule should be a class");
-            Assert.IsTrue(t.IsNested, "ExplorerControllerModule should be nested in QTTabBarClass");
-            Assert.IsTrue(t.IsNestedAssembly,
-                "ExplorerControllerModule should be internal (nested assembly visibility), no visibility widening");
+            Assert.IsFalse(t.IsNested, "ExplorerControllerModule should be a top-level class after batch 5v");
+            Assert.IsFalse(t.IsPublic,
+                "ExplorerControllerModule should remain internal assembly visibility");
         }
 
         [Test]

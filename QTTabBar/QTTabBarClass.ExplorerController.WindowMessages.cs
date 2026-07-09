@@ -49,22 +49,21 @@ using System.Management;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             #region explorerController_MessageCaptured (Window message handler)
 
             public bool explorerController_MessageCaptured(ref Message msg) {
                 if (msg.Msg != WM.CLOSE) {
-                    _owner.iSequential_WM_CLOSE = 0;
+                    _owner.ExiSequential_WM_CLOSE = 0;
                 }
 
-                if(msg.Msg == _owner.WM_BROWSEOBJECT) {
+                if(msg.Msg == _owner.ExWM_BROWSEOBJECT) {
                     SBSP flags = (SBSP)Marshal.ReadInt32(msg.WParam);
                     if((flags & SBSP.NAVIGATEBACK) != 0) {
                         msg.Result = (IntPtr)1;
                         QTLogger.log("explorerController_MessageCaptured WM_BROWSEOBJECT: NAVIGATEBACK");
-                        if(!NavigateCurrentTab(true) && _owner.CloseTab(_owner.CurrentTab, true) && _owner.tabControl1.TabCount == 0) {
-                            WindowUtils.CloseExplorer(_owner.ExplorerHandle, 2);
+                        if(!NavigateCurrentTab(true) && _owner.ExCloseTab(_owner.ExCurrentTab, true) && _owner.ExtabControl1.TabCount == 0) {
+                            WindowUtils.CloseExplorer(_owner.ExExplorerHandle, 2);
                         }
                     }
                     else if((flags & SBSP.NAVIGATEFORWARD) != 0) {
@@ -86,18 +85,18 @@ namespace QTTabBarLib {
                     }
                     return true;
                 }
-                else if(msg.Msg == _owner.WM_HEADERINALLVIEWS) {
+                else if(msg.Msg == _owner.ExWM_HEADERINALLVIEWS) {
                     msg.Result = (IntPtr)(Config.Tweaks.AlwaysShowHeaders ? 1 : 0);
                     return true;
                 }
-                else if(msg.Msg == _owner.WM_SHOWHIDEBARS) {
+                else if(msg.Msg == _owner.ExWM_SHOWHIDEBARS) {
                     object pvaTabBar = new Guid("{d2bf470e-ed1c-487f-a333-2bd8835eb6ce}").ToString("B");
                     object pvaButtonBar = new Guid("{d2bf470e-ed1c-487f-a666-2bd8835eb6ce}").ToString("B");
                     object pvarShow = (msg.WParam != IntPtr.Zero);
                     object pvarSize = null;
                     try {
-                        _owner.Explorer.ShowBrowserBar(pvaTabBar, pvarShow, pvarSize);
-                        _owner.Explorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
+                        _owner.ExExplorer.ShowBrowserBar(pvaTabBar, pvarShow, pvarSize);
+                        _owner.ExExplorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
                         msg.Result = (IntPtr)1;
 
                         QTLogger.flog("QTTabBarClass WM_SHOWHIDEBARS ShowBrowserBar tabBar buttonBar");
@@ -107,15 +106,15 @@ namespace QTTabBarLib {
                     }
                     return true;
                 }
-                else if(msg.Msg == _owner.WM_CHECKPULSE) {
-                    if(_owner.fNeedsNewWindowPulse && msg.LParam != IntPtr.Zero) {
-                        Marshal.WriteIntPtr(msg.LParam, Marshal.GetIDispatchForObject(_owner.Explorer));
+                else if(msg.Msg == _owner.ExWM_CHECKPULSE) {
+                    if(_owner.ExfNeedsNewWindowPulse && msg.LParam != IntPtr.Zero) {
+                        Marshal.WriteIntPtr(msg.LParam, Marshal.GetIDispatchForObject(_owner.ExExplorer));
                         msg.Result = (IntPtr)1;
-                        _owner.fNeedsNewWindowPulse = false;
+                        _owner.ExfNeedsNewWindowPulse = false;
                     }
                     return true;
                 }
-                else if (msg.Msg == _owner.WM_SELECTFILE)
+                else if (msg.Msg == _owner.ExWM_SELECTFILE)
                 {
                     QTLogger.log(" select file 2  wparam " + msg.WParam + " lparam " + msg.LParam);
                     return true;
@@ -126,5 +125,4 @@ namespace QTTabBarLib {
 
             #endregion
         }
-    }
 }

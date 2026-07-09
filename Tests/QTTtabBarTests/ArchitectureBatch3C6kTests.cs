@@ -8,7 +8,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6kTests {
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).GetNestedType("ExplorerControllerModule", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
 
         [Test]
         public void ExplorerControllerModule_Owns_WindowBootstrap_Methods() {
@@ -36,7 +36,7 @@ namespace QTTtabBarTests {
             Assert.IsTrue(explorer.Contains("void InitializeNavBtns("));
             Assert.IsTrue(explorer.Contains("void InitializeOpenedWindow("));
             Assert.IsTrue(explorer.Contains("void InstallHooks("));
-            Assert.IsTrue(explorer.Contains("new ListViewMonitor(_owner.ShellBrowser"),
+            Assert.IsTrue(explorer.Contains("new ListViewMonitor(_owner.ExShellBrowser"),
                 "ListViewMonitor setup should live in ExplorerControllerModule");
         }
 

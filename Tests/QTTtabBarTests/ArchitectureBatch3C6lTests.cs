@@ -11,7 +11,7 @@ namespace QTTtabBarTests {
             typeof(QTTabBarClass).GetNestedType("ListViewInputController", BindingFlags.NonPublic);
 
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).GetNestedType("ExplorerControllerModule", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
 
         [Test]
         public void ListViewInputController_Owns_HandleItemActivate() {

@@ -791,6 +791,9 @@
     <Compile Include="QTTabBarClass.PluginMenuController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ExplorerAccess.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.ShutdownAccess.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>

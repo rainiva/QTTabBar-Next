@@ -49,12 +49,11 @@ using System.Management;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             #region Navigation methods
 
             internal void NavigateBranchCurrent(int index) {
-                NavigateBranches(_owner.CurrentTab, index);
+                NavigateBranches(_owner.ExCurrentTab, index);
             }
 
             public void NavigateBranches(QTabItem tab, int index) {
@@ -63,32 +62,32 @@ namespace QTTabBarLib {
                 if(modifierKeys == Keys.Control) {
                     using(IDLWrapper wrapper = new IDLWrapper(log.IDL)) {
                         if(!wrapper.Available) {
-                            _owner.ShowMessageNavCanceled(log.Path, false);
+                            _owner.ExShowMessageNavCanceled(log.Path, false);
                         }
                         else {
-                            _owner.OpenNewWindow(wrapper);
+                            _owner.ExOpenNewWindow(wrapper);
                         }
                     }
                 }
                 else if(modifierKeys == Keys.Shift) {
-                    _owner.CloneTabButton(tab, log);
+                    _owner.ExCloneTabButton(tab, log);
                 }
                 else {
-                    _owner.tabControl1.SelectTab(tab);
-                    if(_owner.IsSpecialFolderNeedsToTravel(log.Path)) {
-                        _owner.SaveSelectedItems(_owner.CurrentTab);
-                        _owner.NavigatedByCode = true;
-                        _owner.NavigateToPastSpecialDir(log.Hash);
+                    _owner.ExtabControl1.SelectTab(tab);
+                    if(_owner.ExIsSpecialFolderNeedsToTravel(log.Path)) {
+                        _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
+                        _owner.ExNavigatedByCode = true;
+                        _owner.ExNavigateToPastSpecialDir(log.Hash);
                     }
                     else {
-                        _owner.NavigatedByCode = false;
+                        _owner.ExNavigatedByCode = false;
                         using(IDLWrapper wrapper2 = new IDLWrapper(log.IDL)) {
                             if(!wrapper2.Available) {
-                                _owner.ShowMessageNavCanceled(log.Path, false);
+                                _owner.ExShowMessageNavCanceled(log.Path, false);
                             }
                             else {
-                                _owner.SaveSelectedItems(_owner.CurrentTab);
-                                _owner.ShellBrowser.Navigate(wrapper2);
+                                _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
+                                _owner.ExShellBrowser.Navigate(wrapper2);
                             }
                         }
                     }
@@ -96,23 +95,23 @@ namespace QTTabBarLib {
             }
 
             public bool NavigateCurrentTab(bool fBack) {
-                string currentPath = _owner.CurrentTab.CurrentPath;
-                LogData data = fBack ? _owner.CurrentTab.GoBackward() : _owner.CurrentTab.GoForward();
+                string currentPath = _owner.ExCurrentTab.CurrentPath;
+                LogData data = fBack ? _owner.ExCurrentTab.GoBackward() : _owner.ExCurrentTab.GoForward();
                 if(string.IsNullOrEmpty(data.Path)) {
                     return false;
                 }
-                if((_owner.CurrentTab.TabLocked && !data.Path.Contains("*?*?*")) && !currentPath.Contains("*?*?*")) {
+                if((_owner.ExCurrentTab.TabLocked && !data.Path.Contains("*?*?*")) && !currentPath.Contains("*?*?*")) {
                     try {
-                        _owner.NowTabCloned = true;
-                        QTabItem tab = _owner.CurrentTab.Clone();
-                        _owner.AddInsertTab(tab);
+                        _owner.ExNowTabCloned = true;
+                        QTabItem tab = _owner.ExCurrentTab.Clone();
+                        _owner.ExAddInsertTab(tab);
                         if(fBack) {
-                            _owner.CurrentTab.GoForward();
+                            _owner.ExCurrentTab.GoForward();
                         }
                         else {
-                            _owner.CurrentTab.GoBackward();
+                            _owner.ExCurrentTab.GoBackward();
                         }
-                        _owner.tabControl1.SelectTab(tab);
+                        _owner.ExtabControl1.SelectTab(tab);
                     }
                     catch(Exception exception) {
                         QTLogger.MakeErrorLog(exception);
@@ -120,29 +119,29 @@ namespace QTTabBarLib {
                     return true;
                 }
                 string path = data.Path;
-                if(_owner.IsSpecialFolderNeedsToTravel(path) && _owner.LogEntryDic.ContainsKey(data.Hash)) {
-                    _owner.SaveSelectedItems(_owner.CurrentTab);
-                    _owner.NavigatedByCode = true;
-                    return _owner.NavigateToPastSpecialDir(data.Hash);
+                if(_owner.ExIsSpecialFolderNeedsToTravel(path) && _owner.ExLogEntryDic.ContainsKey(data.Hash)) {
+                    _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
+                    _owner.ExNavigatedByCode = true;
+                    return _owner.ExNavigateToPastSpecialDir(data.Hash);
                 }
                 using(IDLWrapper wrapper = new IDLWrapper(data.IDL)) {
                     if(!wrapper.Available) {
                         CancelFailedNavigation(path, fBack, 1);
                         return false;
                     }
-                    _owner.SaveSelectedItems(_owner.CurrentTab);
-                    _owner.NavigatedByCode = true;
-                    return (0 == _owner.ShellBrowser.Navigate(wrapper));
+                    _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
+                    _owner.ExNavigatedByCode = true;
+                    return (0 == _owner.ExShellBrowser.Navigate(wrapper));
                 }
             }
 
             public void NavigateToFirstOrLast(bool fBack) {
                 string[] historyBack;
                 if(fBack) {
-                    historyBack = _owner.CurrentTab.GetHistoryBack();
+                    historyBack = _owner.ExCurrentTab.GetHistoryBack();
                 }
                 else {
-                    historyBack = _owner.CurrentTab.GetHistoryForward();
+                    historyBack = _owner.ExCurrentTab.GetHistoryForward();
                 }
                 if(historyBack.Length > (fBack ? 1 : 0)) {
                     NavigateToHistory(historyBack[historyBack.Length - 1], fBack, historyBack.Length - 1);
@@ -154,37 +153,37 @@ namespace QTTabBarLib {
                 int countRollback = fBack ? steps : (steps + 1);
                 if(fBack) {
                     for(int i = 0; i < steps; i++) {
-                        data = _owner.CurrentTab.GoBackward();
+                        data = _owner.ExCurrentTab.GoBackward();
                     }
                 }
                 else {
                     for(int j = 0; j < steps + 1; j++) {
-                        data = _owner.CurrentTab.GoForward();
+                        data = _owner.ExCurrentTab.GoForward();
                     }
                 }
                 if(string.IsNullOrEmpty(data.Path)) {
                     CancelFailedNavigation("( Unknown Path )", fBack, countRollback);
                 }
-                else if(_owner.CurrentTab.TabLocked) {
-                    _owner.NowTabCloned = true;
-                    QTabItem tab = _owner.CurrentTab.Clone();
-                    _owner.AddInsertTab(tab);
+                else if(_owner.ExCurrentTab.TabLocked) {
+                    _owner.ExNowTabCloned = true;
+                    QTabItem tab = _owner.ExCurrentTab.Clone();
+                    _owner.ExAddInsertTab(tab);
                     if(fBack) {
                         for(int k = 0; k < steps; k++) {
-                            _owner.CurrentTab.GoForward();
+                            _owner.ExCurrentTab.GoForward();
                         }
                     }
                     else {
                         for(int m = 0; m < (steps + 1); m++) {
-                            _owner.CurrentTab.GoBackward();
+                            _owner.ExCurrentTab.GoBackward();
                         }
                     }
-                    _owner.tabControl1.SelectTab(tab);
+                    _owner.ExtabControl1.SelectTab(tab);
                 }
-                else if(_owner.IsSpecialFolderNeedsToTravel(displayPath)) {
-                    _owner.SaveSelectedItems(_owner.CurrentTab);
-                    _owner.NavigatedByCode = true;
-                    _owner.NavigateToPastSpecialDir(data.Hash);
+                else if(_owner.ExIsSpecialFolderNeedsToTravel(displayPath)) {
+                    _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
+                    _owner.ExNavigatedByCode = true;
+                    _owner.ExNavigateToPastSpecialDir(data.Hash);
                 }
                 else {
                     using(IDLWrapper wrapper = new IDLWrapper(data.IDL)) {
@@ -192,9 +191,9 @@ namespace QTTabBarLib {
                             CancelFailedNavigation(displayPath, fBack, countRollback);
                         }
                         else {
-                            _owner.SaveSelectedItems(_owner.CurrentTab);
-                            _owner.NavigatedByCode = true;
-                            _owner.ShellBrowser.Navigate(wrapper);
+                            _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
+                            _owner.ExNavigatedByCode = true;
+                            _owner.ExShellBrowser.Navigate(wrapper);
                         }
                     }
                 }
@@ -206,13 +205,13 @@ namespace QTTabBarLib {
                     return false;
                 }
                 if(fBack) {
-                    historyBack = _owner.CurrentTab.GetHistoryBack();
+                    historyBack = _owner.ExCurrentTab.GetHistoryBack();
                     if((historyBack.Length - 1) < index) {
                         return false;
                     }
                 }
                 else {
-                    historyBack = _owner.CurrentTab.GetHistoryForward();
+                    historyBack = _owner.ExCurrentTab.GetHistoryForward();
                     if(historyBack.Length < index) {
                         return false;
                     }
@@ -235,13 +234,13 @@ namespace QTTabBarLib {
                     MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
                     switch(Control.ModifierKeys) {
                         case Keys.Shift:
-                            _owner.CloneTabButton(_owner.CurrentTab, null, true, -1);
+                            _owner.ExCloneTabButton(_owner.ExCurrentTab, null, true, -1);
                             NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
                             return;
 
                         case Keys.Control: {
                                 using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
-                                    _owner.OpenNewWindow(wrapper);
+                                    _owner.ExOpenNewWindow(wrapper);
                                     return;
                                 }
                             }
@@ -253,27 +252,26 @@ namespace QTTabBarLib {
             }
 
             public void NavigationButtons_Click(object sender, EventArgs e) {
-                NavigateCurrentTab(sender == _owner.buttonBack);
+                NavigateCurrentTab(sender == _owner.ExbuttonBack);
             }
 
             public void NavigationButtons_DropDownOpening(object sender, EventArgs e) {
-                _owner.buttonNavHistoryMenu.DropDown.SuspendLayout();
-                while(_owner.buttonNavHistoryMenu.DropDownItems.Count > 0) {
-                    _owner.buttonNavHistoryMenu.DropDownItems[0].Dispose();
+                _owner.ExbuttonNavHistoryMenu.DropDown.SuspendLayout();
+                while(_owner.ExbuttonNavHistoryMenu.DropDownItems.Count > 0) {
+                    _owner.ExbuttonNavHistoryMenu.DropDownItems[0].Dispose();
                 }
-                if((_owner.CurrentTab.HistoryCount_Back + _owner.CurrentTab.HistoryCount_Forward) > 1) {
-                    _owner.buttonNavHistoryMenu.DropDownItems.AddRange(_owner.CreateNavBtnMenuItems(true).ToArray());
-                    _owner.buttonNavHistoryMenu.DropDownItems.AddRange(_owner.CreateBranchMenu(true, _owner.components, _owner.tsmiBranchRoot_DropDownItemClicked).ToArray());
+                if((_owner.ExCurrentTab.HistoryCount_Back + _owner.ExCurrentTab.HistoryCount_Forward) > 1) {
+                    _owner.ExbuttonNavHistoryMenu.DropDownItems.AddRange(_owner.ExCreateNavBtnMenuItems(true).ToArray());
+                    _owner.ExbuttonNavHistoryMenu.DropDownItems.AddRange(_owner.ExCreateBranchMenu(true, _owner.Excomponents, _owner.ExtsmiBranchRoot_DropDownItemClicked).ToArray());
                 }
                 else {
                     ToolStripMenuItem item = new ToolStripMenuItem("none");
                     item.Enabled = false;
-                    _owner.buttonNavHistoryMenu.DropDownItems.Add(item);
+                    _owner.ExbuttonNavHistoryMenu.DropDownItems.Add(item);
                 }
-                _owner.buttonNavHistoryMenu.DropDown.ResumeLayout();
+                _owner.ExbuttonNavHistoryMenu.DropDown.ResumeLayout();
             }
 
             #endregion
         }
-    }
 }

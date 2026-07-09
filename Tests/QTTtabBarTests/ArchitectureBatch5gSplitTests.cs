@@ -30,6 +30,8 @@ namespace QTTtabBarTests {
             Assert.IsTrue(travelLog.Contains("ClearTravelLogs"));
             Assert.IsTrue(travelLog.Contains("NavigateBackToTheFuture"));
             Assert.IsTrue(travelLog.Contains("GetCurrentLogEntry"));
+            Assert.IsFalse(travelLog.Contains("public partial class QTTabBarClass"),
+                "Explorer partials should declare top-level ExplorerControllerModule after batch 5v");
             Assert.LessOrEqual(CountLines("QTTabBarClass.ExplorerController.TravelLog.cs"), 400);
         }
 

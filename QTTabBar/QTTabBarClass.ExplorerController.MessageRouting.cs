@@ -23,7 +23,6 @@ using QTPlugin;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             private bool RouteExplorerWindowMessage(ref Message msg) {
                 switch(msg.Msg) {
@@ -32,90 +31,90 @@ namespace QTTabBarLib {
                             QTUtility.GetShellClickMode();
                         }
                         if(Marshal.PtrToStringUni(msg.LParam) == "Environment") {
-                            SyncTaskBarMenu();
+                            QTTabBarClass.SyncTaskBarMenu();
                         }
                         return false;
 
                     case WM.NCLBUTTONDOWN:
                     case WM.NCRBUTTONDOWN:
-                        _owner.HideTabSwitcher(false);
+                        _owner.ExHideTabSwitcher(false);
                         return false;
 
                     case WM.MOVE:
                     case WM.SIZE:
-                        _owner.listView.HideThumbnailTooltip(0);
-                        _owner.listView.HideSubDirTip(0);
+                        _owner.ExListView.HideThumbnailTooltip(0);
+                        _owner.ExListView.HideSubDirTip(0);
                         return false;
 
                     case WM.ACTIVATE: {
                         int num3 = ((int) msg.WParam) & 0xffff;
                         if(num3 > 0) {
-                            _owner.BeginInvoke(new Action(() => {
+                            _owner.ExBeginInvoke(new Action(() => {
                                 InstanceManager.PushTabBarInstance(_owner);
-                                InstanceManager.RemoveFromTrayIcon(_owner.Handle);
+                                InstanceManager.RemoveFromTrayIcon(_owner.ExHandle);
                             }));
                         }
                         else {
-                            _owner.listView.HideThumbnailTooltip(1);
-                            _owner.listView.HideSubDirTip_ExplorerInactivated();
-                            _owner.HideTabSwitcher(false);
-                            if(_owner.tabControl1.Focused) {
-                                _owner.listView.SetFocus();
+                            _owner.ExListView.HideThumbnailTooltip(1);
+                            _owner.ExListView.HideSubDirTip_ExplorerInactivated();
+                            _owner.ExHideTabSwitcher(false);
+                            if(_owner.ExtabControl1.Focused) {
+                                _owner.ExListView.SetFocus();
                             }
                             if((Config.Tabs.ShowCloseButtons &&
                                     Config.Tabs.CloseBtnsWithAlt) &&
-                                            _owner.tabControl1.EnableCloseButton) {
-                                _owner.tabControl1.EnableCloseButton = false;
-                                _owner.tabControl1.Refresh();
+                                            _owner.ExtabControl1.EnableCloseButton) {
+                                _owner.ExtabControl1.EnableCloseButton = false;
+                                _owner.ExtabControl1.Refresh();
                             }
                         }
                         return false;
                     }
                     case WM.CLOSE:
-                        if(_owner.iSequential_WM_CLOSE > 0) {
+                        if(_owner.ExiSequential_WM_CLOSE > 0) {
                             return true;
                         }
-                        _owner.iSequential_WM_CLOSE++;
-                        return _owner.HandleCLOSE(msg.LParam);
+                        _owner.ExiSequential_WM_CLOSE++;
+                        return _owner.ExHandleCLOSE(msg.LParam);
 
                     case WM.NCMBUTTONDOWN:
                     case WM.NCXBUTTONDOWN:
-                        _owner.HideTabSwitcher(false);
+                        _owner.ExHideTabSwitcher(false);
                         return false;
 
                     case WM.SYSCOMMAND:
                         if((((int) msg.WParam) & 0xfff0) == 0xf020) {
-                            if(_owner.pluginServer != null) {
-                                _owner.pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Minimized);
+                            if(_owner.ExpluginServer != null) {
+                                _owner.ExpluginServer.OnExplorerStateChanged(ExplorerWindowActions.Minimized);
                             }
                             if(Config.Window.TrayOnMinimize) {
-                                _owner.MinimizeToTray();
+                                _owner.ExMinimizeToTray();
                                 return true;
                             }
                             return false;
                         }
                         if((((int) msg.WParam) & 0xfff0) == 0xf030) {
-                            if(_owner.pluginServer != null) {
-                                _owner.pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Maximized);
+                            if(_owner.ExpluginServer != null) {
+                                _owner.ExpluginServer.OnExplorerStateChanged(ExplorerWindowActions.Maximized);
                             }
                             return false;
                         }
                         if((((int) msg.WParam) & 0xfff0) == 0xf120) {
-                            if(_owner.pluginServer != null) {
-                                _owner.pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Restored);
+                            if(_owner.ExpluginServer != null) {
+                                _owner.ExpluginServer.OnExplorerStateChanged(ExplorerWindowActions.Restored);
                             }
                             return false;
                         }
                         if((Config.Window.TrayOnClose &&
                                 ((((int) msg.WParam) == 0xf060) || (((int) msg.WParam) == 0xf063))) &&
                                     (Control.ModifierKeys != Keys.Shift)) {
-                            _owner.MinimizeToTray();
+                            _owner.ExMinimizeToTray();
                             return true;
                         }
                         if(!OSDetector.IsXP || ((((int) msg.WParam) != 0xf060) && (((int) msg.WParam) != 0xf063))) {
                             return false;
                         }
-                        WindowUtils.CloseExplorer(_owner.ExplorerHandle, 3);
+                        WindowUtils.CloseExplorer(_owner.ExExplorerHandle, 3);
                         return true;
 
                     case WM.POWERBROADCAST:
@@ -138,10 +137,10 @@ namespace QTTabBarLib {
                                 }
                                 num5 = (ushort) (num5 + 0x41);
                                 string str = ((char) num5) + @":\";
-                                _owner.CloseTabs(_owner.tabControl1.TabPages.Where(item =>
+                                _owner.ExCloseTabs(_owner.ExtabControl1.TabPages.Where(item =>
                                         item.CurrentPath.PathStartsWith(str)).ToList(), true);
-                                if(_owner.tabControl1.TabCount == 0) {
-                                    WindowUtils.CloseExplorer(_owner.ExplorerHandle, 2);
+                                if(_owner.ExtabControl1.TabCount == 0) {
+                                    WindowUtils.CloseExplorer(_owner.ExExplorerHandle, 2);
                                 }
                             }
                         }
@@ -153,7 +152,7 @@ namespace QTTabBarLib {
                             case WM.RBUTTONDOWN:
                             case WM.MBUTTONDOWN:
                             case WM.XBUTTONDOWN:
-                                _owner.HideTabSwitcher(false);
+                                _owner.ExHideTabSwitcher(false);
                                 break;
                         }
                         return false;
@@ -177,7 +176,7 @@ namespace QTTabBarLib {
                                 if(fProcess) {
                                     MouseChord chord = QTUtility.MakeMouseChord(MouseChord.X1, Control.ModifierKeys);
                                     if(Config.Mouse.GlobalMouseActions.TryGetValue(chord, out action)) {
-                                        _owner.DoBindAction(action);
+                                        _owner.ExDoBindAction(action);
                                     }
                                 }
                                 return true;
@@ -187,14 +186,14 @@ namespace QTTabBarLib {
                                 if(fProcess) {
                                     MouseChord chord = QTUtility.MakeMouseChord(MouseChord.X2, Control.ModifierKeys);
                                     if(Config.Mouse.GlobalMouseActions.TryGetValue(chord, out action)) {
-                                        _owner.DoBindAction(action);
+                                        _owner.ExDoBindAction(action);
                                     }
                                 }
                                 return true;
 
                             case APPCOMMAND_CLOSE:
                                 QTLogger.log("APPCOMMAND_CLOSE");
-                                WindowUtils.CloseExplorer(_owner.ExplorerHandle, 0);
+                                WindowUtils.CloseExplorer(_owner.ExExplorerHandle, 0);
                                 return true;
                         }
                         break;
@@ -202,5 +201,4 @@ namespace QTTabBarLib {
                 return false;
             }
         }
-    }
 }
