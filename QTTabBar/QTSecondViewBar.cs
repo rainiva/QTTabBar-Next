@@ -61,17 +61,18 @@ namespace QTTabBarLib
         // public override bool HostedByThirdViewBar => true;
 
         private ExplorerBrowser.WindowsForms.ExplorerBrowser explorerBrowser;
+        private ShellObject _currentLocation;
 
         public ShellObject CurrentLocation
         {
             get
             {
-                return CurrentLocation;
+                return _currentLocation;
             }
 
             set
             {
-                CurrentLocation = value;
+                _currentLocation = value;
             }
         }
 
