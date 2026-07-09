@@ -223,13 +223,15 @@ namespace QTTabBarLib {
         }
 
         public static void CheckSubTexts(QTabControl tabControl) {
-            if(!tabControl.AutoSubText) return;
+            if(tabControl == null || !tabControl.AutoSubText) return;
             bool needsRefresh = false;
             char[] separator = new char[] { Path.DirectorySeparatorChar };
             Dictionary<string, List<QTabItem>> commonTextTabs = new Dictionary<string, List<QTabItem>>();
             foreach(QTabItem item in tabControl.TabPages) {
-                if(item.CurrentPath.StartsWith("::")) continue;
-                string text = item.Text.ToLower();
+                if(item == null) continue;
+                string path = item.CurrentPath ?? string.Empty;
+                if(path.StartsWith("::")) continue;
+                string text = (item.Text ?? string.Empty).ToLower();
                 if(commonTextTabs.ContainsKey(text)) {
                     commonTextTabs[text].Add(item);
                 }
@@ -239,19 +241,19 @@ namespace QTTabBarLib {
             }
             foreach(List<QTabItem> tabs in commonTextTabs.Values) {
                 if(tabs.Count > 1) {
-                    if(tabs.All(tab => tab.CurrentPath == tabs[0].CurrentPath)) {
-                        foreach(QTabItem tab in tabs.Where(item => item.Comment.Length > 0)) {
+                    if(tabs.All(tab => (tab.CurrentPath ?? string.Empty) == (tabs[0].CurrentPath ?? string.Empty))) {
+                        foreach(QTabItem tab in tabs.Where(item => (item.Comment ?? string.Empty).Length > 0)) {
                             tab.Comment = string.Empty;
                             tab.RefreshRectangle();
                             needsRefresh = true;
                         }
                     }
                     else {
-                        List<string[]> pathArrays = tabs.Select(item => item.CurrentPath
+                        List<string[]> pathArrays = tabs.Select(item => (item.CurrentPath ?? string.Empty)
                                 .Split(separator).Reverse().Skip(1).ToArray()).ToList();
                         for(int i = 0; i < tabs.Count; i++) {
                             string comment = pathArrays[i].FirstOrDefault(str => !pathArrays.Where(
-                                    (path, j) => i != j && path.Contains(str)).Any()) ?? tabs[i].currentPath;
+                                    (arr, j) => i != j && arr.Contains(str)).Any()) ?? (tabs[i].currentPath ?? string.Empty);
                             if(comment.Length == 2 && comment[1] == ':') {
                                 comment += @"\";
                             }
@@ -263,7 +265,7 @@ namespace QTTabBarLib {
                         }
                     }
                 }
-                else if(tabs[0].Comment.Length > 0) {
+                else if((tabs[0].Comment ?? string.Empty).Length > 0) {
                     needsRefresh = true;
                     tabs[0].Comment = string.Empty;
                     tabs[0].RefreshRectangle();
