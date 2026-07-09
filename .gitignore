@@ -837,6 +837,11 @@ MigrationBackup/
 /.idea
 /.codegraph/
 
+# Blanket build-output ignores — CodeGraph file watcher reads .gitignore.
+# Without these, MSBuild writes to bin/ trigger constant auto-sync and can wedge the daemon.
+[Bb]in/
+[Oo]bj/
+
 # Generated COM interop (build via Tools/GenerateInterop.ps1)
 /lib/interop/*.dll
 
