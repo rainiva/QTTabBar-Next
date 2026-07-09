@@ -1198,7 +1198,7 @@ public static void Initialize() {
 | C7 | ⬜ 部分修复 | 5 个辅助类已创建，QTUtility 仍保留部分 façade |
 | W1 | ✅ 已修复 | 纯 registry façade 已移除，IPC 方法保留 |
 | W2 | ✅ 已验证 | DesktopTooltipController 已提取，主文件 2,191 行 |
-| W3 | ⬜ 部分修复 | TabOperations + CloseTab/CloseTabs 已上提 TabBarBase |
+| W3 | ⬜ 部分修复 | TabOperations + CloseTab/CloseTabs/CancelFailedTabChanging 已上提 TabBarBase |
 | W4 | ✅ 已修复 | `RegistryAccess.cs` 已创建，7 个文件已采用 |
 | S1 | ✅ 已修复 | guard 前置至 try 块之前 |
 | S2 | ✅ 已修复 | XML 注释已添加 |
