@@ -52,8 +52,10 @@ namespace QTTtabBarTests {
             string catchBody = catchEnd > catchBrace
                 ? content.Substring(catchBrace, catchEnd - catchBrace)
                 : content.Substring(catchBrace, Math.Min(300, content.Length - catchBrace));
-            Assert.IsTrue(catchBody.Contains("ResetForInitRetry"),
-                "Orchestrator catch should reset InstanceManager so retry does not see stale initialized state");
+            Assert.IsTrue(catchBody.Contains("ResetAllSubsystemsForInitRetry"),
+                "Orchestrator catch should reset subsystems so retry does not see stale initialized state");
+            Assert.IsFalse(catchBody.Contains("InstanceManager.ResetForInitRetry()"),
+                "Catch should not duplicate InstanceManager reset when ResetAllSubsystemsForInitRetry already does");
         }
 
         [Test]

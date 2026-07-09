@@ -25,8 +25,10 @@ namespace QTTabBarLib {
             }
 
             public void EnableApiHook() {
-                // HookLibManager.Initialize runs once in InitializationOrchestrator.
-                QTLogger.log("HookInputController EnableApiHook (native hook lib already initialized by orchestrator)");
+                if(!HookStateManager.IsLoaded) {
+                    HookLibManager.Initialize();
+                }
+                QTLogger.log("HookInputController EnableApiHook");
             }
 
             public void Install(int currentThreadId) {

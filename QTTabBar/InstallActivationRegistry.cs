@@ -13,7 +13,7 @@ namespace QTTabBarLib {
 
         internal static DateTime ReadActivationDate() {
             string minDate = DateTime.MinValue.ToString();
-            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
+            using(RegistryKey key = RegistryAccess.OpenRoot(false)) {
                 if(key == null) {
                     return DateTime.MinValue;
                 }

@@ -104,11 +104,9 @@ namespace QTTabBarLib {
         public static void PersistWindowAlpha(byte alpha) {
             Config.Window.WindowAlpha = alpha;
             SessionState.WindowAlpha = alpha;
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Config + "Window")) {
-                if(key != null) {
-                    key.SetValue("WindowAlpha", (int)alpha);
-                }
-            }
+            PersistPartialWindowSetting(key => {
+                key.SetValue("WindowAlpha", (int)alpha);
+            });
         }
 
         public static void ReadConfig() {
