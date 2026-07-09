@@ -588,6 +588,9 @@
     <Compile Include="QTTabBarClass.FileToolsController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.BindActionController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.TabTooltipController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>

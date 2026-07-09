@@ -294,8 +294,11 @@ namespace QTTtabBarTests {
 
         private static MethodInfo DoBindActionMethod {
             get {
-                return typeof(QTTabBarClass).GetMethod("DoBindAction",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
+                Type controllerType = typeof(QTTabBarClass).GetNestedType("BindActionController",
+                    BindingFlags.NonPublic | BindingFlags.Public);
+                Assert.IsNotNull(controllerType, "BindActionController nested type should exist");
+                return controllerType.GetMethod("DoBindAction",
+                    BindingFlags.Public | BindingFlags.Instance);
             }
         }
 
@@ -356,9 +359,12 @@ namespace QTTtabBarTests {
             Assert.IsTrue(
                 methods.Any(m => m.DeclaringType == MenuControllerType && m.Name == "CreateGroup"),
                 "BindAction.CreateNewGroup dispatch must call MenuController.CreateGroup");
-            Assert.IsTrue(fields.Any(f => f.Name == "_menuController"
-                    && f.DeclaringType == typeof(QTTabBarClass)),
-                "the CreateGroup call must be dispatched through the _menuController instance");
+            bool routesThroughMenuController = fields.Any(f => f.Name == "_menuController"
+                    && f.DeclaringType == typeof(QTTabBarClass))
+                || fields.Any(f => f.Name == "_owner"
+                    && f.DeclaringType.Name == "BindActionController");
+            Assert.IsTrue(routesThroughMenuController,
+                "the CreateGroup call must be dispatched through _menuController or BindActionController._owner");
         }
 
         #endregion
