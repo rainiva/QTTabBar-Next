@@ -9,7 +9,7 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C6uTests {
         [Test]
         public void ShutdownController_Owns_CloseDW() {
-            var type = typeof(QTTabBarClass).GetNestedType("ShutdownController", BindingFlags.NonPublic);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ShutdownController");
             Assert.IsNotNull(type);
             Assert.IsNotNull(type.GetMethod("CloseDW", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
@@ -20,7 +20,7 @@ namespace QTTtabBarTests {
             string shutdown = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShutdownController.cs"));
             Assert.IsTrue(main.Contains("_shutdownController.CloseDW("));
             Assert.IsFalse(main.Contains("treeViewWrapper.Dispose()"));
-            Assert.IsTrue(shutdown.Contains("treeViewWrapper.Dispose()"));
+            Assert.IsTrue(shutdown.Contains("ShutdownTreeViewWrapper.Dispose()"));
             Assert.IsTrue(shutdown.Contains("Marshal.FinalReleaseComObject"));
         }
 

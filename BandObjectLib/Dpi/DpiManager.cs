@@ -28,7 +28,7 @@ namespace BandObjectLib
       {
           get
           {
-              return QTUtility.LaterThan8_1;
+              return OsVersionHelper.LaterThan8_1;
           }
       }
 
@@ -51,7 +51,7 @@ namespace BandObjectLib
     {
       if (DpiManager.PerMonitorDpiIsSupported)
       {
-        if (QTUtility.IsWindows10AndLater)
+        if (OsVersionHelper.IsWindows10AndLater)
         {
           try
           {
@@ -156,7 +156,7 @@ namespace BandObjectLib
     } 
   }
 
-  internal class QTUtility
+  internal class OsVersionHelper
   {
       private static Version osVersion = Environment.OSVersion.Version;
 
@@ -172,7 +172,7 @@ namespace BandObjectLib
       {
           get
           {
-              return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor == 3;
+              return OsVersionHelper.osVersion.Major == 6 && OsVersionHelper.osVersion.Minor == 3;
           }
       }
 
@@ -180,18 +180,18 @@ namespace BandObjectLib
       {
           get
           {
-              if (QTUtility.osVersion.Major >= 10)
+              if (OsVersionHelper.osVersion.Major >= 10)
                   return true;
-              return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor == 4;
+              return OsVersionHelper.osVersion.Major == 6 && OsVersionHelper.osVersion.Minor == 4;
           }
       }
       public static bool LaterThan10Beta17666
       {
           get
           {
-              if (QTUtility.IsWindows10AndLater)
+              if (OsVersionHelper.IsWindows10AndLater)
                   return true;
-              return QTUtility.IsWindows10 && QTUtility.osVersion.Build >= 17666;
+              return OsVersionHelper.IsWindows10 && OsVersionHelper.osVersion.Build >= 17666;
           }
       }
 
@@ -199,9 +199,9 @@ namespace BandObjectLib
       {
           get
           {
-              if (QTUtility.osVersion.Major >= 10)
+              if (OsVersionHelper.osVersion.Major >= 10)
                   return true;
-              return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor == 4;
+              return OsVersionHelper.osVersion.Major == 6 && OsVersionHelper.osVersion.Minor == 4;
           }
       }
   }

@@ -14,7 +14,7 @@ namespace QTTtabBarTests {
             typeof(QTTabBarClass).GetNestedType("ShellNavigationController", BindingFlags.NonPublic);
 
         private static Type InstanceBootstrapType =>
-            typeof(QTTabBarClass).GetNestedType("InstanceBootstrapController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.InstanceBootstrapController");
 
         [Test]
         public void BandLifecycleController_Owns_ShowDW_UIActivate_And_DpiRefresh() {
@@ -42,7 +42,7 @@ namespace QTTtabBarTests {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string bandLifecycle = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.BandLifecycleController.cs"));
             string shellNav = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellNavigationController.cs"));
-            string bootstrap = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.InstanceBootstrapController.cs"));
+            string bootstrap = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceBootstrapController.cs"));
             Assert.IsTrue(main.Contains("_bandLifecycleController.ShowDW("));
             Assert.IsTrue(main.Contains("_bandLifecycleController.UIActivateIO("));
             Assert.IsTrue(main.Contains("_bandLifecycleController.RefreshBandHeightForCurrentDpi("));

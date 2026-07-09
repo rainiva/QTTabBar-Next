@@ -47,6 +47,9 @@ namespace QTTtabBarTests {
 
         [Test]
         public void NoCapturePathsList_Facade_Observes_Replaced_Reference() {
+            // QTUtility.Initialize runs from the static ctor; touch it first so the
+            // facade read below does not re-enter init and reload NoCapturePathsList.
+            _ = QTUtility.syncRoot;
             List<string> original = SessionState.NoCapturePathsList;
             try {
                 List<string> replacement = new List<string> { "::{TEST-RACE}" };

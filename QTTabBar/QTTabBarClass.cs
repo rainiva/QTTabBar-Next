@@ -147,7 +147,6 @@ namespace QTTabBarLib {
         private NativeWindowController explorerController;
         
         private bool fHideExplorer;
-        private static bool fInitialized;
         private readonly bool fIsFirstLoad;
         private volatile bool FirstNavigationCompleted;
         private bool fAutoNavigating;
@@ -739,8 +738,7 @@ namespace QTTabBarLib {
             }
         }
 
-        // todo: This seems like it should go after every new tab creation, no?
-        private void RestoreWindow()
+        internal void RestoreWindow()
         {
             _windowManagementController.RestoreWindow();
         }
@@ -779,11 +777,11 @@ namespace QTTabBarLib {
         // NowTabCreated, fNavigatedByTabSelection, CurrentTravelLogIndex, navBtnsFlag,
         // toolStrip, buttonBack, buttonForward, buttonNavHistoryMenu, TravelToolBarHandle
 
-        protected List<ToolStripItem> lstPluginMenuItems_Sys;
-        protected List<ToolStripItem> lstPluginMenuItems_Tab;
+        private List<ToolStripItem> lstPluginMenuItems_Sys;
+        private List<ToolStripItem> lstPluginMenuItems_Tab;
 
-        protected bool NowOpenedByGroupOpener;
-        protected bool NowTopMost;
+        private bool NowOpenedByGroupOpener;
+        private bool NowTopMost;
 
         public bool HideExplorer
         {
@@ -800,7 +798,7 @@ namespace QTTabBarLib {
 
         // ShowMessageNavCanceled moved to TabBarBase
 
-        protected void CancelFailedTabChanging(string newPath) {
+        protected internal override void CancelFailedTabChanging(string newPath) {
             base.CancelFailedTabChanging(newPath);
         }
         // NavigateToPastSpecialDir moved to TabBarBase
