@@ -480,7 +480,7 @@ namespace QTTabBarLib {
                             }
                             break;
                         case WM.SYSCOLORCHANGE:
-                            QTUtility.InNightMode = QTUtility.getNightMode();
+                            QTUtility.RefreshNightMode();
                             QTUtility2.log("SYSCOLORCHANGE SwitchNighMode");
                             Config.Skin.SwitchNighMode(QTUtility.InNightMode ); // ����ر��Զ���ɫ�򲻽��б�ɫ
                             ConfigManager.UpdateConfig(true);
@@ -1145,28 +1145,28 @@ namespace QTTabBarLib {
 
                 case BindAction.NextTab:
                     if(tabControl1.SelectedIndex == tabControl1.TabCount - 1) {
-                        tabControl1.SelectedIndex = 0;
+                        tabControl1.SelectTab(0);
                     }
                     else {
-                        tabControl1.SelectedIndex++;
+                        tabControl1.SelectTab(tabControl1.SelectedIndex + 1);
                     }
                     break;
 
                 case BindAction.PreviousTab:
                     if(tabControl1.SelectedIndex == 0) {
-                        tabControl1.SelectedIndex = tabControl1.TabCount - 1;
+                        tabControl1.SelectTab(tabControl1.TabCount - 1);
                     }
                     else {
-                        tabControl1.SelectedIndex--;
+                        tabControl1.SelectTab(tabControl1.SelectedIndex - 1);
                     }
                     break;
 
                 case BindAction.FirstTab:
-                    tabControl1.SelectedIndex = 0;
+                    tabControl1.SelectTab(0);
                     break;
 
                 case BindAction.LastTab:
-                    tabControl1.SelectedIndex = tabControl1.TabCount - 1;
+                    tabControl1.SelectTab(tabControl1.TabCount - 1);
                     break;
 
                 case BindAction.CloseCurrent:
