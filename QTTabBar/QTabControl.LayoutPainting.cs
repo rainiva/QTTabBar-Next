@@ -108,7 +108,7 @@ namespace QTTabBarLib {
                 /*Graphic.FillRectangleRTL(g, 
                     ThemeRefreshService.IsDark ?
                         (bSelected ? ShellColors.Light : ShellColors.Default) : 
-                        (QTUtility.LaterThan10Beta17666 ? 
+                        (OSDetector.LaterThan10Beta17666 ? 
                             (bSelected ? ShellColors.Light : ShellColors.Default) :
                             Color.Black), 
                     rctItem, 

@@ -204,7 +204,7 @@ namespace QTTabBarLib
                         // if (!lparam->flags.HasFlag((Enum)SWP.NOMOVE))
                         if (!QTUtility2.HasFlag(lparam->flags, SWP.NOMOVE))
                         {
-                            int num = QTUtility.IsWindows7 ? 28 : 25;
+                            int num = OSDetector.IsWindows7 ? 28 : 25;
                             lparam->y -= num;
                             lparam->cy += num;
                             lparam->cx += 4;
@@ -593,8 +593,8 @@ namespace QTTabBarLib
         private static void Register(Type t)
         {
             string name = t.GUID.ToString("B");
-            string str = QTUtility.IsChinese ? "左侧视图" : (QTUtility.IsJapanese ? "エクストラ ビュー (左)" : "Extra View (left)");
-            string helpStr = QTUtility.IsChinese ? "左侧扩展视图" : (QTUtility.IsJapanese ? "左にさらにビューを追加します。" : "Extra View (left)");
+            string str = OSDetector.IsChinese ? "左侧视图" : (OSDetector.IsJapanese ? "エクストラ ビュー (左)" : "Extra View (left)");
+            string helpStr = OSDetector.IsChinese ? "左侧扩展视图" : (OSDetector.IsJapanese ? "左にさらにビューを追加します。" : "Extra View (left)");
             ComRegistrationManager.RegisterBand(name, "QTTabBar", str, helpStr);
             // InfoBand category (vertical explorer bar)
             ComRegistrationManager.RegisterImplementedCategory(name, "{00021493-0000-0000-C000-000000000046}");

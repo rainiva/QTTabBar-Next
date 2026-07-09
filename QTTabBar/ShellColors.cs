@@ -71,7 +71,7 @@ namespace QTTabBarLib
         {
             get
             {
-                return QTUtility.LaterThan7 ?
+                return OSDetector.LaterThan7 ?
                     SystemColors.Window :
                     Color.FromArgb(241, 245, 251);
             }
@@ -81,7 +81,7 @@ namespace QTTabBarLib
         {
             get
             {
-                return QTUtility.LaterThan7 ?
+                return OSDetector.LaterThan7 ?
                     SystemColors.Window :
                     Color.FromArgb(241, 245, 251);
             }

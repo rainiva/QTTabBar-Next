@@ -218,13 +218,13 @@ namespace QTTabBarLib
         {
             get
             {
-                int left = QTUtility.LaterThan7 ? 1 : 0;
+                int left = OSDetector.LaterThan7 ? 1 : 0;
                 // Config.Get(Scts.ExtraViewTabBarPos3rd) == 1
                 return this.IsVertical && true ?
-                    (!QTUtility.RightToLeft ? new Padding(left, 2, 5, 0) :
+                    (!OSDetector.RightToLeft ? new Padding(left, 2, 5, 0) :
                         new Padding(5, 2, 0, 0)) 
                     :
-                    (!QTUtility.RightToLeft ? new Padding(left, 1, 5, 0) : 
+                    (!OSDetector.RightToLeft ? new Padding(left, 1, 5, 0) : 
                         new Padding(5, 1, 0, 0));
 
             }

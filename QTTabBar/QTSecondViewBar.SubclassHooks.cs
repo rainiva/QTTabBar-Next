@@ -107,10 +107,10 @@ namespace QTTabBarLib
                     Rectangle rectangle = new Rectangle(Point.Empty, PInvoke.GetWindowRect(msg.HWnd).Size);
                     if (this.IsVertical)
                     {
-                        if (QTUtility.RightToLeft)
+                        if (OSDetector.RightToLeft)
                         {
                             Graphic.FillRectangleRTL(msg.WParam, this.VerticalExplorerBarBackgroundColor, rectangle);
-                            if (QTUtility.IsWindows7)
+                            if (OSDetector.IsWindows7)
                             {
                                 Graphic.DrawLineRTL(msg.WParam, SystemColors.Control, new Point(rectangle.Width - 1, 0), new Point(rectangle.Width - 1, rectangle.Height));
                                 Graphic.DrawLineRTL(msg.WParam, SystemColors.ControlDark, new Point(rectangle.Width - 2, 0), new Point(rectangle.Width - 2, rectangle.Height));
@@ -122,7 +122,7 @@ namespace QTTabBarLib
                             {
                                 using (SolidBrush solidBrush = new SolidBrush(this.VerticalExplorerBarBackgroundColor))
                                     graphics.FillRectangle((Brush)solidBrush, rectangle);
-                                if (QTUtility.IsWindows7)
+                                if (OSDetector.IsWindows7)
                                 {
                                     graphics.DrawLine(SystemPens.ControlDark, new Point(rectangle.Width - 1, 0), new Point(rectangle.Width - 1, rectangle.Height));
                                     graphics.DrawLine(SystemPens.Control, new Point(rectangle.Width - 2, 0), new Point(rectangle.Width - 2, rectangle.Height));
@@ -133,7 +133,7 @@ namespace QTTabBarLib
                     }
                     else
                     {
-                        if (QTUtility.RightToLeft)
+                        if (OSDetector.RightToLeft)
                         {
                             Graphic.FillRectangleRTL(msg.WParam, this.HorizontalExplorerBarBackgroundColor, rectangle);
                         }
@@ -250,7 +250,7 @@ namespace QTTabBarLib
                     RECT pRect;
                     PInvoke.GetWindowRect(msg.HWnd, out pRect);
                     Rectangle rct = new Rectangle(0, 0, pRect.Width, pRect.Height);
-                    Graphic.FillRectangleRTL(msg.WParam, this.IsVertical ? this.VerticalExplorerBarBackgroundColor : this.HorizontalExplorerBarBackgroundColor, rct, QTUtility.RightToLeft);
+                    Graphic.FillRectangleRTL(msg.WParam, this.IsVertical ? this.VerticalExplorerBarBackgroundColor : this.HorizontalExplorerBarBackgroundColor, rct, OSDetector.RightToLeft);
                     msg.Result = (IntPtr)1;
                     return true;
                 default:

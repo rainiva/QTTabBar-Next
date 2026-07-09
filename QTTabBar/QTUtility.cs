@@ -54,7 +54,6 @@ namespace QTTabBarLib {
         internal const string IMAGEKEY_NOEXT = "noext";
         internal const string IMAGEKEY_NOIMAGE = "noimage";
         internal const bool IS_DEV_VERSION = true;  // <----------------- Change me before releasing!
-        private static Version osVersion = OSDetector.OsVersion;
         internal const string REGUSER = RegConst.Root;
         internal static readonly char[] SEPARATOR_CHAR = new char[] { ';' };
         internal const string SEPARATOR_PATH_HASH_SESSION = "*?*?*";
@@ -250,102 +249,7 @@ namespace QTTabBarLib {
         }
 
         private static Regex singleLinebreakAtStart = new Regex(@"^(\r\n)?");
-        private static bool IsWindows10
-        {
-            get
-            {
-                if (QTUtility.osVersion.Major >= 10)
-                    return true;
-                return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor == 4;
-            }
-        }
 
-        public static bool LaterThan7
-        {
-            get
-            {
-                if (QTUtility.osVersion.Major > 6)
-                    return true;
-                return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor > 1;
-            }
-        }
-
-        public static bool LaterThan8_1
-        {
-            get
-            {
-                return IsWindows10AndLater || IsWindows8_1;
-            }
-        }
-
-        public static bool IsWindows8_1
-        {
-            get
-            {
-                return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor == 3;
-            }
-        }
-
-        public static bool IsWindows10AndLater
-        {
-            get
-            {
-                if (QTUtility.osVersion.Major >= 10)
-                    return true;
-                return QTUtility.osVersion.Major == 6 && QTUtility.osVersion.Minor == 4;
-            }
-        }
-        public static bool LaterThan10Beta17666 
-        {
-            get
-            {
-                if (QTUtility.IsWindows10AndLater)
-                    return true;
-                return QTUtility.IsWindows10 && QTUtility.osVersion.Build >= 17666;
-            }
-        }
-
-        private static bool rtl = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
-
-        public static bool RightToLeft
-        {
-            get
-            {
-                return rtl;
-            }
-        }
-
-        public static bool IsWindows7
-        {
-            get
-            {
-                return osVersion.Major == 6 && osVersion.Minor == 1;
-            }
-        }
-
-        public static bool IsJapanese
-        {
-            get { return CultureInfo.CurrentUICulture.Name == "ja-JP"; }
-        }
-
-        public static bool IsChinese
-        {
-            get { return CultureInfo.CurrentUICulture.Name == "zh-CN"; }
-        }
-
-        public static string DefaultFontName
-        {
-            get
-            {
-                return IsJapanese && IsWindows10AndLater ? "Yu Gothic UI" : "Arial";
-            }
-        }
-
-
-       // private string QTTabBar = @"Software\QTTabBar\Config\Misc";
-     
-
-        
         public static void AsteriskPlay()
         {
             if (Config.Misc.SoundBox) {

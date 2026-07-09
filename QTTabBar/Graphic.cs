@@ -129,14 +129,14 @@ namespace QTTabBarLib
 
         public static Padding Translate(Padding pad)
         {
-            return QTUtility.RightToLeft ? new Padding(pad.Right, pad.Top, pad.Left, pad.Bottom) : pad;
+            return OSDetector.RightToLeft ? new Padding(pad.Right, pad.Top, pad.Left, pad.Bottom) : pad;
         }
 
         public static Font CreateDefaultFont()
         {
             try
             {
-                return new Font(QTUtility.DefaultFontName, 
+                return new Font(OSDetector.DefaultFontName, 
                     9f,
                     FontStyle.Regular, 
                     GraphicsUnit.Point, (byte)0);
@@ -151,7 +151,7 @@ namespace QTTabBarLib
         {
             try
             {
-                return new Font(QTUtility.DefaultFontName, point, style, GraphicsUnit.Point, (byte)0);
+                return new Font(OSDetector.DefaultFontName, point, style, GraphicsUnit.Point, (byte)0);
             }
             catch (Exception ex)
             {
