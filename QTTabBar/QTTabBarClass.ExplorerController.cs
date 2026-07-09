@@ -928,7 +928,7 @@ namespace QTTabBarLib {
                     }
                     QTUtility2.InitializeTemporaryPaths();
                     _owner.AddStartUpTabs(string.Empty, path);
-                    _owner.InitializeOpenedWindow();
+                    InitializeOpenedWindow();
                 }
                 else if(StaticReg.CreateWindowGroup.Length != 0) {
                     QTUtility2.log("DoFirstNavigation StaticReg.CreateWindowGroup.Length " + StaticReg.CreateWindowGroup.Length);
@@ -938,20 +938,20 @@ namespace QTTabBarLib {
                     _owner.NowOpenedByGroupOpener = true;
                     _owner.OpenGroup(createWindowTMPGroup, false);
                     _owner.AddStartUpTabs(createWindowTMPGroup, path);
-                    _owner.InitializeOpenedWindow();
+                    InitializeOpenedWindow();
                 }
                 else if(!Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture)
                 {
                     QTUtility2.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
                     StaticReg.SkipNextCapture = false;
                     _owner.AddStartUpTabs(string.Empty, path);
-                    _owner.InitializeOpenedWindow();
+                    InitializeOpenedWindow();
                 }
                 else if(path.StartsWith(QTUtility.ResMisc[0]) ||
                         (path.EndsWith(QTUtility.ResMisc[0]) && QTUtility2.IsShellPathButNotFileSystem(path)) ||
                         path.PathEquals(QTUtility.PATH_SEARCHFOLDER)) {
                     QTUtility2.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
-                    _owner.InitializeOpenedWindow();
+                    InitializeOpenedWindow();
                 }
                 else {
                     QTUtility2.log("DoFirstNavigation path: " + path + " IsNoCapturePaths:" + PathValidator.IsNoCapturePaths(path));
@@ -959,7 +959,7 @@ namespace QTTabBarLib {
                         QTUtility.NoCapturePathsList.Any(ncPath => ncPath.PathEquals(path))
                          || PathValidator.IsNoCapturePaths( path )
                         ) {
-                        _owner.InitializeOpenedWindow();
+                        InitializeOpenedWindow();
                         return;
                     }
                     if (Config.Window.CaptureNewWindows &&
@@ -1039,12 +1039,12 @@ namespace QTTabBarLib {
                     QTUtility2.log("AddStartUpTabs ");
                     _owner.AddStartUpTabs(string.Empty, path);
                     QTUtility2.log("AddStartUpTabs InitializeOpenedWindow");
-                    _owner.InitializeOpenedWindow();
+                    InitializeOpenedWindow();
                 }
             }
 
             public void InitializeInstallation() {
-                _owner.InitializeOpenedWindow();
+                InitializeOpenedWindow();
                 object locationURL = _owner.Explorer.LocationURL;
                 if(_owner.ShellBrowser != null) {
                     using(IDLWrapper wrapper = _owner.ShellBrowser.GetShellPath()) {
@@ -1055,6 +1055,105 @@ namespace QTTabBarLib {
                 }
                 QTUtility2.log("QTTabBarClass InitializeInstallation  pDisp :" + null + " locationURL :" + (string)locationURL);
                 Explorer_NavigateComplete2(null, ref locationURL);
+            }
+
+            public void InitializeNavBtns(bool fSync) {
+                _owner.toolStrip = new ToolStripClasses();
+                _owner.buttonBack = new ToolStripButton();
+                _owner.buttonForward = new ToolStripButton();
+                _owner.toolStrip.SuspendLayout();
+                if(!QTUtility.ImageGlobalContainsKey("navBack")) {
+                    QTUtility.AddImageToGlobal("navBack", Resources_Image.imgNavBack);
+                }
+                if(!QTUtility.ImageGlobalContainsKey("navFrwd")) {
+                    QTUtility.AddImageToGlobal("navFrwd", Resources_Image.imgNavFwd);
+                }
+                _owner.toolStrip.Dock = Config.Tabs.NavButtonsOnRight ? DockStyle.Right : DockStyle.Left;
+                _owner.toolStrip.AutoSize = false;
+                _owner.toolStrip.CanOverflow = false;
+                _owner.toolStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
+                _owner.toolStrip.GripStyle = ToolStripGripStyle.Hidden;
+                _owner.toolStrip.Items.AddRange(new ToolStripItem[] { _owner.buttonBack, _owner.buttonForward, _owner.buttonNavHistoryMenu });
+                _owner.toolStrip.Renderer = new ToolbarRenderer();
+                _owner.toolStrip.Width = 0x3f;
+                _owner.toolStrip.TabStop = false;
+                _owner.toolStrip.BackColor = QTUtility.InNightMode ? Color.Black : Color.WhiteSmoke;
+
+                _owner.buttonBack.AutoSize = false;
+                _owner.buttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
+                _owner.buttonBack.Enabled = fSync ? ((_owner.navBtnsFlag & 1) != 0) : false;
+                _owner.buttonBack.Image = QTUtility.GetImageFromGlobal("navBack");
+                _owner.buttonBack.Size = new Size(0x15, 0x15);
+                _owner.buttonBack.Click += NavigationButtons_Click;
+                _owner.buttonForward.AutoSize = false;
+                _owner.buttonForward.DisplayStyle = ToolStripItemDisplayStyle.Image;
+                _owner.buttonForward.Enabled = fSync ? ((_owner.navBtnsFlag & 2) != 0) : false;
+                _owner.buttonForward.Image = QTUtility.GetImageFromGlobal("navFrwd");
+                _owner.buttonForward.Size = new Size(0x15, 0x15);
+                _owner.buttonForward.Click += NavigationButtons_Click;
+            }
+
+            public void InitializeOpenedWindow() {
+                _owner.IsShown = true;
+                InstanceManager.PushTabBarInstance(_owner);
+                InstanceManager.SetMainUIControl(_owner);
+                QTUtility2.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
+                InstallHooks();
+
+                QTUtility2.log("QTTabBarClass  PluginServer ");
+                _owner.pluginServer = new PluginServer(_owner);
+
+                QTUtility2.log("QTTabBarClass TryCallButtonBar ");
+                if(!QTTabBarClass.TryCallButtonBar(bbar => bbar.CreateItems())) {
+                    Timer timer = new Timer { Interval = 2000 };
+                    timer.Tick += (sender, args) => {
+                        QTUtility2.log("QTTabBarClass timer.Tick TryCallButtonBar ");
+                        QTTabBarClass.TryCallButtonBar(bbar => bbar.CreateItems());
+                        timer.Stop();
+                    };
+                    timer.Start();
+                }
+                if(QTUtility.WindowAlpha < 0xff) {
+                    QTUtility2.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
+                    PInvoke.SetWindowLongPtr(_owner.ExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(_owner.ExplorerHandle, -20), 0x80000));
+                    PInvoke.SetLayeredWindowAttributes(_owner.ExplorerHandle, 0, QTUtility.WindowAlpha, 2);
+                }
+
+                QTUtility2.log("QTTabBarClass ListViewMonitor ");
+                _owner.listViewManager = new ListViewMonitor(_owner.ShellBrowser, _owner.ExplorerHandle, _owner.Handle);
+                _owner.listViewManager.ListViewChanged += _owner.ListViewMonitor_ListViewChanged;
+                _owner.listViewManager.Initialize();
+
+                IntPtr hwndBreadcrumbBar = WindowUtils.FindChildWindow(_owner.ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "Breadcrumb Parent");
+                if(hwndBreadcrumbBar != IntPtr.Zero) {
+                    hwndBreadcrumbBar = PInvoke.FindWindowEx(hwndBreadcrumbBar, IntPtr.Zero, "ToolbarWindow32", null);
+                    if(hwndBreadcrumbBar != IntPtr.Zero) {
+                        _owner.breadcrumbBar = new BreadcrumbBar(hwndBreadcrumbBar);
+                        QTUtility2.log("QTTabBarClass BreadcrumbBar set FolderLinkClicked ");
+                        _owner.breadcrumbBar.ItemClicked += _owner.FolderLinkClicked;
+                    }
+                }
+            }
+
+            public void InstallHooks() {
+                _owner._hookInputController.Install(PInvoke.GetCurrentThreadId());
+                _owner.explorerController = new NativeWindowController(_owner.ExplorerHandle);
+                _owner.explorerController.MessageCaptured += explorerController_MessageCaptured;
+                if(_owner.ReBarHandle != IntPtr.Zero) {
+                    _owner.rebarController = new RebarController(_owner, _owner.ReBarHandle, _owner.BandObjectSite as IOleCommandTarget);
+                }
+                if(!QTUtility.IsXP) {
+                    _owner.TravelToolBarHandle = _owner.GetTravelToolBarWindow32();
+                    if(_owner.TravelToolBarHandle != IntPtr.Zero) {
+                        _owner.travelBtnController = new NativeWindowController(_owner.TravelToolBarHandle);
+                        _owner.travelBtnController.MessageCaptured += _owner.travelBtnController_MessageCaptured;
+                    }
+                }
+                _owner.dropTargetWrapper = new DropTargetWrapper(_owner);
+                _owner.dropTargetWrapper.DragFileEnter += _owner.dropTargetWrapper_DragFileEnter;
+                _owner.dropTargetWrapper.DragFileOver += _owner.dropTargetWrapper_DragFileOver;
+                _owner.dropTargetWrapper.DragFileLeave += _owner.dropTargetWrapper_DragFileLeave;
+                _owner.dropTargetWrapper.DragFileDrop += _owner.dropTargetWrapper_DragFileDrop;
             }
 
             #endregion

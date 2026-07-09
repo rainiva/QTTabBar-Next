@@ -1045,7 +1045,7 @@ namespace QTTabBarLib {
             bool flag = Config.Tabs.ShowNavButtons;
             if (flag)
             {
-                InitializeNavBtns(false);
+                _explorerControllerModule.InitializeNavBtns(false);
             }
 
             buttonNavHistoryMenu.AutoSize = false;
@@ -1127,106 +1127,6 @@ namespace QTTabBarLib {
         private void InitializeInstallation() {
             _explorerControllerModule.InitializeInstallation();
         }
-        /**
-         * ��ʼ��������
-         */
-        private void InitializeNavBtns(bool fSync) {
-            toolStrip = new ToolStripClasses();
-            buttonBack = new ToolStripButton();
-            buttonForward = new ToolStripButton();
-            toolStrip.SuspendLayout();
-            if(!QTUtility.ImageGlobalContainsKey("navBack")) {
-                QTUtility.AddImageToGlobal("navBack", Resources_Image.imgNavBack);
-            }
-            if(!QTUtility.ImageGlobalContainsKey("navFrwd")) {
-                QTUtility.AddImageToGlobal("navFrwd", Resources_Image.imgNavFwd);
-            }
-            toolStrip.Dock = Config.Tabs.NavButtonsOnRight ? DockStyle.Right : DockStyle.Left;
-            toolStrip.AutoSize = false;
-            toolStrip.CanOverflow = false;
-            toolStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            toolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            toolStrip.Items.AddRange(new ToolStripItem[] { buttonBack, buttonForward, buttonNavHistoryMenu });
-            toolStrip.Renderer = new ToolbarRenderer();
-            toolStrip.Width = 0x3f;
-            toolStrip.TabStop = false;
-            
-            // dark mode ?  by indiff ����ı���ɫ
-            toolStrip.BackColor = QTUtility.InNightMode ? Color.Black : Color.WhiteSmoke;
-            /*if (QTUtility.InNightMode)
-            {
-                toolStrip.BackColor = Color.Black;
-            }
-            else
-            {
-                toolStrip.BackColor = SystemColors.Window;
-            }*/
-
-            buttonBack.AutoSize = false;
-            buttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            buttonBack.Enabled = fSync ? ((navBtnsFlag & 1) != 0) : false;
-            buttonBack.Image = QTUtility.GetImageFromGlobal("navBack");
-            buttonBack.Size = new Size(0x15, 0x15);
-            buttonBack.Click += _explorerControllerModule.NavigationButtons_Click;
-            buttonForward.AutoSize = false;
-            buttonForward.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            buttonForward.Enabled = fSync ? ((navBtnsFlag & 2) != 0) : false;
-            buttonForward.Image = QTUtility.GetImageFromGlobal("navFrwd");
-            buttonForward.Size = new Size(0x15, 0x15);
-            buttonForward.Click += _explorerControllerModule.NavigationButtons_Click;
-        }
-        /**
-         * ��ʼ���Ѿ��򿪵Ĵ���
-         */
-        private void InitializeOpenedWindow() {
-            IsShown = true;
-            InstanceManager.PushTabBarInstance(this);
-            // P0-5: register this tab bar as the main UI control so IPC callbacks
-            // are marshaled onto its (UI) thread.
-            InstanceManager.SetMainUIControl(this);
-            //  ��װ����
-            QTUtility2.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
-            InstallHooks();
-
-            // ��������췽��
-            QTUtility2.log("QTTabBarClass  PluginServer ");
-            pluginServer = new PluginServer(this);
-            
-            // ����������
-            QTUtility2.log("QTTabBarClass TryCallButtonBar ");
-            if (!TryCallButtonBar(bbar => { return bbar.CreateItems(); }))
-            {
-                // Try again in 2 seconds
-                Timer timer = new Timer { Interval = 2000 };
-                timer.Tick += (sender, args) => {
-                    QTUtility2.log("QTTabBarClass timer.Tick TryCallButtonBar ");
-                    TryCallButtonBar(bbar => {return bbar.CreateItems();});
-                    timer.Stop();
-                };
-                timer.Start();
-            }
-            if(QTUtility.WindowAlpha < 0xff) {
-                QTUtility2.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
-                PInvoke.SetWindowLongPtr(ExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000));
-                PInvoke.SetLayeredWindowAttributes(ExplorerHandle, 0, QTUtility.WindowAlpha, 2);
-            }
-
-            QTUtility2.log("QTTabBarClass ListViewMonitor ");
-            listViewManager = new ListViewMonitor(ShellBrowser, ExplorerHandle, Handle);
-            listViewManager.ListViewChanged += ListViewMonitor_ListViewChanged;
-            listViewManager.Initialize();
-
-            IntPtr hwndBreadcrumbBar = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "Breadcrumb Parent");
-            if(hwndBreadcrumbBar != IntPtr.Zero) {
-                hwndBreadcrumbBar = PInvoke.FindWindowEx(hwndBreadcrumbBar, IntPtr.Zero, "ToolbarWindow32", null);
-                if(hwndBreadcrumbBar != IntPtr.Zero) {
-                    breadcrumbBar = new BreadcrumbBar(hwndBreadcrumbBar);
-                    QTUtility2.log("QTTabBarClass BreadcrumbBar set FolderLinkClicked ");
-                    breadcrumbBar.ItemClicked += FolderLinkClicked;
-                }
-            }
-            // SysTreeView32
-        }
 
         private static void InitializeStaticFields() {
             fInitialized = true;
@@ -1234,32 +1134,6 @@ namespace QTTabBarLib {
             PInvoke.SetProcessDPIAware();
             Application.EnableVisualStyles();
         }
-
-        // 安装钩子
-        private void InstallHooks() {
-            _hookInputController.Install(PInvoke.GetCurrentThreadId());
-            explorerController = new NativeWindowController(ExplorerHandle);
-            explorerController.MessageCaptured += _explorerControllerModule.explorerController_MessageCaptured;
-            if(ReBarHandle != IntPtr.Zero) {
-                rebarController = new RebarController(this, ReBarHandle, BandObjectSite as IOleCommandTarget);
-            }
-            if(!QTUtility.IsXP) {
-                TravelToolBarHandle = GetTravelToolBarWindow32();
-                if(TravelToolBarHandle != IntPtr.Zero) {
-                    travelBtnController = new NativeWindowController(TravelToolBarHandle);
-                    travelBtnController.MessageCaptured += travelBtnController_MessageCaptured;
-                }
-            }
-            dropTargetWrapper = new DropTargetWrapper(this);
-            dropTargetWrapper.DragFileEnter += dropTargetWrapper_DragFileEnter;
-            dropTargetWrapper.DragFileOver += dropTargetWrapper_DragFileOver;
-            dropTargetWrapper.DragFileLeave += dropTargetWrapper_DragFileLeave;
-            dropTargetWrapper.DragFileDrop += dropTargetWrapper_DragFileDrop;
-        }
-
-
-
-        
 
         private void ListViewMonitor_ListViewChanged(object sender, EventArgs args) {
             if (listViewManager != null) // �޸���ָ������ by indiff
@@ -1605,7 +1479,7 @@ namespace QTTabBarLib {
             tabControl1.RefreshOptions(false);
             if(Config.Tabs.ShowNavButtons) {
                 if(toolStrip == null) {
-                    InitializeNavBtns(true);
+                    _explorerControllerModule.InitializeNavBtns(true);
                     buttonNavHistoryMenu.Enabled = navBtnsFlag != 0;
                     Controls.Add(toolStrip);
                 }
