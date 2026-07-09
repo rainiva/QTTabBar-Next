@@ -806,7 +806,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 
 1. 所有写入路径都触发版本递增和广播
 2. 并发写入不丢更新
-3. ConfigVersionTracker 正确去重
+3. ConfigVersionTracker 正确去重（**version 0 拒绝**：legacy 6 字节无 payload 的 ReloadConfig 不再应用，生产代码禁止 `EncodeReloadConfig(0)`）
 4. git 提交消息：`fix(arch-batch2): audit and align all config write paths`
 
 ---
@@ -1217,7 +1217,7 @@ public static void Initialize() {
 | W1 | ✅ 已修复 | 12 个纯 façade 方法全部从 InstanceManager 移除并迁移至 Registry 类；InstanceManager 仅保留 IPC/跨进程协调方法，0 个纯转发残留 |
 | W2 | ✅ 已修复 | **HookController** + **SettingsController** + **WndProc/ListViewEvents/EventHandlers/ContextMenus/OpenNavigation** partial 已提取；QTDesktopTool 主文件 **397 行**（自 2574 缩减）；DesktopTooltipController 保留；ShowSubDirTip/HideSubDirTip 薄委托保留于主 partial |
 | W3 | ✅ 已修复 | W3a–W3j + **审查修复批次**完成：**SecondViewBar** 拆 3 partial（主文件 **605 行**）；TabBarBase 新增 TabCloning/BindActions/ItemDrag/TabSwitcher/**TabTooltip** partial；**TryNavigateOnTabSelect 取反** + **SelectedIndexChanged 重复订阅**已修；SecondViewBar 事件接线/SYSCOLORCHANGE/InstallHooks 与主栏对称；实测 **650/650** 测试全绿 |
-| W4 | ✅ 已修复 | `RegistryAccess.cs` 已创建，7 个文件已采用 |
+| W4 | ✅ 已修复 | `RegistryAccess.cs` 已创建；GroupsManager / AppsManager 已收敛（Batch 6） |
 | S1 | ✅ 已修复 | guard 前置至 try 块之前 |
 | S2 | ✅ 已修复 | XML 注释已添加 |
 | S3 | ✅ 已修复 | 文件已完全移除，无残留引用 |
@@ -1241,12 +1241,23 @@ public static void Initialize() {
 | TabManager | 357 行 | — | ≤500 ✅ |
 | HookInputController | 232 行 | Keyboard 126 / MouseWheel 75 / FolderTree 234 | 每文件 ≤500 ✅ |
 | MenuController | 58 行 | SysMenu 214 / TabMenu 328 / DropDownHandlers 216 | 每文件 ≤500 ✅ |
-| Config.cs | 1015 行 | ConfigMetadataCache 独立 | ≤800 ⚠️（1015，模型仍偏大） |
+| Config.cs | 112 行 | ConfigModels.cs 974 行 + ConfigManager 300 行 + ConfigManager.ReadConfig.cs | 模型已拆分 ✅ |
 | QTabControl | 490 行 | LayoutPainting 786 / MouseInput 275 / SelectionScroll 587 | 每文件 ≤800 ✅ |
 | QTButtonBar | 330 行 | CreateItems 508 / BandLifecycle 666 / ItemClick 471 | 主 ≤500 ✅ |
 | QTDesktopTool | 397 行 | WndProc 207 / ListViewEvents 164 / EventHandlers 273 / ContextMenus 373 / OpenNavigation 159 + Hook/Settings/Tooltip partial | ≤800 ✅ |
 
-**实测基线**：`665/665` 测试全绿（MSBuild Debug + `dotnet test --no-build`）。
+**实测基线**：全量 NUnit 测试绿（MSBuild Debug + `dotnet test --no-build`）。
+
+### 架构痼疾全量修复（2026-07-09 P0–P2）
+
+| 批次 | 内容 | 测试 |
+|------|------|------|
+| P0-A | IPC version 0 契约对齐：ShouldApply 拒绝 legacy 无版本 payload；修正注释 | `ConfigVersionTrackerTests`、`ArchitectureBatch5lConfigSourceTests` |
+| P0-B | ReadConfig draft-then-swap 原子读，失败保留旧 LoadedConfig | `ConfigReadConfigSafetyTests` |
+| P1-A | Init 重试扩展：SessionState / ResourceCache / ConfigVersionTracker ResetForInitRetry | `InitRetryResetTests`、`ArchitectureBatch5eInitTests` |
+| P1-B | SYSCOLORCHANGE 本地主题刷新 `RefreshLocalThemeAndUi`（无 IPC）；显式 `ApplySystemTheme(true)` 仍广播 | `ArchitectureBatch5iThemeTests`、`ArchitectureReviewPhase3Tests` |
+| P2-A | GroupsManager / AppsManager 注册表访问收敛 RegistryAccess | `ArchitectureBatch6RegistryTests` |
+| P2-B | 文档与测试注释同步 | 全量 NUnit |
 
 ### 待办优先级建议
 

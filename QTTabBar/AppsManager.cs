@@ -121,7 +121,7 @@ namespace QTTabBarLib {
 
         public static void LoadApps() {
             appList = new List<UserApp>();
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Apps)) {
+            using(RegistryKey key = RegistryAccess.OpenSubKeyCreate(RegConst.Apps)) {
                 int i = 0;
                 while(true) {
                     using(RegistryKey akey = key.OpenSubKey("" + i++)) {
@@ -150,8 +150,8 @@ namespace QTTabBarLib {
         }
 
         public static void SaveApps() {
-            Registry.CurrentUser.DeleteSubKeyTree(RegConst.Root + RegConst.Apps);
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Apps)) {
+            RegistryAccess.DeleteSubKeyTree(RegConst.Apps);
+            using(RegistryKey key = RegistryAccess.OpenSubKeyCreate(RegConst.Apps)) {
                 for(int i = 0; i < appList.Count; i++) {
                     UserApp a = appList[i];
                     using(RegistryKey akey = key.CreateSubKey("" + i)) {

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 namespace QTTabBarLib {
-    public static class ConfigManager {
+    public static partial class ConfigManager {
         public static volatile Config LoadedConfig;
         private static string[] _lastPluginEnabledSnapshot;
 
@@ -109,122 +109,6 @@ namespace QTTabBarLib {
             });
         }
 
-        public static void ReadConfig() {
-            try
-            {
-                foreach(var category in ConfigMetadataCache.Categories) {
-                    object categoryObject = category.CategoryProperty.GetValue(LoadedConfig, null);
-                    using(var key = Registry.CurrentUser.OpenSubKey(category.KeyPath, false)) {
-                        if(key == null) {
-                            continue;
-                        }
-                        foreach(var setting in category.Settings) {
-                                object value = key.GetValue(setting.Name);
-                                if (value == null) { continue;}
-
-                                Type t = setting.Type;
-
-                                if (t == typeof(bool))
-                                {
-                                    value = (int)value != 0;
-                                }
-                                else if (t == typeof(byte))
-                                {
-                                    value = Convert.ToByte(value);
-                                }
-                                else if (t.IsEnum)
-                                {
-                                    value = Enum.Parse(t, value.ToString());
-                                }
-                                else if (t != typeof(int) && t != typeof(string))
-                                {
-                                    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(value.ToString())))
-                                    {
-                                        if (t == typeof(Font))
-                                        {
-                                            var ser = new DataContractJsonSerializer(typeof(XmlSerializableFont));
-                                            var xsf = ser.ReadObject(stream) as XmlSerializableFont;
-                                            value = xsf == null ? null : xsf.ToFont();
-                                        }
-                                        else
-                                        {
-                                            var ser = new DataContractJsonSerializer(t);
-                                            value = ser.ReadObject(stream);
-                                        }
-
-                                        QTUtility2.Close(stream);
-                                    }
-                                }
-
-                                setting.Property.SetValue(categoryObject, value, null);
-                            
-                           
-                        }
-                    }
-                }
-
-                MigrateLegacyRootSettings();
-                ApplyNoCapturePathsFromConfig();
-
-                using(IDLWrapper wrapper = new IDLWrapper(Config.Window.DefaultLocation)) {
-                    if(!wrapper.Available) {
-                        Config.Window.DefaultLocation = new Config._Window().DefaultLocation;
-                    }
-                }
-                Config.Tips.PreviewFont = Config.Tips.PreviewFont ?? Control.DefaultFont;
-                Config.Tips.PreviewMaxWidth = ValidationHelper.ValidateMinMax(Config.Tips.PreviewMaxWidth, 128, 1920);
-                Config.Tips.PreviewMaxHeight = ValidationHelper.ValidateMinMax(Config.Tips.PreviewMaxHeight, 96, 1200);
-                Config.Misc.TabHistoryCount = ValidationHelper.ValidateMinMax(Config.Misc.TabHistoryCount, 1, 30);
-                Config.Misc.FileHistoryCount = ValidationHelper.ValidateMinMax(Config.Misc.FileHistoryCount, 1, 30);
-                Config.Misc.NetworkTimeout = ValidationHelper.ValidateMinMax(Config.Misc.NetworkTimeout, 0, 120);
-                Config.Skin.TabHeight = ValidationHelper.ValidateMinMax(Config.Skin.TabHeight, 10, 50);
-                // 调整标签最小宽度
-				Config.Skin.TabMinWidth = ValidationHelper.ValidateMinMax(Config.Skin.TabMinWidth, 10, 100);
-                Config.Skin.TabMaxWidth = ValidationHelper.ValidateMinMax(Config.Skin.TabMaxWidth, 50, 999);
-                Config.Skin.OverlapPixels = ValidationHelper.ValidateMinMax(Config.Skin.OverlapPixels, 0, 20);
-                Config.Skin.TabTextFont = Config.Skin.TabTextFont ?? Control.DefaultFont;
-                Func<Padding, Padding> validatePadding = p => {
-                    p.Left   = ValidationHelper.ValidateMinMax(p.Left,   0, 99);
-                    p.Top    = ValidationHelper.ValidateMinMax(p.Top,    0, 99);
-                    p.Right  = ValidationHelper.ValidateMinMax(p.Right,  0, 99);
-                    p.Bottom = ValidationHelper.ValidateMinMax(p.Bottom, 0, 99);
-                    return p;
-                };
-                Config.Skin.RebarSizeMargin = validatePadding(Config.Skin.RebarSizeMargin);
-                Config.Skin.TabContentMargin = validatePadding(Config.Skin.TabContentMargin);
-                Config.Skin.TabSizeMargin = validatePadding(Config.Skin.TabSizeMargin);
-                using(IDLWrapper wrapper = new IDLWrapper(Config.Skin.TabImageFile)) {
-                    if(!wrapper.Available) Config.Skin.TabImageFile = "";
-                }
-                using(IDLWrapper wrapper = new IDLWrapper(Config.Skin.RebarImageFile)) {
-                    if(!wrapper.Available) Config.Skin.RebarImageFile = "";
-                }
-                using(IDLWrapper wrapper = new IDLWrapper(Config.BBar.ImageStripPath)) {
-                    // todo: check dimensions
-                    if(!wrapper.Available) Config.BBar.ImageStripPath = "";
-                }
-                List<int> blist = Config.BBar.ButtonIndexes.ToList();
-                blist.RemoveAll(i => (i.HiWord() - 1) >= Config.BBar.ActivePluginIDs.Length);
-                Config.BBar.ButtonIndexes = blist.ToArray();
-                var keys = Config.Keys.Shortcuts;
-                Array.Resize(ref keys, (int)BindAction.KEYBOARD_ACTION_COUNT);
-                Config.Keys.Shortcuts = keys;
-                foreach(var pair in Config.Keys.PluginShortcuts.Where(p => p.Value == null).ToList()) {
-                    Config.Keys.PluginShortcuts.Remove(pair.Key);
-                }
-                if(OSDetector.IsXP) Config.Tweaks.AlwaysShowHeaders = false;
-                if(!OSDetector.IsWin7) Config.Tweaks.RedirectLibraryFolders = false;
-                if(!OSDetector.IsXP) Config.Tweaks.KillExtWhileRenaming = true;
-                if(OSDetector.IsXP) Config.Tweaks.BackspaceUpLevel = true;
-                if(!OSDetector.IsWin7) Config.Tweaks.ForceSysListView = true;
-                Config.Window.WindowAlpha = (byte)ValidationHelper.ValidateMinMax(Config.Window.WindowAlpha, 0, 255);
-                SessionState.WindowAlpha = Config.Window.WindowAlpha;
-            } catch (Exception e)
-            {
-                QTLogger.MakeErrorLog(e, "ReadConfig foreach category");
-            }
-        }
-
         /// <summary>
         /// Persists WorkingConfig to registry then runs UpdateConfig. Full save path for Options OK/Apply.
         /// </summary>
@@ -276,32 +160,6 @@ namespace QTTabBarLib {
             }
             if(!DesktopOnly) {
                 _lastPluginEnabledSnapshot = (string[])(Config.Plugin.Enabled ?? Array.Empty<string>()).Clone();
-            }
-        }
-
-        private static void MigrateLegacyRootSettings() {
-            using(RegistryKey rootKey = Registry.CurrentUser.OpenSubKey(RegConst.Root, false)) {
-                if(rootKey == null) return;
-                using(RegistryKey windowKey = Registry.CurrentUser.OpenSubKey(RegConst.Root + RegConst.Config + "Window", false)) {
-                    if(windowKey == null || windowKey.GetValue("BreakTabBar") == null) {
-                        object legacyBreak = rootKey.GetValue("BreakTabBar");
-                        if(legacyBreak != null) {
-                            Config.Window.BreakTabBar = Convert.ToInt32(legacyBreak) != 0;
-                        }
-                    }
-                    if(windowKey == null || windowKey.GetValue("NoCaptureAt") == null) {
-                        object legacyNoCapture = rootKey.GetValue("NoCaptureAt");
-                        if(legacyNoCapture != null) {
-                            Config.Window.NoCaptureAt = legacyNoCapture.ToString();
-                        }
-                    }
-                    if(windowKey == null || windowKey.GetValue("WindowAlpha") == null) {
-                        object legacyAlpha = rootKey.GetValue("WindowAlpha");
-                        if(legacyAlpha != null) {
-                            Config.Window.WindowAlpha = Convert.ToByte(legacyAlpha);
-                        }
-                    }
-                }
             }
         }
 

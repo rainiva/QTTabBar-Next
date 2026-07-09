@@ -25,5 +25,9 @@ namespace QTTabBarLib {
         public static RegistryKey OpenSubKeyCreate(string relativePath) {
             return Registry.CurrentUser.CreateSubKey(RegConst.Root + relativePath);
         }
+
+        public static void DeleteSubKeyTree(string relativePath) {
+            Registry.CurrentUser.DeleteSubKeyTree(RegConst.Root + relativePath);
+        }
     }
 }

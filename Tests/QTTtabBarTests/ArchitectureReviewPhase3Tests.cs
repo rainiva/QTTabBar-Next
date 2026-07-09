@@ -25,8 +25,11 @@ namespace QTTtabBarTests {
         public void ThemeRefreshService_Exists_And_Centralizes_ApplySystemTheme() {
             Assert.IsNotNull(typeof(ThemeRefreshService).GetMethod("ApplySystemTheme",
                 BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
+            Assert.IsNotNull(typeof(ThemeRefreshService).GetMethod("RefreshLocalThemeAndUi",
+                BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public));
             string windowMessages = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "TabBarBase.WindowMessages.cs"));
-            Assert.IsTrue(windowMessages.Contains("ThemeRefreshService.ApplySystemTheme"));
+            Assert.IsTrue(windowMessages.Contains("ThemeRefreshService.RefreshLocalThemeAndUi"),
+                "SYSCOLORCHANGE should use local theme refresh without IPC broadcast");
             Assert.IsFalse(windowMessages.Contains("Config.Skin.SwitchNighMode(QTUtility.InNightMode);"),
                 "WindowMessages should delegate skin switch to ThemeRefreshService");
         }

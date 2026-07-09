@@ -159,9 +159,8 @@ namespace QTTabBarLib {
         }
 
         private static void ReloadConfigOnClient(long version) {
-            // Drop stale / duplicate reloads: a version that is not strictly newer
-            // than the last applied one (and is non-zero) is ignored. version 0
-            // means "unspecified" (legacy sender) and is always applied.
+            // Drop stale / duplicate reloads: version 0 (legacy unspecified payload)
+            // and any non-zero version not strictly newer than lastApplied are ignored.
             if(!ConfigVersionTracker.ShouldApply(version)) {
                 return;
             }

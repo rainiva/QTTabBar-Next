@@ -30,22 +30,26 @@ namespace QTTtabBarTests {
             Assert.AreEqual(typeof(byte), property.PropertyType);
         }
 
+        private static string ReadConfigManagerSource() {
+            return ReadQtTabBarFile("ConfigManager.cs") + ReadQtTabBarFile("ConfigManager.ReadConfig.cs");
+        }
+
         [Test]
         public void ReadConfig_Uses_OpenSubKey_ReadOnly() {
-            string body = ExtractMethodBody(ReadQtTabBarFile("ConfigManager.cs"), "void ReadConfig(");
+            string body = ExtractMethodBody(ReadConfigManagerSource(), "void ReadRegistryCategoriesInto(");
             Assert.IsFalse(body.Contains("CreateSubKey"),
-                "ReadConfig must not create registry keys while reading");
+                "ReadConfig registry read must not create registry keys while reading");
             Assert.IsTrue(body.Contains("OpenSubKey"),
-                "ReadConfig should open registry keys read-only");
+                "ReadConfig registry read should open registry keys read-only");
         }
 
         [Test]
         public void MigrateLegacyRootWindowAlpha_Moves_Root_Key() {
-            string body = ExtractMethodBody(ReadQtTabBarFile("ConfigManager.cs"), "void MigrateLegacyRootSettings(");
+            string body = ExtractMethodBody(ReadConfigManagerSource(), "void MigrateLegacyRootSettings(");
             Assert.IsTrue(body.Contains("WindowAlpha"),
                 "MigrateLegacyRootSettings should migrate legacy root WindowAlpha");
-            Assert.IsTrue(body.Contains("Config.Window.WindowAlpha"),
-                "Migration should assign Config.Window.WindowAlpha");
+            Assert.IsTrue(body.Contains("window.WindowAlpha"),
+                "Migration should assign draft config WindowAlpha");
         }
 
         [Test]

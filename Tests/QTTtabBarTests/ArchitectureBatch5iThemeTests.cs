@@ -57,5 +57,43 @@ namespace QTTtabBarTests {
             Assert.IsTrue(body.Contains("ConfigManager.UpdateConfig"),
                 "ApplySystemTheme should still broadcast via UpdateConfig");
         }
+
+        [Test]
+        public void ThemeRefreshService_RefreshLocalThemeAndUi_Does_Not_Call_UpdateConfig() {
+            string content = ReadQtTabBarFile("ThemeRefreshService.cs");
+            int methodIndex = content.IndexOf("void RefreshLocalThemeAndUi(", StringComparison.Ordinal);
+            Assert.GreaterOrEqual(methodIndex, 0, "ThemeRefreshService.RefreshLocalThemeAndUi should exist");
+            int brace = content.IndexOf('{', methodIndex);
+            int nextMethod = content.IndexOf("\n        public static ", brace + 1, StringComparison.Ordinal);
+            string body = nextMethod > 0
+                ? content.Substring(brace, nextMethod - brace)
+                : content.Substring(brace, Math.Min(400, content.Length - brace));
+            Assert.IsTrue(body.Contains("ApplyLoadedSkinFromSystemTheme"),
+                "RefreshLocalThemeAndUi should apply loaded skin from system theme");
+            Assert.IsTrue(body.Contains("FluentThemeTokens.RefreshFromSystem"),
+                "RefreshLocalThemeAndUi should refresh FluentThemeTokens cache");
+            Assert.IsFalse(body.Contains("UpdateConfig"),
+                "RefreshLocalThemeAndUi must not trigger ConfigManager.UpdateConfig");
+        }
+
+        [Test]
+        public void HandleSysColorChange_Does_Not_Broadcast_Config_Reload() {
+            string content = ReadQtTabBarFile("TabBarBase.WindowMessages.cs");
+            int methodIndex = content.IndexOf("void HandleSysColorChangeHookMessage(", StringComparison.Ordinal);
+            Assert.GreaterOrEqual(methodIndex, 0);
+            int brace = content.IndexOf('{', methodIndex);
+            int nextMethod = content.IndexOf("\n        internal ", brace + 1, StringComparison.Ordinal);
+            string body = nextMethod > 0
+                ? content.Substring(brace, nextMethod - brace)
+                : content.Substring(brace, Math.Min(400, content.Length - brace));
+            Assert.IsTrue(body.Contains("RefreshLocalThemeAndUi"),
+                "SYSCOLORCHANGE should use local theme refresh only");
+            Assert.IsFalse(body.Contains("ApplySystemTheme"),
+                "SYSCOLORCHANGE must not call ApplySystemTheme (avoids IPC broadcast storm)");
+            Assert.IsFalse(body.Contains("UpdateConfig"),
+                "SYSCOLORCHANGE must not call UpdateConfig directly");
+            Assert.IsFalse(body.Contains("StaticBroadcastCommand"),
+                "SYSCOLORCHANGE must not broadcast config reload");
+        }
     }
 }

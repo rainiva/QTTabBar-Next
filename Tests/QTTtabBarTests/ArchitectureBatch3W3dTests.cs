@@ -59,6 +59,16 @@ namespace QTTtabBarTests {
         private static readonly string ExistingPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         private static readonly string OtherExistingPath = Path.Combine(ExistingPath, "System32");
 
+        [SetUp]
+        public void SetUp() {
+            if(ConfigManager.LoadedConfig == null) {
+                ConfigManager.LoadedConfig = new Config();
+            }
+            if(QTUtility.TextResourcesDic == null) {
+                ConfigManager.LoadTextResources();
+            }
+        }
+
         [Test]
         public void SelectedIndexChanged_SameAddress_SkipsNavigation() {
             var bar = CreateTestBar(ExistingPath, ExistingPath, forcedNavigateResult: true);

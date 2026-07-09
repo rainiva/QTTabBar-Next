@@ -8,6 +8,16 @@ using QTTabBarLib;
 namespace QTTtabBarTests {
     [TestFixture]
     public class SecondViewBarNavigationTests {
+        [SetUp]
+        public void SetUp() {
+            if(ConfigManager.LoadedConfig == null) {
+                ConfigManager.LoadedConfig = new Config();
+            }
+            if(QTUtility.TextResourcesDic == null) {
+                ConfigManager.LoadTextResources();
+            }
+        }
+
         private static string FindRepoRoot() {
             var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while(dir != null) {

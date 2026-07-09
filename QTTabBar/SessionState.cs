@@ -25,6 +25,12 @@ namespace QTTabBarLib {
         internal static volatile List<string> NoCapturePathsList = new List<string>();
         internal static byte WindowAlpha = 0xff;
 
+        internal static void ResetForInitRetry() {
+            ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
+            NoCapturePathsList = new List<string>();
+            WindowAlpha = 0xff;
+        }
+
         /// <summary>
         /// The single global lock. Reuses QTUtility.syncRoot instead of creating
         /// a second lock object, so global-lock semantics stay unchanged.

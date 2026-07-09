@@ -422,6 +422,7 @@
     <Compile Include="ConfigModels.cs" />
     <Compile Include="ConfigMetadataCache.cs" />
     <Compile Include="ConfigManager.cs" />
+    <Compile Include="ConfigManager.ReadConfig.cs" />
     <Compile Include="Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>

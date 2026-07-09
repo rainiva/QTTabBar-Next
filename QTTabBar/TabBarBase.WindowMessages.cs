@@ -9,7 +9,7 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public abstract partial class TabBarBase {
         internal void HandleSysColorChangeHookMessage() {
-            ThemeRefreshService.ApplySystemTheme(true);
+            ThemeRefreshService.RefreshLocalThemeAndUi();
             tabControl1.InitializeColors();
             PInvoke.SetRedraw(ExplorerHandle, true);
             PInvoke.RedrawWindow(ExplorerHandle, IntPtr.Zero, IntPtr.Zero, 0x289);

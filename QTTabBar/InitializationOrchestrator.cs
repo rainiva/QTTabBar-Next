@@ -51,6 +51,9 @@ namespace QTTabBarLib {
             ConfigManager.ResetForInitRetry();
             PluginManager.ResetForInitRetry();
             HookStateManager.Reset();
+            SessionState.ResetForInitRetry();
+            ResourceCache.ResetForInitRetry();
+            ConfigVersionTracker.ResetForInitRetry();
         }
 
         public static void Initialize() {

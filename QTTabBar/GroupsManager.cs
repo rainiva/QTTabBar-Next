@@ -62,7 +62,7 @@ namespace QTTabBarLib {
 
         public static void LoadGroups() {
             groupList = new List<Group>();
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Groups)) {
+            using(RegistryKey key = RegistryAccess.OpenSubKeyCreate(RegConst.Groups)) {
                 int i = 0;
                 while(true) {
                     using(RegistryKey gkey = key.OpenSubKey("" + i++)) {
@@ -92,8 +92,8 @@ namespace QTTabBarLib {
         }
 
         public static void SaveGroups() {
-            Registry.CurrentUser.DeleteSubKeyTree(RegConst.Root + RegConst.Groups);
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Groups)) {
+            RegistryAccess.DeleteSubKeyTree(RegConst.Groups);
+            using(RegistryKey key = RegistryAccess.OpenSubKeyCreate(RegConst.Groups)) {
                 for(int i = 0; i < groupList.Count; i++) {
                     Group g = groupList[i];
                     using(RegistryKey gkey = key.CreateSubKey("" + i)) {

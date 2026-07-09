@@ -27,6 +27,15 @@ namespace QTTabBarLib {
         internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
         internal static volatile Dictionary<string, string[]> TextResourcesDic;
 
+        internal static void ResetForInitRetry() {
+            if(ImageListGlobal != null) {
+                ImageListGlobal.Dispose();
+                ImageListGlobal = null;
+            }
+            DisplayNameCacheDic = new Dictionary<string, string>();
+            TextResourcesDic = null;
+        }
+
         /// <summary>
         /// The global lock (guards DisplayNameCacheDic and other cross-collection
         /// operations). Reuses QTUtility.syncRoot instead of creating a second

@@ -17,7 +17,8 @@ namespace QTTtabBarTests {
     /// Backward-compatibility invariants asserted here:
     ///  - default Encode(ReloadConfig) stays a 6-byte header (no payload);
     ///  - EncodeReloadConfig(version) round-trips the version through TryParse;
-    ///  - DecodeConfigVersion tolerates null/short payload as version 0.
+    ///  - DecodeConfigVersion tolerates null/short payload as version 0;
+    ///  - ShouldApply rejects version 0 (legacy unspecified payloads are not applied).
     ///
     /// Task 2 复审整改补充：ShouldApply 去重契约与 IpcCommandDispatcher 端的
     /// ReloadConfig 去重门控护栏测试（针对已存在的生产逻辑加固，不改行为语义）。
@@ -221,15 +222,15 @@ namespace QTTtabBarTests {
 
         #endregion
 
-        #region ShouldApply 去重契约（版本 0 恒应用 / 更高应用 / 重复+陈旧忽略 / 并发）
+        #region ShouldApply 去重契约（版本 0 拒绝 / 更高应用 / 重复+陈旧忽略 / 并发）
 
         [Test]
-        public void ShouldApply_VersionZero_AlwaysApplies_WithoutMutatingBaseline() {
-            // version 0 = "未指定"（旧发送方/无 payload 广播），恒应用且不推进 lastAppliedVersion。
+        public void ShouldApply_VersionZero_IsRejected() {
+            // version 0 = decode 容错值（旧发送方/无 payload），ShouldApply 拒绝且不推进基线。
             SetLastApplied(500L);
-            Assert.IsTrue(InvokeShouldApply(0L), "version 0 应恒返回 true（旧发送方兼容）");
+            Assert.IsFalse(InvokeShouldApply(0L), "version 0 应被拒绝（不再应用 legacy 无版本广播）");
             Assert.AreEqual(500L, GetLastApplied(), "version 0 不应改变 lastAppliedVersion");
-            Assert.IsTrue(InvokeShouldApply(0L), "连续 version 0 仍应 true");
+            Assert.IsFalse(InvokeShouldApply(0L), "连续 version 0 仍应拒绝");
             Assert.AreEqual(500L, GetLastApplied(), "连续 version 0 依旧不改变 lastAppliedVersion");
         }
 
@@ -306,6 +307,22 @@ namespace QTTtabBarTests {
             // 因此 invoke work 无副作用、不抛异常、也不改变 lastAppliedVersion。
             Assert.DoesNotThrow(() => work(), "重复版本的 work 应提前 return，不触发副作用/异常");
             Assert.AreEqual(applied, GetLastApplied(), "重复版本不应改变 lastAppliedVersion（未触发 reload）");
+        }
+
+        [Test]
+        public void Dispatcher_ReloadConfig_LegacySixBytePayload_DoesNotReload() {
+            SetLastApplied(7000L);
+
+            byte[] buffer = IpcCommandMessage.Encode(IpcCommand.ReloadConfig);
+            Assert.AreEqual(6, buffer.Length, "legacy ReloadConfig 应为 6 字节头（无 payload）");
+
+            Action work;
+            Assert.IsTrue(InvokeTryCreateClientAction(buffer, out work),
+                "legacy ReloadConfig 报文应可创建 client action");
+            Assert.IsNotNull(work, "应返回非空 work 委托");
+
+            Assert.DoesNotThrow(() => work(), "legacy 无版本 payload 的 work 应提前 return");
+            Assert.AreEqual(7000L, GetLastApplied(), "legacy ReloadConfig 不应改变 lastAppliedVersion");
         }
 
         [Test]

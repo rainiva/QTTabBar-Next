@@ -58,6 +58,11 @@ namespace QTTabBarLib {
             }
         }
 
+        internal static void ResetForInitRetry() {
+            Interlocked.Exchange(ref currentVersion, 0L);
+            Interlocked.Exchange(ref lastAppliedVersion, 0L);
+        }
+
         /// <summary>
         /// Decide whether an inbound ReloadConfig carrying <paramref name="version"/>
         /// should be applied on this client. Version 0 is rejected (legacy unspecified
