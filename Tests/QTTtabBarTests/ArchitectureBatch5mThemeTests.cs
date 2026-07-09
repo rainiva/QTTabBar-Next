@@ -55,7 +55,9 @@ namespace QTTtabBarTests {
             PropertyInfo isDark = themeType.GetProperty("IsDark", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             bool dark = (bool)isDark.GetValue(null);
             Assert.AreEqual(dark, QTUtility.InNightMode,
-                "ThemeRefreshService.IsDark should mirror QTUtility.InNightMode after apply");
+                "QTUtility.InNightMode should forward ThemeRefreshService.IsDark after apply");
+            Assert.AreEqual(dark, (bool)isDark.GetValue(null),
+                "IsDark is the theme source of truth after ApplyLoadedSkinFromSystemTheme");
             if(dark) {
                 Assert.AreEqual(System.Drawing.Color.Black, Config.Skin.TabShadActiveColor,
                     "Dark theme should apply black tab shadow colors when auto color change is enabled");

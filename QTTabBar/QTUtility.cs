@@ -96,7 +96,7 @@ namespace QTTabBarLib {
         internal static byte WindowAlpha { get { return System.Threading.Volatile.Read(ref SessionState.WindowAlpha); } set { System.Threading.Volatile.Write(ref SessionState.WindowAlpha, value); } }
 
         // �Ƿ�Ϊ����ģʽ
-        internal static bool InNightMode;
+        internal static bool InNightMode => ThemeRefreshService.IsDark;
 
         // {
         //     get { return getNightMode(); }
@@ -418,51 +418,10 @@ namespace QTTabBarLib {
         }
 
         public static void RefreshNightMode() {
-            InNightMode = getNightMode();
+            ThemeRefreshService.RefreshFromSystem();
         }
 
         // �ж��Ƿ�Ϊ����ģʽ  Environment.OSVersion.Version.Major
-        public static bool getNightMode()
-        {
-            // if (Environment.OSVersion.Version.Major > 9)  {
-                /*using (RegistryKey rk = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"))
-                {
-                    if (rk != null)
-                        return QTUtility2.GetValueSafe<int>(rk, "AppsUseLightTheme", 1) == 0;
-                }*/
-
-                using (var envKey = Registry.CurrentUser.OpenSubKey(REG_PERSONALIZE, false))
-                {
-                    if (envKey == null)
-                    {
-                        QTLogger.log("can not get reg for personailize");
-                        return false;
-                    }
-                    object value = envKey.GetValue("AppsUseLightTheme");
-                    if (value != null)
-                    {
-                        string useTheme = value.ToString();
-                        if ("1".Equals(useTheme))
-                        {
-                            // the light
-                            return false;
-                        }
-                        else
-                        {
-                            // the dark mode
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        // default is light
-                        return false;
-                    }
-                }
-            // }
-           return true;
-        }
-
         public static bool isChinese()
         {
             var uiCulture = System.Globalization.CultureInfo.InstalledUICulture.Name;
