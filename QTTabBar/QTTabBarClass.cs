@@ -70,6 +70,7 @@ namespace QTTabBarLib {
         private HookInputController _hookInputController;
         private FileToolsController _fileToolsController;
         private BindActionController _bindActionController;
+        private ShellCommandController _shellCommandController;
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
 
@@ -77,6 +78,12 @@ namespace QTTabBarLib {
 
         internal bool DoBindAction(BindAction action, bool fRepeat = false, QTabItem tab = null, IDLWrapper item = null)
             => _bindActionController.DoBindAction(action, fRepeat, tab, item);
+
+        private void createNewFile() => _shellCommandController.CreateNewFile();
+
+        private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
+
+        private void Wait4Select() => _shellCommandController.Wait4Select();
 
         private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
 
@@ -692,340 +699,14 @@ namespace QTTabBarLib {
         }
 
 
-        /// <summary>
-        /// �������ļ� add by indiff
-        /// </summary>
-        private void createNewFile()
-        {
-
-            // Create new file
-            IShellView shellView = null;
-            IntPtr pIDL = IntPtr.Zero;
-
-            try
-            {
-                string path = pluginServer.SelectedTab.Address.Path;
-
-                if (String.IsNullOrEmpty(path) || !Directory.Exists(path))
-                {
-                    QTUtility.SoundPlay();
-                    return;
-                }
-
-                // make new name
-
-                int i = 2;
-                // string name = "�½��ı��ĵ�";
-                string name = QTUtility.DefaultNewFileName();
-                string ext =  ".txt";
-                string pathNew = path + "\\" + name + ext;
-
-                while ( Directory.Exists(pathNew) || File.Exists(pathNew) )
-                {
-                    pathNew = path + "\\" + name + " (" + i + ")" + ext;
-                    i++;
-                }
-
-                using (File.Create(pathNew))
-                {
-                }
-
-                // Select and put into rename mode.
-                if (0 == ShellBrowser.GetIShellBrowser().QueryActiveShellView(out shellView))
-                {
-                    shellView.Refresh();
-
-                    pIDL = PInvoke.ILCreateFromPath(pathNew);
-                    if (pIDL != IntPtr.Zero)
-                    {
-                        IntPtr pIDLRltv = PInvoke.ILFindLastID(pIDL);
-                        if (pIDLRltv != IntPtr.Zero) {
-                            // ѡ���ļ�
-                             shellView.SelectItem(pIDLRltv, SVSIF.SELECT | SVSIF.DESELECTOTHERS | SVSIF.ENSUREVISIBLE | SVSIF.EDIT );
-                           //  ShellBrowser.GetIShellBrowser().SelectItem(pIDLRltv, SVSI_SELECT | SVSI_DESELECTOTHERS | SVSI_ENSUREVISIBLE | SVSI_EDIT);
-                            return;
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-            finally
-            {
-                if (ShellBrowser.GetIShellBrowser() != null)
-                {
-                    QTUtility2.log("ReleaseComObject ShellBrowser.GetIShellBrowser()");
-                    Marshal.ReleaseComObject(ShellBrowser.GetIShellBrowser());
-                }
-                    
-
-                if (pIDL != IntPtr.Zero)
-                    Marshal.FreeCoTaskMem(pIDL);
-            }
-
-            QTUtility.SoundPlay();
-       
-        }
-        /***** add by qwop end   ***/
-
-        /// <summary>
-        /// �ú��������ɲ�ͬ�̲߳����Ĵ��ڵ���ʾ״̬��
-        /// </summary>
-        /// <param name="hWnd">���ھ��</param>
-        /// <param name="cmdShow">ָ�����������ʾ���鿴����ֵ�б��������ShowWlndow������˵�����֡�</param>
-        /// <returns>�������ԭ���ɼ�������ֵΪ���㣻�������ԭ�������أ�����ֵΪ�㡣</returns>
-        [DllImport("User32.dll")]
-        private static extern bool ShowWindowAsync(IntPtr hWnd, int cmdShow);
-        /// <summary>
-        /// �ú���������ָ�����ڵ��߳����õ�ǰ̨�����Ҽ���ô��ڡ���������ת��ô��ڣ���Ϊ�û��ĸ��ֿ��ӵļǺš�ϵͳ������ǰ̨���ڵ��̷߳����Ȩ���Ը��������̡߳�
-        /// </summary>
-        /// <param name="hWnd">�������������ǰ̨�Ĵ��ھ����</param>
-        /// <returns>�������������ǰ̨������ֵΪ���㣻�������δ������ǰ̨������ֵΪ�㡣</returns>
-        [DllImport("User32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("User32.dll")]
-        private static extern bool SetFocus(IntPtr hWnd);
-
-        private const int WS_SHOWNORMAL = 1;
-
-        private void cmdPath(string currentPath)
-        {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = "/k cd " + currentPath;
-            process.StartInfo.WorkingDirectory = currentPath;
-            process.Start();
-
-            ShowWindowAsync(process.MainWindowHandle, WS_SHOWNORMAL); //��ʾ������ע�͵�
-            SetForegroundWindow(process.MainWindowHandle);            //�ŵ�ǰ��
-            SetFocus(process.MainWindowHandle);
-        }
-
-        /************************************************************************/
-        /* �򿪵�ǰĿ¼�� ������ʾ��                                            */
-        /************************************************************************/
-        private void OpenCmd( QTabItem tab )
-        {
-            /*            if ( tab == null ) {
-                            return ;
-                        }*/
-            if (ShellBrowser.GetIShellBrowser() != null) { 
-                string currentPath = "";
-                if (tab != null)
-                {
-                    currentPath = tab.CurrentPath;
-                }
-                else
-                {
-                    currentPath = ContextMenuedTab.CurrentPath;
-                }
-            
-                if (currentPath.IndexOf("???") != -1)
-                {
-                    currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
-                }
-                else if (currentPath.IndexOf("*?*?*") != -1)
-                {
-                    currentPath = currentPath.Substring(0, currentPath.IndexOf("*?*?*"));
-                }
-                // �ж��ļ��Ƿ����
-                if (Directory.Exists(currentPath))
-                {
-                    /*
-                    ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
-                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                    startInfo.Verb = "runas";
-                    startInfo.CreateNoWindow = false;
-                
-                
-                    startInfo.WorkingDirectory = currentPath;
-                    // ���ӻ�ȡ����
-                    Process instance = Process.Start(startInfo );
-                    //  instance.WaitForInputIdle();
-                    
-                    if (!instance.WaitForInputIdle(10000)) // 10 s timout 
-                    {
-                        throw new ApplicationException("Process takes too much time to start");
-                    }
-                    */
-
-                    cmdPath(currentPath);
-
-                } // end for open cmd.
-                else { 
-                    // �Ҳ���·�����ϵͳ��
-                    if (QTUtility2.PathExists("C:\\"))
-                    {
-                        cmdPath("C:\\");
-                    } else if (QTUtility2.PathExists("D:\\"))
-                    {
-                        cmdPath("D:\\");
-                    }
-                    else if (QTUtility2.PathExists("E:\\"))
-                    {
-                        cmdPath("E:\\");
-                    }
-                    else if (QTUtility2.PathExists("F:\\"))
-                    {
-                        cmdPath("F:\\");
-                    }
-                }
-            }
-        }
-
         // todo: clean, enum.
 
-        // ����ķ�ʽ  select 1 / factory 2 / other 3
+        // 命令的方式  select 1 / factory 2 / other 3
         private int mCmdType = 0;
 
         // This function is either called by BeforeNavigate2 (on XP and Vista)
-        // �˺�����BeforeNavigate2����(on XP and Vista)
         // or NavigateComplete2 (on 7)
         // DoFirstNavigation moved to ExplorerControllerModule (Batch 13)
-
-        /**
-         * ��ʱ����� 1 �뷽ʽ����ȡ΢�Ż���qq�򿪺��ѡ���ļ�
-         */
-        private void Wait4Select()
-        {
-            if (!Config.Window.CaptureWeChatSelection)
-            {
-                return;
-            }
-
-            QTUtility2.log("Wait4Select");
-            int count = 1;
-            // �Թر� ��ʱ����� 1 ��
-            Timer timer = new Timer { Interval = 1000 };
-            timer.Tick += (sender, args) =>
-            {
-                try
-                {
-                    count++;
-                    // ��������10�� �Թر� 
-                    if (count >= 10)
-                    {
-                        timer.Stop();
-                    }
-                    string SelectionPath = RegistryUtil.ReadSelection(CurrentTab.CurrentPath);
-                    QTUtility2.log(
-                        " ReadSelection key " +
-                        CurrentTab.CurrentPath +
-                        " path " + SelectionPath
-                    );
-                    if (QTUtility2.IsNotEmpty(SelectionPath) )
-                    {
-                        QTUtility2.log("find mainShellView ");
-                        IShellView mainShellView = null;
-                        bool selected = false;
-                        if (0 == ShellBrowser.GetIShellBrowser().QueryActiveShellView(out mainShellView))
-                        {
-                            mainShellView.Refresh();
-                            QTUtility2.log("Refresh ");
-                            using (IDLWrapper wrapper = new IDLWrapper(SelectionPath))
-                            {
-                                if (wrapper.Available && wrapper.PIDL != IntPtr.Zero)
-                                {
-                                    QTUtility2.log("wrapper " + wrapper.Path);
-                                    IntPtr pIDLRltv = PInvoke.ILFindLastID(wrapper.PIDL);
-                                    if (pIDLRltv != IntPtr.Zero)
-                                    {
-                                        QTUtility2.log("SelectItem " + pIDLRltv);
-                                        // ѡ���ļ�
-                                        mainShellView.SelectItem(pIDLRltv, SVSIF.SELECT |
-                                                                           SVSIF.DESELECTOTHERS |
-                                                                           SVSIF.ENSUREVISIBLE
-                                            // | SVSIF.EDIT
-                                        );
-                                        selected = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (selected)
-                        {
-                            timer.Stop();
-                            // InstanceManager.RemoveSelect(CurrentTab.CurrentPath );
-                            // InstanceManager.selectDict.Remove(CurrentTab.CurrentPath);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    QTUtility2.MakeErrorLog(e, "��ȡ΢�Ż���qq�򿪺��ѡ���ļ�");
-                }
-            };
-            timer.Start();
-        }
-
-
-        private void Wait4SelectedQuit()
-        {
-            int count = 1;
-            Timer timer = new Timer { Interval = 1000 };
-            timer.Tick += (sender, args) =>
-            {
-                count++;
-                if (count >= 10)
-                {
-                    QTUtility2.log("CloseExplorer QTTabBarClass start");
-                    timer.Stop();
-                    Explorer.Quit();
-                    WindowUtils.CloseExplorer(ExplorerHandle, 0);
-                    QTUtility2.log("CloseExplorer QTTabBarClass  end");
-                }
-
-                QTUtility2.log("QTTabBarClass timer.Tick TryGetSelection ");
-                try
-                {
-                    var tabItem = tabControl1.TabPages[0];
-                    var tabItemComment = tabItem.Text;
-                    IShellView shellView = null;
-                    List<string> select = SelectionTracker.GetSelect(tabItem.CurrentPath);
-                    if (select != null)
-                    {
-                        timer.Stop();
-                        Explorer.Quit();
-                        WindowUtils.CloseExplorer(ExplorerHandle, 0);
-                    }
-
-                    if (0 == ShellBrowser.GetIShellBrowser().QueryActiveShellView(out shellView))
-                    {
-                        var iid = new Guid("{0000010e-0000-0000-C000-000000000046}");
-                        object ppv;
-                        shellView.GetItemObject((uint)SVSIF.SELECT, ref iid, out ppv);
-                        if (ppv != null)
-                        {
-                            IDataObject pDataObject = (IDataObject)ppv;
-                            var shellObjectCollection = ShellObjectCollection.FromDataObject(pDataObject);
-                            if (shellObjectCollection.Count > 0)
-                            {
-                                List<string> list = new List<string>();
-                                foreach (ShellObject so in shellObjectCollection)
-                                {
-                                    QTUtility2.log("add so.Name " + so.Name + " so.ParsingName " + so.ParsingName);
-                                    list.Add(so.ParsingName);
-
-                                    SelectionTracker.PutSelect(tabItem.CurrentPath, list);
-                                    // InstanceManager.selectDict.Add(tabItem.CurrentPath, list);
-                                    timer.Stop();
-                                    Explorer.Quit();
-                                    WindowUtils.CloseExplorer(ExplorerHandle, 0);
-
-                                }
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                }
-            };
-            timer.Start();
-        }
 
         /*
                       Address[] addressArray;
@@ -1375,6 +1056,7 @@ namespace QTTabBarLib {
             _hookInputController = new HookInputController(this);
             _fileToolsController = new FileToolsController(this);
             _bindActionController = new BindActionController(this);
+            _shellCommandController = new ShellCommandController(this);
             _tabTooltipController = new TabTooltipController(this);
             _windowManagementController = new WindowManagementController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;

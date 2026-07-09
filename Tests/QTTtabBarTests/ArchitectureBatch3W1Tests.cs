@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using QTTabBarLib;
@@ -16,11 +17,17 @@ namespace QTTtabBarTests {
 
         [Test]
         public void QTTabBarClass_Uses_SelectionTracker_Directly() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string content = ReadAllTabBarClassPartials();
             Assert.IsTrue(content.Contains("SelectionTracker.PutSelect("));
             Assert.IsTrue(content.Contains("SelectionTracker.GetSelect("));
             Assert.IsFalse(content.Contains("InstanceManager.PutSelect("));
             Assert.IsFalse(content.Contains("InstanceManager.GetSelect("));
+        }
+
+        private static string ReadAllTabBarClassPartials() {
+            string root = Path.Combine(FindRepoRoot(), "QTTabBar");
+            return string.Join("\n", Directory.GetFiles(root, "QTTabBarClass*.cs")
+                .Select(File.ReadAllText));
         }
 
         private static string FindRepoRoot() {
