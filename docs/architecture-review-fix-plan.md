@@ -867,6 +867,12 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 | 3n | Shell UI 刷新 | 4 | 高 | RefreshOptions/ShowFolderTree/ShowSearchBar/ToggleTopMost → ShellUiController |
 | 3o | 按钮栏/DeskBand | 2 | 高 | ProcessButtonBarClick → ButtonBarClickController；GetBandInfo → BandInfoController |
 | 3p | Band 生命周期/导航/引导 | 6 | 高 | ShowDW/UIActivateIO/RefreshBandHeight → BandLifecycleController；UpOneLevel → ShellNavigationController；构造函数引导 → InstanceBootstrapController |
+| 3q | Band 窗口/ListView 监控 | 4 | 高 | WndProc/OnPaintBackground/bgRenderer → BandWindowController；ListViewMonitor → ListViewInputController |
+| 3r | UI 组件构建 | 1 | 高 | InitializeComponent UI 构建体 → ComponentBuildController.Build() |
+| 3s | 拖放文件/目录树 | 3 | 高 | AppendUserApps → DroppedFilesController；AsyncComplete/Callback FolderTree → FolderTreeController |
+| 3t | 视图模式/插件菜单 | 2 | 高 | ChangeViewMode → ViewModeController；pluginitems_Click → PluginMenuController |
+| 3u | Explorer 关闭清理 | 1 | 高 | CloseDW → ShutdownController |
+| 3v | COM 注册/收尾 | 3 | 高 | Register/Unregister → ComRegistrationController；EnableApiHook → HookInputController；移除 OnAwake 等死代码 |
 
 **每批验收标准**
 
@@ -1204,7 +1210,7 @@ public static void Initialize() {
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 改为按需读取，消除引用拷贝 |
 | W10 | ✅ 已修复 | WriteConfig + PersistConfigChanges 统一入口，版本追踪完善 |
-| C6 | ⬜ 部分修复 | 18 个 controller/partial + BandLifecycle/ShellNavigation/InstanceBootstrap（3p），主文件约 1,318 行 |
+| C6 | ✅ 已修复 | 26 个 controller/partial（3q–3v 完成），主文件约 842 行（以 façade + 字段为主） |
 | C7 | ⬜ 部分修复 | 5 个辅助类已创建，QTUtility 仍保留部分 façade |
 | W1 | ✅ 已修复 | 纯 registry façade 已移除，IPC 方法保留 |
 | W2 | ✅ 已验证 | DesktopTooltipController 已提取，主文件 2,191 行 |

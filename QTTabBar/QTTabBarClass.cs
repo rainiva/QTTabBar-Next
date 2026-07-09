@@ -306,16 +306,7 @@ namespace QTTabBarLib {
         /**
          * ������������ API Hook
          */
-        private void EnableApiHook()
-        {
-            // Create and enable the API hooks.
-            // Startup one-time hook initialization is handled idempotently by
-            // InitializationOrchestrator.Initialize(). This method, however, is the
-            // user-triggered context-menu entry ("Enable API Hook"), so it must keep
-            // its own independent call to re-enable/reload the API hooks on demand.
-            HookLibManager.Initialize();
-            QTUtility2.log("QTUtility ������������ API hooks");
-        }
+        internal void EnableApiHook() => _hookInputController.EnableApiHook();
 
 
         private void Controls_GotFocus(object sender, EventArgs e) {
@@ -562,9 +553,6 @@ namespace QTTabBarLib {
 
         // NavigationButtons_DropDownOpening moved to ExplorerControllerModule (Batch 13)
 
-        private void OnAwake() {
-        }
-
         internal void OnMouseDoubleClick() {
             OnMouseDoubleClick(new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
         }
@@ -609,11 +597,7 @@ namespace QTTabBarLib {
         internal void RefreshOptions() => _shellUiController.RefreshOptions();
 
         [ComRegisterFunction]
-        private static void Register(Type t) {
-            string name = t.GUID.ToString("B");
-            ComRegistrationManager.RegisterBand(name, "QTTabBar", "QTTabBar", "QTTabBar");
-            ComRegistrationManager.RegisterToolbar(name, "QTTabBar");
-        }
+        private static void Register(Type t) => ComRegistrationController.Register(t);
 
         private void ReorderTab(int index, bool fDescending) {
             _tabManager.ReorderTab(index, fDescending);
@@ -693,14 +677,6 @@ namespace QTTabBarLib {
         }
 
         internal static void SyncTaskBarMenu() {
-            // todo
-            /*
-            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
-                IntPtr hWnd = RegistryHelper.ReadRegHandle("TaskBarHandle", key);
-                if((hWnd != IntPtr.Zero) && PInvoke.IsWindow(hWnd)) {
-                    QTUtility2.SendCOPYDATASTRUCT(hWnd, (IntPtr)3, string.Empty, IntPtr.Zero);
-                }
-            }*/
         }
 
         
@@ -748,66 +724,7 @@ namespace QTTabBarLib {
         public override void UIActivateIO(int fActivate, ref MSG Msg) => _bandLifecycleController.UIActivateIO(fActivate, ref Msg);
 
         [ComUnregisterFunction]
-        private static void Unregister(Type t) {
-            QTUtility2.log("QTTabBarClass Unregister");
-            string name = t.GUID.ToString("B");
-            ComRegistrationManager.UnregisterAll(name);
-            // Also clean up the hardcoded CLSID
-            try {
-                using(RegistryKey key2 = Registry.ClassesRoot.OpenSubKey("CLSID", true)) {
-                    if(key2 != null) {
-                        key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}", false);
-                    }
-                }
-            }
-            catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "Unregister.CLSID2");
-            }
-            
-            return;
-            // TODO: Make the following code optional in the Uninstaller.
-#if false
-            try {
-                using(RegistryKey key3 = Registry.Users) {
-                    try {
-                        foreach(string str2 in key3.GetSubKeyNames()) {
-                            bool flag = true;
-                            try {
-                                using(RegistryKey key4 = key3.OpenSubKey(str2 + @"\Software\Quizo", true)) {
-                                    if(key4 != null) {
-                                        try {
-                                            key4.DeleteSubKeyTree("QTTabBar");
-                                            string[] subKeyNames = key4.GetSubKeyNames();
-                                            flag = (subKeyNames != null) && (subKeyNames.Length > 0);
-                                        }
-                                        catch {
-                                        }
-                                    }
-                                }
-                            }
-                            catch {
-                            }
-                            try {
-                                if(!flag) {
-                                    using(RegistryKey key5 = key3.OpenSubKey(str2 + @"\Software", true)) {
-                                        if(key5 != null) {
-                                            key5.DeleteSubKeyTree("Quizo");
-                                        }
-                                    }
-                                }
-                            }
-                            catch {
-                            }
-                        }
-                    }
-                    catch {
-                    }
-                }
-            }
-            catch {
-            }
-#endif
-        }
+        private static void Unregister(Type t) => ComRegistrationController.Unregister(t);
 
         private void UpOneLevel() => _shellNavigationController.UpOneLevel();
 

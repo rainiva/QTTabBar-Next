@@ -633,6 +633,9 @@
     <Compile Include="QTTabBarClass.ShutdownController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ComRegistrationController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.ShellNavigationController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>

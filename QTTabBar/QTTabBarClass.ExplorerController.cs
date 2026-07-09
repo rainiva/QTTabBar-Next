@@ -565,9 +565,6 @@ namespace QTTabBarLib {
                         return true;
 
                     case WM.POWERBROADCAST:
-                        if(((int) msg.WParam) == 7) {
-                            _owner.OnAwake();
-                        }
                         return false;
 
                     case WM.DEVICECHANGE:

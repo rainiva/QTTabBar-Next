@@ -24,6 +24,11 @@ namespace QTTabBarLib {
                 _owner = owner;
             }
 
+            public void EnableApiHook() {
+                HookLibManager.Initialize();
+                QTUtility2.log("QTUtility enabled API hooks");
+            }
+
             public void Install(int currentThreadId) {
                 hookProc_Key = new HookProc(CallbackKeyboardProc);
                 hookProc_Mouse = new HookProc(CallbackMouseProc);
