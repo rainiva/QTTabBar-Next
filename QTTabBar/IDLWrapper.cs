@@ -16,6 +16,7 @@
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,7 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public sealed class IDLWrapper : IDisposable {
         private uint attributes;
-        private static Dictionary<string, byte[]> dicCacheIDLs;
+        private static ConcurrentDictionary<string, byte[]> dicCacheIDLs;
         private static Dictionary<string, int> dicCSIDLTable;
         private static Dictionary<string, Guid> dicFOLDERIDTable;
         private static bool fCacheDirty;
@@ -51,7 +52,7 @@ namespace QTTabBarLib {
         static IDLWrapper() {
             try {
                 string str;
-                dicCacheIDLs = new Dictionary<string, byte[]>();
+                dicCacheIDLs = new ConcurrentDictionary<string, byte[]>();
                 dicCSIDLTable = new Dictionary<string, int>();
                 dicFOLDERIDTable = new Dictionary<string, Guid>();
                 lstPingSuccessedPaths = new List<string>();
@@ -382,13 +383,13 @@ namespace QTTabBarLib {
                                     }
                                 }
                                 foreach(string str2 in list) {
-                                    dicCacheIDLs.Remove(str2);
+                                    dicCacheIDLs.TryRemove(str2, out _);
                                 }
                                 if(num > 0) {
                                     list.Clear();
                                     list.AddRange(dicCacheIDLs.Keys.Take(num));
                                     foreach(string str4 in list) {
-                                        dicCacheIDLs.Remove(str4);
+                                        dicCacheIDLs.TryRemove(str4, out _);
                                     }
                                 }
                             }
