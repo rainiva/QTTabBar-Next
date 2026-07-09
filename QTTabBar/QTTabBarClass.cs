@@ -74,6 +74,8 @@ namespace QTTabBarLib {
         private ListViewInputController _listViewInputController;
         private KeyboardAcceleratorController _keyboardAcceleratorController;
         private ShellUiController _shellUiController;
+        private ButtonBarClickController _buttonBarClickController;
+        private BandInfoController _bandInfoController;
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
 
@@ -731,39 +733,7 @@ namespace QTTabBarLib {
         // explorerController_MessageCaptured moved to ExplorerControllerModule (Batch 13)
 
         public override void GetBandInfo(uint dwBandID, uint dwViewMode, ref DESKBANDINFO dbi) {
-            // Keep BandHeight in sync with current DPI before reporting to Explorer.
-            int rows = 1;
-            if(tabControl1 != null && Config.Tabs.MultipleTabRows) {
-                rows = Math.Max(1, tabControl1.SetTabRowType(Config.Tabs.ActiveTabOnBottomRow ? 1 : 2));
-            }
-            BandHeight = ComputeBandHeight(rows, Config.Skin.TabHeight, GetBandDpiScale());
-
-            if((dbi.dwMask & DBIM.ACTUAL) != (0)) {
-                dbi.ptActual.X = Size.Width;
-                dbi.ptActual.Y = BandHeight;
-            }
-            if((dbi.dwMask & DBIM.INTEGRAL) != (0)) {
-                dbi.ptIntegral.X = -1;
-                // Integral step of 1 lets Explorer honor the exact DPI-scaled height.
-                dbi.ptIntegral.Y = 1;
-            }
-            if((dbi.dwMask & DBIM.MAXSIZE) != (0)) {
-                dbi.ptMaxSize.X = -1;
-                dbi.ptMaxSize.Y = BandHeight;
-            }
-            if((dbi.dwMask & DBIM.MINSIZE) != (0)) {
-                dbi.ptMinSize.X = MinSize.Width;
-                dbi.ptMinSize.Y = BandHeight;
-            }
-            if((dbi.dwMask & DBIM.MODEFLAGS) != (0)) {
-                dbi.dwModeFlags = DBIMF.NORMAL;
-            }
-            if((dbi.dwMask & DBIM.BKCOLOR) != (0)) {
-                dbi.dwMask &= ~DBIM.BKCOLOR;
-            }
-            if((dbi.dwMask & DBIM.TITLE) != (0)) {
-                dbi.wszTitle = null;
-            }
+            _bandInfoController.GetBandInfo(dwBandID, dwViewMode, ref dbi);
         }
 
         // GetCurrentLogEntry moved to ExplorerControllerModule (Batch 13)
@@ -884,6 +854,8 @@ namespace QTTabBarLib {
             _listViewInputController = new ListViewInputController(this);
             _keyboardAcceleratorController = new KeyboardAcceleratorController(this);
             _shellUiController = new ShellUiController(this);
+            _buttonBarClickController = new ButtonBarClickController(this);
+            _bandInfoController = new BandInfoController(this);
             _tabTooltipController = new TabTooltipController(this);
             _windowManagementController = new WindowManagementController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
@@ -1082,95 +1054,7 @@ namespace QTTabBarLib {
 
         // I don't like this.  It seems wrong to have this here instead of in the button bar class.
         // todo: consider moving all this to the button bar and just making the necessary methods internal.
-        internal void ProcessButtonBarClick(int buttonID) {
-            switch(buttonID) {
-                case QTButtonBar.BII_NAVIGATION_BACK: // ��������
-                    NavigateCurrentTab(true);
-                    break;
-
-                case QTButtonBar.BII_NAVIGATION_FWRD: // ����ǰ��
-                    NavigateCurrentTab(true);
-                    break;
-
-                case QTButtonBar.BII_NEWWINDOW:// �´���
-                    using(IDLWrapper wrapper4 = new IDLWrapper(CurrentTab.CurrentIDL)) {
-                        OpenNewWindow(wrapper4);
-                    }
-                    break;
-
-                case QTButtonBar.BII_CLONE:// ���Ʊ�ǩ
-                    QTUtility2.log("QTTabBarLib.QTTabBarClass.CloneCurrentTab ���Ʊ�ǩ");
-                    CloneCurrentTab();
-                    break;
-
-                case QTButtonBar.BII_LOCK: // ������ť
-                    CurrentTab.TabLocked = !CurrentTab.TabLocked;
-                    // CurrentTab.CurrentPath
-                    if (CurrentTab.TabLocked)
-                    {
-                        StaticReg.LockedTabsToRestoreList.Add(CurrentTab.CurrentPath);
-                    }
-                    break;
-                case QTButtonBar.BII_TOPMOST: // �ö�
-                    ToggleTopMost();
-                    break;
-
-                case QTButtonBar.BII_CLOSE_CURRENT:// �رյ�ǰ
-                    if(Config.Window.CloseBtnClosesSingleTab) {
-                        CloseTab(CurrentTab);
-                        return;
-                    }
-                    CloseTab(CurrentTab, false);
-                    if(tabControl1.TabCount == 0) {
-                        WindowUtils.CloseExplorer(ExplorerHandle, 2);
-                    }
-                    break;
-
-                case QTButtonBar.BII_CLOSE_ALLBUTCURRENT: // �ر�����
-                    if(tabControl1.TabCount > 1) {
-                        CloseAllTabsExcept(CurrentTab);
-                    }
-                    break;
-
-                case QTButtonBar.BII_CLOSE_WINDOW: // �ش���
-                    {
-                        string[] list = (from QTabItem item2 in tabControl1.TabPages
-                                         where item2.TabLocked
-                                         select item2.CurrentPath).ToArray();
-
-                        // MessageBox.Show(String.Join(",", list));
-                        QTUtility.SaveLockedTabs(list);
-                    }
-                    WindowUtils.CloseExplorer(ExplorerHandle, 1);
-                    break;
-
-                case QTButtonBar.BII_CLOSE_LEFT: // �ر����
-                    CloseLeftRight(true, -1);
-                    break;
-
-                case QTButtonBar.BII_CLOSE_RIGHT: // �ر��Ҳ�
-                    CloseLeftRight(false, -1);
-                    break;
-
-                case QTButtonBar.BII_GOUPONELEVEL: // ��ת��һ��
-                    QTUtility2.log("QTButtonBar.BII_GOUPONELEVEL UpOneLevel");
-                    UpOneLevel();
-                    break;
-
-                case QTButtonBar.BII_REFRESH_SHELLBROWSER: // ˢ��
-                    Explorer.Refresh();
-                    break;
-
-                case QTButtonBar.BII_SHELLSEARCH: // ��ʾ������
-                    ShowSearchBar(true);
-                    break;
-                
-                // add by qwop.
-                case QTButtonBar.BII_OPTION:
-                    OptionsDialog.Open();
-                    break;
-            }
-        }
+        internal void ProcessButtonBarClick(int buttonID) => _buttonBarClickController.ProcessButtonBarClick(buttonID);
 
         /// <summary>
         /// ˢ����������
