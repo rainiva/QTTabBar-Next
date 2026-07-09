@@ -17,7 +17,7 @@ namespace QTTabBarLib
     /**
      internal 只有在同一程序集的文件中，内部类型或成员才可访问
      */
-    public abstract class TabBarBase : BandObject
+    public abstract partial class TabBarBase : BandObject
     {
         // 添加到分组
         protected ToolStripMenuItem tsmiAddToGroup;

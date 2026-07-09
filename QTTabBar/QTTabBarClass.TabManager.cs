@@ -65,28 +65,7 @@ namespace QTTabBarLib {
             #region Tab creation / opening
 
             public void AddInsertTab(QTabItem tab) {
-                QTUtility2.log(  "QTTabBarClass AddInsertTab  " );
-                switch(Config.Tabs.NewTabPosition) {
-                    case TabPos.Leftmost:
-                        _owner.tabControl1.TabPages.Insert(0, tab);
-                        break;
-
-                    case TabPos.Right:
-                    case TabPos.Left: {
-                        int index = _owner.tabControl1.TabPages.IndexOf(_owner.CurrentTab);
-                        if(index == -1) {
-                            _owner.tabControl1.TabPages.Add(tab);
-                        }
-                        else {
-                            _owner.tabControl1.TabPages.Insert(Config.Tabs.NewTabPosition == TabPos.Right ? (index + 1) : index, tab);    
-                        }
-                        break;
-                    }
-
-                    default: // TabPos.Rightmost
-                        _owner.tabControl1.TabPages.Add(tab);
-                        break;
-                }
+                _owner.AddInsertTab(tab);
             }
 
             public void AddStartUpTabs(string openingGRP, string openingPath) {
@@ -140,109 +119,15 @@ namespace QTTabBarLib {
             }
 
             public QTabItem CreateNewTab(IDLWrapper idlw) {
-                string path = idlw.Path;
-                QTabItem tab = new QTabItem(QTUtility2.MakePathDisplayText(path, false), path, _owner.tabControl1);
-                tab.NavigatedTo(path, idlw.IDL, -1, false);
-                tab.ToolTipText = QTUtility2.MakePathDisplayText(path, true);
-                AddInsertTab(tab);
-                return tab;
+                return _owner.CreateNewTab(idlw);
             }
 
             public bool OpenNewTab(string path, bool blockSelecting = false, bool fForceNew = false) {
-                using(IDLWrapper wrapper = new IDLWrapper(path)) {
-                    if(wrapper.Available) {
-                        return OpenNewTab(wrapper, blockSelecting, fForceNew);
-                    }
-                }
-                return false;
+                return _owner.OpenNewTab(path, blockSelecting, fForceNew);
             }
 
             internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
-                if(idlwGiven == null || !idlwGiven.Available || !idlwGiven.HasPath || !idlwGiven.IsReadyIfDrive || idlwGiven.IsLinkToDeadFolder) {
-                    QTUtility.SoundPlay();
-                    return false;
-                }
-
-                using(IDLWrapper idlwLink = idlwGiven.ResolveTargetIfLink()) {
-                    IDLWrapper idlw = idlwLink ?? idlwGiven;
-
-                    if(!idlw.Available || !idlw.HasPath || !idlw.IsReadyIfDrive || !idlw.IsFolder) {
-                        QTUtility.SoundPlay();
-                        return false;
-                    }
-
-                    if(blockSelecting) {
-                        _owner.NowTabsAddingRemoving = true;
-                    }
-                    try {
-                        if(!fForceNew && Config.Tabs.NeverOpenSame) {
-                            QTabItem tabPage = _owner.tabControl1.TabPages.FirstOrDefault(
-                                    item2 => item2.CurrentPath.PathEquals(idlw.Path));
-                            if(tabPage != null) {
-                                if(Config.Tabs.ActivateNewTab) {
-                                    _owner.tabControl1.SelectTab(tabPage);
-                                }
-                                TryCallButtonBar(bbar => bbar.RefreshButtons());
-                                return false;
-                            }
-                        }
-
-                        string path = idlw.Path;
-                        if(!idlw.Special && !path.StartsWith("::")) {
-                            string directoryName = Path.GetDirectoryName(path);
-                            if(!string.IsNullOrEmpty(directoryName)) {
-                                using(IDLWrapper wrapper = new IDLWrapper(directoryName)) {
-                                    if(wrapper.Special && idlw.Available) {
-                                        IShellFolder ppv = null;
-                                        try {
-                                            IntPtr ptr;
-                                            if(PInvoke.SHBindToParent(idlw.PIDL, ExplorerGUIDs.IID_IShellFolder, out ppv, out ptr) == 0) {
-                                                using(IDLWrapper wrapper2 = new IDLWrapper(PInvoke.ILCombine(wrapper.PIDL, ptr))) {
-                                                    if(wrapper2.Available && wrapper2.HasPath) {
-                                                        if(!blockSelecting && Config.Tabs.ActivateNewTab) {
-                                                            _owner.NowTabCreated = true;
-                                                            _owner.tabControl1.SelectTab(CreateNewTab(wrapper2));
-                                                        }
-                                                        else {
-                                                            CreateNewTab(wrapper2);
-                                                            TryCallButtonBar(bbar => bbar.RefreshButtons());
-                                                            QTabItem.CheckSubTexts(_owner.tabControl1);
-                                                        }
-                                                        return true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        catch {
-                                        }
-                                        finally {
-                                            if(ppv != null) {
-                                                QTUtility2.log("ReleaseComObject ppv");
-                                                Marshal.ReleaseComObject(ppv);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if(!blockSelecting && Config.Tabs.ActivateNewTab) {
-                            _owner.NowTabCreated = true;
-                            _owner.tabControl1.SelectTab(CreateNewTab(idlw));
-                        }
-                        else {
-                            CreateNewTab(idlw);
-                            TryCallButtonBar(bbar => bbar.RefreshButtons());
-                            QTabItem.CheckSubTexts(_owner.tabControl1);
-                        }
-                    }
-                    finally {
-                        if(blockSelecting) {
-                            _owner.NowTabsAddingRemoving = false;
-                        }
-                    }
-                }
-                return true;
+                return _owner.OpenNewTab(idlwGiven, blockSelecting, fForceNew);
             }
 
             internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
@@ -1368,7 +1253,7 @@ namespace QTTabBarLib {
                         if(_owner.Explorer.Busy || string.IsNullOrEmpty(tab.CurrentPath)) {
                             _owner.tabControl1.SetSubDirTipShown(false);
                         }
-                        else if (QTUtility.IsNetPath(tab.CurrentPath))
+                        else if (PathValidator.IsNetPath(tab.CurrentPath))
                         {
                             _owner.tabControl1.SetSubDirTipShown(false);
                         }

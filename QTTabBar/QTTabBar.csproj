@@ -409,6 +409,9 @@
     <Compile Include="TabBarBase.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="TabBarBase.TabOperations.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Toolbar.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />
