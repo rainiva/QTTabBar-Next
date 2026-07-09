@@ -88,155 +88,23 @@ namespace QTTabBarLib {
             public void DoFirstNavigation(bool before, string path) {
                 bool ensureOpenedWindow = false;
                 try {
-                    if(StaticReg.CreateWindowPaths.Count > 0 || StaticReg.CreateWindowIDLs.Count > 0) {
-                        QTLogger.log("DoFirstNavigation StaticReg.CreateWindowPaths.Count " + StaticReg.CreateWindowPaths.Count + " StaticReg.CreateWindowIDLs.Count:" + StaticReg.CreateWindowIDLs.Count);
-                        foreach (string tpath in StaticReg.CreateWindowPaths.Where(str2 => !str2.PathEquals(path))) {
-                            using(IDLWrapper wrapper = new IDLWrapper(tpath)) {
-                                if(wrapper.Available) {
-                                    _owner.CreateNewTab(wrapper);
-                                }
-                            }
-                        }
-                        foreach(byte[] idl in StaticReg.CreateWindowIDLs) {
-                            using(IDLWrapper wrapper2 = new IDLWrapper(idl)) {
-                                _owner.OpenNewTab(wrapper2, true);
-                            }
-                        }
-                        QTUtility2.InitializeTemporaryPaths();
-                        _owner.AddStartUpTabs(string.Empty, path);
-                        ensureOpenedWindow = true;
-                    }
-                    else if(StaticReg.CreateWindowGroup.Length != 0) {
-                        QTLogger.log("DoFirstNavigation StaticReg.CreateWindowGroup.Length " + StaticReg.CreateWindowGroup.Length);
-                        string createWindowTMPGroup = StaticReg.CreateWindowGroup;
-                        StaticReg.CreateWindowGroup = string.Empty;
-                        _owner.CurrentTab.CurrentPath = path;
-                        _owner.NowOpenedByGroupOpener = true;
-                        _owner.OpenGroup(createWindowTMPGroup, false);
-                        _owner.AddStartUpTabs(createWindowTMPGroup, path);
-                        ensureOpenedWindow = true;
-                    }
-                    else if(!Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture)
-                    {
-                        QTLogger.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
-                        StaticReg.SkipNextCapture = false;
-                        _owner.AddStartUpTabs(string.Empty, path);
-                        ensureOpenedWindow = true;
-                    }
-                    else if(path.StartsWith(QTUtility.ResMisc[0]) ||
-                            (path.EndsWith(QTUtility.ResMisc[0]) && QTUtility2.IsShellPathButNotFileSystem(path)) ||
-                            path.PathEquals(OSDetector.PATH_SEARCHFOLDER)) {
-                        QTLogger.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
-                        ensureOpenedWindow = true;
-                    }
-                    else {
-                        QTLogger.log("DoFirstNavigation path: " + path + " IsNoCapturePaths:" + PathValidator.IsNoCapturePaths(path));
-                        if(
-                            QTUtility.NoCapturePathsList.Any(ncPath => ncPath.PathEquals(path))
-                             || PathValidator.IsNoCapturePaths( path )
-                            ) {
-                            ensureOpenedWindow = true;
-                            return;
-                        }
-                        if (Config.Window.CaptureNewWindows &&
-                            Control.ModifierKeys != Keys.Control &&
-                            InstanceManager.GetTotalInstanceCount() > 0) {
-                            string cmd = GetCommandLine();
-                            if (!String.IsNullOrEmpty(cmd))
-                            {
-                                string lcmd = cmd.ToLower();
-                                if (lcmd.Contains("/select") || lcmd.Contains(",select"))
-                                {
-                                    _owner.mCmdType = 1;
-                                    string selectMe = GetNameToSelectFromCommandLineArg(cmd);
-                                    TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
-                                    InstanceManager.BeginInvokeMain(tabbar =>
-                                    {
-                                        tabbar.OpenNewTab(path);
-                                        if (selectMe != "")
-                                        {
-                                            tabbar.ShellBrowser.TrySetSelection(
-                                                  new Address[] { new Address(selectMe) }, null, true);
-                                        }
-
-                                        tabbar.RestoreWindow();
-                                        TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                                        QTLogger.log(string.Format("select cmd BeginInvokeMain cost {0} ", abs.TotalMilliseconds));
-                                    });
-                                }
-                                else if (lcmd.Contains("/factory")   ||
-                                         lcmd.Contains("-embedding") ||
-                                         lcmd.Contains("{75dff2b7-6936-4c06-a8bb-676a7b00b24b}"))
-                                {
-                                    _owner.mCmdType = 2;
-                                    TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
-                                    InstanceManager.BeginInvokeMain(tabbar =>
-                                    {
-                                        tabbar.OpenNewTab(path);
-                                        tabbar.RestoreWindow();
-                                        if (Config.Window.CaptureWeChatSelection)
-                                        {
-                                            tabbar.Wait4Select();
-                                        }
-                                        TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                                        QTLogger.log(string.Format("factory cmd BeginInvokeMain cost {0} ", abs.TotalMilliseconds));
-                                    });
-                                }
-                                else
-                                {
-                                    _owner.mCmdType = 3;
-                                    InstanceManager.BeginInvokeMain(tabbar =>
-                                    {
-                                        tabbar.OpenNewTab(path);
-                                        QTLogger.log("other cmd BeginInvokeMain RestoreWindow");
-                                        tabbar.RestoreWindow();
-                                    });
-                                }
-                            }
-
-                            _owner.fNowQuitting = true;
-                            if (OSDetector.IsXP)
-                            {
-                                QTLogger.log("Close Explorer WindowUtils.CloseExplorer");
-                                WindowUtils.CloseExplorer(_owner.ExplorerHandle, 0);
-                            }
-                            else
-                            {
-                                _owner.fHideExplorer = true;
-
-                                if (_owner.mCmdType == 3 || !Config.Window.CaptureWeChatSelection)
-                                {
-                                    QTLogger.log("Close Explorer Explorer.Quit");
-                                    _owner.Explorer.Quit();
-                                }
-                            }
-                            QTLogger.log("DoFirstNavigation return");
-                        }
-                        QTLogger.log("AddStartUpTabs ");
-                        _owner.AddStartUpTabs(string.Empty, path);
-                        QTLogger.log("AddStartUpTabs InitializeOpenedWindow");
-                        ensureOpenedWindow = true;
+                    if(!SessionRestore.TryApplySessionStartup(path, ref ensureOpenedWindow)) {
+                        CommandDispatch.TryHandleNewWindowCapture(path, ref ensureOpenedWindow);
                     }
                 }
                 finally {
                     if(ensureOpenedWindow) {
-                        InitializeOpenedWindow();
+                        SessionRestore.InitializeOpenedWindow();
                     }
                 }
             }
 
             public void InitializeInstallation() {
-                InitializeOpenedWindow();
-                object locationURL = _owner.Explorer.LocationURL;
-                if(_owner.ShellBrowser != null) {
-                    using(IDLWrapper wrapper = _owner.ShellBrowser.GetShellPath()) {
-                        if(wrapper.Available) {
-                            locationURL = wrapper.Path;
-                        }
-                    }
-                }
-                QTLogger.log("QTTabBarClass InitializeInstallation  pDisp :" + null + " locationURL :" + (string)locationURL);
-                Explorer_NavigateComplete2(null, ref locationURL);
+                SessionRestore.InitializeInstallation();
+            }
+
+            public void InitializeOpenedWindow() {
+                SessionRestore.InitializeOpenedWindow();
             }
 
             public void InitializeNavBtns(bool fSync) {
@@ -273,52 +141,6 @@ namespace QTTabBarLib {
                 _owner.buttonForward.Image = IconManager.GetImageFromGlobal("navFrwd");
                 _owner.buttonForward.Size = new Size(0x15, 0x15);
                 _owner.buttonForward.Click += NavigationButtons_Click;
-            }
-
-            public void InitializeOpenedWindow() {
-                if(_owner.fOpenedWindowInitialized) {
-                    return;
-                }
-                _owner.fOpenedWindowInitialized = true;
-                _owner.IsShown = true;
-                InstanceManager.PushTabBarInstance(_owner);
-                InstanceManager.SetMainUIControl(_owner);
-                QTLogger.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
-                InstallHooks();
-
-                QTLogger.log("QTTabBarClass  PluginServer ");
-                _owner.pluginServer = new PluginServer(_owner);
-
-                QTLogger.log("QTTabBarClass TryCallButtonBar ");
-                if(!QTTabBarClass.TryCallButtonBar(bbar => bbar.CreateItems())) {
-                    Timer timer = new Timer { Interval = 2000 };
-                    timer.Tick += (sender, args) => {
-                        QTLogger.log("QTTabBarClass timer.Tick TryCallButtonBar ");
-                        QTTabBarClass.TryCallButtonBar(bbar => bbar.CreateItems());
-                        timer.Stop();
-                    };
-                    timer.Start();
-                }
-                if(QTUtility.WindowAlpha < 0xff) {
-                    QTLogger.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
-                    PInvoke.SetWindowLongPtr(_owner.ExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(_owner.ExplorerHandle, -20), 0x80000));
-                    PInvoke.SetLayeredWindowAttributes(_owner.ExplorerHandle, 0, QTUtility.WindowAlpha, 2);
-                }
-
-                QTLogger.log("QTTabBarClass ListViewMonitor ");
-                _owner.listViewManager = new ListViewMonitor(_owner.ShellBrowser, _owner.ExplorerHandle, _owner.Handle);
-                _owner.listViewManager.ListViewChanged += _owner._listViewInputController.OnListViewMonitorChanged;
-                _owner.listViewManager.Initialize();
-
-                IntPtr hwndBreadcrumbBar = WindowUtils.FindChildWindow(_owner.ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "Breadcrumb Parent");
-                if(hwndBreadcrumbBar != IntPtr.Zero) {
-                    hwndBreadcrumbBar = PInvoke.FindWindowEx(hwndBreadcrumbBar, IntPtr.Zero, "ToolbarWindow32", null);
-                    if(hwndBreadcrumbBar != IntPtr.Zero) {
-                        _owner.breadcrumbBar = new BreadcrumbBar(hwndBreadcrumbBar);
-                        QTLogger.log("QTTabBarClass BreadcrumbBar set FolderLinkClicked ");
-                        _owner.breadcrumbBar.ItemClicked += (wrapper, modifierKeys, middle) => _owner._menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
-                    }
-                }
             }
 
             public void InstallHooks() {
@@ -488,116 +310,6 @@ namespace QTTabBarLib {
                     }
                 }
                 return entry3;
-            }
-
-            private static string GetCommandLine()
-            {
-                Process cprocess = Process.GetCurrentProcess();
-
-                int currentProcessId2 = cprocess.Id;
-
-                int currentProcessId = (int)PInvoke.GetCurrentProcessId();
-                var process = Process.GetProcessById( currentProcessId );
-                QTLogger.log(" process command line 0 : " + cprocess.StartInfo.Arguments);
-                QTLogger.log(" process command line 1 : " + process.StartInfo.Arguments);
-
-
-                string result = null;
-                try
-                {
-                    var cpid = currentProcessId;
-                    if (currentProcessId2 != currentProcessId)
-                    {
-                        cpid = currentProcessId2;
-                    }
-                    string wmiQuery = string.Format("select CommandLine from Win32_Process where ProcessID ={0}", cpid);
-                    using(ManagementObjectSearcher managementObjectSearcher =
-                        new ManagementObjectSearcher(wmiQuery)) {
-                        ManagementObjectCollection managementObjectCollection = managementObjectSearcher.Get();
-
-                        foreach(ManagementObject managementObject in managementObjectCollection.Cast<ManagementObject>()) {
-                            result = managementObject["CommandLine"] == null ? "" : managementObject["CommandLine"].ToString();
-                        }
-                    }
-                    QTLogger.log(" process command line 3 : " + result);
-                }
-                catch (Exception ex)
-                {
-                    result = "";
-                }
-                string str = Marshal.PtrToStringUni(PInvoke.GetCommandLine());
-                QTLogger.log(" process command line 2 : " + str);
-                return str;
-            }
-
-            private static string GetNameToSelectFromCommandLineArg(string str) {
-                QTLogger.log("GetNameToSelectFromCommandLineArg :" + str);
-                if(!string.IsNullOrEmpty(str)) {
-                    int index = str.IndexOf("/select,", StringComparison.CurrentCultureIgnoreCase);
-                    if(index == -1) {
-                        index = str.IndexOf(",select,", StringComparison.CurrentCultureIgnoreCase);
-                    }
-                    if(index != -1) {
-                        index += 8;
-                        if(str.Length < index) {
-                            return string.Empty;
-                        }
-                        string path = str.Substring(index).Split(new char[] { ',' })[0].Trim().Trim(new char[] { ' ', '"' });
-                        try {
-                            if(File.Exists(path) || Directory.Exists(path)) {
-                                return Path.GetFileName(path);
-                            }
-                        }
-                        catch {
-                        }
-                    }
-                }
-                return string.Empty;
-            }
-
-            private static bool TryParseCommandlineParams(
-                string param,
-                out string path,
-                out string selection)
-            {
-                selection = (string)null;
-                Match match = new Regex("( ?(/|,)select, ?((?<SELQ>\"[^\"/]+\")|(?<SEL>[^,/]+))| ?(/|,)root,\\s?((?<ROOTQ>\"[^\"/]+\")|(?<ROOT>[^,/]+)))+", RegexOptions.IgnoreCase).Match(param);
-                if (match.Success) {
-                    var group1 = match.Groups["SEL"];
-                    var group2 = match.Groups["SELQ"];
-                    var group3 = match.Groups["ROOT"];
-                    var group4 = match.Groups["ROOTQ"];
-                    try
-                    {
-                        if (group3.Success)
-                        {
-                            path = group3.Value;
-                            return true;
-                        }
-                        if (group4.Success)
-                        {
-                            path = group4.Value.Trim('"');
-                            return true;
-                        }
-                        if (group1.Success)
-                        {
-                            selection = group1.Value;
-                            path = !QTUtility2.IsDrive(selection) ? Path.GetDirectoryName(selection) : "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}";
-                            return true;
-                        }
-                        if (group2.Success)
-                        {
-                            selection = group2.Value.Trim('"');
-                            path = !QTUtility2.IsDrive(selection) ? Path.GetDirectoryName(selection) : "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}";
-                            return true;
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-                path = (string)null;
-                return false;
             }
 
             #endregion

@@ -51,6 +51,9 @@ namespace QTTabBarLib {
                 case IpcCommand.ReloadApps:
                     work = AppsManager.LoadApps;
                     return true;
+                case IpcCommand.RefreshButtonBars:
+                    work = RefreshButtonBarsOnClient;
+                    return true;
                 case IpcCommand.OpenOptions:
                     QTLogger.MakeErrorLog("IpcCommandDispatcher: OpenOptions received on client callback");
                     return true;
@@ -67,6 +70,10 @@ namespace QTTabBarLib {
                     tabbar.SelectedTabIndex = index;
                 }
             }
+        }
+
+        private static void RefreshButtonBarsOnClient() {
+            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.RefreshButtons());
         }
 
         private static void ReloadConfigOnClient(long version) {

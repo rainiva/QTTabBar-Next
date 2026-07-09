@@ -602,6 +602,20 @@ namespace QTTabBarLib {
             StaticBroadcast(() => ButtonBarRegistry.LocalBBarBroadcast(action));
         }
 
+        /// <summary>
+        /// Typed QTIP broadcast to refresh all button bars (replaces delegate broadcast for RefreshButtons).
+        /// </summary>
+        public static void BroadcastRefreshButtonBars(bool includeCurrent = true) {
+            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.RefreshButtons(), Thread.CurrentThread);
+            if(includeCurrent) {
+                QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
+                if(bbar != null) {
+                    bbar.RefreshButtons();
+                }
+            }
+            StaticBroadcastCommand(IpcCommandMessage.EncodeRefreshButtonBars());
+        }
+
         private static void ExecuteOnMainProcess(Action action, bool doAsync) {
             ICommService service = GetChannel();
             if(service == null || service.ExecuteOnMainProcess(DelToByte(action), doAsync)) {

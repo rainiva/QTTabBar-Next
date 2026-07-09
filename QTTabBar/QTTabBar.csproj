@@ -693,6 +693,12 @@
     <Compile Include="QTTabBarClass.ExplorerController.Init.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.CommandDispatch.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.SessionRestore.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.DragDropController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>

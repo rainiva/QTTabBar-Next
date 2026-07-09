@@ -6,6 +6,8 @@ namespace QTTtabBarTests {
             string dir = Path.Combine(repoRoot, "QTTabBar");
             return File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.cs")) +
                    File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.Init.cs")) +
+                   File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.CommandDispatch.cs")) +
+                   File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.SessionRestore.cs")) +
                    File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.Navigation.cs")) +
                    File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.WindowMessages.cs"));
         }

@@ -61,6 +61,15 @@ namespace QTTabBarLib {
                 _owner = owner;
             }
 
+            private SessionRestoreController _sessionRestore;
+            private CommandDispatchController _commandDispatch;
+
+            internal SessionRestoreController SessionRestore =>
+                _sessionRestore ?? (_sessionRestore = new SessionRestoreController(_owner, this));
+
+            internal CommandDispatchController CommandDispatch =>
+                _commandDispatch ?? (_commandDispatch = new CommandDispatchController(_owner, this));
+
             #region BeforeNavigate / navigation core
 
             // This function is used as a more available version of BeforeNavigate2.

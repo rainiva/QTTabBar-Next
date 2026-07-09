@@ -38,6 +38,7 @@ namespace QTTtabBarTests {
             Assert.AreEqual(3, (byte)IpcCommand.ReloadConfig);
             Assert.AreEqual(4, (byte)IpcCommand.ReloadGroups);
             Assert.AreEqual(5, (byte)IpcCommand.ReloadApps);
+            Assert.AreEqual(6, (byte)IpcCommand.RefreshButtonBars);
         }
 
         #endregion

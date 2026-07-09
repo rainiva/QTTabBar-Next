@@ -168,7 +168,7 @@ namespace QTTabBarLib
                     currentPath = currentPath + "???" + closingTab.GetLogHash(true, 0);
                 }
                 StaticReg.ClosedTabHistoryList.Add(currentPath);
-                InstanceManager.ButtonBarBroadcast(bbar => bbar.RefreshButtons(), true);
+                InstanceManager.BroadcastRefreshButtonBars(true);
             }
         }
 

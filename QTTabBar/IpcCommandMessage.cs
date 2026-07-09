@@ -7,6 +7,7 @@ namespace QTTabBarLib {
         ReloadConfig = 3,
         ReloadGroups = 4,
         ReloadApps = 5,
+        RefreshButtonBars = 6,
     }
 
     /// <summary>
@@ -63,6 +64,10 @@ namespace QTTabBarLib {
 
         internal static byte[] EncodeOpenOptions() {
             return Encode(IpcCommand.OpenOptions);
+        }
+
+        internal static byte[] EncodeRefreshButtonBars() {
+            return Encode(IpcCommand.RefreshButtonBars);
         }
 
         // Encodes a ReloadConfig command carrying an 8-byte configuration version
