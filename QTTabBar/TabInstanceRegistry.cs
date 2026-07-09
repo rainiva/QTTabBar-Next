@@ -50,11 +50,12 @@ namespace QTTabBarLib {
             }
         }
 
-        public static bool UnregisterTabBar() {
+        public static bool UnregisterTabBar(out IntPtr handle) {
+            handle = IntPtr.Zero;
             using(new Keychain(rwLockTabBar, true)) {
                 QTTabBarClass tabbar;
                 if(dictTabInstances.TryGetValue(Thread.CurrentThread, out tabbar)) {
-                    IntPtr handle = tabbar.Handle;
+                    handle = tabbar.Handle;
                     dictTabInstances.Remove(Thread.CurrentThread);
                     sdTabHandles.Remove(handle);
                     return true;

@@ -625,7 +625,20 @@ namespace QTTabBarLib {
 
         public static void UnregisterButtonBar() { ButtonBarRegistry.UnregisterButtonBar(); }
 
-        public static bool UnregisterTabBar() { TabInstanceRegistry.UnregisterTabBar(); return false; }
+        public static bool UnregisterTabBar() {
+            IntPtr handle;
+            TabInstanceRegistry.UnregisterTabBar(out handle);
+            ICommService service = GetChannel();
+            if(service != null && handle != IntPtr.Zero) {
+                try {
+                    service.DeleteInstance(handle);
+                }
+                catch {
+                    // WCF channel unavailable — rely on CheckConnections passive cleanup.
+                }
+            }
+            return false;
+        }
 
         public static int GetTotalInstanceCount() { ICommService service = GetChannel(); return service == null ? TabInstanceRegistry.Count : service.GetTotalInstanceCount(); }
                         
