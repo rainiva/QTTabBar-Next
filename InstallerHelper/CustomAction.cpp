@@ -34,10 +34,38 @@
 
 UINT WM_SHOWHIDEBARS = RegisterWindowMessageA("QTTabBar_ShowHideBars");
 
+// Keep short: a hung Explorer under VMware must not freeze the MSI UI / desktop.
+static const UINT kExplorerMsgTimeoutMs = 2000;
+
 struct PairHwndPath {
     HWND hwnd;
     TCHAR path[MAX_PATH];
 };
+
+// Never use unbounded SendMessage against Explorer â€” it can hang forever and
+// black-screen a VM when the shell stops pumping messages.
+static void SafeSendExplorerMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    if(hwnd == NULL || !IsWindow(hwnd)) return;
+    DWORD_PTR result = 0;
+    LRESULT sent = SendMessageTimeout(
+        hwnd,
+        msg,
+        wParam,
+        lParam,
+        SMTO_ABORTIFHUNG | SMTO_NORMAL,
+        kExplorerMsgTimeoutMs,
+        &result);
+    if(sent == 0 && msg == WM_CLOSE) {
+        // Timed out or hung: fire-and-forget close so the installer can finish.
+        PostMessage(hwnd, WM_CLOSE, 0, 0);
+    }
+}
+
+static HWND ResolveExplorerTopHwnd(HWND hwnd) {
+    if(hwnd == NULL) return NULL;
+    HWND parent = GetParent(hwnd);
+    return parent != NULL ? parent : hwnd;
+}
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
 	switch (ul_reason_for_call) {
@@ -94,9 +122,8 @@ UINT WIXAPI HideBars(MSIHANDLE hInstaller) {
     BOOL rollback = MsiGetMode(hInstaller, MSIRUNMODE_ROLLBACK);
     GetExplorerWindows(windows, false);
     for(UINT i = 0; i < windows.size(); ++i) {
-        HWND hwnd = GetParent(windows[i].hwnd);
-        if(hwnd == 0) hwnd = windows[i].hwnd;
-        SendMessage(hwnd, WM_SHOWHIDEBARS, rollback ? 1 : 0, 0);
+        HWND hwnd = ResolveExplorerTopHwnd(windows[i].hwnd);
+        SafeSendExplorerMessage(hwnd, WM_SHOWHIDEBARS, rollback ? 1 : 0, 0);
     }
     return ERROR_SUCCESS;
 }
@@ -108,9 +135,8 @@ UINT WIXAPI CloseAndReopen(MSIHANDLE hInstaller) {
     if(windows.size() == 0) return ERROR_SUCCESS;
     int length = 0;
     for(UINT i = 0; i < windows.size(); ++i) {
-        HWND hwnd = GetParent(windows[i].hwnd);
-        if(hwnd == 0) hwnd = windows[i].hwnd;
-        SendMessage(hwnd, WM_CLOSE, 0, 0);
+        HWND hwnd = ResolveExplorerTopHwnd(windows[i].hwnd);
+        SafeSendExplorerMessage(hwnd, WM_CLOSE, 0, 0);
         int l = _tcslen(windows[i].path);
         if(l > 0 && i > 0) length += l + 1;
     }
@@ -125,10 +151,13 @@ UINT WIXAPI CloseAndReopen(MSIHANDLE hInstaller) {
     REGSAM access = KEY_SET_VALUE | KEY_CREATE_SUB_KEY | KEY_WOW64_64KEY;
     if(RegOpenKeyEx(HKEY_CURRENT_USER, _T("Software\\QTTabBar\\"), 0, access, &key) == ERROR_SUCCESS) {
         RegSetValueEx(key, _T("TabsOnLastClosedWindow"), 0, REG_SZ, (LPBYTE)build, length + 1);
+        RegCloseKey(key);
     }
-    RegCloseKey(key);
     delete[] build;
-    ShellExecute(NULL, NULL, windows[0].path, NULL, NULL, SW_SHOWNORMAL);
+    // Prefer opening a folder path; empty path would relaunch explorer.exe shell.
+    if(windows[0].path[0] != 0) {
+        ShellExecute(NULL, NULL, windows[0].path, NULL, NULL, SW_SHOWNORMAL);
+    }
     return ERROR_SUCCESS;
 }
 
@@ -140,9 +169,8 @@ UINT WIXAPI CloseAndReopenAndDeletePlugins(MSIHANDLE hInstaller) {
     if(windows.size() == 0) return ERROR_SUCCESS;
     int length = 0;
     for(UINT i = 0; i < windows.size(); ++i) {
-        HWND hwnd = GetParent(windows[i].hwnd);
-        if(hwnd == 0) hwnd = windows[i].hwnd;
-        SendMessage(hwnd, WM_CLOSE, 0, 0);
+        HWND hwnd = ResolveExplorerTopHwnd(windows[i].hwnd);
+        SafeSendExplorerMessage(hwnd, WM_CLOSE, 0, 0);
         int l = _tcslen(windows[i].path);
         if(l > 0 && i > 0) length += l + 1;
     }
@@ -154,15 +182,16 @@ UINT WIXAPI CloseAndReopenAndDeletePlugins(MSIHANDLE hInstaller) {
         _tcscat(build, _T(";"));
     }
     HKEY key;
-    // REGSAM access = KEY_SET_VALUE | KEY_CREATE_SUB_KEY | KEY_WOW64_64KEY | KEY_DELETE;
     REGSAM access = KEY_ALL_ACCESS;
     if(RegOpenKeyEx(HKEY_CURRENT_USER, _T("Software\\QTTabBar\\"), 0, access, &key) == ERROR_SUCCESS) {
         RegSetValueEx(key, _T("TabsOnLastClosedWindow"), 0, REG_SZ, (LPBYTE)build, length + 1);
-		RegDeleteKey(key,_T("Plugins\\Paths"));
+        RegDeleteKey(key, _T("Plugins\\Paths"));
+        RegCloseKey(key);
     }
-    RegCloseKey(key);
     delete[] build;
-    ShellExecute(NULL, NULL, windows[0].path, NULL, NULL, SW_SHOWNORMAL);
+    if(windows[0].path[0] != 0) {
+        ShellExecute(NULL, NULL, windows[0].path, NULL, NULL, SW_SHOWNORMAL);
+    }
     return ERROR_SUCCESS;
 }
 
@@ -171,65 +200,15 @@ UINT WIXAPI CloseAndReopenAndDeletePlugins(MSIHANDLE hInstaller) {
 UINT WIXAPI CheckOldVersion(MSIHANDLE hInstaller) {
     HKEY key;
     REGSAM access = KEY_QUERY_VALUE | KEY_WOW64_64KEY;
-	// ¼ÆËã»ú\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
+    // Legacy Inno Setup uninstall entry only. WiX MSI-to-MSI upgrades are handled
+    // by UpgradeCode + RemoveExistingProducts; do not scan Installer\Products for
+    // "qttabbar" or every installed MSI build is misidentified as obsolete.
     if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{DAD20769-75D8-4C1D-80E3-D545563FE9EF}_is1"), 0, access, &key) == ERROR_SUCCESS) {
        MsiSetProperty(hInstaller, _T("OBSOLETEVERSION"), _T("1"));
        RegCloseKey(key);
        return ERROR_SUCCESS;
     }
-	
-    RegCloseKey(key);
-	// ±éÀú×¢²á±íµÄÂ·¾¶¼ì²âÀÏ°æ±¾ ¼ÆËã»ú\HKEY_CLASSES_ROOT\Installer\Products
-	HKEY hKey = NULL; //±£´æ×¢²á±íµÄ¾ä±ú 
-	DWORD dwIndexs = 0; //ÐèÒª·µ»Ø×ÓÏîµÄË÷Òý 
-	TCHAR keyName[MAX_PATH] = { 0 }; //±£´æ×Ó¼üµÄÃû³Æ 
-	DWORD charLength = 256;  //ÏëÒª¶ÁÈ¡¶àÉÙ×Ö½Ú²¢·µ»ØÊµ¼Ê¶ÁÈ¡µ½µÄ×Ö·û³¤¶È
-	// auto subKey = _T("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
-	auto subKey = _T("Installer\\Products");
-	// if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, subKey, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-	if (RegOpenKeyEx(HKEY_CLASSES_ROOT, subKey, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-	{
-		while (RegEnumKeyEx(hKey, dwIndexs, keyName, &charLength, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-		{
-			//wprintf(_T("%d : %s\n"), dwIndexs, keyName);
-			// char logfilename[MAX_PATH];
-			// sprintf(logfilename, "$NTUninstKB%d$.log", unpkinfo.nKBID);
-			TCHAR data_Set[500] = { 0 };
-			_tcscat(data_Set, _T("Installer\\Products\\"));
-			_tcscat(data_Set, keyName);
-			HKEY hSubKey;
-			TCHAR lpszValue[1024];
-			DWORD dwSize = sizeof(lpszValue);
-			DWORD dwType = REG_SZ;
-			
-			if (RegOpenKeyEx(HKEY_CLASSES_ROOT, data_Set, NULL, KEY_READ, &hSubKey) == ERROR_SUCCESS)
-			{
-				delete data_Set;
-				if (RegQueryValueEx(hSubKey, _T("ProductName"), NULL, &dwType, (LPBYTE)&lpszValue, &dwSize) == ERROR_SUCCESS)
-				{
-					CharLower(lpszValue);
-					if (_tcsstr(lpszValue, _T("qttabbar")) )
-					{
-						RegCloseKey(hSubKey);
-						MsiSetProperty(hInstaller, _T("OBSOLETEVERSION"), _T("1"));
-						if (hKey != NULL)
-						{
-							RegCloseKey(hKey);
-						}
-					    return ERROR_SUCCESS;
-					} 
-					RegCloseKey(hSubKey);
-				}
-			}
-			++dwIndexs;
-			charLength = 256; // Êý¾Ý±ØÐëÒªÖØÖÃÒ»ÏÂ£¬ ²»È»Êý¾Ý³¤¶È»áÓÐÎÊÌâ
-		}
-	}
-	if (hKey != NULL)
-	{
-		RegCloseKey(hKey);
-	}
-	
+
     // Check if it's uninstalled, but the user hasn't restarted Explorer yet.
     // Do this by making sure explorer.exe does not have our dll loaded.
     DWORD guess = 1024;

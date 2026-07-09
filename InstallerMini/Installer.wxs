@@ -23,14 +23,14 @@
 
     <?define SkuName = "QTTabBar"?>
     <?define RTMProductVersion="1.5.0" ?>
-    <?define ProductVersion="1.5.6.1" ?> <!-- Change the last number to the svn revision before release -->
-    <?define VersionString="1.5.6.1 Beta(2023)" ?> <!-- Change to correct version before release, eg, 2019 1.5.0.0 Beta 1 -->
+    <?define ProductVersion="1.5.6.7" ?> <!-- Change the last number to the svn revision before release -->
+    <?define VersionString="1.5.6.7 Beta(2026)" ?> <!-- Change to correct version before release, eg, 2019 1.5.0.0 Beta 1 -->
     <?define UpgradeCode="{ec9baff7-58fb-40cb-9f67-1c438a7524a5}"?> <!-- NEVER CHANGE THIS, EVER!! -->
     <!-- Quizo and Paul Accisano and indiff -->
     <?define Manufacturer="indiff"?>
     <?define ProductCode="*"?>
     <!-- 重点这里一定要改 -->
-    <?define StrongName="QTTabBar, Version=1.5.6.1, Culture=neutral, PublicKeyToken=973461f1cd23d8eb"?>
+    <?define StrongName="QTTabBar, Version=1.5.6.7, Culture=neutral, PublicKeyToken=d1e63be887f51079"?>
     <?define MyLanguage="1033"?>  
     <!-- Language code page 1252 1033
 语言                         语言-国家     Language      Codepage
@@ -59,7 +59,7 @@ Language="1033"
 
         <Upgrade Id="$(var.UpgradeCode)">
             <UpgradeVersion Minimum="$(var.ProductVersion)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWPRODUCTFOUND" />
-            <UpgradeVersion Minimum="$(var.RTMProductVersion)" IncludeMinimum="yes" OnlyDetect="no" Maximum="$(var.ProductVersion)" IncludeMaximum="no" Property="UPGRADEFOUND" />
+            <UpgradeVersion Minimum="$(var.RTMProductVersion)" IncludeMinimum="yes" OnlyDetect="no" Maximum="$(var.ProductVersion)" IncludeMaximum="yes" Property="UPGRADEFOUND" />
         </Upgrade>
         <Binary Id="InstallerHelper" SourceFile="..\InstallerHelper\bin\Release\InstallerHelper.dll" />
         <PropertyRef Id="NETFRAMEWORK35"/>
@@ -76,12 +76,6 @@ Language="1033"
             <Directory Id="CommonAppDataFolder">
                 <Directory Id="INSTALLLOCATION" Name="$(var.SkuName)">
                   <!-- Files -->
-                    <Component Id="ShellLibrary" Guid="27af1a85-9a01-4c79-bdeb-d73fd4bd9574" Win64="yes" DisableRegistryReflection="yes">
-                        <File Id="f1" Assembly=".net" KeyPath="yes" Name="Interop.SHDocVw.dll" Source="..\BandObjectLib\bin\Release\Interop.SHDocVw.dll">
-                          <!-- 32bit 64bit all -->
-                          <netfx:NativeImage Id="ngen_Interop.SHDocVw.dll" Priority="1" Platform="all"  />
-                        </File>
-                    </Component>
                     <Component Id="BandObjectLib" Guid="27af1a85-9a02-4c79-bdeb-d73fd4bd9574"  Win64="yes" DisableRegistryReflection="yes">
                         <File Id="f2" Assembly=".net" KeyPath="yes" Name="BandObjectLib.dll" Source="..\BandObjectLib\bin\Release\BandObjectLib.dll">
                             <netfx:NativeImage Id="ngen_BandObjectLib.dll" Priority="1" Platform="all" />
@@ -98,6 +92,15 @@ Language="1033"
                         </File>
                       <RemoveRegistryKey Id="Remove_Plugins_RegValue" Action="removeOnInstall" Root="HKCU" Key="Software\QTTabBar\Plugins" />
                     </Component>
+
+                  <Component Id="ManagedDependencies" Win64="yes" Guid="27af1a85-9a08-4c18-bdeb-d73fd4bd9580" DisableRegistryReflection="yes">
+                    <File Id="f22" Name="System.Resources.Extensions.dll" Source="..\QTTabBar\bin\Release\System.Resources.Extensions.dll" KeyPath="yes" />
+                    <File Id="f23" Name="System.Buffers.dll" Source="..\QTTabBar\bin\Release\System.Buffers.dll" />
+                    <File Id="f24" Name="System.Memory.dll" Source="..\QTTabBar\bin\Release\System.Memory.dll" />
+                    <File Id="f25" Name="System.Numerics.Vectors.dll" Source="..\QTTabBar\bin\Release\System.Numerics.Vectors.dll" />
+                    <File Id="f26" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="..\QTTabBar\bin\Release\System.Runtime.CompilerServices.Unsafe.dll" />
+                    <File Id="f27" Name="Wpf.Ui.dll" Source="..\QTTabBar\bin\Release\Wpf.Ui.dll" />
+                  </Component>
 
                   <!-- Add by qwop   end -->
                   <?foreach arch in x86;x64 ?>
@@ -200,11 +203,11 @@ Language="1033"
                                         <RegistryValue Name="Class" Value="QTTabBarLib.$(var.compName)" Type="string" Action="write" />
                                         <RegistryValue Name="Assembly" Value="$(var.StrongName)" Type="string" Action="write" />
                                          <!--- v2.0.50727 v4.0.30319 --> 
-                                        <RegistryValue Name="RuntimeVersion" Value="v2.0.50727" Type="string" Action="write" />
+                                        <RegistryValue Name="RuntimeVersion" Value="v4.0.30319" Type="string" Action="write" />
                                         <RegistryKey Key="$(var.ProductVersion)" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
                                             <RegistryValue Name="Class" Value="QTTabBarLib.$(var.compName)" Type="string" Action="write" />
                                             <RegistryValue Name="Assembly" Value="$(var.StrongName)" Type="string" Action="write" />
-                                            <RegistryValue Name="RuntimeVersion" Value="v2.0.50727" Type="string" Action="write" />
+                                            <RegistryValue Name="RuntimeVersion" Value="v4.0.30319" Type="string" Action="write" />
                                         </RegistryKey>
                                     </RegistryKey>
                                 </RegistryKey>
@@ -217,12 +220,11 @@ Language="1033"
 
         <Feature Id="ProductFeature" Title="QTTabBar" Level="1">
             <!-- Files -->
-            <ComponentRef Id="ShellLibrary" />
             <ComponentRef Id="BandObjectLib" />
             <ComponentRef Id="QTPluginLib" />
             <ComponentRef Id="QTTabBar" />
+            <ComponentRef Id="ManagedDependencies" />
            
-
             <?foreach arch in x86;x64 ?>
                 <!-- RegKeys -->
                 <ComponentRef Id="QTTabBarReg_$(var.arch)" />
@@ -270,9 +272,6 @@ Language="1033"
 
       <InstallUISequence>
             <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
-            <Custom Action="CheckOldVersion" Before="AppSearch">(NOT UPGRADINGPRODUCTCODE) AND (NOT REMOVE) AND (NOT Installed) AND (NOT UPGRADEFOUND)</Custom>
-            <Custom Action="FailOldVersion1" After="CheckOldVersion">OBSOLETEVERSION=1</Custom>
-            <Custom Action="FailOldVersion2" After="FailOldVersion1">OBSOLETEVERSION=2</Custom>
             <Custom Action="SetRuntime4" After="LaunchConditions">NOT NETFRAMEWORK35</Custom>
             <Custom Action="SetRuntimeNot4" After="SetRuntime4">NETFRAMEWORK35</Custom>
         </InstallUISequence>
@@ -285,7 +284,8 @@ Language="1033"
       
       <Property Id="ALLUSERS" Value="1" />
         <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.CLOSE_TABS)" />
-        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+        <!-- Default off: closing Explorer via SendMessage can hang / black-screen VMs. -->
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="0" />
         <UIRef Id="CustomWixUI_Minimal" />
     </Product>
 </Wix>

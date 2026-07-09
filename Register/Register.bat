@@ -37,9 +37,6 @@ cd /d "%REPO_ROOT%\BandObjectLib\bin\%REGISTER_CONFIGURATION%"
 IF EXIST BandObjectLib.dll (
     "%REGISTER_GACUTIL%" /if BandObjectLib.dll
 )
-IF EXIST Interop.SHDocVw.dll (
-    "%REGISTER_GACUTIL%" /if Interop.SHDocVw.dll
-)
 
 cd /d "%REPO_ROOT%\QTHookLib\bin\%REGISTER_CONFIGURATION%"
 REG ADD HKLM\SOFTWARE\QTTabBar /v InstallPath /t REG_SZ /d "%cd%" /f /reg:32
