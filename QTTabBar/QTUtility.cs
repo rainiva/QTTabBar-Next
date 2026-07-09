@@ -156,17 +156,13 @@ namespace QTTabBarLib {
         /// ִֻ��һ��
         /// </summary>
         static QTUtility() {
-            // I'm tempted to just return for everything except "explorer"
-            // Maybe I should...
-            String processName = Process.GetCurrentProcess().ProcessName.ToLower();
-            if(processName == "iexplore" || processName == "regasm" || processName == "gacutil") {
-                QTLogger.log("QTUtility return :" + processName);
+            if(ShouldSkipProcessInitialization()) {
+                QTLogger.log("QTUtility return :" + Process.GetCurrentProcess().ProcessName.ToLower());
                 return;
             }
 
             EmbeddedAssemblyLoader.EnsureRegistered();
-
-            InitializationOrchestrator.Initialize();
+            Initialize();
         }
 
 
@@ -223,12 +219,20 @@ namespace QTTabBarLib {
         }
 
         /// <summary>
-        /// Triggers the static constructor, which calls InitializationOrchestrator.Initialize().
-        /// Entry points must call this method rather than InitializationOrchestrator directly so the
-        /// static constructor runs first and initialization stays idempotent.
+        /// Ensures initialization has run. The static constructor calls this on first type load;
+        /// explicit entry points may call again to retry after InitializationOrchestrator failure.
         /// </summary>
         public static void Initialize() {
-            // Intentionally empty — triggers static constructor
+            if(ShouldSkipProcessInitialization()) {
+                return;
+            }
+            EmbeddedAssemblyLoader.EnsureRegistered();
+            InitializationOrchestrator.Initialize();
+        }
+
+        private static bool ShouldSkipProcessInitialization() {
+            string processName = Process.GetCurrentProcess().ProcessName.ToLower();
+            return processName == "iexplore" || processName == "regasm" || processName == "gacutil";
         }
 
         public static MouseChord MakeMouseChord(MouseChord button, Keys modifiers) {
@@ -362,21 +366,34 @@ namespace QTTabBarLib {
             using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     string[] collection = RegistryHelper.ReadRegBinary<string>("TabsLocked", key);
-                    if((collection != null) && (collection.Length != 0)) {
-                        StaticReg.LockedTabsToRestoreList.Assign(collection);
-                    }
-                    else {
-                        StaticReg.LockedTabsToRestoreList.Assign(Array.Empty<string>());
-                    }
+                    ReplaceLockedTabsInMemory(
+                        (collection != null) && (collection.Length != 0)
+                            ? collection
+                            : System.Array.Empty<string>());
                 }
             }
         }
 
         public static void SaveLockedTabs(string[] paths) {
-            StaticReg.LockedTabsToRestoreList.Assign(paths ?? Array.Empty<string>());
+            ReplaceLockedTabsInMemory(paths ?? System.Array.Empty<string>());
             using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                 if(key != null) {
                     RegistryHelper.WriteRegBinary(paths, "TabsLocked", key);
+                }
+            }
+        }
+
+        private static void ReplaceLockedTabsInMemory(string[] paths) {
+            UniqueList<string> list = StaticReg.LockedTabsToRestoreList;
+            while(list.Count > 0) {
+                list.Remove(list[0]);
+            }
+            if(paths == null) {
+                return;
+            }
+            foreach(string path in paths) {
+                if(!string.IsNullOrEmpty(path)) {
+                    list.Add(path);
                 }
             }
         }
@@ -385,49 +402,15 @@ namespace QTTabBarLib {
          * �ǲ��� path ���Ե�
          */
         public static void SaveClosing(List<string> closingPaths) {
-            if (null == closingPaths || closingPaths.Count == 0)
-            {
-                return;
-            }
-            using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
-                if(key != null)
-                {
-                    string newCloseList =
-                        string.Join(";", closingPaths.Where(p => !PathValidator.IsNoCapturePaths(p)).ToArray())
-                        ;
-                    key.SetValue("TabsOnLastClosedWindow", newCloseList);
-                }
-            }
+            WindowSessionPersistence.SaveClosing(closingPaths);
         }
 
         public static void SaveRecentFiles(RegistryKey rkUser) {
-            if(rkUser != null) {
-                using(RegistryKey key = rkUser.CreateSubKey("RecentFiles")) {
-                    if(key != null) {
-                        foreach(string str in key.GetValueNames()) {
-                            key.DeleteValue(str, false);
-                        }
-                        for(int i = 0; i < StaticReg.ExecutedPathsList.Count; i++) {
-                            key.SetValue(i.ToString(), StaticReg.ExecutedPathsList[i]);
-                        }
-                    }
-                }
-            }
+            WindowSessionPersistence.SaveRecentFiles(rkUser);
         }
 
         public static void SaveRecentlyClosed(RegistryKey rkUser) {
-            if(rkUser != null) {
-                using(RegistryKey key = rkUser.CreateSubKey("RecentlyClosed")) {
-                    if(key != null) {
-                        foreach(string str in key.GetValueNames()) {
-                            key.DeleteValue(str, false);
-                        }
-                        for(int i = 0; i < StaticReg.ClosedTabHistoryList.Count; i++) {
-                            key.SetValue(i.ToString(), StaticReg.ClosedTabHistoryList[i]);
-                        }
-                    }
-                }
-            }
+            WindowSessionPersistence.SaveRecentlyClosed(rkUser);
         }
         
         public static void SetTabBarOption(TabBarOption tabBarOption, QTTabBarClass tabBar) {

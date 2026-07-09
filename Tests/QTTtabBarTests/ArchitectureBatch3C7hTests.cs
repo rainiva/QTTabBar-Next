@@ -66,8 +66,8 @@ namespace QTTtabBarTests {
                 "QTUtility.Initialize XML doc should explain static constructor trigger semantics");
             Assert.IsTrue(snippet.Contains("InitializationOrchestrator"),
                 "QTUtility.Initialize XML doc should reference InitializationOrchestrator");
-            Assert.IsTrue(content.Contains("// Intentionally empty"),
-                "QTUtility.Initialize body should remain intentionally empty");
+            Assert.IsTrue(content.Contains("InitializationOrchestrator.Initialize()"),
+                "QTUtility.Initialize must invoke InitializationOrchestrator for explicit retry");
         }
 
         private static string FindRepoRoot() {

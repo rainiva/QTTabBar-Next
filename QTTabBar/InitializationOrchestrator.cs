@@ -37,6 +37,22 @@ namespace QTTabBarLib {
         private static volatile bool _initialized;
         private static readonly object _lock = new object();
 
+        internal static void ResetForInitRetry() {
+            _initialized = false;
+            ResetAllSubsystemsForInitRetry();
+        }
+
+        internal static bool IsInitializedForTests() {
+            return _initialized;
+        }
+
+        private static void ResetAllSubsystemsForInitRetry() {
+            InstanceManager.ResetForInitRetry();
+            ConfigManager.ResetForInitRetry();
+            PluginManager.ResetForInitRetry();
+            HookStateManager.Reset();
+        }
+
         public static void Initialize() {
             if(_initialized) return;
             lock(_lock) {
@@ -47,36 +63,29 @@ namespace QTTabBarLib {
 
                 // Load the config
                 ConfigManager.Initialize();
-                QTLogger.log("QTUtility ��������");
+                QTLogger.log("QTUtility 加载配置");
                 
                 // Initialize the instance manager
                 InstanceManager.Initialize();
-                QTLogger.log("QTUtility ��ʼ��InstanceManager");
+                QTLogger.log("QTUtility 初始化InstanceManager");
 
                 // Create and enable the API hooks
                 HookLibManager.Initialize();
-                QTLogger.log("QTUtility ������������ API hooks");
+                QTLogger.log("QTUtility 创建并启用 API hooks");
 
                 // Create the global imagelist
                 QTUtility.ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
                 IconManager.AddImageToGlobal("folder", IconManager.GetIcon(string.Empty, false));
-                QTLogger.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
+                QTLogger.log("QTUtility 创建全局文件夹图片列表");
 
                 // Load groups/apps
                 GroupsManager.LoadGroups();
-                QTLogger.log("QTUtility ���ط������");
+                QTLogger.log("QTUtility 加载分组数据");
                 
                 AppsManager.LoadApps();
-                QTLogger.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
+                QTLogger.log("QTUtility 加载全局文件与图片列表");
 
-                if(Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)) {
-                    Dictionary<string, string[]> langResources =
-                        QTResourceManager.ReadLanguageFile(Config.Lang.LangFile);
-                    lock(QTUtility.syncRoot) {
-                        QTUtility.TextResourcesDic = langResources;
-                    }
-                }
-                QTResourceManager.ValidateTextResources();
+                ConfigManager.LoadTextResources();
                 ThemeRefreshService.ApplyLoadedSkinFromSystemTheme();
 
                 using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
@@ -96,63 +105,21 @@ namespace QTTabBarLib {
                             }
                         }
                         QTUtility.RefreshLockedTabsList();
-                        if(!byte.TryParse((string)key.GetValue("WindowAlpha", "255"), out SessionState.WindowAlpha)) {
-                            SessionState.WindowAlpha = 0xff;
-                        }
                     }
                 }
 
-               
-
-                // ���ò�����������
-                /*QTLogger.log("QTUtility ���غ��Ե�·�� ������� ��������");
-                string[] theNoCaptures = { "::{26EE0668-A00A-44D7-9371-BEB064C98683}",
-                                           "::{26EE0668-A00A-44D7-9371-BEB064C98683}\0",
-                                           "::{7007ACC7-3202-11D1-AAD2-00805FC1270E}" };
-                foreach (var item in theNoCaptures)
-                {
-                    if (!NoCapturePathsList.Contains(item))
-                    {
-                        NoCapturePathsList.Add(item);
-                    } 
-                }*/
-                
-                // default add ::{20D04FE0-3AEA-1069-A2D8-08002B30309D};::{26EE0668-A00A-44D7-9371-BEB064C98683}
-                /*
-                NoCapturePathsList.Add("::{26EE0668-A00A-44D7-9371-BEB064C98683}");
-                NoCapturePathsList.Add("::{26EE0668-A00A-44D7-9371-BEB064C98683}\0");
-
-                NoCapturePathsList.Add("::{7007ACC7-3202-11D1-AAD2-00805FC1270E}");// ��������
-                */
-
-                // ������� ::{26EE0668-A00A-44D7-9371-BEB064C98683} ::{26EE0668-A00A-44D7-9371-BEB064C98683}\0
-              
-               // NoCapturePathsList.Add("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"); // �ҵĵ���
-              //  NoCapturePathsList.Add("::{21EC2020-3AEA-1069-A2DD-08002B30309D}"); // ���п������
-               // NoCapturePathsList.Add("::{26EE0668-A00A-44D7-9371-BEB064C98683}\\0\\::{ED834ED6-4B5A-4BFE-8F11-A626DCB6A921}");
-                
-                // ����վ      NoCapturePathsList.Add("::{645FF040-5081-101B-9F08-00AA002F954E}");
-                /*
-                                               ����վ �C {645FF040-5081-101B-9F08-00AA002F954E}
-                               ������� �C {21EC2020-3AEA-1069-A2DD-08002B30309D}
-                               ���� �C {2559A1F3-21D7-11D4-BDAF-00C04F60B9F0}
-                               ���� �C {2559A1F0-21D7-11D4-BDAF-00C04F60B9F0}
-                               Internet Explorer �C {871C5380-42A0-1069-A2EA-08002B30309D}
-                               �������� �C {D20EA4E1-3957-11D2-A40B-0C5020524153}
-                               �������� �C {7007ACC7-3202-11D1-AAD2-00805FC1270E}
-                               ��ӡ���ʹ��� �C {2227A280-3AEA-1069-A2DE-08002B30309D}
-                                               */
-                // ���ò�����������
                 QTUtility.GetShellClickMode();
                 QTLogger.log("QTUtility Get Shell Click Mode");
 
                 // Initialize plugins
                 PluginManager.Initialize();
-                QTLogger.log("QTUtility �������в��");
+                QTLogger.log("QTUtility 初始化所有插件");
                 _initialized = true;
             }
             catch(Exception exception) {
                 QTLogger.MakeErrorLog(exception);
+                InstanceManager.ResetForInitRetry();
+                ResetAllSubsystemsForInitRetry();
             }
             }
         }

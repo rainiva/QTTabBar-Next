@@ -56,6 +56,10 @@ namespace QTTabBarLib {
 
         private static volatile bool _initialized;
 
+        internal static void ResetForInitRetry() {
+            _initialized = false;
+        }
+
         public static void Initialize() {
             if(_initialized) return;
             // add by indiff.

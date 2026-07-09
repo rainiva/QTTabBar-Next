@@ -77,47 +77,40 @@ namespace QTTabBarLib {
         }
 
         private void ActivateIt() {
-            string installDateString;
-            DateTime installDate;
-            string minDate = DateTime.MinValue.ToString();
-            using(RegistryKey key = Registry.LocalMachine.OpenSubKey(RegConst.Root)) {
-                installDateString = key == null ? minDate : (string)key.GetValue("InstallDate", minDate);
-                installDate = DateTime.Parse(installDateString);
+            if(!FirstLoadActivationService.IsFirstInstallActivationPending()) {
+                return;
             }
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
-                DateTime lastActivation = DateTime.Parse((string)key.GetValue("ActivationDate", minDate));
-                if(installDate.CompareTo(lastActivation) <= 0) return;
 
-                object pvaTabBar = new Guid("{d2bf470e-ed1c-487f-a333-2bd8835eb6ce}").ToString("B");
-                object pvaButtonBar = new Guid("{d2bf470e-ed1c-487f-a666-2bd8835eb6ce}").ToString("B");
-                object pvarShow = true;
-                object pvarSize = null;
-                try {
+            object pvaTabBar = new Guid("{d2bf470e-ed1c-487f-a333-2bd8835eb6ce}").ToString("B");
+            object pvaButtonBar = new Guid("{d2bf470e-ed1c-487f-a666-2bd8835eb6ce}").ToString("B");
+            object pvarShow = true;
+            object pvarSize = null;
+            bool activated = false;
+            try {
+                QTLogger.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.TabBar");
+                explorer.ShowBrowserBar(pvaTabBar, pvarShow, pvarSize);
+                QTLogger.log("QTTabBar AutoLoader 显示标签");
 
+                QTLogger.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.ButtonBar");
+                explorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
+                QTLogger.log("QTTabBar AutoLoader 显示工具栏");
+                activated = true;
+            }
+            catch(COMException e) {
+                QTLogger.MakeErrorLog(e, "ActivateIt");
+                MessageForm.Show(
+                    IntPtr.Zero,
+                    QTUtility.TextResourcesDic["ErrorDialogs"][2],
+                    QTUtility.TextResourcesDic["ErrorDialogs"][3],
+                    MessageBoxIcon.Warning,
+                    30000,
+                    false,
+                    true
+                );
+            }
 
-                    QTLogger.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.TabBar");
-                    explorer.ShowBrowserBar(pvaTabBar, pvarShow, pvarSize);
-                    QTLogger.log("QTTabBar AutoLoader 显示标签");
-                    
-                    QTLogger.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.ButtonBar");
-                    explorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
-                    QTLogger.log("QTTabBar AutoLoader 显示工具栏");
-                }
-                catch(COMException e) {
-                    QTLogger.MakeErrorLog(e, "ActivateIt");
-                    MessageForm.Show(
-                        IntPtr.Zero,
-                        QTUtility.TextResourcesDic["ErrorDialogs"][2],
-                        QTUtility.TextResourcesDic["ErrorDialogs"][3],
-                        MessageBoxIcon.Warning, 
-                        30000, 
-                        false, 
-                        true
-                    );
-                }
-
-                key.SetValue("ActivationDate", installDateString);
-                QTLogger.flog("QTTabBar AutoLoader add ActivationDate");
+            if(activated) {
+                FirstLoadActivationService.MarkActivationComplete();
             }
         }
     }
