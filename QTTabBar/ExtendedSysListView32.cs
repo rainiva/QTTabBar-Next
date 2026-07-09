@@ -40,7 +40,7 @@ namespace QTTabBarLib {
         }
 
         private int CorrectHotItem(int iItem) {
-            if(QTUtility.IsXP && iItem == -1 && ShellBrowser.ViewMode == FVM.DETAILS && ShellBrowser.GetItemCount() > 0) {
+            if(OSDetector.IsXP && iItem == -1 && ShellBrowser.ViewMode == FVM.DETAILS && ShellBrowser.GetItemCount() > 0) {
                 RECT rect = GetItemRect(0, LVIR.LABEL);
                 Point mousePosition = Control.MousePosition;
                 PInvoke.ScreenToClient(Handle, ref mousePosition);
@@ -88,7 +88,7 @@ namespace QTTabBarLib {
                         }
                      */
                         QTUtility2.log("LVN.ITEMCHANGED");
-                        bool flag = !QTUtility.IsXP && Config.Tweaks.ToggleFullRowSelect;
+                        bool flag = !OSDetector.IsXP && Config.Tweaks.ToggleFullRowSelect;
                         NMLISTVIEW nmlistview2 = (NMLISTVIEW)Marshal.PtrToStructure(msg.LParam, typeof(NMLISTVIEW));
                         if(nmlistview2.uChanged == 8 /*LVIF_STATE*/) {
                             uint newSelected = nmlistview2.uNewState & LVIS.SELECTED;
@@ -150,7 +150,7 @@ namespace QTTabBarLib {
 
                 case LVN.ODSTATECHANGED:
                     // FullRowSelect doesn't look possible anyway, so whatever.
-                    if(!QTUtility.IsXP && Config.Tweaks.ToggleFullRowSelect) {
+                    if(!OSDetector.IsXP && Config.Tweaks.ToggleFullRowSelect) {
                         NMLVODSTATECHANGE nmlvodstatechange = (NMLVODSTATECHANGE)Marshal.PtrToStructure(msg.LParam, typeof(NMLVODSTATECHANGE));
                         if(((nmlvodstatechange.uNewState & 2) == 2) && (ShellBrowser.ViewMode == FVM.DETAILS)) {
                             PInvoke.SendMessage(nmlvodstatechange.hdr.hwndFrom, LVM.REDRAWITEMS, (IntPtr)nmlvodstatechange.iFrom, (IntPtr)nmlvodstatechange.iTo);
@@ -192,7 +192,7 @@ namespace QTTabBarLib {
                     // This is just for file renaming, which there's no need to
                     // mess with in Windows 7.
                     ShellViewController.DefWndProc(ref msg);
-                    if(QTUtility.IsXP && Config.Tweaks.KillExtWhileRenaming) {
+                    if(OSDetector.IsXP && Config.Tweaks.KillExtWhileRenaming) {
                         NMLVDISPINFO nmlvdispinfo = (NMLVDISPINFO)Marshal.PtrToStructure(msg.LParam, typeof(NMLVDISPINFO));
                         if(nmlvdispinfo.item.lParam != IntPtr.Zero) {
                             using(IDLWrapper idl = ShellBrowser.ILAppend(nmlvdispinfo.item.lParam)) {
@@ -214,7 +214,7 @@ namespace QTTabBarLib {
 
         private void SetStyleFlags()
         {
-            if (ShellBrowser == null) return;  // qt desktop tool ÆôÓÃ¿ÕÖ¸ÕëÎÊÌâ https://www.yuque.com/indiff/lc0r1g/kqgkr0
+            if (ShellBrowser == null) return;  // qt desktop tool ï¿½ï¿½ï¿½Ã¿ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ https://www.yuque.com/indiff/lc0r1g/kqgkr0
             if(ShellBrowser.ViewMode != FVM.DETAILS) return;
             uint flags = 0;
             if(Config.Tweaks.DetailsGridLines) {
@@ -223,7 +223,7 @@ namespace QTTabBarLib {
             else {
                 flags &= ~LVS_EX.GRIDLINES;
             }
-            if(Config.Tweaks.ToggleFullRowSelect ^ !QTUtility.IsXP) {
+            if(Config.Tweaks.ToggleFullRowSelect ^ !OSDetector.IsXP) {
                 flags |= LVS_EX.FULLROWSELECT;
             }
             else {
@@ -283,7 +283,7 @@ namespace QTTabBarLib {
                 case FVM.THUMBSTRIP:
                 case FVM.THUMBNAIL:
                     rect = GetItemRect(iItem, LVIR.ICON);
-                    if(QTUtility.IsXP) rect.right -= 13;
+                    if(OSDetector.IsXP) rect.right -= 13;
                     y = rect.bottom;
                     x = rect.right;
                     ret = new Point(x - 16, y - 16);
@@ -291,7 +291,7 @@ namespace QTTabBarLib {
 
                 case FVM.ICON:
                     rect = GetItemRect(iItem, LVIR.ICON);
-                    if(QTUtility.IsXP) {
+                    if(OSDetector.IsXP) {
                         int num3 = (int)PInvoke.SendMessage(Handle, LVM.GETITEMSPACING, IntPtr.Zero, IntPtr.Zero);
                         Size iconSize = SystemInformation.IconSize;
                         rect.right = ((rect.left + (((num3 & 0xffff) - iconSize.Width) / 2)) + iconSize.Width) + 8;
@@ -303,7 +303,7 @@ namespace QTTabBarLib {
                     break;
 
                 case FVM.LIST:
-                    if(QTUtility.IsXP) {
+                    if(OSDetector.IsXP) {
                         rect = GetItemRect(iItem, LVIR.ICON);
                         using(SafePtr pszText = new SafePtr(520)) {
                             LVITEM structure = new LVITEM {
@@ -339,13 +339,13 @@ namespace QTTabBarLib {
             PInvoke.ClientToScreen(Handle, ref ret);
             return ret;
         }
-        // Ê¹ÓÃ¼ýÍ·¼üÊ±ºò»·ÈÆÑ¡ÔñÎÄ¼þ¼Ð
+        // Ê¹ï¿½Ã¼ï¿½Í·ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
         protected override bool HandleCursorLoop(Keys key) {
             int focusedIdx = ShellBrowser.GetFocusedIndex();
             int itemCount = ShellBrowser.GetItemCount();
             int selectMe = -1;
             FVM viewMode = ShellBrowser.ViewMode;
-            if(viewMode == FVM.TILE && QTUtility.IsXP) {
+            if(viewMode == FVM.TILE && OSDetector.IsXP) {
                 viewMode = FVM.ICON;
             }
             switch(viewMode) {
@@ -387,7 +387,7 @@ namespace QTTabBarLib {
                     if(nextPageIdx == -1 || nextPageIdx == focusedIdx) {
                         nextPageIdx = (int)PInvoke.SendMessage(Handle, LVM.GETNEXTITEM, (IntPtr)focusedIdx, MsgPrevPage);
                     }
-                    else if(QTUtility.IsXP) {
+                    else if(OSDetector.IsXP) {
                         int testIdx = (int)PInvoke.SendMessage(Handle, LVM.GETNEXTITEM, (IntPtr)nextPageIdx, MsgPrevPage);
                         if(testIdx != focusedIdx) {
                             nextPageIdx = (int)PInvoke.SendMessage(Handle, LVM.GETNEXTITEM, (IntPtr)focusedIdx, MsgPrevPage);
@@ -413,7 +413,7 @@ namespace QTTabBarLib {
                             selectMe = itemCount - 1;
                         }
                         else if(key == KeyNextPage || key == KeyPrevPage) {
-                            if(QTUtility.IsXP) {
+                            if(OSDetector.IsXP) {
                                 return true;
                             }
                         }
@@ -451,7 +451,7 @@ namespace QTTabBarLib {
             }
         }
 
-        // ´¦Àí×Ô¶¨Òå»æÖÆ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         private bool HandleCustomDraw(ref Message msg) {
             // TODO this needs to be cleaned
             if(Config.Tweaks.AlternateRowColors && (ShellBrowser.ViewMode == FVM.DETAILS)) {
@@ -468,7 +468,7 @@ namespace QTTabBarLib {
                                 structure.nmcd.dwItemSpec,
                                 (IntPtr)(LVIS.FOCUSED | LVIS.SELECTED | LVIS.DROPHILITED));
 
-                        if(!QTUtility.IsXP) {
+                        if(!OSDetector.IsXP) {
                             int num4 = lstColumnFMT[structure.iSubItem];
                             structure.clrTextBk = QTUtility2.MakeCOLORREF(Config.Tweaks.AltRowBackgroundColor);
                             structure.clrText = QTUtility2.MakeCOLORREF(Config.Tweaks.AltRowForegroundColor);
@@ -505,7 +505,7 @@ namespace QTTabBarLib {
 
                     case CDDS.SUBITEM | CDDS.ITEMPOSTPAINT: {
                             RECT rc = structure.nmcd.rc;
-                            if(QTUtility.IsXP) {
+                            if(OSDetector.IsXP) {
                                 rc = PInvoke.ListView_GetItemRect(ListViewController.Handle, dwItemSpec, structure.iSubItem, 2);
                             }
                             else {
@@ -514,9 +514,9 @@ namespace QTTabBarLib {
                             bool flag3 = false;
                             bool flag4 = false;
                             bool flag5 = Config.Tweaks.DetailsGridLines;
-                            bool flag6 = Config.Tweaks.ToggleFullRowSelect ^ !QTUtility.IsXP;
+                            bool flag6 = Config.Tweaks.ToggleFullRowSelect ^ !OSDetector.IsXP;
                             bool flag7 = false;
-                            if(QTUtility.IsXP && QTUtility.fSingleClick) {
+                            if(OSDetector.IsXP && QTUtility.fSingleClick) {
                                 flag7 = (dwItemSpec == GetHotItem());
                             }
                             LVITEM lvitem = new LVITEM();
@@ -537,7 +537,7 @@ namespace QTTabBarLib {
                                     rect = new Rectangle(rc.left + 1, rc.top, rc.Width - 1, rc.Height - 1);
                                 }
                                 graphics2.FillRectangle(sbAlternate, rect);
-                                if(QTUtility.IsXP && ((structure.iSubItem == 0) || flag6)) {
+                                if(OSDetector.IsXP && ((structure.iSubItem == 0) || flag6)) {
                                     flag4 = (iListViewItemState & 8) == 8;
                                     if((iListViewItemState != 0) && (((iListViewItemState == 1) && fListViewHasFocus) || (iListViewItemState != 1))) {
                                         int width;
@@ -568,7 +568,7 @@ namespace QTTabBarLib {
                                         }
                                     }
                                 }
-                                if(!QTUtility.IsXP && ((iListViewItemState & 1) == 1)) {
+                                if(!OSDetector.IsXP && ((iListViewItemState & 1) == 1)) {
                                     int num6 = rc.Width;
                                     if(!flag6) {
                                         num6 = 4 + ((int)PInvoke.SendMessage(ListViewController.Handle, LVM.GETSTRINGWIDTH, IntPtr.Zero, lvitem.pszText));
@@ -582,7 +582,7 @@ namespace QTTabBarLib {
                             }
                             IntPtr zero = IntPtr.Zero;
                             IntPtr hgdiobj = IntPtr.Zero;
-                            if(QTUtility.IsXP && QTUtility.fSingleClick) {
+                            if(OSDetector.IsXP && QTUtility.fSingleClick) {
                                 LOGFONT logfont;
                                 zero = PInvoke.GetCurrentObject(structure.nmcd.hdc, 6);
                                 PInvoke.GetObject(zero, Marshal.SizeOf(typeof(LOGFONT)), out logfont);
@@ -597,8 +597,8 @@ namespace QTTabBarLib {
                             }
                             PInvoke.SetBkMode(structure.nmcd.hdc, 1);
                             int dwDTFormat = 0x8824;
-                            if(QTUtility.IsRTL ? ((lstColumnFMT[structure.iSubItem] & 1) == 0) : ((lstColumnFMT[structure.iSubItem] & 1) == 1)) {
-                                if(QTUtility.IsRTL) {
+                            if(OSDetector.IsRTL ? ((lstColumnFMT[structure.iSubItem] & 1) == 0) : ((lstColumnFMT[structure.iSubItem] & 1) == 1)) {
+                                if(OSDetector.IsRTL) {
                                     dwDTFormat &= -3;
                                 }
                                 else {
@@ -757,7 +757,7 @@ namespace QTTabBarLib {
                 PInvoke.ScreenToClient(ListViewController.Handle, ref pt);
             }
             LVHITTESTINFO structure = new LVHITTESTINFO {pt = pt};
-            if(QTUtility.IsXP) {
+            if(OSDetector.IsXP) {
                 return -1 == (int)PInvoke.SendMessage(ListViewController.Handle, LVM.HITTEST, IntPtr.Zero, ref structure);
             }
             else {

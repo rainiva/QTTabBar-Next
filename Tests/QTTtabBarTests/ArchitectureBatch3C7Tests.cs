@@ -17,18 +17,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTUtility_OsFields_Forward_To_OSDetector() {
-            Assert.AreEqual(OSDetector.IsXP, QTUtility.IsXP);
-            Assert.AreEqual(OSDetector.IsWin7, QTUtility.IsWin7);
-            Assert.AreEqual(OSDetector.IsWin10, QTUtility.IsWin10);
-            Assert.AreEqual(OSDetector.PATH_MYNETWORK, QTUtility.PATH_MYNETWORK);
-            Assert.AreEqual(OSDetector.PATH_SEARCHFOLDER, QTUtility.PATH_SEARCHFOLDER);
-        }
-
-        [Test]
-        public void QTUtility_CheckIsWin10_Forwards_To_OSDetector() {
-            var sample = new Version(10, 0, 19041);
-            Assert.AreEqual(OSDetector.CheckIsWin10(sample), QTUtility.CheckIsWin10(sample));
+        public void QTUtility_OSDetector_Forwards_Removed() {
+            Assert.IsNull(typeof(QTUtility).GetField("IsXP", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(QTUtility).GetField("IsWin7", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(QTUtility).GetField("IsWin10", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(QTUtility).GetField("PATH_MYNETWORK", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(QTUtility).GetField("PATH_SEARCHFOLDER", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
+            Assert.IsNull(typeof(QTUtility).GetMethod("CheckIsWin10", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
         }
 
         [Test]

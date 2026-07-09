@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -199,7 +199,7 @@ namespace QTTabBarLib {
             contextMenu.Closing += contextMenu_Closing;
             contextMenu.ReorderFinished += contextMenu_ReorderFinished;
             contextMenu.ItemRightClicked += dropDowns_ItemRightClicked;
-            if(!QTUtility.IsXP) {
+            if(!OSDetector.IsXP) {
                 contextMenu.CreateControl();
             }
             //
@@ -2014,7 +2014,7 @@ namespace QTTabBarLib {
             contextMenu.ResumeLayout();
 
             if(contextMenu.Items.Count > 0) {
-                if(!QTUtility.IsXP) contextMenu.SendToBack();
+                if(!OSDetector.IsXP) contextMenu.SendToBack();
                 contextMenu.Show(popUpPoint);
             }
         }

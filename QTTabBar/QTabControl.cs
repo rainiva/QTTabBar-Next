@@ -161,7 +161,7 @@ namespace QTTabBarLib {
             // Figure-2 style: title vertically centered with the icon (not bottom-aligned).
             sfTypoGraphic.LineAlignment = StringAlignment.Center;
             sfTypoGraphic.Trimming = StringTrimming.EllipsisCharacter;
-            if (QTUtility.IsRTL)
+            if (OSDetector.IsRTL)
             {
                 this.sfTypoGraphic.FormatFlags |= StringFormatFlags.DirectionRightToLeft;
             }
@@ -590,7 +590,7 @@ namespace QTTabBarLib {
                             (bSelected ? ShellColors.Light : ShellColors.Default) :
                             Color.Black), 
                     rctItem, 
-                    QTUtility.IsRTL);*/
+                    OSDetector.IsRTL);*/
                 Graphic.FillRectangleRTL(g,
                     (bSelected ? light : Color.Black),
                     rctItem,

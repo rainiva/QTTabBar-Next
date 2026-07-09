@@ -54,26 +54,7 @@ namespace QTTabBarLib {
         internal const string IMAGEKEY_NOEXT = "noext";
         internal const string IMAGEKEY_NOIMAGE = "noimage";
         internal const bool IS_DEV_VERSION = true;  // <----------------- Change me before releasing!
-        internal static readonly bool IsRTL = OSDetector.IsRTL;
-        internal static readonly bool IsWin7 = OSDetector.IsWin7;
-        internal static readonly bool IsWin8 = OSDetector.IsWin8;
-
-        internal static readonly bool IsWin10 = OSDetector.IsWin10;
-
-        internal static bool CheckIsWin10(Version version) {
-            return OSDetector.CheckIsWin10(version);
-        }
-
-        internal static readonly bool IsWin11 = OSDetector.IsWin11;
-
-        internal static readonly bool IsThanWin11 = OSDetector.IsThanWin11;
-
         private static Version osVersion = OSDetector.OsVersion;
-
-        internal static readonly bool IsXP = OSDetector.IsXP;
-
-        internal static readonly string PATH_MYNETWORK = OSDetector.PATH_MYNETWORK;
-        internal static readonly string PATH_SEARCHFOLDER = OSDetector.PATH_SEARCHFOLDER;
         internal const string REGUSER = RegConst.Root;
         internal static readonly char[] SEPARATOR_CHAR = new char[] { ';' };
         internal const string SEPARATOR_PATH_HASH_SESSION = "*?*?*";

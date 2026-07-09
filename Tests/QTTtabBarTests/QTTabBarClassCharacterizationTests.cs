@@ -109,8 +109,8 @@ namespace QTTtabBarTests {
         [Test]
         public void PATH_SEARCHFOLDER_Is_ValidGuid() {
             // Verify the search folder path constant
-            Assert.IsNotNull(QTUtility.PATH_SEARCHFOLDER);
-            Assert.IsTrue(QTUtility.PATH_SEARCHFOLDER.StartsWith("::"),
+            Assert.IsNotNull(OSDetector.PATH_SEARCHFOLDER);
+            Assert.IsTrue(OSDetector.PATH_SEARCHFOLDER.StartsWith("::"),
                 "Search folder path should be a shell namespace GUID");
         }
 

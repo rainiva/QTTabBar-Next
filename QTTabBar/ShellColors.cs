@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -139,7 +139,7 @@ namespace QTTabBarLib
         {
             if (!QTUtility.InNightMode)
                 return new ShellColors.ShellColorSet();
-            return QTUtility.IsWin11 ?
+            return OSDetector.IsWin11 ?
                 new ShellColors.Windows10Dark() : 
                 new ShellColors.Windows11Dark();
         }

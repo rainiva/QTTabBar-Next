@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2022  Quizo, Paul Accisano, indiff
 //
@@ -403,7 +403,7 @@ namespace QTTabBarLib {
                     case BII_MISCTOOL: // 复制工具的
                         string[] strArray = QTUtility.TextResourcesDic["ButtonBar_Misc"];
                         DropDownMenuBase base2 = new DropDownMenuBase(components) {
-                                ShowCheckMargin = !QTUtility.IsXP,
+                                ShowCheckMargin = !OSDetector.IsXP,
                                 ShowImageMargin = false
                         };
                         base2.Items.AddRange(new ToolStripItem[] {

@@ -100,7 +100,7 @@ namespace QTTabBarLib {
         public static bool InitializeMenuRenderer() {
             bool flag = false;
             bool fVista = false;
-            if(QTUtility.IsXP) {
+            if(OSDetector.IsXP) {
                 // TODO: the menu renderer is OS dependent now.  Not going to change.
                 if(nCurrentRenderer != 1) {
                     menuRenderer = new XPMenuRenderer(true);
@@ -641,7 +641,7 @@ namespace QTTabBarLib {
 
         public static void InitializeMenuRenderer() {
             bool changed = false;
-            if(QTUtility.IsXP) {
+            if(OSDetector.IsXP) {
                 // TODO: the menu renderer is OS dependent now.  Not going to change.
                 if(nCurrentRenderer != 1) {
                     menuRenderer = new XPMenuRenderer(false);

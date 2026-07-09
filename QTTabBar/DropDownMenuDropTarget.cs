@@ -210,7 +210,7 @@ namespace QTTabBarLib {
                     }
                 }
                 ShellMethods.DeleteFile(lstPaths, fShiftKey, hwndDialogParent);
-                if(QTUtility.IsXP) {
+                if(OSDetector.IsXP) {
                     root.Close(ToolStripDropDownCloseReason.ItemClicked);
                 }
             }
@@ -558,7 +558,7 @@ namespace QTTabBarLib {
             if(itemKeyInsertionMarkPrev != null) {
                 Bitmap bmpInsertR;
                 Rectangle rectangle2 = itemKeyInsertionMarkPrev.Bounds;
-                if(QTUtility.IsRTL) {
+                if(OSDetector.IsRTL) {
                     if(this.bmpInsertR == null) {
                         this.bmpInsertR = Resources_Image.imgInsertR;
                     }
@@ -632,7 +632,7 @@ namespace QTTabBarLib {
                        select ((QMenuItem)item).Path).FirstOrDefault();
             if(pathTarget == null) return;
             ShellMethods.PasteFile(pathTarget, hwndDialogParent);
-            if(!QTUtility.IsXP) return;
+            if(!OSDetector.IsXP) return;
             DropDownMenuDropTarget ddmdtRoot = GetRoot(this);
             if(ddmdtRoot != null) {
                 ddmdtRoot.Close(ToolStripDropDownCloseReason.ItemClicked);

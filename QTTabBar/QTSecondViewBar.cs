@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2023  indiff
 //
@@ -524,7 +524,7 @@ namespace QTTabBarLib
             {
                 rebarController = new RebarController(this, ReBarHandle, BandObjectSite as IOleCommandTarget);
             }
-            if (!QTUtility.IsXP)
+            if (!OSDetector.IsXP)
             {
                 TravelToolBarHandle = GetTravelToolBarWindow32();
                 if (TravelToolBarHandle != IntPtr.Zero)
@@ -919,7 +919,7 @@ namespace QTTabBarLib
                 MSG msg = (MSG)Marshal.PtrToStructure(lParam, typeof(MSG));
                 try
                 {
-                    if (QTUtility.IsXP)
+                    if (OSDetector.IsXP)
                     {
                         if (msg.message == WM.CLOSE)
                         {
@@ -993,7 +993,7 @@ namespace QTTabBarLib
                         /* TODO: Handle FolderView clicks on XP.
                         case WM.LBUTTONDOWN:
                         case WM.LBUTTONUP:
-                            if((QTUtility.IsXP && !Config.NoMidClickTree) && ((((int)((long)msg.wParam)) & 4) != 0)) {
+                            if((OSDetector.IsXP && !Config.NoMidClickTree) && ((((int)((long)msg.wParam)) & 4) != 0)) {
                                 HandleLBUTTON_Tree(msg, msg.message == 0x201);
                             }
                             break;
@@ -1066,7 +1066,7 @@ namespace QTTabBarLib
                             break;
 
                         case WM.CLOSE:  // 关闭窗口
-                            if (QTUtility.IsXP)
+                            if (OSDetector.IsXP)
                             {
                                 if ((msg.hwnd == ExplorerHandle) && HandleCLOSE(msg.lParam))
                                 {
@@ -1110,7 +1110,7 @@ namespace QTTabBarLib
                             break;
 
                         case WM.COMMAND:
-                            if (QTUtility.IsXP)
+                            if (OSDetector.IsXP)
                             {
                                 int num = ((int)((long)msg.wParam)) & 0xffff;
                                 if (num == 0xa021)

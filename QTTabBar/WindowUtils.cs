@@ -34,10 +34,10 @@ namespace QTTabBarLib {
             PInvoke.SetForegroundWindow(hwndExplr);
         }
 
-        // ¹Ø±Õ×ÊÔ´¹ÜÀíÆ÷£¬·¢ËÍ¹Ø±ÕÏûÏ¢
+        // ï¿½Ø±ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¹Ø±ï¿½ï¿½ï¿½Ï¢
         public static void CloseExplorer(IntPtr hwndExplr, int nCode, bool doAsync = false) {
-            if(QTUtility.IsXP && nCode == 0) nCode = 3;
-            if(QTUtility.IsXP || doAsync) {
+            if(OSDetector.IsXP && nCode == 0) nCode = 3;
+            if(OSDetector.IsXP || doAsync) {
                 PInvoke.PostMessage(hwndExplr, WM.CLOSE, IntPtr.Zero, (IntPtr)nCode);
             }
             else {

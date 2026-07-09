@@ -324,7 +324,7 @@ namespace QTTabBarLib {
                 parentItem.DropDownItems[0].Dispose();
                 AddChildrenOnOpening(parentItem);
                 parentItem.DropDown.ResumeLayout();
-                if(!QTUtility.IsXP) {
+                if(!OSDetector.IsXP) {
                     parentItem.DropDown.BringToFront();
                 }
             }
@@ -349,7 +349,7 @@ namespace QTTabBarLib {
             Group g = GroupsManager.GetGroup(groupName);
             if(g == null) return name;
             ContextMenu menu = new ContextMenu();
-            if(!QTUtility.IsXP) {
+            if(!OSDetector.IsXP) {
                 foreach(string str2 in g.Paths) {
                     string text;
                     if(str2.StartsWith(@"\\")) {
@@ -380,7 +380,7 @@ namespace QTTabBarLib {
                 }
             }
             List<IntPtr> list = new List<IntPtr>();
-            if(!QTUtility.IsXP) {
+            if(!OSDetector.IsXP) {
                 for(int k = 0; k < g.Paths.Count; k++) {
                     string imageKey = IconManager.GetImageKey(g.Paths[k], null);
                     IntPtr hbitmap = ((Bitmap)IconManager.GetImageFromGlobal(imageKey)).GetHbitmap(Color.Black);
@@ -403,7 +403,7 @@ namespace QTTabBarLib {
                 }
             }
             menu.Dispose();
-            if(!QTUtility.IsXP) {
+            if(!OSDetector.IsXP) {
                 foreach(IntPtr ptr2 in list) {
                     PInvoke.DeleteObject(ptr2);
                 }

@@ -921,14 +921,14 @@ namespace QTTabBarLib {
                     if(subDirTip != null && (subDirTip.MouseIsOnThis() || subDirTip.MenuIsShowing)) {
                         return;
                     }
-                    if(!force && subDirIndex == iItem && (!QTUtility.IsXP || (iItem != -1))) {
+                    if(!force && subDirIndex == iItem && (!OSDetector.IsXP || (iItem != -1))) {
                         return;
                     }
-                    if(!QTUtility.IsXP) {
+                    if(!OSDetector.IsXP) {
                         subDirIndex = iItem;
                     }
                     if(iItem > -1 && ShowSubDirTip(iItem, false, false)) {
-                        if(QTUtility.IsXP) {
+                        if(OSDetector.IsXP) {
                             subDirIndex = iItem;
                         }
                         return;

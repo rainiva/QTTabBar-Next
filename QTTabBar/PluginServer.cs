@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -231,7 +231,7 @@ namespace QTTabBarLib {
                             return ButtonBarRegistry.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr);
 
                         case Commands.ShowFolderTree:
-                            if(!QTUtility.IsXP || !(arg is bool)) {
+                            if(!OSDetector.IsXP || !(arg is bool)) {
                                 break;
                             }
                             tabBar.ShowFolderTree((bool)arg);
