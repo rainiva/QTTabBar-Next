@@ -1059,11 +1059,11 @@ namespace QTTabBarLib {
                 _owner.buttonBack = new ToolStripButton();
                 _owner.buttonForward = new ToolStripButton();
                 _owner.toolStrip.SuspendLayout();
-                if(!QTUtility.ImageGlobalContainsKey("navBack")) {
-                    QTUtility.AddImageToGlobal("navBack", Resources_Image.imgNavBack);
+                if(!IconManager.ImageGlobalContainsKey("navBack")) {
+                    IconManager.AddImageToGlobal("navBack", Resources_Image.imgNavBack);
                 }
-                if(!QTUtility.ImageGlobalContainsKey("navFrwd")) {
-                    QTUtility.AddImageToGlobal("navFrwd", Resources_Image.imgNavFwd);
+                if(!IconManager.ImageGlobalContainsKey("navFrwd")) {
+                    IconManager.AddImageToGlobal("navFrwd", Resources_Image.imgNavFwd);
                 }
                 _owner.toolStrip.Dock = Config.Tabs.NavButtonsOnRight ? DockStyle.Right : DockStyle.Left;
                 _owner.toolStrip.AutoSize = false;
@@ -1079,13 +1079,13 @@ namespace QTTabBarLib {
                 _owner.buttonBack.AutoSize = false;
                 _owner.buttonBack.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 _owner.buttonBack.Enabled = fSync ? ((_owner.navBtnsFlag & 1) != 0) : false;
-                _owner.buttonBack.Image = QTUtility.GetImageFromGlobal("navBack");
+                _owner.buttonBack.Image = IconManager.GetImageFromGlobal("navBack");
                 _owner.buttonBack.Size = new Size(0x15, 0x15);
                 _owner.buttonBack.Click += NavigationButtons_Click;
                 _owner.buttonForward.AutoSize = false;
                 _owner.buttonForward.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 _owner.buttonForward.Enabled = fSync ? ((_owner.navBtnsFlag & 2) != 0) : false;
-                _owner.buttonForward.Image = QTUtility.GetImageFromGlobal("navFrwd");
+                _owner.buttonForward.Image = IconManager.GetImageFromGlobal("navFrwd");
                 _owner.buttonForward.Size = new Size(0x15, 0x15);
                 _owner.buttonForward.Click += NavigationButtons_Click;
             }

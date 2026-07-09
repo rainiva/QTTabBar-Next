@@ -109,13 +109,12 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void IconManager_ExtHasIcon_MatchesQTUtilityFacade() {
-            foreach(string ext in new[] { ".exe", ".lnk", ".ico", ".url", ".sln", ".txt", "", ".ZIP" }) {
-                Assert.AreEqual(QTUtility.ExtHasIcon(ext), IconManager.ExtHasIcon(ext),
-                    "ExtHasIcon mismatch for [" + ext + "]");
-            }
+        public void IconManager_ExtHasIcon_KnownExtensions() {
             Assert.IsTrue(IconManager.ExtHasIcon(".exe"));
+            Assert.IsTrue(IconManager.ExtHasIcon(".lnk"));
+            Assert.IsTrue(IconManager.ExtHasIcon(".ico"));
             Assert.IsFalse(IconManager.ExtHasIcon(".txt"));
+            Assert.IsFalse(IconManager.ExtHasIcon(""));
         }
 
         [Test]

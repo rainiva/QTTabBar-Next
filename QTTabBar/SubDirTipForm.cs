@@ -401,8 +401,8 @@ namespace QTTabBarLib {
                                 else {
                                     QMenuItem item = new QMenuItem(title, flag2 ? MenuTarget.Folder : MenuTarget.File, MenuGenre.SubDirTip);
                                     if(str.Length == 3) {
-                                        if(!QTUtility.ImageGlobalContainsKey(str)) {
-                                            QTUtility.AddImageToGlobal(str, QTUtility.GetIcon(pIDL));
+                                        if(!IconManager.ImageGlobalContainsKey(str)) {
+                                            IconManager.AddImageToGlobal(str, IconManager.GetIcon(pIDL));
                                         }
                                         item.ImageKey = str;
                                     }
@@ -461,8 +461,8 @@ namespace QTTabBarLib {
                 }
                 bool isDesktop = PInvoke.ILGetSize(wrapper.PIDL) == 2;
                 QMenuItem item = new QMenuItem(ShellMethods.GetDisplayName(wrapper.PIDL, true), MenuTarget.Folder, MenuGenre.SubDirTip);
-                if(!QTUtility.ImageGlobalContainsKey(wrapper.Path)) {
-                    QTUtility.AddImageToGlobal(wrapper.Path, QTUtility.GetIcon(wrapper.PIDL));
+                if(!IconManager.ImageGlobalContainsKey(wrapper.Path)) {
+                    IconManager.AddImageToGlobal(wrapper.Path, IconManager.GetIcon(wrapper.PIDL));
                 }
                 item.ImageKey = item.Path = item.TargetPath = wrapper.Path;
                 item.IDLDataChild = idlw.IDL;

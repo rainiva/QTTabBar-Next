@@ -994,8 +994,8 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 - [x] git 提交
 - [x] 三维 Ultra Review
 
-**验收结论：第三批 1/5 项完全修复（W1），3 项部分修复（C6、C7、W3），1 项已验证（W2）。**
-- C6：Band 生命周期、UpOneLevel、实例引导已提取（3p）；主文件约 1,318 行，拆解仍在进行
+**验收结论：第三批 2/5 项完全修复（W1、C6），2 项部分修复（C7、W3），1 项已验证（W2）。**
+- C6：3q–3v 全部完成；主文件约 842 行，563/563 测试绿
 - C7：OSDetector/QTLogger/RegistryHelper 等已创建；ReadLanguageFile 调用方已迁移至 QTResourceManager
 - W1：纯 registry façade 已移除；InstanceManager 仅保留 IPC/跨进程协调方法
 - W2：已验证 — DesktopTooltipController 已提取，主文件 2,191 行
@@ -1224,9 +1224,9 @@ public static void Initialize() {
 
 ### 待办优先级建议
 
-1. **W3（QTSecondViewBar 去重）** — 唯一完全未启动项，依赖 C1 已满足
-2. **C6 继续拆解** — 主文件约 1,318 行，按 3q+ 继续（WndProc、OnPaintBackground、ListViewMonitor 等大区域）
-3. **C7 façade 清理** — 清理 QTUtility 剩余 façade 转发方法
+1. **W3 / C7 详细路线图** — 见 [`docs/w3-c7-execution-roadmap.md`](w3-c7-execution-roadmap.md)（W3a–W3e + C7a–C7h 批次明细）
+2. **W3（QTSecondViewBar 去重）** — 下一批建议 W3a（Plus 按钮簇，低风险）
+3. **C7 façade 清理** — 下一批建议 C7a（SerializationHelper，1 文件）
 4. **W1 façade 清理** — 清理 InstanceManager 剩余 13 个方法
 5. **W9 改为按需读取** — 消除 ResMain/ResMisc 引用拷贝
 6. **S4 补充 region** — 为 QTButtonBar 添加更细粒度的代码区域

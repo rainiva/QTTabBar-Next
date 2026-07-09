@@ -97,31 +97,22 @@ namespace QTTtabBarTests {
 
         #endregion
 
-        #region IconManager.GetImageKey facade equivalence
-
-        // GetImageKey has GDI / global-ImageList side effects, but the facade is a
-        // pure forward, so both calls return the same key for the same input. We
-        // also assert the key is non-empty to avoid a vacuous "both return null"
-        // false-green.
+        #region IconManager.GetImageKey
 
         [Test]
-        public void GetImageKey_Facade_Equals_Extraction_ExePath() {
+        public void GetImageKey_ExePath_ReturnsNonEmptyKey() {
             string path = @"C:\Windows\explorer.exe";
             string ext = ".exe";
-            string facade = QTUtility.GetImageKey(path, ext);
-            string extracted = IconManager.GetImageKey(path, ext);
-            Assert.IsFalse(string.IsNullOrEmpty(facade), "key must be non-empty");
-            Assert.AreEqual(extracted, facade, "facade and extraction must return the same key");
+            string key = IconManager.GetImageKey(path, ext);
+            Assert.IsFalse(string.IsNullOrEmpty(key), "key must be non-empty");
         }
 
         [Test]
-        public void GetImageKey_Facade_Equals_Extraction_SystemDirectory() {
+        public void GetImageKey_SystemDirectory_ReturnsNonEmptyKey() {
             string path = @"C:\Windows";
             string ext = null;
-            string facade = QTUtility.GetImageKey(path, ext);
-            string extracted = IconManager.GetImageKey(path, ext);
-            Assert.IsFalse(string.IsNullOrEmpty(facade), "key must be non-empty");
-            Assert.AreEqual(extracted, facade, "facade and extraction must return the same key");
+            string key = IconManager.GetImageKey(path, ext);
+            Assert.IsFalse(string.IsNullOrEmpty(key), "key must be non-empty");
         }
 
         #endregion

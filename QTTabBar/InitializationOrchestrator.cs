@@ -60,7 +60,7 @@ namespace QTTabBarLib {
 
                 // Create the global imagelist
                 QTUtility.ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
-                QTUtility.AddImageToGlobal("folder", QTUtility.GetIcon(string.Empty, false));
+                IconManager.AddImageToGlobal("folder", IconManager.GetIcon(string.Empty, false));
                 QTUtility2.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
 
                 // Load groups/apps

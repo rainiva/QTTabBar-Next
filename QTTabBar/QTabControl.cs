@@ -838,7 +838,7 @@ namespace QTTabBarLib {
                 int tabPosYHalfTabHeight = (rctItem.Height - 0x10) / 2; // ��ǩY����� 10 ���ص�һ��
                 // QTUtility2.log("draw folder image " + fDrawFolderImg +  " baseTabItem.ImageKey " + baseTabItem.ImageKey );
                 // �ж��Ƿ�ʹ��ͼƬ
-                if(fDrawFolderImg && QTUtility.ImageGlobalContainsKey(baseTabItem.ImageKey)) {
+                if(fDrawFolderImg && IconManager.ImageGlobalContainsKey(baseTabItem.ImageKey)) {
                     // ͼƬ���� 0x10 -> 16
                     Rectangle imgRect = new Rectangle(
                         rctItem.X + (bSelected ? 7 : 5), 
@@ -858,7 +858,7 @@ namespace QTTabBarLib {
                         g.DrawImage(bmpFolIconBG, new Rectangle(imgRect.X - 2, imgRect.Y - 2, imgRect.Width + 4, imgRect.Height + 4));
                     }
 					// ���Ʊ���ͼƬ
-                    g.DrawImage(QTUtility.GetImageFromGlobal(baseTabItem.ImageKey), imgRect);
+                    g.DrawImage(IconManager.GetImageFromGlobal(baseTabItem.ImageKey), imgRect);
 					// �ж��Ƿ��������ͼ��
                     if(Config.Tabs.ShowDriveLetters) {
                         string pathInitial = baseTabItem.PathInitial;

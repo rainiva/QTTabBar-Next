@@ -69,7 +69,7 @@ namespace QTTabBarLib {
             if(!fImageLoaded) {
                 fImageLoaded = true;
                 if(imageReservationKey != null) {
-                    QTUtility.LoadReservedImage(imageReservationKey);
+                    IconManager.LoadReservedImage(imageReservationKey);
                 }
             }
             if(!fVirtualQueried) {

@@ -271,7 +271,7 @@ namespace QTTabBarLib {
                             }
                             foreach(Group g in GroupsManager.Groups.Where(g => g.Paths.Count > 0)) {
                                 _owner.tsmiAddToGroup.DropDownItems.Add(new ToolStripMenuItem(g.Name) {
-                                    ImageKey = QTUtility.GetImageKey(g.Paths[0], null)
+                                    ImageKey = IconManager.GetImageKey(g.Paths[0], null)
                                 });
                             }
                             _owner.tsmiAddToGroup.DropDown.ResumeLayout();

@@ -275,7 +275,7 @@ namespace QTTtabBarTests {
                                 // ImageListGlobal.Images.ContainsKey/Add 的无锁分支；
                                 // 多线程竞争同一 key 会放大“集合已修改/重复键”竞态。
                                 string ext = "." + r + "_" + (i % keySpace);
-                                QTUtility.GetImageKey(@"\\qtrace\share\file", ext);
+                                IconManager.GetImageKey(@"\\qtrace\share\file", ext);
                             }
                         }
                         catch(Exception ex) {

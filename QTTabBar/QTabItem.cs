@@ -89,7 +89,7 @@ namespace QTTabBarLib {
             }
             set {
                 if(Owner != null && Owner.DrawFolderImage && !string.IsNullOrEmpty(value)) {
-                    imageKey = QTUtility.GetImageKey(value, null);
+                    imageKey = IconManager.GetImageKey(value, null);
                 }
                 else {
                     imageKey = value;

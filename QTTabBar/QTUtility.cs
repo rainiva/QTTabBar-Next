@@ -189,11 +189,6 @@ namespace QTTabBarLib {
         }
 
 
-        // Task 3.3 facade: forwards to IconManager (extraction = move + forwarding).
-        public static bool ExtHasIcon(string ext) {
-            return IconManager.ExtHasIcon(ext);
-        }
-
         private readonly static string[] strCompressedExt = new string[] { ".zip", ".lzh", ".cab" };
 
         public static bool ExtIsCompressed(string ext) {
@@ -207,18 +202,6 @@ namespace QTTabBarLib {
             PInvoke.SHGetSetSettings(ref ss, SSF_SHOWALLOBJECTS | SSF_SHOWSUPERHIDDEN, false);
             fShowHidden = ss.fShowAllObjects != 0;
             fShowSystem = ss.fShowSuperHidden != 0;
-        }
-
-        public static Icon GetIcon(IntPtr pIDL) {
-            return IconManager.GetIcon(pIDL);
-        }
-
-        public static Icon GetIcon(string path, bool fExtension) {
-            return IconManager.GetIcon(path, fExtension);
-        }
-
-        public static string GetImageKey(string path, string ext) {
-            return IconManager.GetImageKey(path, ext);
         }
 
         public static DateTime GetLinkerTimestamp() {
@@ -315,10 +298,6 @@ namespace QTTabBarLib {
         /// </summary>
         public static void Initialize() {
             // Intentionally empty — triggers static constructor
-        }
-
-        public static void LoadReservedImage(ImageReservationKey irk) {
-            IconManager.LoadReservedImage(irk);
         }
 
         public static MouseChord MakeMouseChord(MouseChord button, Keys modifiers) {
@@ -478,7 +457,7 @@ namespace QTTabBarLib {
             }
             if(!string.IsNullOrEmpty(ext)) {
                 ext = ext.ToLower();
-                if(ExtHasIcon(ext) && !QTUtility2.IsNetworkPath(path)) {
+                if(IconManager.ExtHasIcon(ext) && !QTUtility2.IsNetworkPath(path)) {
                     return new ImageReservationKey(path, 2);
                 }
                 return new ImageReservationKey(ext, 1);
@@ -514,7 +493,7 @@ namespace QTTabBarLib {
                         if(ext.Length == 0) {
                             return new ImageReservationKey("noext", 0);
                         }
-                        if(ExtHasIcon(ext)) {
+                        if(IconManager.ExtHasIcon(ext)) {
                             return new ImageReservationKey(path, 2);
                         }
                         return new ImageReservationKey(ext, 1);
@@ -535,7 +514,7 @@ namespace QTTabBarLib {
                 if(ext.Length == 0) {
                     return new ImageReservationKey("noext", 0);
                 }
-                if(ExtHasIcon(ext)) {
+                if(IconManager.ExtHasIcon(ext)) {
                     return new ImageReservationKey(path, 2);
                 }
                 key = new ImageReservationKey(ext, 1);
@@ -594,27 +573,6 @@ namespace QTTabBarLib {
             }
         }
         
-        // Task 3.3: relaxed private -> internal so the facade/tests can reach it.
-        internal static void SetImageKey(string key, string itemPath) {
-            IconManager.SetImageKey(key, itemPath);
-        }
-
-        internal static void AddImageToGlobal(string key, Image image) {
-            IconManager.AddImageToGlobal(key, image);
-        }
-
-        internal static void AddImageToGlobal(string key, Icon icon) {
-            IconManager.AddImageToGlobal(key, icon);
-        }
-
-        internal static bool ImageGlobalContainsKey(string key) {
-            return IconManager.ImageGlobalContainsKey(key);
-        }
-
-        internal static Image GetImageFromGlobal(string key) {
-            return IconManager.GetImageFromGlobal(key);
-        }
-
         public static void SetTabBarOption(TabBarOption tabBarOption, QTTabBarClass tabBar) {
             // TODO
         }
