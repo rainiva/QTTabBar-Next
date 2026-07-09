@@ -1741,44 +1741,6 @@ namespace QTTabBarLib
         // SyncTravelState, SyncToolbarTravelButton, IsSpecialFolderNeedsToTravel,
         // IsSearchResultFolder, tabControl1_RowCountChanged, SetBarRows moved to TabBarBase
 
-        private void tabControl1_Deselecting(object sender, QTabCancelEventArgs e)
-        {
-            if (e.TabPageIndex != -1)
-            {
-                SaveSelectedItems(e.TabPage);
-            }
-        }
-
-        /**
-         * 保存选中项
-         */
-        private void SaveSelectedItems(QTabItem tab)
-        {
-            Address[] addressArray;
-            string str;
-            if (
-                ((tab != null) && !string.IsNullOrEmpty(CurrentAddress)) &&
-                ShellBrowser.TryGetSelection(out addressArray, out str, false, ShellBrowser))
-            {
-                if (addressArray != null && addressArray.Length > 0)
-                {
-                    QTUtility2.log("SaveSelectedItems addressArray " + addressArray[0].Path);
-                }
-                tab.SetSelectedItemsAt(CurrentAddress, addressArray, str);
-            }
-        }
-
-
-        private void tabControl1_Selecting(object sender, QTabCancelEventArgs e)
-        {
-            if (NowTabsAddingRemoving)
-            {
-                QTUtility2.log("tabControl1_Selecting");
-                e.Cancel = true;
-            }
-        }
-
-
 
         #endregion
     }

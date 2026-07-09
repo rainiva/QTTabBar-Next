@@ -194,21 +194,24 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_TabControl1_Deselecting() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_Deselecting", AnyInstance),
-                "TabManager should host tabControl1_Deselecting");
+        public void TabBarBase_Hosts_TabControl1_Deselecting() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_Deselecting",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_Deselecting after W3b");
         }
 
         [Test]
-        public void TabManager_Hosts_TabControl1_Selecting() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_Selecting", AnyInstance),
-                "TabManager should host tabControl1_Selecting");
+        public void TabBarBase_Hosts_TabControl1_Selecting() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_Selecting",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_Selecting after W3b");
         }
 
         [Test]
-        public void TabManager_Hosts_SaveSelectedItems() {
-            Assert.IsNotNull(TabManagerType.GetMethod("SaveSelectedItems", AnyInstance),
-                "TabManager should host SaveSelectedItems");
+        public void TabBarBase_Hosts_SaveSelectedItems() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("SaveSelectedItems",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host SaveSelectedItems after W3b");
         }
 
         [Test]

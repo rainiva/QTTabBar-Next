@@ -828,11 +828,6 @@ namespace QTTabBarLib {
         /**
          * ����ѡ����
          */
-        protected void SaveSelectedItems(QTabItem tab) {
-            _tabManager.SaveSelectedItems(tab);
-        }
-        
-
         #endregion
     }
 }
