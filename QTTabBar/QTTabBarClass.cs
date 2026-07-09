@@ -85,6 +85,7 @@ namespace QTTabBarLib {
         private FolderTreeController _folderTreeController;
         private ViewModeController _viewModeController;
         private PluginMenuController _pluginMenuController;
+        private ShutdownController _shutdownController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -286,149 +287,10 @@ namespace QTTabBarLib {
         /**
          *�����رմ����¼� by indiff
          */
-        public override void CloseDW(uint dwReserved) {
-            try {
-                /*string[] list1 = (from ITab tab in pluginServer.GetTabs()
-                                 where tab.Locked
-                                 select tab.Address.Path).ToArray();
-                MessageBox.Show(String.Join(",", list1));
-               
+        public override void CloseDW(uint dwReserved) => _shutdownController.CloseDW(dwReserved);
 
-                MessageBox.Show("�رմ���:" + tabControl1.TabPages.Count );
-                string[] list = (from QTabItem item2 in tabControl1.TabPages
-                                 where item2.TabLocked
-                                 select item2.CurrentPath).ToArray();
-                MessageBox.Show(String.Join(",", list));
- */
-                string[] list = (from QTabItem item2 in tabControl1.TabPages
-                                 where item2.TabLocked
-                                 select item2.CurrentPath).ToArray();
-                if(treeViewWrapper != null) {
-                    treeViewWrapper.Dispose();
-                    treeViewWrapper = null;
-                }
-                if(listViewManager != null) {
-                    listViewManager.Dispose();
-                    listViewManager = null;
-                }
-                if(subDirTip_Tab != null) {
-                    subDirTip_Tab.Dispose();
-                    subDirTip_Tab = null;
-                }
-                if(IsShown) {
-                    if(pluginServer != null) {
-                        pluginServer.Dispose();
-                        pluginServer = null;
-                    }
-                    _hookInputController.Uninstall();
-                    if(explorerController != null) {
-                        explorerController.ReleaseHandle();
-                        explorerController = null;
-                    }
-                    if(rebarController != null) {
-                        rebarController.Dispose();
-                        rebarController = null;
-                    }
-                    if(!QTUtility.IsXP && (travelBtnController != null)) {
-                        travelBtnController.ReleaseHandle();
-                        travelBtnController = null;
-                    }
-
-                    // �Ƴ����½�ͼ��
-                    if (null != Handle)
-                    {
-                        InstanceManager.RemoveFromTrayIcon(Handle);
-                    }
-
-                    // TODO: check this
-                    using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
-                        if(Config.Misc.KeepHistory) {
-                            foreach(QTabItem item in tabControl1.TabPages) {
-                                // ������� �ڴ������ھ��֮ǰ�������ڿؼ��ϵ��� Invoke �� BeginInvoke��
-                                AddToHistory(item);
-                            }
-                            QTUtility.SaveRecentlyClosed(key);
-                        }
-                        if(Config.Misc.KeepRecentFiles) {
-                            QTUtility.SaveRecentFiles(key);
-                        }
-
-                        /*foreach (QTabItem item in tabControl1.TabPages)
-                        {
-                            if ( item.TabLocked ) {
-                                MessageBox.Show(item.CurrentPath);
-                            }
-                        }*/
-
-                        // �ر���Ϣȥ��д��������ǩ�ĵ���
-                        QTUtility.SaveLockedTabs(list);
-
-                        InstanceManager.UnregisterTabBar();
-                        if(0x80000 != ((int)PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000))) {
-                            QTUtility.WindowAlpha = 0xff;
-                        }
-                        else {
-                            byte num;
-                            int num2;
-                            int num3;
-                            if(PInvoke.GetLayeredWindowAttributes(ExplorerHandle, out num2, out num, out num3)) {
-                                QTUtility.WindowAlpha = num;
-                            }
-                            else {
-                                QTUtility.WindowAlpha = 0xff;
-                            }
-                        }
-                        key.SetValue("WindowAlpha", QTUtility.WindowAlpha);
-                        IDLWrapper.SaveCache(key);
-                    }
-                    FileToolsController.DisposeMd5Form();
-                    Cursor = Cursors.Default;
-                    if((curTabDrag != null) && (curTabDrag != Cursors.Default)) {
-                        PInvoke.DestroyIcon(curTabDrag.Handle);
-                        GC.SuppressFinalize(curTabDrag);
-                        curTabDrag = null;
-                    }
-                    if((curTabCloning != null) && (curTabCloning != Cursors.Default)) {
-                        PInvoke.DestroyIcon(curTabCloning.Handle);
-                        GC.SuppressFinalize(curTabCloning);
-                        curTabCloning = null;
-                    }
-                    if(dropTargetWrapper != null) {
-                        dropTargetWrapper.Dispose();
-                        dropTargetWrapper = null;
-                    }
-                    OptionsDialog.ForceClose();
-                    if(tabSwitcher != null) {
-                        tabSwitcher.Dispose();
-                        tabSwitcher = null;
-                    }
-                }
-                if(TravelLog != null) {
-                    QTUtility2.log("ReleaseComObject TravelLog");
-                    Marshal.FinalReleaseComObject(TravelLog);
-                    TravelLog = null;
-                }
-                if(shellContextMenu != null) {
-                    shellContextMenu.Dispose();
-                    shellContextMenu = null;
-                }
-                if(ShellBrowser != null) {
-                    ShellBrowser.Dispose();
-                    ShellBrowser = null;
-                }
-                foreach(ITravelLogEntry entry in LogEntryDic.Values) {
-                    if(entry != null) {
-                        QTUtility2.log("ReleaseComObject entry");
-                        Marshal.FinalReleaseComObject(entry);
-                    }
-                }
-                LogEntryDic.Clear();
-                fFinalRelease = true;
-                base.CloseDW(dwReserved);
-            }
-            catch(Exception exception2) {
-                QTUtility2.MakeErrorLog(exception2, "tabbar closing");
-            }
+        internal void CloseDWBase(uint dwReserved) {
+            base.CloseDW(dwReserved);
         }
 
         private void CloseLeftRight(bool fLeft, int index) {
