@@ -57,7 +57,7 @@ namespace QTTabBarLib {
                 if(nCode >= 0) {
                     MSG msg = (MSG)Marshal.PtrToStructure(lParam, typeof(MSG));
                     try {
-                        if(QTUtility.IsXP) {
+                        if(OSDetector.IsXP) {
                             if(msg.message == WM.CLOSE) {
                                 if(_owner.iSequential_WM_CLOSE > 0) {
                                     Marshal.StructureToPtr(new MSG(), lParam, false);
@@ -133,7 +133,7 @@ namespace QTTabBarLib {
                                 break;
 
                             case WM.CLOSE:
-                                if(QTUtility.IsXP) {
+                                if(OSDetector.IsXP) {
                                     if((msg.hwnd == _owner.ExplorerHandle) && HandleCLOSE(msg.lParam)) {
                                         Marshal.StructureToPtr(new MSG(), lParam, false);
                                     }
@@ -166,7 +166,7 @@ namespace QTTabBarLib {
                                 break;
 
                             case WM.COMMAND:
-                                if(QTUtility.IsXP) {
+                                if(OSDetector.IsXP) {
                                     int num = ((int)((long)msg.wParam)) & 0xffff;
                                     if(num == 0xa021) {
                                         WindowUtils.CloseExplorer(_owner.ExplorerHandle, 3);
@@ -518,7 +518,7 @@ namespace QTTabBarLib {
 
                 switch(mkey) {
                     case Keys.Back:
-                        if(!QTUtility.IsXP) {
+                        if(!OSDetector.IsXP) {
                             if(_owner.listView.HasFocus()) {
                                 if(!fRepeat) {
                                     if(Config.Tweaks.BackspaceUpLevel) {
@@ -666,7 +666,7 @@ namespace QTTabBarLib {
                 }
                 if(!flag) {
                     Keys modifierKeys = ModifierKeys;
-                    if((QTUtility.IsXP && modifierKeys == Keys.Control) ||
+                    if((OSDetector.IsXP && modifierKeys == Keys.Control) ||
                             (Config.Tweaks.HorizontalScroll && modifierKeys == Keys.Shift)) {
                         if(_owner.listView.MouseIsOverListView()) {
                             switch(modifierKeys) {

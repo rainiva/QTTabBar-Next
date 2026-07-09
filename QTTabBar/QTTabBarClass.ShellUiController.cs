@@ -54,7 +54,7 @@ namespace QTTabBarLib {
             }
 
             public void ShowFolderTree(bool fShow) {
-                if(QTUtility.IsXP &&
+                if(OSDetector.IsXP &&
                    (fShow != _owner.ShellBrowser.IsFolderTreeVisible())) {
                     object pvaClsid = "{EFA24E64-B078-11d0-89E4-00C04FC9E26E}";
                     object pvarShow = fShow;
@@ -65,11 +65,11 @@ namespace QTTabBarLib {
 
             public void ShowSearchBar(bool fShow) {
                 QTUtility2.log("QTTabBarClass ShowSearchBar fShow: " + fShow);
-                if(!QTUtility.IsXP) {
+                if(!OSDetector.IsXP) {
                     if(!fShow) {
                         return;
                     }
-                    using(IDLWrapper wrapper = new IDLWrapper(QTUtility.PATH_SEARCHFOLDER)) {
+                    using(IDLWrapper wrapper = new IDLWrapper(OSDetector.PATH_SEARCHFOLDER)) {
                         if(wrapper.Available) {
                             _owner.ShellBrowser.Navigate(wrapper, SBSP.NEWBROWSER);
                         }

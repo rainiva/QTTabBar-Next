@@ -71,7 +71,7 @@ namespace QTTabBarLib {
                 if(ShellMethods.TryGetFolderPath(14, out str)) {
                     dicCSIDLTable[str.ToLower()] = 14;
                 }
-                if(!QTUtility.IsXP) {
+                if(!OSDetector.IsXP) {
                     string str2;
                     string str3;
                     string str4;
@@ -418,7 +418,7 @@ namespace QTTabBarLib {
                 PInvoke.SHGetFolderLocation(IntPtr.Zero, num, IntPtr.Zero, 0, out zero);
                 return zero;
             }
-            if(!QTUtility.IsXP && dicFOLDERIDTable.TryGetValue(path.ToLower(), out guid)) {
+            if(!OSDetector.IsXP && dicFOLDERIDTable.TryGetValue(path.ToLower(), out guid)) {
                 PInvoke.SHGetKnownFolderIDList(ref guid, 0, IntPtr.Zero, out zero);
             }
             return zero;

@@ -318,9 +318,9 @@ namespace QTTabBarLib {
                             }
                         }
                         _owner.SyncTravelState();
-                        if (QTUtility.IsXP)
+                        if (OSDetector.IsXP)
                         {
-                            if (_owner.CurrentAddress.StartsWith(QTUtility.PATH_SEARCHFOLDER))
+                            if (_owner.CurrentAddress.StartsWith(OSDetector.PATH_SEARCHFOLDER))
                             {
                                 QTUtility2.log("QTTabBarClass Explorer_NavigateComplete2 ShowSearchBar(true)");
                                 _owner.ShowSearchBar(true);
@@ -367,7 +367,7 @@ namespace QTTabBarLib {
                                 _owner.CurrentTab.TabLocked = true;
                             }
                         }
-                        if( (!QTUtility.IsXP
+                        if( (!OSDetector.IsXP
                              || _owner.FirstNavigationCompleted) &&
                             (!PInvoke.IsWindowVisible(_owner.ExplorerHandle)
                              || PInvoke.IsIconic(_owner.ExplorerHandle))) {
@@ -474,7 +474,7 @@ namespace QTTabBarLib {
 
                 switch(msg.Msg) {
                     case WM.SETTINGCHANGE:
-                        if(QTUtility.IsXP) {
+                        if(OSDetector.IsXP) {
                             QTUtility.GetShellClickMode();
                         }
                         if(Marshal.PtrToStringUni(msg.LParam) == "Environment") {
@@ -558,7 +558,7 @@ namespace QTTabBarLib {
                             _owner.MinimizeToTray();
                             return true;
                         }
-                        if(!QTUtility.IsXP || ((((int) msg.WParam) != 0xf060) && (((int) msg.WParam) != 0xf063))) {
+                        if(!OSDetector.IsXP || ((((int) msg.WParam) != 0xf060) && (((int) msg.WParam) != 0xf063))) {
                             return false;
                         }
                         WindowUtils.CloseExplorer(_owner.ExplorerHandle, 3);
@@ -946,7 +946,7 @@ namespace QTTabBarLib {
                 }
                 else if(path.StartsWith(QTUtility.ResMisc[0]) ||
                         (path.EndsWith(QTUtility.ResMisc[0]) && QTUtility2.IsShellPathButNotFileSystem(path)) ||
-                        path.PathEquals(QTUtility.PATH_SEARCHFOLDER)) {
+                        path.PathEquals(OSDetector.PATH_SEARCHFOLDER)) {
                     QTUtility2.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
                     InitializeOpenedWindow();
                 }
@@ -1016,7 +1016,7 @@ namespace QTTabBarLib {
                         }
 
                         _owner.fNowQuitting = true;
-                        if (QTUtility.IsXP)
+                        if (OSDetector.IsXP)
                         {
                             QTUtility2.log("Close Explorer WindowUtils.CloseExplorer");
                             WindowUtils.CloseExplorer(_owner.ExplorerHandle, 0);
@@ -1139,7 +1139,7 @@ namespace QTTabBarLib {
                 if(_owner.ReBarHandle != IntPtr.Zero) {
                     _owner.rebarController = new RebarController(_owner, _owner.ReBarHandle, _owner.BandObjectSite as IOleCommandTarget);
                 }
-                if(!QTUtility.IsXP) {
+                if(!OSDetector.IsXP) {
                     _owner.TravelToolBarHandle = _owner.GetTravelToolBarWindow32();
                     if(_owner.TravelToolBarHandle != IntPtr.Zero) {
                         _owner.travelBtnController = new NativeWindowController(_owner.TravelToolBarHandle);

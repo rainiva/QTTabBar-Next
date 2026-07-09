@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -266,7 +266,7 @@ namespace QTTabBarLib {
         // 判断文件夹是否显示, 函数为xp操作系统
         public bool IsFolderTreeVisible(out IntPtr hwnd) {
             hwnd = IntPtr.Zero;
-            return  QTUtility.IsXP && 
+            return  OSDetector.IsXP && 
                    shellBrowser != null && 
                    0 == shellBrowser.GetControlWindow(3, out hwnd);
         }

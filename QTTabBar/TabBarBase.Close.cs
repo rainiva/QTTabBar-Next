@@ -31,7 +31,7 @@ namespace QTTabBarLib {
 
                 default: {
                         bool flag3 = QTUtility2.PathExists(CurrentTab.CurrentPath);
-                        if((QTUtility.IsXP && flag3) && (num == 0)) {
+                        if((OSDetector.IsXP && flag3) && (num == 0)) {
                             return true;
                         }
                         if(!flag3) {

@@ -47,7 +47,7 @@ namespace QTTabBarLib {
                             _owner.rebarController.Dispose();
                             _owner.rebarController = null;
                         }
-                        if(!QTUtility.IsXP && (_owner.travelBtnController != null)) {
+                        if(!OSDetector.IsXP && (_owner.travelBtnController != null)) {
                             _owner.travelBtnController.ReleaseHandle();
                             _owner.travelBtnController = null;
                         }

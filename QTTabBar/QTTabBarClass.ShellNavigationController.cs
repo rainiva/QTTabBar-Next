@@ -18,7 +18,7 @@ namespace QTTabBarLib {
                     _owner.AddInsertTab(tab);
                     _owner.tabControl1.SelectTab(tab);
                 }
-                if(!QTUtility.IsXP) {
+                if(!OSDetector.IsXP) {
                     PInvoke.SendMessage(WindowUtils.GetShellTabWindowClass(_owner.ExplorerHandle), 0x111, (IntPtr)0xa022, IntPtr.Zero);
                 }
                 else {

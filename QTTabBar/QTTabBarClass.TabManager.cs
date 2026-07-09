@@ -178,7 +178,7 @@ namespace QTTabBarLib {
                             }
                         }
                         else {
-                            if(QTUtility.IsXP) {
+                            if(OSDetector.IsXP) {
                                 QTUtility.RestoreFolderTree_Hide = true;
                             }
                             wFlags |= SBSP.EXPLOREMODE;
@@ -781,7 +781,7 @@ namespace QTTabBarLib {
                         if(_owner.DraggingTab != null && (modifierKeys == Keys.Control || modifierKeys == (Keys.Control | Keys.Shift))) {
                             bool cloning = false;
                             Point pt = _owner.tabControl1.PointToScreen(e.Location);
-                            if(!QTUtility.IsXP) {
+                            if(!OSDetector.IsXP) {
                                 RECT rect;
                                 PInvoke.GetWindowRect(_owner.ReBarHandle, out rect);
                                 cloning = PInvoke.PtInRect(ref rect, pt);

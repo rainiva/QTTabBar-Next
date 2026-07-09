@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2022  Quizo, Paul Accisano, indiff
 //
@@ -66,7 +66,7 @@ namespace QTTabBarLib {
             set {
                 const int LockToolbarsCmdID = 0xA20C;
                 if(Locked == value) return;
-                PInvoke.SendMessage(QTUtility.IsXP ? ExplorerHandle : WindowUtils.GetShellTabWindowClass(ExplorerHandle), 
+                PInvoke.SendMessage(OSDetector.IsXP ? ExplorerHandle : WindowUtils.GetShellTabWindowClass(ExplorerHandle), 
                         WM.COMMAND, (IntPtr)LockToolbarsCmdID, IntPtr.Zero);
             }
         }
@@ -182,7 +182,7 @@ namespace QTTabBarLib {
                         OLECMDEXECOPT_DODEFAULT, 
                         IntPtr.Zero, 
                         IntPtr.Zero);
-                    if(QTUtility.IsXP) {
+                    if(OSDetector.IsXP) {
                         RECT rect;
                         PInvoke.GetWindowRect(ExplorerHandle, out rect);
                         int num = (rect.Height << 0x10) | rect.Width;
@@ -215,7 +215,7 @@ namespace QTTabBarLib {
                             }
                             // QTUtility2.log("Refresh Height bandIndex : " + i );
                             PInvoke.SendMessage(rebarController.Handle, RB.GETBANDBORDERS, (IntPtr)i, ref rectMargin);
-                            rectBand.left -= !QTUtility.IsXP ? 4 : rectMargin.left;
+                            rectBand.left -= !OSDetector.IsXP ? 4 : rectMargin.left;
                             rectBand.top -= rectMargin.top;
                             rectBand.right += rectMargin.right;
                             rectBand.bottom += rectMargin.bottom;
@@ -345,7 +345,7 @@ namespace QTTabBarLib {
                                         continue;
                                     }
                                     PInvoke.SendMessage(rebarController.Handle, RB.GETBANDBORDERS, (IntPtr)i, ref rectMargin);
-                                    rectBand.left -= !QTUtility.IsXP ? 4 : rectMargin.left;
+                                    rectBand.left -= !OSDetector.IsXP ? 4 : rectMargin.left;
                                     rectBand.top -= rectMargin.top;
                                     rectBand.right += rectMargin.right;
                                     rectBand.bottom += rectMargin.bottom;

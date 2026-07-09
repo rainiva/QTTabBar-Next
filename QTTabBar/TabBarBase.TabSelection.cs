@@ -32,7 +32,7 @@ namespace QTTabBarLib {
                     CurrentTab = selectedTab;
                     UpdateActivatedTabs();
                     if(((currentPath != CurrentAddress) ||
-                        (QTUtility.IsXP && (currentPath == QTUtility.PATH_SEARCHFOLDER))) ||
+                        (OSDetector.IsXP && (currentPath == OSDetector.PATH_SEARCHFOLDER))) ||
                        NowTabCloned) {
                         NavigatedByCode = true;
                         fNavigatedByTabSelection = true;

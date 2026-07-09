@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -268,7 +268,7 @@ namespace QTTabBarLib
 
         protected void SyncToolbarTravelButton()
         {
-            if (!QTUtility.IsXP)
+            if (!OSDetector.IsXP)
             {
                 IntPtr ptr = (IntPtr)0x10001;
                 IntPtr ptr2 = (IntPtr)0x10000;

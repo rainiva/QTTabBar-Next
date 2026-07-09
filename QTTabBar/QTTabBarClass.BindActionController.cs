@@ -263,7 +263,7 @@ namespace QTTabBarLib {
                         break;
 
                     case BindAction.FocusSearchBarReal:
-                        if(QTUtility.IsXP) return false;
+                        if(OSDetector.IsXP) return false;
                         // todo, I don't think this works
                         PInvoke.SetFocus(_owner.GetSearchBand_Edit());
                         break;
