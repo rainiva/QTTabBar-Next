@@ -243,7 +243,7 @@ namespace QTTabBarLib {
         }
 
         private void AddInsertTab(QTabItem tab) {
-            _tabManager.AddInsertTab(tab);
+            base.AddInsertTab(tab);
         }
         private void AddStartUpTabs(string openingGRP, string openingPath) {
             _tabManager.AddStartUpTabs(openingGRP, openingPath);
@@ -348,7 +348,7 @@ namespace QTTabBarLib {
         
         // �����µ�tabҳ
         private QTabItem CreateNewTab(IDLWrapper idlw) {
-            return _tabManager.CreateNewTab(idlw);
+            return base.CreateNewTab(idlw);
         }
         // ���� tab ͼƬ
         internal static Bitmap[] CreateTabImage() {
@@ -576,10 +576,10 @@ namespace QTTabBarLib {
             _tabManager.OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
         }
         private bool OpenNewTab(string path, bool blockSelecting = false, bool fForceNew = false) {
-            return _tabManager.OpenNewTab(path, blockSelecting, fForceNew);
+            return base.OpenNewTab(path, blockSelecting, fForceNew);
         }
         internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
-            return _tabManager.OpenNewTab(idlwGiven, blockSelecting, fForceNew);
+            return base.OpenNewTab(idlwGiven, blockSelecting, fForceNew);
         }
         internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
             _tabManager.OpenNewTabOrWindow(idlw, fNeedsPulse);
@@ -810,7 +810,7 @@ namespace QTTabBarLib {
         // ShowMessageNavCanceled moved to TabBarBase
 
         protected void CancelFailedTabChanging(string newPath) {
-            _tabManager.CancelFailedTabChanging(newPath);
+            base.CancelFailedTabChanging(newPath);
         }
         // NavigateToPastSpecialDir moved to TabBarBase
 

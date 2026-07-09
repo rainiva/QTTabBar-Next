@@ -68,23 +68,29 @@ namespace QTTtabBarTests {
         #region TabManager hosts tab management methods
 
         [Test]
-        public void TabManager_Hosts_AddInsertTab() {
-            Assert.IsNotNull(TabManagerType.GetMethod("AddInsertTab", AnyInstance),
-                "TabManager should host AddInsertTab");
+        public void TabBarBase_Owns_AddInsertTab() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("AddInsertTab", AnyInstance),
+                "TabBarBase should host AddInsertTab after W3f");
         }
 
         [Test]
-        public void TabManager_Hosts_OpenNewTab_String() {
-            Assert.IsNotNull(TabManagerType.GetMethod("OpenNewTab", AnyInstance, null,
+        public void TabBarBase_Owns_OpenNewTab_String() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("OpenNewTab", AnyInstance, null,
                 new[] { typeof(string), typeof(bool), typeof(bool) }, null),
-                "TabManager should host OpenNewTab(string, bool, bool)");
+                "TabBarBase should host OpenNewTab(string, bool, bool) after W3f");
         }
 
         [Test]
-        public void TabManager_Hosts_OpenNewTab_IDLWrapper() {
-            Assert.IsNotNull(TabManagerType.GetMethod("OpenNewTab", AnyInstance, null,
+        public void TabBarBase_Owns_OpenNewTab_IDLWrapper() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("OpenNewTab", AnyInstance, null,
                 new[] { typeof(IDLWrapper), typeof(bool), typeof(bool) }, null),
-                "TabManager should host OpenNewTab(IDLWrapper, bool, bool)");
+                "TabBarBase should host OpenNewTab(IDLWrapper, bool, bool) after W3f");
+        }
+
+        [Test]
+        public void TabBarBase_Owns_CreateNewTab() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("CreateNewTab", AnyInstance),
+                "TabBarBase should host CreateNewTab after W3f");
         }
 
         [Test]
@@ -135,10 +141,11 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_CloseTab_BoolBoolBool() {
-            MethodInfo[] methods = TabManagerType.GetMethods(AnyInstance);
+        public void TabBarBase_Owns_CloseTab_BoolBoolBool() {
+            MethodInfo[] methods = typeof(TabBarBase).GetMethods(
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
             Assert.IsTrue(methods.Any(m => m.Name == "CloseTab" && m.GetParameters().Length >= 2),
-                "TabManager should host CloseTab overload");
+                "TabBarBase should host CloseTab overload after W3f");
         }
 
         [Test]
@@ -173,8 +180,8 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_CreateNewTab() {
-            Assert.IsNotNull(TabManagerType.GetMethod("CreateNewTab", AnyInstance),
-                "TabManager should host CreateNewTab");
+            Assert.IsNull(TabManagerType.GetMethod("CreateNewTab", AnyInstance),
+                "TabManager should not host CreateNewTab forward after W3f");
         }
 
         [Test]
@@ -314,9 +321,9 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_CancelFailedTabChanging() {
-            Assert.IsNotNull(TabManagerType.GetMethod("CancelFailedTabChanging", AnyInstance),
-                "TabManager should host CancelFailedTabChanging");
+        public void TabBarBase_Owns_CancelFailedTabChanging_AfterW3f() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("CancelFailedTabChanging", AnyInstance),
+                "TabBarBase should host CancelFailedTabChanging after W3f");
         }
 
         [Test]

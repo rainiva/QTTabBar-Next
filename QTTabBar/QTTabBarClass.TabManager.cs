@@ -64,10 +64,6 @@ namespace QTTabBarLib {
 
             #region Tab creation / opening
 
-            public void AddInsertTab(QTabItem tab) {
-                _owner.AddInsertTab(tab);
-            }
-
             public void AddStartUpTabs(string openingGRP, string openingPath) {
                 QTUtility2.log(  "QTTabBarClass AddStartUpTabs openingGRP "  + openingGRP + " openingPath " + openingPath);
                 if(Control.ModifierKeys == Keys.Shift || InstanceManager.GetTotalInstanceCount() != 0) return;
@@ -109,7 +105,7 @@ namespace QTTabBarLib {
                     dialog.SelectedPath = _owner.CurrentAddress;
 
                     if(DialogResult.OK == dialog.ShowDialog()) {
-                        OpenNewTab(dialog.SelectedPath);
+                        ((TabBarBase)_owner).OpenNewTab(dialog.SelectedPath);
                     }
                 }
                 _owner.NowModalDialogShown = false;
@@ -118,22 +114,10 @@ namespace QTTabBarLib {
                 }
             }
 
-            public QTabItem CreateNewTab(IDLWrapper idlw) {
-                return _owner.CreateNewTab(idlw);
-            }
-
-            public bool OpenNewTab(string path, bool blockSelecting = false, bool fForceNew = false) {
-                return _owner.OpenNewTab(path, blockSelecting, fForceNew);
-            }
-
-            internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
-                return _owner.OpenNewTab(idlwGiven, blockSelecting, fForceNew);
-            }
-
             internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
                 Keys modKeys = Control.ModifierKeys;
                 if((modKeys & Keys.Control) == 0) {
-                    OpenNewTab(idlw, (modKeys & Keys.Shift) == Keys.Shift);
+                    ((TabBarBase)_owner).OpenNewTab(idlw, (modKeys & Keys.Shift) == Keys.Shift);
                     WindowUtils.BringExplorerToFront(_owner.ExplorerHandle);
                     if(fNeedsPulse) {
                         _owner.fNeedsNewWindowPulse = true;
@@ -258,9 +242,9 @@ namespace QTTabBarLib {
                                 using (var wrapper2 = new IDLWrapper(gpath)) {
                                     if (wrapper2.Available) {
                                         if (tabPage == null) {
-                                            tabPage = CreateNewTab(wrapper2);
+                                            tabPage = ((TabBarBase)_owner).CreateNewTab(wrapper2);
                                         } else {
-                                            CreateNewTab(wrapper2);
+                                            ((TabBarBase)_owner).CreateNewTab(wrapper2);
                                         }
                                     }
                                 }
@@ -317,7 +301,7 @@ namespace QTTabBarLib {
                                                 StaticReg.CreateWindowIDLs.Add(idlwToNavigate.IDL);
                                             }
                                             else {
-                                                OpenNewTab(idlwToNavigate, fBlockSelecting);
+                                                ((TabBarBase)_owner).OpenNewTab(idlwToNavigate, fBlockSelecting);
                                                 fBlockSelecting = true;
                                             }
                                             fOpened = true;
@@ -329,7 +313,7 @@ namespace QTTabBarLib {
                                         StaticReg.CreateWindowIDLs.Add(wrapper.IDL);
                                     }
                                     else {
-                                        OpenNewTab(wrapper, fBlockSelecting);
+                                        ((TabBarBase)_owner).OpenNewTab(wrapper, fBlockSelecting);
                                         fBlockSelecting = true;
                                     }
                                     fOpened = true;
@@ -375,7 +359,7 @@ namespace QTTabBarLib {
             public void CloneTabButton(QTabItem tab, LogData log) {
                 _owner.NowTabCloned = true;
                 QTabItem item = tab.Clone();
-                AddInsertTab(item);
+                ((TabBarBase)_owner).AddInsertTab(item);
                 using(IDLWrapper wrapper = new IDLWrapper(log.IDL)) {
                     if(wrapper.Available) {
                         item.NavigatedTo(wrapper.Path, wrapper.IDL, log.Hash, false);
@@ -393,13 +377,13 @@ namespace QTTabBarLib {
                 _owner.NowTabCloned = fSelect;
                 QTabItem item = tab.Clone();
                 if(index < 0) {
-                    AddInsertTab(item);
+                    ((TabBarBase)_owner).AddInsertTab(item);
                 }
                 else if((-1 < index) && (index < (_owner.tabControl1.TabCount + 1))) {
                     _owner.tabControl1.TabPages.Insert(index, item);
                 }
                 else {
-                    AddInsertTab(item);
+                    ((TabBarBase)_owner).AddInsertTab(item);
                 }
                 if(optionURL != null) {
                     using(IDLWrapper wrapper = new IDLWrapper(optionURL)) {
@@ -425,25 +409,9 @@ namespace QTTabBarLib {
                     index = _owner.tabControl1.SelectedIndex;
                 }
                 if(fLeft ? (index <= 0) : (index >= (_owner.tabControl1.TabCount - 1))) return;
-                CloseTabs(fLeft
+                ((TabBarBase)_owner).CloseTabs(fLeft
                         ? _owner.tabControl1.TabPages.Take(index).ToList()
                         : _owner.tabControl1.TabPages.Skip(index + 1).ToList());
-            }
-
-            public bool CloseTab(QTabItem closingTab, bool fCritical, bool fSkipSync = false) {
-                return ((TabBarBase)_owner).CloseTab(closingTab, fCritical, fSkipSync);
-            }
-
-            public void CloseTabs(IEnumerable<QTabItem> tabs, bool fCritical = false) {
-                ((TabBarBase)_owner).CloseTabs(tabs, fCritical);
-            }
-
-            public bool CloseTab(QTabItem closingTab) {
-                return ((TabBarBase)_owner).CloseTab(closingTab);
-            }
-
-            public void CancelFailedTabChanging(string newPath) {
-                ((TabBarBase)_owner).CancelFailedTabChanging(newPath);
             }
 
             #endregion
@@ -563,12 +531,12 @@ namespace QTTabBarLib {
                 while(stack.Count > 0) {
                     path = stack.Pop();
                     if(!_owner.tabControl1.TabPages.Any(item => item.CurrentPath.PathEquals(path))) {
-                        OpenNewTab(path);
+                        ((TabBarBase)_owner).OpenNewTab(path);
                         return;
                     }
                 }
                 if(!path.PathEquals(_owner.CurrentAddress)) {
-                    OpenNewTab(path);
+                    ((TabBarBase)_owner).OpenNewTab(path);
                 }
             }
 
@@ -595,7 +563,7 @@ namespace QTTabBarLib {
                                     {
                                         if (wrapper2.Available)
                                         {
-                                            QTabItem item4 = CreateNewTab(wrapper2);
+                                            QTabItem item4 = ((TabBarBase)_owner).CreateNewTab(wrapper2);
                                             item4.TabLocked = true;
                                         }
                                     }
@@ -617,7 +585,7 @@ namespace QTTabBarLib {
                                         else {
                                             using(IDLWrapper wrapper2 = new IDLWrapper(str2)) {
                                                 if(wrapper2.Available) {
-                                                    QTabItem item4 = CreateNewTab(wrapper2);
+                                                    QTabItem item4 = ((TabBarBase)_owner).CreateNewTab(wrapper2);
                                                     if(StaticReg.LockedTabsToRestoreList.Contains(str2)) {
                                                         item4.TabLocked = true;
                                                     }
@@ -655,7 +623,7 @@ namespace QTTabBarLib {
                 }
                 else if(!_owner.Explorer.Busy) {
                     if(_owner.tabControl1.TabCount > 1) {
-                        e.Cancel = !CloseTab(e.TabPage);
+                        e.Cancel = !((TabBarBase)_owner).CloseTab(e.TabPage);
                     }
                     else {
                         {
@@ -1090,7 +1058,7 @@ namespace QTTabBarLib {
             public void menuitemUndoClose_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
                 QMenuItem clickedItem = (QMenuItem)e.ClickedItem;
                 if(Control.ModifierKeys != Keys.Control) {
-                    OpenNewTab(clickedItem.Path);
+                    ((TabBarBase)_owner).OpenNewTab(clickedItem.Path);
                 }
                 else {
                     using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
