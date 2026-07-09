@@ -115,7 +115,7 @@ namespace QTTabBarLib
                 lock (dicNotifyIcon)
                 {
                     if (notifyIcon != null) return; // double check to prevent race conditions
-                    icoNotify = QTUtility.GetIcon(string.Empty, false);
+                    icoNotify = IconManager.GetIcon(string.Empty, false);
                     contextMenuNotifyIcon = new ContextMenuStripEx(null, false);
                     contextMenuNotifyIcon.ImageList = QTUtility.ImageListGlobal;
                     contextMenuNotifyIcon.ItemClicked += contextMenuNotifyIcon_ItemClicked;
@@ -221,7 +221,7 @@ namespace QTTabBarLib
                 if (inst.CurrentPath.Length > 0)
                 {
                     item.ToolTipText = QTUtility2.MakePathDisplayText(inst.CurrentPath, true);
-                    item.ImageKey = QTUtility.GetImageKey(inst.CurrentPath, null);
+                    item.ImageKey = IconManager.GetImageKey(inst.CurrentPath, null);
                 }
 
                 var j = Math.Min(inst.TabNames.Length, inst.TabPaths.Length);
@@ -232,7 +232,7 @@ namespace QTTabBarLib
                         {
                             Tag = inst.TabBarHandle,
                             ToolTipText = QTUtility2.MakePathDisplayText(inst.TabPaths[i], true),
-                            ImageKey = QTUtility.GetImageKey(inst.TabPaths[i], null)
+                            ImageKey = IconManager.GetImageKey(inst.TabPaths[i], null)
                         });
                     if (item.DropDownItems.Count > 0)
                     {

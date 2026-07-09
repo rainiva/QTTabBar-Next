@@ -208,8 +208,8 @@ namespace QTTabBarLib {
             public Image Icon {
                 get {
                     return IsFolder
-                      ? QTUtility.GetImageFromGlobal("folder")
-                      : QTUtility.GetIcon(Path, false).ToBitmap();
+                      ? IconManager.GetImageFromGlobal("folder")
+                      : IconManager.GetIcon(Path, false).ToBitmap();
                 }
             }
 

@@ -248,7 +248,7 @@ namespace QTTabBarLib {
                     SetTextboxText(text);
                 }
 
-                Icon icon = QTUtility.GetIcon(wrapper.PIDL);
+                Icon icon = IconManager.GetIcon(wrapper.PIDL);
                 imgIcon.Source =
                     (ImageSource)new OptionsDialog.BitmapToImageSourceConverter().Convert(icon.ToBitmap(), null, null, null);
             }

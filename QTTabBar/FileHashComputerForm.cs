@@ -621,7 +621,7 @@ namespace QTTabBarLib {
                             }
                             if(!flag2) {
                                 DataGridViewRow item = new DataGridViewRow();
-                                item.CreateCells(dgvHash, new object[] { QTUtility.GetImageFromGlobal(QTUtility.GetImageKey(str, Path.GetExtension(str))), flag ? str : Path.GetFileName(str), VALUE_EMPTY });
+                                item.CreateCells(dgvHash, new object[] { IconManager.GetImageFromGlobal(IconManager.GetImageKey(str, Path.GetExtension(str))), flag ? str : Path.GetFileName(str), VALUE_EMPTY });
                                 item.Cells[0].Style.BackColor = clrNew;
                                 item.Cells[1].ToolTipText = str;
                                 item.Tag = new RowProperties(lastWriteTime);

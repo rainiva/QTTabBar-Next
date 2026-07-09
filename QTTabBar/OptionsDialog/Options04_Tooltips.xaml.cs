@@ -219,7 +219,7 @@ namespace QTTabBarLib {
             }
             public Image Icon {
                 get {
-                    return QTUtility.GetIcon(DotExtension, true).ToBitmap();
+                    return IconManager.GetIcon(DotExtension, true).ToBitmap();
                 }
             }
             public FileTypeEntry(Options04_Tooltips parent, string extension) {
