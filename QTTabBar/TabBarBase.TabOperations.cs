@@ -141,5 +141,132 @@ namespace QTTabBarLib {
             }
             return true;
         }
+
+        protected internal bool CloseTab(QTabItem closingTab, bool fCritical, bool fSkipSync = false) {
+            if(closingTab == null) {
+                return false;
+            }
+            if((!fCritical && closingTab.TabLocked) && QTUtility2.PathExists(closingTab.CurrentPath)) {
+                return false;
+            }
+            int index = tabControl1.TabPages.IndexOf(closingTab);
+            if(index == -1) {
+                return false;
+            }
+            lstActivatedTabs.Remove(closingTab);
+            AddToHistory(closingTab);
+            tabControl1.TabPages.Remove(closingTab);
+            closingTab.OnClose();
+            if(closingTab != CurrentTab) {
+                if(!fSkipSync) {
+                    TryCallButtonBar(bbar => bbar.RefreshButtons());
+                    QTabItem.CheckSubTexts(tabControl1);
+                }
+                return true;
+            }
+            CurrentTab = null;
+            int tabCount = tabControl1.TabCount;
+            if(tabCount == 0) {
+                return true;
+            }
+            QTabItem tabPage = null;
+            switch(Config.Tabs.NextAfterClosed) {
+                case TabPos.Right:
+                    tabPage = tabControl1.TabPages[index == tabCount ? index - 1 : index];
+                    break;
+
+                case TabPos.Left:
+                    tabPage = tabControl1.TabPages[index == 0 ? 0 : index - 1];
+                    break;
+
+                case TabPos.Rightmost:
+                    tabPage = tabControl1.TabPages[tabCount - 1];
+                    break;
+
+                case TabPos.Leftmost:
+                    tabPage = tabControl1.TabPages[0];
+                    break;
+
+                case TabPos.LastActive:
+                    if(lstActivatedTabs.Count > 0) {
+                        QTabItem lastTab = lstActivatedTabs[lstActivatedTabs.Count - 1];
+                        lstActivatedTabs.RemoveAt(lstActivatedTabs.Count - 1);
+                        tabPage = tabControl1.TabPages.Contains(lastTab)
+                                ? lastTab
+                                : tabControl1.TabPages[0];
+                    }
+                    else {
+                        tabPage = tabControl1.TabPages[0];
+                    }
+                    break;
+            }
+            if(tabPage != null) {
+                tabControl1.SelectTab(tabPage);
+            }
+            else {
+                tabControl1.SelectTab(0);
+            }
+            if(!fSkipSync) {
+                TryCallButtonBar(bbar => bbar.RefreshButtons());
+            }
+            return true;
+        }
+
+        protected internal void CloseTabs(IEnumerable<QTabItem> tabs, bool fCritical = false) {
+            tabControl1.SetRedraw(false);
+            bool closeCurrent = false;
+            foreach(QTabItem tab in tabs) {
+                if(tab == CurrentTab) {
+                    closeCurrent = true;
+                }
+                else {
+                    CloseTab(tab, fCritical, true);
+                }
+            }
+            if(closeCurrent) {
+                CloseTab(CurrentTab, fCritical);
+            }
+            else {
+                TryCallButtonBar(bbar => bbar.RefreshButtons());
+                QTabItem.CheckSubTexts(tabControl1);
+            }
+            if(tabControl1.TabCount > 0) {
+                tabControl1.SetRedraw(true);
+            }
+        }
+
+        protected internal bool CloseTab(QTabItem closingTab) {
+            return (tabControl1.TabCount > 1) && CloseTab(closingTab, false);
+        }
+
+        protected internal void CancelFailedTabChanging(string newPath) {
+            if(!CloseTab(tabControl1.SelectedTab, true)) {
+                if(tabControl1.TabCount == 1) {
+                    WindowUtils.CloseExplorer(ExplorerHandle, 2);
+                }
+                else {
+                    ShowMessageNavCanceled(newPath, false);
+                    if(CurrentTab == null) {
+                        tabControl1.SelectedIndex = 0;
+                    }
+                }
+            }
+            else {
+                StaticReg.ClosedTabHistoryList.Remove(newPath);
+                if(tabControl1.TabCount == 0) {
+                    ShowMessageNavCanceled(newPath, true);
+                    WindowUtils.CloseExplorer(ExplorerHandle, 2);
+                }
+                else {
+                    if(CurrentTab == null) {
+                        tabControl1.SelectedIndex = 0;
+                    }
+                    else {
+                        tabControl1.SelectTab(CurrentTab);
+                    }
+                    ShowMessageNavCanceled(newPath, false);
+                }
+            }
+        }
     }
 }

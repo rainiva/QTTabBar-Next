@@ -438,155 +438,20 @@ namespace QTTabBarLib {
                         : _owner.tabControl1.TabPages.Skip(index + 1).ToList());
             }
 
-            public bool CloseTab(QTabItem closingTab, bool fCritical, bool fSkipSync = false)
-            {
-                if (closingTab == null)
-                {
-                    return false;
-                }
-                if ((!fCritical && closingTab.TabLocked) && QTUtility2.PathExists(closingTab.CurrentPath))
-                {
-                    return false;
-                }
-                int index = _owner.tabControl1.TabPages.IndexOf(closingTab);
-                if (index == -1)
-                {
-                    return false;
-                }
-                _owner.lstActivatedTabs.Remove(closingTab);
-                _owner.AddToHistory(closingTab);
-                _owner.tabControl1.TabPages.Remove(closingTab);
-                closingTab.OnClose();
-                if (closingTab != _owner.CurrentTab)
-                {
-                    if (!fSkipSync)
-                    {
-                        TryCallButtonBar(bbar => bbar.RefreshButtons());
-                        QTabItem.CheckSubTexts(_owner.tabControl1);
-                    }
-                    return true;
-                }
-                _owner.CurrentTab = null;
-                int tabCount = _owner.tabControl1.TabCount;
-                if (tabCount == 0) return true;
-                QTabItem tabPage = null;
-                switch (Config.Tabs.NextAfterClosed)
-                {
-                    case TabPos.Right:
-                        tabPage = _owner.tabControl1.TabPages[index == tabCount ? index - 1 : index];
-                        break;
-
-                    case TabPos.Left:
-                        tabPage = _owner.tabControl1.TabPages[index == 0 ? 0 : index - 1];
-                        break;
-
-                    case TabPos.Rightmost:
-                        tabPage = _owner.tabControl1.TabPages[tabCount - 1];
-                        break;
-
-                    case TabPos.Leftmost:
-                        tabPage = _owner.tabControl1.TabPages[0];
-                        break;
-
-                    case TabPos.LastActive:
-                        if (_owner.lstActivatedTabs.Count > 0)
-                        {
-                            QTabItem lastTab = _owner.lstActivatedTabs[_owner.lstActivatedTabs.Count - 1];
-                            _owner.lstActivatedTabs.RemoveAt(_owner.lstActivatedTabs.Count - 1);
-                            tabPage = _owner.tabControl1.TabPages.Contains(lastTab)
-                                    ? lastTab
-                                    : _owner.tabControl1.TabPages[0];
-                        }
-                        else
-                        {
-                            tabPage = _owner.tabControl1.TabPages[0];
-                        }
-                        break;
-                }
-                if (tabPage != null)
-                {
-                    _owner.tabControl1.SelectTab(tabPage);
-                }
-                else
-                {
-                    _owner.tabControl1.SelectTab(0);
-                }
-                if (!fSkipSync)
-                {
-                    TryCallButtonBar(bbar => bbar.RefreshButtons());
-                }
-                return true;
+            public bool CloseTab(QTabItem closingTab, bool fCritical, bool fSkipSync = false) {
+                return ((TabBarBase)_owner).CloseTab(closingTab, fCritical, fSkipSync);
             }
 
-            public void CloseTabs(IEnumerable<QTabItem> tabs, bool fCritical = false)
-            {
-                _owner.tabControl1.SetRedraw(false);
-                bool closeCurrent = false;
-                foreach (QTabItem tab in tabs)
-                {
-                    if (tab == _owner.CurrentTab)
-                        closeCurrent = true;
-                    else
-                        CloseTab(tab, fCritical, true);
-                }
-                if (closeCurrent)
-                {
-                    CloseTab(_owner.CurrentTab, fCritical);
-                }
-                else
-                {
-                    TryCallButtonBar(bbar => bbar.RefreshButtons());
-                    QTabItem.CheckSubTexts(_owner.tabControl1);
-                }
-                if (_owner.tabControl1.TabCount > 0)
-                {
-                    _owner.tabControl1.SetRedraw(true);
-                }
+            public void CloseTabs(IEnumerable<QTabItem> tabs, bool fCritical = false) {
+                ((TabBarBase)_owner).CloseTabs(tabs, fCritical);
             }
 
-            public bool CloseTab(QTabItem closingTab)
-            {
-                return ((_owner.tabControl1.TabCount > 1) && CloseTab(closingTab, false));
+            public bool CloseTab(QTabItem closingTab) {
+                return ((TabBarBase)_owner).CloseTab(closingTab);
             }
 
-            public void CancelFailedTabChanging(string newPath)
-            {
-                if (!CloseTab(_owner.tabControl1.SelectedTab, true))
-                {
-                    if (_owner.tabControl1.TabCount == 1)
-                    {
-                        WindowUtils.CloseExplorer(_owner.ExplorerHandle, 2);
-                    }
-                    else
-                    {
-                        _owner.ShowMessageNavCanceled(newPath, false);
-                        if (_owner.CurrentTab == null)
-                        {
-                            _owner.tabControl1.SelectedIndex = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    StaticReg.ClosedTabHistoryList.Remove(newPath);
-                    if (_owner.tabControl1.TabCount == 0)
-                    {
-                        _owner.ShowMessageNavCanceled(newPath, true);
-                        WindowUtils.CloseExplorer(_owner.ExplorerHandle, 2);
-                    }
-                    else
-                    {
-                        if (_owner.CurrentTab == null)
-                        {
-                            _owner.tabControl1.SelectedIndex = 0;
-                        }
-                        else
-                        {
-                            _owner.tabControl1.SelectTab(_owner.CurrentTab);
-                        }
-                        _owner.ShowMessageNavCanceled(newPath, false);
-                    }
-                }
+            public void CancelFailedTabChanging(string newPath) {
+                ((TabBarBase)_owner).CancelFailedTabChanging(newPath);
             }
 
             #endregion

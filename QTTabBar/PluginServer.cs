@@ -59,7 +59,7 @@ namespace QTTabBarLib {
                 dicLocalizingStrings = new Dictionary<string, string[]>();
                 foreach(string file in Config.Lang.PluginLangFiles) {
                     if(file.Length <= 0 || !File.Exists(file)) continue;
-                    var dict = QTUtility.ReadLanguageFile(file);
+                    var dict = QTResourceManager.ReadLanguageFile(file);
                     if(dict == null) continue;
                     foreach(var pair in dict) {
                         dicLocalizingStrings[pair.Key] = pair.Value;

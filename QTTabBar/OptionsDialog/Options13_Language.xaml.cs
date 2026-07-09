@@ -118,7 +118,7 @@ namespace QTTabBarLib {
                 ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
-                var dict = QTUtility.ReadLanguageFile(ofd.FileName);
+                var dict = QTResourceManager.ReadLanguageFile(ofd.FileName);
                 if(dict != null) {
                     PluginFiles.Add(ofd.FileName);
                 }
@@ -152,7 +152,7 @@ namespace QTTabBarLib {
                 ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
-                var dict = QTUtility.ReadLanguageFile(ofd.FileName);
+                var dict = QTResourceManager.ReadLanguageFile(ofd.FileName);
                 QTUtility2.log("read file: " + ofd.FileName + " dict count:" + dict.Count);
                 // QTUtility.ValidateTextResources(ref dict);
                 LangItems.Clear();

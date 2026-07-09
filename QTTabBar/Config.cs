@@ -1222,7 +1222,7 @@ namespace QTTabBarLib {
             // half-initialized TextResourcesDic. The trailing ValidateTextResources()
             // only refreshes ResMain/ResMisc/Resx from the already-valid published dict.
             Dictionary<string, string[]> newTextResources = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
-                    ? QTUtility.ReadLanguageFile(Config.Lang.LangFile)
+                    ? QTResourceManager.ReadLanguageFile(Config.Lang.LangFile)
                     : null;
             QTUtility.ValidateTextResources(ref newTextResources);
             lock(QTUtility.syncRoot) {
