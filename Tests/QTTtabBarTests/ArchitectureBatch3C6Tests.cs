@@ -40,10 +40,11 @@ namespace QTTtabBarTests {
         [Test]
         public void DragDrop_Handlers_Delegate_To_DragDropController() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             Assert.IsTrue(content.Contains("_dragDropController"),
                 "QTTabBarClass should own a DragDropController instance");
-            Assert.IsTrue(content.Contains("new DragDropController(this)"),
-                "QTTabBarClass should construct DragDropController during initialization");
+            Assert.IsTrue(build.Contains("new DragDropController(_owner)"),
+                "ComponentBuildController should construct DragDropController during initialization");
             int dropIndex = content.IndexOf("dropTargetWrapper_DragFileDrop(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(dropIndex, 0);
             int brace = content.IndexOf('{', dropIndex);

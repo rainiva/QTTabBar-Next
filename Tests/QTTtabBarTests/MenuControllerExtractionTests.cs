@@ -285,10 +285,13 @@ namespace QTTtabBarTests {
             }
         }
 
-        private static MethodInfo InitializeComponentMethod {
+        private static MethodInfo ComponentBuildMethod {
             get {
-                return typeof(QTTabBarClass).GetMethod("InitializeComponent",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
+                Type buildType = typeof(QTTabBarClass).GetNestedType("ComponentBuildController",
+                    BindingFlags.NonPublic | BindingFlags.Public);
+                Assert.IsNotNull(buildType, "ComponentBuildController nested type should exist");
+                return buildType.GetMethod("Build",
+                    BindingFlags.Public | BindingFlags.Instance);
             }
         }
 
@@ -317,20 +320,20 @@ namespace QTTtabBarTests {
         public void InitializeComponent_Constructs_MenuController_And_Assigns_Field() {
             HashSet<MethodBase> methods;
             HashSet<FieldInfo> fields;
-            CollectIlReferences(InitializeComponentMethod, out methods, out fields);
+            CollectIlReferences(ComponentBuildMethod, out methods, out fields);
 
             Assert.IsTrue(methods.Any(m => m is ConstructorInfo && m.DeclaringType == MenuControllerType),
-                "InitializeComponent should construct a MenuController (newobj MenuController..ctor)");
+                "ComponentBuildController.Build should construct a MenuController (newobj MenuController..ctor)");
             Assert.IsTrue(fields.Any(f => f.Name == "_menuController"
                     && f.DeclaringType == typeof(QTTabBarClass)),
-                "InitializeComponent should assign the _menuController field (non-null after init)");
+                "ComponentBuildController.Build should assign the _menuController field (non-null after init)");
         }
 
         [Test]
         public void InitializeComponent_Wires_Four_ContextMenu_Events_To_MenuController() {
             HashSet<MethodBase> methods;
             HashSet<FieldInfo> fields;
-            CollectIlReferences(InitializeComponentMethod, out methods, out fields);
+            CollectIlReferences(ComponentBuildMethod, out methods, out fields);
 
             string[] expected = {
                 "contextMenuTab_ItemClicked",
@@ -341,7 +344,7 @@ namespace QTTtabBarTests {
             foreach(string name in expected) {
                 Assert.IsTrue(
                     methods.Any(m => m.DeclaringType == MenuControllerType && m.Name == name),
-                    "InitializeComponent should bind the context-menu event to MenuController." + name
+                    "ComponentBuildController.Build should bind the context-menu event to MenuController." + name
                         + " (delegate target = _menuController)");
             }
             // and the delegate targets are loaded from the _menuController field

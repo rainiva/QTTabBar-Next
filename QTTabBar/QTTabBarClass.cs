@@ -80,6 +80,7 @@ namespace QTTabBarLib {
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
         private BandWindowController _bandWindowController;
+        private ComponentBuildController _componentBuildController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -731,114 +732,9 @@ namespace QTTabBarLib {
             _tabManager.HideToolTipForDD();
         }
         private void InitializeComponent() {
-            // // AutoScaleMode.Dpi  / by indiff dpi
-            // AutoScaleMode = AutoScaleMode.Dpi;
             components = new Container();
-            /*
-             �ṩ������ ToolStripDropDown��ToolStripDropDownButton �� ToolStripMenuItem �ؼ�ʱ����ʾ ToolStripSplitButton �Ŀؼ��Ļ������ܡ�
-             ��ť������
-             */
-            buttonNavHistoryMenu = new ToolStripDropDownButton();
-            // ���ڷ��ñ�ǩ��
-            tabControl1 = new QTabControl();
-            // ��ǰ�ı�ǩ
-            CurrentTab = new QTabItem(string.Empty, string.Empty, tabControl1);
-            contextMenuTab = new ContextMenuStripEx(components, false);
-            contextMenuSys = new ContextMenuStripEx(components, false);
-            tabControl1.SuspendLayout();
-            contextMenuSys.SuspendLayout();
-            contextMenuTab.SuspendLayout();
-            SuspendLayout();
-
-            // �ж��Ƿ���ʾ��ť������
-            _explorerControllerModule = new ExplorerControllerModule(this);
-            bool flag = Config.Tabs.ShowNavButtons;
-            if (flag)
-            {
-                _explorerControllerModule.InitializeNavBtns(false);
-            }
-
-            buttonNavHistoryMenu.AutoSize = false;
-            buttonNavHistoryMenu.DisplayStyle = ToolStripItemDisplayStyle.None;
-            buttonNavHistoryMenu.Enabled = false;
-            buttonNavHistoryMenu.Size = new Size(13, 0x15);
-            buttonNavHistoryMenu.DropDown = new DropDownMenuBase(components, true, true, true);
-            buttonNavHistoryMenu.DropDown.ItemClicked += _explorerControllerModule.NavigationButton_DropDownMenu_ItemClicked;
-            buttonNavHistoryMenu.DropDownOpening += _explorerControllerModule.NavigationButtons_DropDownOpening;
-            buttonNavHistoryMenu.DropDown.ImageList = QTUtility.ImageListGlobal;
-            
-            
-            tabControl1.SetRedraw(false);
-            // ���ӵ�ǰ��ǩ
-            tabControl1.TabPages.Add(CurrentTab);
-            tabControl1.Dock = DockStyle.Fill;
-            tabControl1.ContextMenuStrip = contextMenuTab;
-            tabControl1.RefreshOptions(true);
-            _tabManager = new TabManager(this);
-            _menuController = new MenuController(this);
-            _dragDropController = new DragDropController(this);
-            _hookInputController = new HookInputController(this);
-            _fileToolsController = new FileToolsController(this);
-            _bindActionController = new BindActionController(this);
-            _shellCommandController = new ShellCommandController(this);
-            _listViewInputController = new ListViewInputController(this);
-            _keyboardAcceleratorController = new KeyboardAcceleratorController(this);
-            _shellUiController = new ShellUiController(this);
-            _buttonBarClickController = new ButtonBarClickController(this);
-            _bandInfoController = new BandInfoController(this);
-            _bandLifecycleController = new BandLifecycleController(this);
-            _shellNavigationController = new ShellNavigationController(this);
-            _tabTooltipController = new TabTooltipController(this);
-            _windowManagementController = new WindowManagementController(this);
-            _bandWindowController = new BandWindowController(this);
-            tabControl1.RowCountChanged += tabControl1_RowCountChanged;
-            tabControl1.Deselecting += _tabManager.tabControl1_Deselecting;
-            tabControl1.Selecting += _tabManager.tabControl1_Selecting;
-            tabControl1.SelectedIndexChanged += _tabManager.tabControl1_SelectedIndexChanged;
-            tabControl1.GotFocus += Controls_GotFocus;
-            tabControl1.MouseEnter += _tabManager.tabControl1_MouseEnter;
-            tabControl1.MouseLeave += _tabManager.tabControl1_MouseLeave;
-            tabControl1.MouseDown += _tabManager.tabControl1_MouseDown;
-            tabControl1.MouseUp += _tabManager.tabControl1_MouseUp;
-            tabControl1.MouseMove += _tabManager.tabControl1_MouseMove;
-            tabControl1.MouseDoubleClick += _tabManager.tabControl1_MouseDoubleClick;
-            tabControl1.ItemDrag += _tabManager.tabControl1_ItemDrag;
-            tabControl1.PointedTabChanged += _tabManager.tabControl1_PointedTabChanged;
-            tabControl1.TabCountChanged += _tabManager.tabControl1_TabCountChanged;
-            tabControl1.CloseButtonClicked += _tabManager.tabControl1_CloseButtonClicked;
-            tabControl1.TabIconMouseDown += _tabManager.tabControl1_TabIconMouseDown;
-            // ע����ɫ������ť�ĵ���¼�
-            tabControl1.PlusButtonClicked += _tabManager.tabControl1_PlusButtonClicked;
-            
-            contextMenuTab.Items.Add(new ToolStripMenuItem());
-            contextMenuTab.ShowImageMargin = false;
-            contextMenuTab.ItemClicked += _menuController.contextMenuTab_ItemClicked;
-            contextMenuTab.Opening += _menuController.contextMenuTab_Opening;
-            contextMenuTab.Closed += _tabManager.contextMenuTab_Closed;
-            contextMenuSys.Items.Add(new ToolStripMenuItem());
-            contextMenuSys.ShowImageMargin = false;
-            contextMenuSys.ItemClicked += _menuController.contextMenuSys_ItemClicked;
-            contextMenuSys.Opening += _menuController.contextMenuSys_Opening;
-            Controls.Add(tabControl1);
-            if(flag) {
-                Controls.Add(toolStrip);
-            }
-            int scaledHeight = ComputeBandHeight(1, Config.Skin.TabHeight, GetBandDpiScale());
-            MinSize = new Size(150, scaledHeight);
-            Height = scaledHeight;
-            BandHeight = scaledHeight;
-            ContextMenuStrip = contextMenuSys;
-            // ע�����˫���¼�
-            MouseDoubleClick += _tabManager.QTTabBarClass_MouseDoubleClick;
-            MouseUp += _tabManager.QTTabBarClass_MouseUp;
-            tabControl1.ResumeLayout(false);
-            contextMenuSys.ResumeLayout(false);
-            contextMenuTab.ResumeLayout(false);
-            if(flag) {
-                toolStrip.ResumeLayout(false);
-                toolStrip.PerformLayout();
-            }
-            ResumeLayout(false);
+            _componentBuildController = new ComponentBuildController(this);
+            _componentBuildController.Build();
         }
 
         private void InitializeInstallation() {
