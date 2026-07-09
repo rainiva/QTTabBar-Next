@@ -23,6 +23,28 @@ namespace QTTabBarLib {
                 _owner = owner;
             }
 
+            public void OnListViewMonitorChanged(object sender, EventArgs args) {
+                if(_owner.listViewManager != null) {
+                    _owner.listView = _owner.listViewManager.CurrentListView;
+                    ExtendedListViewCommon elvc = _owner.listView as ExtendedListViewCommon;
+                    if(elvc != null) {
+                        elvc.ItemCountChanged += _owner.ListView_ItemCountChanged;
+                        elvc.SelectionActivated += _owner.ListView_SelectionActivated;
+                        elvc.SelectionChanged += _owner.ListView_SelectionChanged;
+                        elvc.MiddleClick += _owner.ListView_MiddleClick;
+                        elvc.DoubleClick += _owner.ListView_DoubleClick;
+                        elvc.EndLabelEdit += _owner.ListView_EndLabelEdit;
+                        elvc.MouseActivate += _owner.ListView_MouseActivate;
+                        elvc.SubDirTip_MenuItemClicked += _owner.subDirTip_MenuItemClicked;
+                        elvc.SubDirTip_MenuItemRightClicked += _owner.subDirTip_MenuItemRightClicked;
+                        elvc.SubDirTip_MultipleMenuItemsClicked += _owner.subDirTip_MultipleMenuItemsClicked;
+                        elvc.SubDirTip_MultipleMenuItemsRightClicked += _owner.subDirTip_MultipleMenuItemsRightClicked;
+                        elvc.RefreshViewWatermark(true);
+                    }
+                }
+                HandleF5();
+            }
+
             public void OnItemCountChanged(int count) {
                 QTTabBarClass.TryCallButtonBar(bbar => bbar.RefreshStatusText());
             }

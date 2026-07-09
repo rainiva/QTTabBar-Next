@@ -58,7 +58,6 @@ namespace QTTabBarLib {
     public partial class QTTabBarClass : TabBarBase
     {
        
-        private VisualStyleRenderer bgRenderer;
         private BreadcrumbBar breadcrumbBar;
         
         
@@ -80,6 +79,7 @@ namespace QTTabBarLib {
         private ShellNavigationController _shellNavigationController;
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
+        private BandWindowController _bandWindowController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -790,6 +790,7 @@ namespace QTTabBarLib {
             _shellNavigationController = new ShellNavigationController(this);
             _tabTooltipController = new TabTooltipController(this);
             _windowManagementController = new WindowManagementController(this);
+            _bandWindowController = new BandWindowController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
             tabControl1.Deselecting += _tabManager.tabControl1_Deselecting;
             tabControl1.Selecting += _tabManager.tabControl1_Selecting;
@@ -844,30 +845,6 @@ namespace QTTabBarLib {
             _explorerControllerModule.InitializeInstallation();
         }
 
-        private void ListViewMonitor_ListViewChanged(object sender, EventArgs args) {
-            if (listViewManager != null) // �޸���ָ������ by indiff
-            {
-                listView = listViewManager.CurrentListView;
-                ExtendedListViewCommon elvc = listView as ExtendedListViewCommon;
-                if (elvc != null)
-                {
-                    elvc.ItemCountChanged += ListView_ItemCountChanged;
-                    elvc.SelectionActivated += ListView_SelectionActivated;
-                    elvc.SelectionChanged += ListView_SelectionChanged;
-                    elvc.MiddleClick += ListView_MiddleClick;
-                    elvc.DoubleClick += ListView_DoubleClick;
-                    elvc.EndLabelEdit += ListView_EndLabelEdit;
-                    elvc.MouseActivate += ListView_MouseActivate;
-                    elvc.SubDirTip_MenuItemClicked += subDirTip_MenuItemClicked;
-                    elvc.SubDirTip_MenuItemRightClicked += subDirTip_MenuItemRightClicked;
-                    elvc.SubDirTip_MultipleMenuItemsClicked += subDirTip_MultipleMenuItemsClicked;
-                    elvc.SubDirTip_MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
-                    elvc.RefreshViewWatermark(true);
-                }
-            }
-            ListViewInputController.HandleF5();
-        }
-
         private void MinimizeToTray() {
             _windowManagementController.MinimizeToTray();
         }
@@ -918,20 +895,7 @@ namespace QTTabBarLib {
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) {
-            if(VisualStyleRenderer.IsSupported) {
-                if(bgRenderer == null) {
-                    bgRenderer = new VisualStyleRenderer(VisualStyleElement.Rebar.Band.Normal);
-                }
-                bgRenderer.DrawParentBackground(e.Graphics, e.ClipRectangle, this);
-            }
-            else {
-                if(ReBarHandle != IntPtr.Zero) {
-                    int colorref = (int)PInvoke.SendMessage(ReBarHandle, 0x414, IntPtr.Zero, IntPtr.Zero);
-                    using(SolidBrush brush = new SolidBrush(QTUtility2.MakeColor(colorref))) {
-                        e.Graphics.FillRectangle(brush, e.ClipRectangle);
-                        return;
-                    }
-                }
+            if(!_bandWindowController.PaintBackground(e)) {
                 base.OnPaintBackground(e);
             }
         }
@@ -1197,24 +1161,10 @@ namespace QTTabBarLib {
          */
         protected override void WndProc(ref Message m) {
             try {
-                switch(m.Msg) {
-                    case WM.APP + 1: // todo: what sends this?
-                        NowModalDialogShown = m.WParam != IntPtr.Zero;
-                        return;
-
-                    case WM.DROPFILES:  // �϶��ļ�
-                        HandleFileDrop(m.WParam);
-                        break;
-
-                    case WM.DRAWITEM:
-                    case WM.MEASUREITEM:
-                    case WM.INITMENUPOPUP:
-                        if(m.HWnd == Handle && shellContextMenu.TryHandleMenuMsg(m.Msg, m.WParam, m.LParam)) {
-                            return;
-                        }
-                        break;
+                _bandWindowController.ProcessWndProc(ref m, out bool suppressBase);
+                if(!suppressBase) {
+                    base.WndProc(ref m);
                 }
-                base.WndProc(ref m);
             }
             catch(Exception ex) {
                 QTUtility2.MakeErrorLog(ex, String.Format("Message: {0:x4}", m.Msg));

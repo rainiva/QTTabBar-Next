@@ -1121,7 +1121,7 @@ namespace QTTabBarLib {
 
                 QTUtility2.log("QTTabBarClass ListViewMonitor ");
                 _owner.listViewManager = new ListViewMonitor(_owner.ShellBrowser, _owner.ExplorerHandle, _owner.Handle);
-                _owner.listViewManager.ListViewChanged += _owner.ListViewMonitor_ListViewChanged;
+                _owner.listViewManager.ListViewChanged += _owner._listViewInputController.OnListViewMonitorChanged;
                 _owner.listViewManager.Initialize();
 
                 IntPtr hwndBreadcrumbBar = WindowUtils.FindChildWindow(_owner.ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "Breadcrumb Parent");
