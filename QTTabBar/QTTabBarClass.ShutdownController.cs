@@ -67,21 +67,22 @@ namespace QTTabBarLib {
                         LockedTabsService.Persist(list);
 
                         InstanceManager.UnregisterTabBar();
+                        byte windowAlpha;
                         if(0x80000 != ((int)PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(_owner.ShutdownExplorerHandle, -20), 0x80000))) {
-                            QTUtility.WindowAlpha = 0xff;
+                            windowAlpha = 0xff;
                         }
                         else {
                             byte num;
                             int num2;
                             int num3;
                             if(PInvoke.GetLayeredWindowAttributes(_owner.ShutdownExplorerHandle, out num2, out num, out num3)) {
-                                QTUtility.WindowAlpha = num;
+                                windowAlpha = num;
                             }
                             else {
-                                QTUtility.WindowAlpha = 0xff;
+                                windowAlpha = 0xff;
                             }
                         }
-                        ConfigManager.PersistWindowAlpha(QTUtility.WindowAlpha);
+                        ConfigManager.PersistWindowAlpha(windowAlpha);
                         IDLWrapper.SaveCache(key);
                     }
                     QTTabBarClass.FileToolsController.DisposeMd5Form();

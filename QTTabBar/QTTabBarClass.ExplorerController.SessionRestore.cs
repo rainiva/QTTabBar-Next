@@ -7,7 +7,6 @@ using QTTabBarLib.Interop;
 using Timer = System.Windows.Forms.Timer;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class ExplorerControllerModule {
             internal sealed class SessionRestoreController {
                 private readonly QTTabBarClass _owner;
@@ -28,17 +27,17 @@ namespace QTTabBarLib {
                         foreach(string tpath in StaticReg.CreateWindowPaths.Where(str2 => !str2.PathEquals(path))) {
                             using(IDLWrapper wrapper = new IDLWrapper(tpath)) {
                                 if(wrapper.Available) {
-                                    _owner.CreateNewTab(wrapper);
+                                    _owner.ExCreateNewTab(wrapper);
                                 }
                             }
                         }
                         foreach(byte[] idl in StaticReg.CreateWindowIDLs) {
                             using(IDLWrapper wrapper2 = new IDLWrapper(idl)) {
-                                _owner.OpenNewTab(wrapper2, true);
+                                _owner.ExOpenNewTab(wrapper2, true);
                             }
                         }
                         QTUtility2.InitializeTemporaryPaths();
-                        _owner.AddStartUpTabs(string.Empty, path);
+                        _owner.ExAddStartUpTabs(string.Empty, path);
                         ensureOpenedWindow = true;
                         return true;
                     }
@@ -46,17 +45,17 @@ namespace QTTabBarLib {
                         QTLogger.log("DoFirstNavigation StaticReg.CreateWindowGroup.Length " + StaticReg.CreateWindowGroup.Length);
                         string createWindowTMPGroup = StaticReg.CreateWindowGroup;
                         StaticReg.CreateWindowGroup = string.Empty;
-                        _owner.CurrentTab.CurrentPath = path;
-                        _owner.NowOpenedByGroupOpener = true;
-                        _owner.OpenGroup(createWindowTMPGroup, false);
-                        _owner.AddStartUpTabs(createWindowTMPGroup, path);
+                        _owner.ExCurrentTab.CurrentPath = path;
+                        _owner.ExNowOpenedByGroupOpener = true;
+                        _owner.ExOpenGroup(createWindowTMPGroup, false);
+                        _owner.ExAddStartUpTabs(createWindowTMPGroup, path);
                         ensureOpenedWindow = true;
                         return true;
                     }
                     if(!Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture) {
                         QTLogger.log("DoFirstNavigation !Config.Window.CaptureNewWindows || StaticReg.SkipNextCapture");
                         StaticReg.SkipNextCapture = false;
-                        _owner.AddStartUpTabs(string.Empty, path);
+                        _owner.ExAddStartUpTabs(string.Empty, path);
                         ensureOpenedWindow = true;
                         return true;
                     }
@@ -72,9 +71,9 @@ namespace QTTabBarLib {
 
                 internal void InitializeInstallation() {
                     InitializeOpenedWindow();
-                    object locationURL = _owner.Explorer.LocationURL;
-                    if(_owner.ShellBrowser != null) {
-                        using(IDLWrapper wrapper = _owner.ShellBrowser.GetShellPath()) {
+                    object locationURL = _owner.ExExplorer.LocationURL;
+                    if(_owner.ExShellBrowser != null) {
+                        using(IDLWrapper wrapper = _owner.ExShellBrowser.GetShellPath()) {
                             if(wrapper.Available) {
                                 locationURL = wrapper.Path;
                             }
@@ -85,18 +84,18 @@ namespace QTTabBarLib {
                 }
 
                 internal void InitializeOpenedWindow() {
-                    if(_owner.fOpenedWindowInitialized) {
+                    if(_owner.ExfOpenedWindowInitialized) {
                         return;
                     }
-                    _owner.fOpenedWindowInitialized = true;
-                    _owner.IsShown = true;
+                    _owner.ExfOpenedWindowInitialized = true;
+                    _owner.ExIsShown = true;
                     InstanceManager.PushTabBarInstance(_owner);
                     InstanceManager.SetMainUIControl(_owner);
                     QTLogger.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
                     _module.InstallHooks();
 
                     QTLogger.log("QTTabBarClass  PluginServer ");
-                    _owner.pluginServer = new PluginServer(_owner);
+                    _owner.ExpluginServer = new QTTabBarClass.PluginServer(_owner);
 
                     QTLogger.log("QTTabBarClass TryCallButtonBar ");
                     if(!QTTabBarClass.TryCallButtonBar(bbar => bbar.CreateItems())) {
@@ -108,28 +107,28 @@ namespace QTTabBarLib {
                         };
                         timer.Start();
                     }
-                    if(QTUtility.WindowAlpha < 0xff) {
+                    if(Config.Window.WindowAlpha < 0xff) {
                         QTLogger.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
-                        PInvoke.SetWindowLongPtr(_owner.ExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(_owner.ExplorerHandle, -20), 0x80000));
-                        PInvoke.SetLayeredWindowAttributes(_owner.ExplorerHandle, 0, QTUtility.WindowAlpha, 2);
+                        byte windowAlpha = Config.Window.WindowAlpha;
+                        PInvoke.SetWindowLongPtr(_owner.ExExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(_owner.ExExplorerHandle, -20), 0x80000));
+                        PInvoke.SetLayeredWindowAttributes(_owner.ExExplorerHandle, 0, windowAlpha, 2);
                     }
 
                     QTLogger.log("QTTabBarClass ListViewMonitor ");
-                    _owner.listViewManager = new ListViewMonitor(_owner.ShellBrowser, _owner.ExplorerHandle, _owner.Handle);
-                    _owner.listViewManager.ListViewChanged += _owner._listViewInputController.OnListViewMonitorChanged;
-                    _owner.listViewManager.Initialize();
+                    _owner.ExlistViewManager = new ListViewMonitor(_owner.ExShellBrowser, _owner.ExExplorerHandle, _owner.ExHandle);
+                    _owner.ExlistViewManager.ListViewChanged += _owner.Ex_listViewInputController.OnListViewMonitorChanged;
+                    _owner.ExlistViewManager.Initialize();
 
-                    IntPtr hwndBreadcrumbBar = WindowUtils.FindChildWindow(_owner.ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "Breadcrumb Parent");
+                    IntPtr hwndBreadcrumbBar = WindowUtils.FindChildWindow(_owner.ExExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "Breadcrumb Parent");
                     if(hwndBreadcrumbBar != IntPtr.Zero) {
                         hwndBreadcrumbBar = PInvoke.FindWindowEx(hwndBreadcrumbBar, IntPtr.Zero, "ToolbarWindow32", null);
                         if(hwndBreadcrumbBar != IntPtr.Zero) {
-                            _owner.breadcrumbBar = new BreadcrumbBar(hwndBreadcrumbBar);
+                            _owner.ExbreadcrumbBar = new BreadcrumbBar(hwndBreadcrumbBar);
                             QTLogger.log("QTTabBarClass BreadcrumbBar set FolderLinkClicked ");
-                            _owner.breadcrumbBar.ItemClicked += (wrapper, modifierKeys, middle) => _owner._menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
+                            _owner.ExbreadcrumbBar.ItemClicked += (wrapper, modifierKeys, middle) => _owner.Ex_menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
                         }
                     }
                 }
             }
         }
-    }
 }
