@@ -263,17 +263,12 @@ namespace QTTabBarLib {
             DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
             string path = TrackGroupContextMenu(e.ClickedItem.Text, e.IsKey ? e.Point : Control.MousePosition, reorderable.Handle);
             if(!string.IsNullOrEmpty(path)) {
-                Action<QTTabBarClass> open = tabBar => {
-                    using(IDLWrapper idlw = new IDLWrapper(path)) {
-                        tabBar.OpenNewTabOrWindow(idlw);
-                    }
-                };
                 QTTabBarClass threadBar = TabInstanceRegistry.GetThreadTabBar();
                 if(threadBar != null) {
-                    open(threadBar);
+                    threadBar.IpcOpenNewTabOrWindowFromPath(path);
                 }
                 else {
-                    InstanceManager.InvokeMain(open);
+                    InstanceManager.InvokeMainOpenNewTabOrWindowFromPath(path);
                 }
             }
             else {

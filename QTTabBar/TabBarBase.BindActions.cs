@@ -78,10 +78,7 @@ namespace QTTabBarLib {
                     return true;
 
                 case BindAction.CloseWindow: {
-                        string[] list = (from QTabItem item2 in tabControl1.TabPages
-                                         where item2.TabLocked
-                                         select item2.CurrentPath).ToArray();
-                        QTUtility.SaveLockedTabs(list);
+                        LockedTabsService.PersistFromTabs(tabControl1.TabPages.Cast<QTabItem>());
                         WindowUtils.CloseExplorer(ExplorerHandle, 1);
                     }
                     return true;
@@ -94,14 +91,12 @@ namespace QTTabBarLib {
                 case BindAction.LockCurrent:
                 case BindAction.LockTab:
                     if(tab != null) {
-                        tab.TabLocked = !tab.TabLocked;
+                        LockedTabsService.ToggleTab(tab, tabControl1.TabPages.Cast<QTabItem>());
                     }
                     return true;
 
-                case BindAction.LockAll: {
-                        bool lockState = tabControl1.TabPages.Any(t => t.TabLocked);
-                        tabControl1.TabPages.ForEach(t => t.TabLocked = !lockState);
-                    }
+                case BindAction.LockAll:
+                    LockedTabsService.ToggleAllTabsLock(tabControl1.TabPages.Cast<QTabItem>());
                     return true;
 
                 case BindAction.SwitchToLastActivated:

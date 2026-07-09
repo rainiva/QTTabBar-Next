@@ -156,14 +156,20 @@ namespace QTTtabBarTests {
 
         [Test]
         public void InitializationOrchestrator_Assigns_TextResourcesDic_Under_SyncRoot() {
-            string content = ReadQtTabBarFile("InitializationOrchestrator.cs");
-            Assert.IsTrue(content.Contains("lock(QTUtility.syncRoot)"),
-                "InitializationOrchestrator should publish TextResourcesDic under syncRoot");
+            string configContent = ReadQtTabBarFile("ConfigManager.cs");
+            Assert.IsTrue(configContent.Contains("LoadTextResources"),
+                "Text resource publish should be centralized in ConfigManager.LoadTextResources");
+            Assert.IsTrue(configContent.Contains("lock(QTUtility.syncRoot)"),
+                "LoadTextResources should publish TextResourcesDic under syncRoot");
             Assert.IsTrue(
                 System.Text.RegularExpressions.Regex.IsMatch(
-                    content,
+                    configContent,
                     @"lock\s*\(\s*QTUtility\.syncRoot\s*\)\s*\{[\s\S]*?TextResourcesDic\s*="),
                 "TextResourcesDic assignment should occur inside lock(QTUtility.syncRoot)");
+
+            string orchestratorContent = ReadQtTabBarFile("InitializationOrchestrator.cs");
+            Assert.IsTrue(orchestratorContent.Contains("ConfigManager.LoadTextResources"),
+                "InitializationOrchestrator should delegate text-resource load to ConfigManager");
         }
 
         [Test]

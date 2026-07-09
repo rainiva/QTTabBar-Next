@@ -58,10 +58,7 @@ namespace QTTabBarLib {
                     e.Cancel = !CloseTab(e.TabPage);
                 }
                 else {
-                    string[] list = (from QTabItem item2 in tabControl1.TabPages
-                                     where item2.TabLocked
-                                     select item2.CurrentPath).ToArray();
-                    QTUtility.SaveLockedTabs(list);
+                    LockedTabsService.PersistFromTabs(tabControl1.TabPages);
                     WindowUtils.CloseExplorer(ExplorerHandle, 1);
                 }
             }

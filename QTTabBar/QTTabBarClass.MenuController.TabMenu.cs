@@ -56,12 +56,7 @@ namespace QTTabBarLib {
                     if(e.ClickedItem == _owner.tsmiClose) {
                         if(_owner.tabControl1.TabCount == 1) {
                             {
-                                string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
-                                                 where item2.TabLocked
-                                                 select item2.CurrentPath).ToArray();
-
-                                // MessageBox.Show(String.Join(",", list));
-                                QTUtility.SaveLockedTabs(list);
+                                LockedTabsService.PersistFromTabs(_owner.tabControl1.TabPages);
                             }
                             WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
                         }
@@ -88,7 +83,9 @@ namespace QTTabBarLib {
                         CreateGroup(_owner.ContextMenuedTab);
                     }
                     else if(e.ClickedItem == _owner.tsmiLockThis) {
-                        _owner.ContextMenuedTab.TabLocked = !_owner.ContextMenuedTab.TabLocked;
+                        LockedTabsService.ToggleTab(
+                            _owner.ContextMenuedTab,
+                            _owner.tabControl1.TabPages.Cast<QTabItem>());
                     }
                     else if(e.ClickedItem == _owner.tsmiCloneThis) {
                         _owner.CloneTabButton(_owner.ContextMenuedTab, null, true, -1);

@@ -6,14 +6,17 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C7bTests {
         [Test]
         public void Production_Code_Uses_QTResourceManager_Directly() {
-            string plugin = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "PluginServer.cs"));
+            string plugin = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "PluginServer.cs")) +
+                File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "PluginServer.Commands.cs")) +
+                File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "PluginServer.TabAccess.cs")) +
+                File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "PluginServer.Lifetime.cs"));
             string config = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             string init = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InitializationOrchestrator.cs"));
             Assert.IsTrue(plugin.Contains("QTResourceManager.ReadLanguageFile("));
             Assert.IsFalse(plugin.Contains("QTUtility.ReadLanguageFile("));
             Assert.IsTrue(config.Contains("QTResourceManager.ValidateTextResources("));
             Assert.IsFalse(config.Contains("QTUtility.ValidateTextResources("));
-            Assert.IsTrue(init.Contains("QTResourceManager.ValidateTextResources("));
+            Assert.IsTrue(init.Contains("ConfigManager.LoadTextResources("));
             Assert.IsFalse(init.Contains("QTUtility.ValidateTextResources("));
         }
 

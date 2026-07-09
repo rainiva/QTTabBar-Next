@@ -33,10 +33,9 @@ namespace QTTabBarLib {
                         break;
 
                     case QTButtonBar.BII_LOCK:
-                        _owner.CurrentTab.TabLocked = !_owner.CurrentTab.TabLocked;
-                        if(_owner.CurrentTab.TabLocked) {
-                            StaticReg.LockedTabsToRestoreList.Add(_owner.CurrentTab.CurrentPath);
-                        }
+                        LockedTabsService.ToggleTab(
+                            _owner.CurrentTab,
+                            _owner.tabControl1.TabPages.Cast<QTabItem>());
                         break;
 
                     case QTButtonBar.BII_TOPMOST:
@@ -61,10 +60,7 @@ namespace QTTabBarLib {
                         break;
 
                     case QTButtonBar.BII_CLOSE_WINDOW: {
-                            string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
-                                             where item2.TabLocked
-                                             select item2.CurrentPath).ToArray();
-                            QTUtility.SaveLockedTabs(list);
+                            LockedTabsService.PersistFromTabs(_owner.tabControl1.TabPages);
                         }
                         WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
                         break;

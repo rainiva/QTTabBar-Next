@@ -24,10 +24,7 @@ namespace QTTabBarLib {
                 return true;
             }
 
-            string[] list = (from QTabItem item2 in tabControl1.TabPages
-                             where item2.TabLocked
-                             select item2.CurrentPath).ToArray();
-            QTUtility.SaveLockedTabs(list);
+            LockedTabsService.PersistFromTabs(tabControl1.TabPages);
             if(msg.hwnd == WindowUtils.GetShellTabWindowClass(ExplorerHandle)) {
                 try {
                     bool flag = tabControl1.TabCount == 1;

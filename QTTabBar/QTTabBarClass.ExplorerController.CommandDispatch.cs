@@ -40,43 +40,23 @@ namespace QTTabBarLib {
                                 _owner.mCmdType = 1;
                                 string selectMe = GetNameToSelectFromCommandLineArg(cmd);
                                 TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
-                                InstanceManager.BeginInvokeMain(tabbar =>
-                                {
-                                    tabbar.OpenNewTab(path);
-                                    if(selectMe != "") {
-                                        tabbar.ShellBrowser.TrySetSelection(
-                                              new Address[] { new Address(selectMe) }, null, true);
-                                    }
-
-                                    tabbar.RestoreWindow();
-                                    TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                                    QTLogger.log(string.Format("select cmd BeginInvokeMain cost {0} ", abs.TotalMilliseconds));
-                                });
+                                InstanceManager.BeginInvokeMainCaptureNewWindow(path, 1, selectMe);
+                                TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
+                                QTLogger.log(string.Format("select cmd typed IPC cost {0} ", abs.TotalMilliseconds));
                             }
                             else if(lcmd.Contains("/factory")   ||
                                      lcmd.Contains("-embedding") ||
                                      lcmd.Contains("{75dff2b7-6936-4c06-a8bb-676a7b00b24b}")) {
                                 _owner.mCmdType = 2;
                                 TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
-                                InstanceManager.BeginInvokeMain(tabbar =>
-                                {
-                                    tabbar.OpenNewTab(path);
-                                    tabbar.RestoreWindow();
-                                    if(Config.Window.CaptureWeChatSelection) {
-                                        tabbar.Wait4Select();
-                                    }
-                                    TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                                    QTLogger.log(string.Format("factory cmd BeginInvokeMain cost {0} ", abs.TotalMilliseconds));
-                                });
+                                InstanceManager.BeginInvokeMainCaptureNewWindow(path, 2, string.Empty);
+                                TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
+                                QTLogger.log(string.Format("factory cmd typed IPC cost {0} ", abs.TotalMilliseconds));
                             }
                             else {
                                 _owner.mCmdType = 3;
-                                InstanceManager.BeginInvokeMain(tabbar =>
-                                {
-                                    tabbar.OpenNewTab(path);
-                                    QTLogger.log("other cmd BeginInvokeMain RestoreWindow");
-                                    tabbar.RestoreWindow();
-                                });
+                                InstanceManager.BeginInvokeMainCaptureNewWindow(path, 3, string.Empty);
+                                QTLogger.log("other cmd typed IPC RestoreWindow");
                             }
                         }
 

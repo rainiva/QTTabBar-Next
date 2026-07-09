@@ -74,7 +74,7 @@ namespace QTTabBarLib
             {
                 if (Config.Skin.DrawHorizontalExplorerBarBgColor)
                     return ShellColors.ExplorerBarHrztBGColor;
-                return !QTUtility.InNightMode ? ShellColors.ExplorerBarHrztBGColor : ShellColors.Default;
+                return !ThemeRefreshService.IsDark ? ShellColors.ExplorerBarHrztBGColor : ShellColors.Default;
             }
         }
 
@@ -86,7 +86,7 @@ namespace QTTabBarLib
                 {
                     return ShellColors.ExplorerBarVertBGColor;
                 }
-                return !QTUtility.InNightMode ? ShellColors.ExplorerBarVertBGColor : ShellColors.Default;
+                return !ThemeRefreshService.IsDark ? ShellColors.ExplorerBarVertBGColor : ShellColors.Default;
             }
         }
 

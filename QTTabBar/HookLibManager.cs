@@ -288,12 +288,7 @@ namespace QTTabBarLib {
                 }
                 IDL = wrapper.IDL;
             }
-            InstanceManager.BeginInvokeMain(tabbar => {
-                QTLogger.log("BeginInvokeMain OpenNewTabOrWindow");
-                using (IDLWrapper wrapper = new IDLWrapper(IDL)) {
-                    tabbar.OpenNewTabOrWindow(wrapper, true);
-                }
-            });
+            InstanceManager.BeginInvokeMainOpenNewTabOrWindowFromIdl(IDL);
             return true;
         }
         /** do not init shell brownser hook. */

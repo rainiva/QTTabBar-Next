@@ -14,24 +14,14 @@ namespace QTTabBarLib {
 
             public void MergeAllWindows() {
                 InstanceManager.PushTabBarInstance(_owner);
-                InstanceManager.TabBarBroadcast(tabbar => {
-                    QTabItem[] tabs = tabbar.tabControl1.TabPages.Select(tab => tab.Clone(true)).ToArray();
-                    InstanceManager.InvokeMain(main => {
-                        try {
-                            main.tabControl1.SetRedraw(false);
-                            foreach(QTabItem tab in tabs) {
-                                tab.ResetOwner(main.tabControl1);
-                                tab.ImageKey = tab.ImageKey;
-                            }
-                            QTabItem.CheckSubTexts(main.tabControl1);
-                            TryCallButtonBar(bbar => bbar.RefreshButtons());
-                        }
-                        finally {
-                            main.tabControl1.SetRedraw(true);
-                        }
-                    });
+                TabInstanceRegistry.LocalTabBroadcast(tabbar => {
+                    MergeTabPayload[] payloads = tabbar.tabControl1.TabPages
+                        .Select(tab => MergeTabPayload.FromTab(tab.Clone(true)))
+                        .Where(p => p != null)
+                        .ToArray();
+                    InstanceManager.BeginInvokeMainMergeTabs(payloads);
                     WindowUtils.CloseExplorer(tabbar.ExplorerHandle, 2, true);
-                }, false);
+                }, System.Threading.Thread.CurrentThread);
             }
 
             public void MinimizeToTray() {

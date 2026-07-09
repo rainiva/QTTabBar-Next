@@ -262,13 +262,7 @@ namespace QTTabBarLib {
         private void dataGridView1_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e) {
             if(e.RowIndex >= 0 && e.ColumnIndex > 0) {
                 string path = dgvHash.Rows[e.RowIndex].Cells[1].ToolTipText;
-                InstanceManager.InvokeMain(tabBar => {
-                    using(IDLWrapper idlw = new IDLWrapper(Path.GetDirectoryName(path))) {
-                        if(idlw.Available) {
-                            tabBar.OpenNewTabOrWindow(idlw);
-                        }
-                    }
-                });
+                InstanceManager.InvokeMainOpenNewTabOrWindowFromPath(Path.GetDirectoryName(path));
             }
         }
 

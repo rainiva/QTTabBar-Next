@@ -35,7 +35,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <RuntimeIdentifiers>win;win-x86</RuntimeIdentifiers>
     <NuGetPackageImportStamp>
@@ -127,6 +127,9 @@
     <Compile Include="ActionDelayer.cs" />
     <Compile Include="AppsManager.cs" />
     <Compile Include="AutoLoader.cs" />
+    <Compile Include="FirstLoadActivationService.cs" />
+    <Compile Include="InstallActivationRegistry.cs" />
+    <Compile Include="InstanceBootstrapController.cs" />
     <Compile Include="AutomationClasses.cs" />
     <Compile Include="BreadcrumbBar.cs" />
     <Compile Include="AbstractListView.cs" />
@@ -341,6 +344,15 @@
     <Compile Include="PluginServer.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="PluginServer.Commands.cs">
+      <DependentUpon>PluginServer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PluginServer.TabAccess.cs">
+      <DependentUpon>PluginServer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PluginServer.Lifetime.cs">
+      <DependentUpon>PluginServer.cs</DependentUpon>
+    </Compile>
     <Compile Include="PreMergeToMergedDeserializationBinder.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -407,12 +419,14 @@
     <Compile Include="RebarController.cs" />
     <Compile Include="MiscClasses.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="ConfigModels.cs" />
     <Compile Include="ConfigMetadataCache.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>
     <Compile Include="StaticReg.cs" />
+    <Compile Include="StaticRegAccess.cs" />
     <Compile Include="TabBarBase.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -593,6 +607,9 @@
     <Compile Include="Interop\_ShellLinkObject.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="ListViewMonitor.cs" />
+    <Compile Include="MergeTabPayload.cs" />
+    <Compile Include="LockedTabsService.cs" />
+    <Compile Include="IpcNavigationExecutor.cs" />
     <Compile Include="ExtendedListViewCommon.cs" />
     <Compile Include="MemoForm.cs" />
     <Compile Include="MenuItemEx.cs">
@@ -699,7 +716,16 @@
     <Compile Include="QTTabBarClass.ExplorerController.SessionRestore.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.TravelLog.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.MessageRouting.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.DragDropController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.IpcNavigation.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.HookInputController.cs">
@@ -724,6 +750,12 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ListViewInputController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ListViewInputController.Keyboard.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ListViewInputController.Mouse.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.KeyboardAcceleratorController.cs">
@@ -759,6 +791,9 @@
     <Compile Include="QTTabBarClass.PluginMenuController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ShutdownAccess.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.ShutdownController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
@@ -766,9 +801,6 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ShellNavigationController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.InstanceBootstrapController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.TabTooltipController.cs">
@@ -803,6 +835,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WindowUtils.cs" />
+    <Compile Include="WindowSessionPersistence.cs" />
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
@@ -1221,6 +1254,10 @@
   <ItemGroup>
     <Reference Include="System.Resources.Extensions">
       <HintPath>$(USERPROFILE)\.nuget\packages\system.resources.extensions\8.0.0\lib\net462\System.Resources.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Wpf.Ui">
+      <HintPath>$(PkgWPF_UI)\lib\net472\Wpf.Ui.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Interop.MSHTML">

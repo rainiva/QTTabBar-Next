@@ -546,6 +546,11 @@ namespace QTTabBarLib {
             }
         }
 
+        internal static void ResetForInitRetry() {
+            CloseCommResources();
+            _initialized = false;
+        }
+
         private static void SafeReinitialize() {
             try {
                 QTLogger.log("InstanceManager.SafeReinitialize: resetting comm channels");
@@ -614,6 +619,66 @@ namespace QTTabBarLib {
                 }
             }
             StaticBroadcastCommand(IpcCommandMessage.EncodeRefreshButtonBars());
+        }
+
+        public static void BroadcastSyncSearchBoxWidth(int width, bool includeCurrent = false) {
+            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.ApplySearchBoxWidth(width), Thread.CurrentThread);
+            if(includeCurrent) {
+                QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
+                if(bbar != null) {
+                    bbar.ApplySearchBoxWidth(width);
+                }
+            }
+            StaticBroadcastCommand(IpcCommandMessage.EncodeSyncSearchBoxWidth(width));
+        }
+
+        public static void BeginInvokeMainRestoreWindow() {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeRestoreMainWindow(), true);
+        }
+
+        public static void BeginInvokeMainOpenGroup(string group) {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenGroup(group), true);
+        }
+
+        public static void BeginInvokeMainOpenNewTabOrWindowFromIdl(byte[] idl) {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenNewTabOrWindowFromIdl(idl), true);
+        }
+
+        public static void BeginInvokeMainOpenNewTabSequence(byte[][] idls) {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenNewTabSequence(idls), true);
+        }
+
+        public static void BeginInvokeMainCaptureNewWindow(string path, int cmdType, string selectName) {
+            ExecuteOnMainProcessCommand(
+                IpcCommandMessage.EncodeCaptureNewWindow(path, cmdType, selectName),
+                true);
+        }
+
+        public static void BeginInvokeMainMergeTabs(MergeTabPayload[] tabs) {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeMergeTabs(tabs), false);
+        }
+
+        public static void InvokeMainOpenNewTabOrWindowFromPath(string path) {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenNewTabOrWindowFromPath(path), false);
+        }
+
+        public static void InvokeMainOpenPluginOptions(string pluginId) {
+            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenPluginOptions(pluginId), false);
+        }
+
+        private static void ExecuteOnMainProcessCommand(byte[] encodedCommand, bool doAsync) {
+            ICommService service = GetChannel();
+            if(service == null || service.ExecuteOnMainProcess(encodedCommand, doAsync)) {
+                Action work;
+                if(IpcCommandDispatcher.TryCreateClientAction(encodedCommand, out work) && work != null) {
+                    if(doAsync) {
+                        AsyncHelper.BeginInvoke(work);
+                    }
+                    else {
+                        work();
+                    }
+                }
+            }
         }
 
         private static void ExecuteOnMainProcess(Action action, bool doAsync) {

@@ -1354,3 +1354,23 @@ public static void Initialize() {
 | **Critical** | 运行时崩溃、功能缺陷、安全/健壮性问题、跨进程不一致 | 栈溢出、参数被忽略、绕过校验、不广播配置变更 |
 | **Warning** | 应在后续修复计划中处理，不立即触发但增加维护风险 | 缓存不同步、线程安全、代码重复、状态多真源 |
 | **Suggestion** | 改进建议，可低优先级处理 | 死代码清理、代码组织、注释补充 |
+
+---
+
+## 第五批（batch5）：架构三痼疾全量修复 — 验收记录
+
+> **完成日期**: 2026-07-09  
+> **基线**: `e912251` → **736/736** 测试绿（MSBuild Debug + `dotnet test --no-build`）
+
+| 批次 | 主题 | 状态 | 关键交付 |
+|------|------|------|----------|
+| 5a | TabsLocked 单真源 | ✅ | `LockedTabsService` + `UniqueList` + `ArchitectureBatch5aTabsLockedTests` |
+| 5b | IPC 简单 typed 命令 | ✅ | `SyncSearchBoxWidth` / `RestoreMainWindow` / `OpenGroup` |
+| 5c | IPC 导航 typed 命令 | ✅ | `OpenNewTabFromIdl` / `CaptureNewWindow` + `IpcNavigationExecutor` |
+| 5d | IPC MergeTabs + delegate 清零 | ✅ | `MergeTabs` JSON + `OpenNewTabOrWindowFromPath` / `OpenPluginOptions` |
+| 5e | Init 失败对齐 | ✅ | `ConfigManager.Initialize` 幂等 + `ResetForInitRetry` + `LoadTextResources` |
+| 5f | Config 写路径收敛 | ✅ | 单次 `Increment` via `UpdateConfig`；`PersistPartialWindowSetting` 本地 `UpdateConfig(false)` |
+| 5g | Explorer/ListView 拆分 | ✅ | `TravelLog` / `MessageRouting` partial + `ListViewInputController` Keyboard/Mouse |
+| 5h | PluginServer 拆分 | ✅ | `Commands` / `TabAccess` / `Lifetime` partial（主文件 ≤300 行） |
+| 5i | 主题读取收敛 | ✅ | `ThemeRefreshService.IsDark`；`ShellColors`/`FluentThemeTokens`/`TabBarBase` 不再直读 `InNightMode` |
+| 5j | Config 模型分离 | ✅ | `ConfigModels.cs`（enums + 嵌套类）；`Config.cs` 149 行 |

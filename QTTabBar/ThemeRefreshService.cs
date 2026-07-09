@@ -1,5 +1,7 @@
 namespace QTTabBarLib {
     internal static class ThemeRefreshService {
+        public static bool IsDark => QTUtility.InNightMode;
+
         /// <summary>
         /// Single entry: read system dark/light preference and apply runtime skin colors
         /// to the loaded in-memory config (does not persist to registry).

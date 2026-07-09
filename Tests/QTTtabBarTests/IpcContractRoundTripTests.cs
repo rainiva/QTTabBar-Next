@@ -39,6 +39,14 @@ namespace QTTtabBarTests {
             Assert.AreEqual(4, (byte)IpcCommand.ReloadGroups);
             Assert.AreEqual(5, (byte)IpcCommand.ReloadApps);
             Assert.AreEqual(6, (byte)IpcCommand.RefreshButtonBars);
+            Assert.AreEqual(7, (byte)IpcCommand.SyncSearchBoxWidth);
+            Assert.AreEqual(8, (byte)IpcCommand.RestoreMainWindow);
+            Assert.AreEqual(9, (byte)IpcCommand.OpenGroup);
+            Assert.AreEqual(10, (byte)IpcCommand.OpenNewTabFromIdl);
+            Assert.AreEqual(11, (byte)IpcCommand.CaptureNewWindow);
+            Assert.AreEqual(12, (byte)IpcCommand.MergeTabs);
+            Assert.AreEqual(13, (byte)IpcCommand.OpenNewTabOrWindowFromPath);
+            Assert.AreEqual(14, (byte)IpcCommand.OpenPluginOptions);
         }
 
         #endregion

@@ -13,11 +13,29 @@ namespace QTTabBarLib {
         public static volatile Config LoadedConfig;
         private static string[] _lastPluginEnabledSnapshot;
 
+        internal static void ResetForInitRetry() {
+            LoadedConfig = null;
+        }
+
         public static void Initialize() {
+            if(LoadedConfig != null) {
+                return;
+            }
             LoadedConfig = new Config();
             QTLogger.log("初始化配置信息成功");
             ReadConfig();
             QTLogger.log("注册表读取配置信息成功");
+        }
+
+        internal static void LoadTextResources() {
+            Dictionary<string, string[]> newTextResources = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
+                    ? QTResourceManager.ReadLanguageFile(Config.Lang.LangFile)
+                    : null;
+            QTResourceManager.ValidateTextResources(ref newTextResources);
+            lock(QTUtility.syncRoot) {
+                QTUtility.TextResourcesDic = newTextResources;
+            }
+            QTResourceManager.ValidateTextResources();
         }
 
         /// <summary>
@@ -29,18 +47,8 @@ namespace QTTabBarLib {
             // including IPC ReloadConfig where registry skin colors alone are insufficient.
             ThemeRefreshService.ApplyLoadedSkinFromSystemTheme();
 
-            // Task 2.5.3: build and validate the dictionary on a local first, then
-            // publish it once under lock so lock-free readers never observe a null or
-            // half-initialized TextResourcesDic. The trailing ValidateTextResources()
-            // only refreshes ResMain/ResMisc/Resx from the already-valid published dict.
-            Dictionary<string, string[]> newTextResources = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
-                    ? QTResourceManager.ReadLanguageFile(Config.Lang.LangFile)
-                    : null;
-            QTResourceManager.ValidateTextResources(ref newTextResources);
-            lock(QTUtility.syncRoot) {
-                QTUtility.TextResourcesDic = newTextResources;
-            }
-            QTResourceManager.ValidateTextResources();
+            SessionState.WindowAlpha = Config.Window.WindowAlpha;
+            LoadTextResources();
             ApplyNoCapturePathsFromConfig();
             StaticReg.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
             StaticReg.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;
@@ -74,6 +82,7 @@ namespace QTTabBarLib {
             if(incrementVersion) {
                 ConfigVersionTracker.Increment();
             }
+            UpdateConfig(false);
             InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
         }
 
@@ -92,12 +101,25 @@ namespace QTTabBarLib {
             });
         }
 
+        public static void PersistWindowAlpha(byte alpha) {
+            Config.Window.WindowAlpha = alpha;
+            SessionState.WindowAlpha = alpha;
+            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Config + "Window")) {
+                if(key != null) {
+                    key.SetValue("WindowAlpha", (int)alpha);
+                }
+            }
+        }
+
         public static void ReadConfig() {
             try
             {
                 foreach(var category in ConfigMetadataCache.Categories) {
                     object categoryObject = category.CategoryProperty.GetValue(LoadedConfig, null);
-                    using (var key=Registry.CurrentUser.CreateSubKey(category.KeyPath)) {
+                    using(var key = Registry.CurrentUser.OpenSubKey(category.KeyPath, false)) {
+                        if(key == null) {
+                            continue;
+                        }
                         foreach(var setting in category.Settings) {
                                 object value = key.GetValue(setting.Name);
                                 if (value == null) { continue;}
@@ -107,6 +129,10 @@ namespace QTTabBarLib {
                                 if (t == typeof(bool))
                                 {
                                     value = (int)value != 0;
+                                }
+                                else if (t == typeof(byte))
+                                {
+                                    value = Convert.ToByte(value);
                                 }
                                 else if (t.IsEnum)
                                 {
@@ -193,6 +219,8 @@ namespace QTTabBarLib {
                 if(!OSDetector.IsXP) Config.Tweaks.KillExtWhileRenaming = true;
                 if(OSDetector.IsXP) Config.Tweaks.BackspaceUpLevel = true;
                 if(!OSDetector.IsWin7) Config.Tweaks.ForceSysListView = true;
+                Config.Window.WindowAlpha = (byte)ValidationHelper.ValidateMinMax(Config.Window.WindowAlpha, 0, 255);
+                SessionState.WindowAlpha = Config.Window.WindowAlpha;
             } catch (Exception e)
             {
                 QTLogger.MakeErrorLog(e, "ReadConfig foreach category");
@@ -222,6 +250,8 @@ namespace QTTabBarLib {
 
                         if (t==typeof(bool)) {
                             value=(bool)value ? 1 : 0;
+                        } else if (t == typeof(byte)) {
+                            value = (int)(byte)value;
                         } else if (t != typeof(int) && t != typeof(string) && !t.IsEnum) {
                             if (t==typeof(Font)) {
                                 value = XmlSerializableFont.FromFont((Font)value);
@@ -249,11 +279,6 @@ namespace QTTabBarLib {
             if(!DesktopOnly) {
                 _lastPluginEnabledSnapshot = (string[])(Config.Plugin.Enabled ?? Array.Empty<string>()).Clone();
             }
-            // Task 2.4: bump the config version after a successful write so the
-            // subsequent ReloadConfig broadcast can carry a monotonic version and
-            // clients can drop stale / duplicate reloads.
-            ConfigVersionTracker.Increment();
-			
         }
 
         private static void MigrateLegacyRootSettings() {
@@ -270,6 +295,12 @@ namespace QTTabBarLib {
                         object legacyNoCapture = rootKey.GetValue("NoCaptureAt");
                         if(legacyNoCapture != null) {
                             Config.Window.NoCaptureAt = legacyNoCapture.ToString();
+                        }
+                    }
+                    if(windowKey == null || windowKey.GetValue("WindowAlpha") == null) {
+                        object legacyAlpha = rootKey.GetValue("WindowAlpha");
+                        if(legacyAlpha != null) {
+                            Config.Window.WindowAlpha = Convert.ToByte(legacyAlpha);
                         }
                     }
                 }

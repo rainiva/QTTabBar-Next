@@ -31,7 +31,9 @@ namespace QTTtabBarTests {
         public void ConfigLayer_Files_Use_OSDetector_Directly() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string relative in ConfigLayerFiles) {
-                string content = File.ReadAllText(Path.Combine(root, relative));
+                string content = relative == "Config.cs"
+                    ? ConfigSourceTestHelper.ReadCombined(FindRepoRoot())
+                    : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("OSDetector."),
                     relative + " should call OSDetector directly after C7e1");
                 foreach(string pattern in OsFacadePatterns) {

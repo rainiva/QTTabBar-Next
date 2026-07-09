@@ -66,10 +66,7 @@ namespace QTTabBarLib {
 
                     case Keys.Alt | Keys.F4:
                         if(!fRepeat) {
-                            string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
-                                             where item2.TabLocked
-                                             select item2.CurrentPath).ToArray();
-                            QTUtility.SaveLockedTabs(list);
+                            LockedTabsService.PersistFromTabs(_owner.tabControl1.TabPages);
                             WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
                         }
                         return true;

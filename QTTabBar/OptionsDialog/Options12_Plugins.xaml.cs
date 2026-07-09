@@ -112,18 +112,7 @@ namespace QTTabBarLib {
             string pid = entry.PluginID;
             // Unfortunately, we can't call Plugin.OnOption on plugins that are
             // loaded in a non-static context.
-            InstanceManager.InvokeMain(tabbar => {
-                Plugin p;
-                if(!tabbar.pluginServer.TryGetPlugin(pid, out p) || p.Instance == null) return;
-                try {
-                    p.Instance.OnOption();
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex, "btnPluginOptions_Click");
-                    PluginManager.HandlePluginException(ex, new WindowInteropHelper(Window.GetWindow(this)).Handle,
-                            entry.Name, "Open plugin option.");
-                }
-            });
+            InstanceManager.InvokeMainOpenPluginOptions(pid);
         }
         /// <summary>
         ///  启用禁用插件
