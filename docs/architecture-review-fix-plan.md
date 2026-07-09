@@ -864,6 +864,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 | 3k | 窗口引导 | 3 | 高 | InitializeNavBtns/InitializeOpenedWindow/InstallHooks → ExplorerControllerModule |
 | 3l | 项激活/Travel 栏 | 4 | 高 | HandleItemActivate/HandleF5 → ListViewInputController；TravelToolbar → ExplorerControllerModule |
 | 3m | 次级菜单/快捷键 | 8 | 高 | menuitem* 次级处理器 + FolderLinkClicked → MenuController；TranslateAccelerator → KeyboardAcceleratorController |
+| 3n | Shell UI 刷新 | 4 | 高 | RefreshOptions/ShowFolderTree/ShowSearchBar/ToggleTopMost → ShellUiController |
 
 **每批验收标准**
 

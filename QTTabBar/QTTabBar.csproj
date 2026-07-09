@@ -600,6 +600,9 @@
     <Compile Include="QTTabBarClass.KeyboardAcceleratorController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ShellUiController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.TabTooltipController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
