@@ -27,8 +27,8 @@ namespace QTTabBarLib {
     // All interaction with AutomationElements MUST be done in a thread other
     // than the UI thread.  Use this class to execute code in the Automation 
     // thread.
-    // ÓëAutomationElementsµÄËùÓÐ½»»¥±ØÐëÔÚÁíÒ»¸öÏß³ÌÖÐÍê³É
-    // ¶ø²»ÊÇUIÏß³Ì¡£Ê¹ÓÃ´ËÀàÔÚ×Ô¶¯»¯ÖÐÖ´ÐÐ´úÂë
+    // ï¿½ï¿½AutomationElementsï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ß³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UIï¿½ß³Ì¡ï¿½Ê¹ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ð´ï¿½ï¿½ï¿½
     // http://msdn.microsoft.com/en-us/library/ee671692%28VS.85%29.aspx
 
     public static class AutomationManager {
@@ -55,7 +55,7 @@ namespace QTTabBarLib {
 
         public static T DoQuery<T>(Query<T> query) {
             try {
-                // ¿ÕÖµÒýÓÃÅÐ¶Ï£¬ÕâÀï·µ»ØÒ»¸öÄ¬ÈÏÖµ
+                // ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ð¶Ï£ï¿½ï¿½ï¿½ï¿½ï·µï¿½ï¿½Ò»ï¿½ï¿½Ä¬ï¿½ï¿½Öµ
                 if (null == automationDispatch) {
                     return default(T);
                 }
@@ -67,14 +67,14 @@ namespace QTTabBarLib {
                         }
                     }
                     catch(Exception exception) {
-                        QTUtility2.MakeErrorLog(exception, "Automation Thread");
+                        QTLogger.MakeErrorLog(exception, "Automation Thread");
                         return default(T);
                     }
                 }), DispatcherPriority.Normal);                
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "DoQuery");
+                QTLogger.MakeErrorLog(exception, "DoQuery");
                 return default(T);
             }
         }
@@ -212,7 +212,7 @@ namespace QTTabBarLib {
 
         public void Dispose() {
             if(pElement != null) {
-                QTUtility2.log("ReleaseComObject pElement");
+                QTLogger.log("ReleaseComObject pElement");
                 Marshal.ReleaseComObject(pElement);
                 pElement = null;
             }
@@ -242,7 +242,7 @@ namespace QTTabBarLib {
             finally {
                 if (walker != null)
                 {
-                    QTUtility2.log("ReleaseComObject walker");
+                    QTLogger.log("ReleaseComObject walker");
                     Marshal.ReleaseComObject(walker);
                 }
             }
@@ -266,7 +266,7 @@ namespace QTTabBarLib {
             finally {
                 if (obj != null)
                 {
-                    QTUtility2.log("ReleaseComObject selprov");
+                    QTLogger.log("ReleaseComObject selprov");
                     Marshal.ReleaseComObject(obj);
                 }
             }
@@ -317,7 +317,7 @@ namespace QTTabBarLib {
                 }
                 catch(COMException) {
                     if(elem != null) {
-                        QTUtility2.log("ReleaseComObject elem");
+                        QTLogger.log("ReleaseComObject elem");
                         Marshal.ReleaseComObject(elem);
                     }
                     yield break;

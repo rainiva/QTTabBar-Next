@@ -43,12 +43,12 @@ namespace QTTabBarLib {
                 return Marshal.ReleaseComObject(obj);
             }
             catch(COMException ex) {
-                QTUtility2.MakeErrorLog(ex, "SafeReleaseComObject COMException. context=" + context);
+                QTLogger.MakeErrorLog(ex, "SafeReleaseComObject COMException. context=" + context);
             }
             catch(Exception ex) {
                 // Covers InvalidComObjectException (already released) and
                 // ArgumentException (not a COM object), among others.
-                QTUtility2.MakeErrorLog(ex, "SafeReleaseComObject failed. context=" + context);
+                QTLogger.MakeErrorLog(ex, "SafeReleaseComObject failed. context=" + context);
             }
             return -1;
         }

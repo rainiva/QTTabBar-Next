@@ -300,7 +300,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "SetImageMargin");
+                    QTLogger.MakeErrorLog(exception, "SetImageMargin");
                 }
             }
         }
@@ -343,7 +343,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "UpdateToolTip_OnTheEdge");
+                    QTLogger.MakeErrorLog(exception, "UpdateToolTip_OnTheEdge");
                 }
             }
             return false;
@@ -584,7 +584,7 @@ namespace QTTabBarLib {
                 lastMouseActiveItem = null;
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception, "MSG:" + m.Msg.ToString("X") + ", WPARAM:" + m.WParam.ToString("X") + ", LPARAM:" + m.LParam.ToString("X"));
+                QTLogger.MakeErrorLog(exception, "MSG:" + m.Msg.ToString("X") + ", WPARAM:" + m.WParam.ToString("X") + ", LPARAM:" + m.LParam.ToString("X"));
             }
         Label_07C2:
             base.WndProc(ref m);

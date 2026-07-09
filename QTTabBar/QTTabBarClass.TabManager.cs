@@ -65,7 +65,7 @@ namespace QTTabBarLib {
             #region Tab creation / opening
 
             public void AddStartUpTabs(string openingGRP, string openingPath) {
-                QTUtility2.log(  "QTTabBarClass AddStartUpTabs openingGRP "  + openingGRP + " openingPath " + openingPath);
+                QTLogger.log(  "QTTabBarClass AddStartUpTabs openingGRP "  + openingGRP + " openingPath " + openingPath);
                 if(Control.ModifierKeys == Keys.Shift || InstanceManager.GetTotalInstanceCount() != 0) return;
                 foreach(string path in GroupsManager.Groups.Where(g => g.Startup && openingGRP != g.Name).SelectMany(g => g.Paths)) {
                     if(Config.Tabs.NeverOpenSame) {
@@ -174,7 +174,7 @@ namespace QTTabBarLib {
 
                     StaticReg.SkipNextCapture = true;
                     if(_owner.ShellBrowser.Navigate(idlw, wFlags) != 0) {
-                        QTUtility2.MakeErrorLog(null, string.Format("Failed navigation: {0}", idlw.Path));
+                        QTLogger.MakeErrorLog(null, string.Format("Failed navigation: {0}", idlw.Path));
                         if (Config.Window.ShowFailNavMsg)
                         {
                             MessageBox.Show(string.Format(QTUtility.TextResourcesDic["TabBar_Message"][0], idlw.Path));
@@ -321,7 +321,7 @@ namespace QTTabBarLib {
                             }
                         }
                         catch(Exception e) {
-                            QTUtility2.MakeErrorLog(e, "OpenDroppedFolder");
+                            QTLogger.MakeErrorLog(e, "OpenDroppedFolder");
                         }
                     }
                 }
@@ -370,7 +370,7 @@ namespace QTTabBarLib {
 
             public QTabItem CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index)
             {
-                QTUtility2.log("QTTabBarLib.QTTabBarClass.CloneTabButton optionURL " + optionURL +
+                QTLogger.log("QTTabBarLib.QTTabBarClass.CloneTabButton optionURL " + optionURL +
                                 " fSelect " + fSelect + 
                                 " index " + index 
                 );
@@ -541,7 +541,7 @@ namespace QTTabBarLib {
             }
 
             public void RestoreTabsOnInitialize(int iIndex, string openingPath) {
-                QTUtility2.log(  "QTTabBarClass RestoreTabsOnInitialize" );
+                QTLogger.log(  "QTTabBarClass RestoreTabsOnInitialize" );
                 QTUtility.RefreshLockedTabsList();
                 TabPos num = Config.Tabs.NewTabPosition;
                 Config.Tabs.NewTabPosition = TabPos.Rightmost;
@@ -645,7 +645,7 @@ namespace QTTabBarLib {
                         MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Double, Control.ModifierKeys);
                         BindAction action;
                         if(Config.Mouse.TabActions.TryGetValue(chord, out action)) {
-                            QTUtility2.log("QTTabBarClass tabControl1_MouseDoubleClick " + action);
+                            QTLogger.log("QTTabBarClass tabControl1_MouseDoubleClick " + action);
                             _owner.DoBindAction(action, false, _owner.DraggingTab);
                         }
                     }
@@ -777,7 +777,7 @@ namespace QTTabBarLib {
                         MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Left, Control.ModifierKeys);
                         BindAction action;
                         if(Config.Mouse.TabActions.TryGetValue(chord, out action)) {
-                            QTUtility2.log("QTTabBarClass DraggingTab " + action);
+                            QTLogger.log("QTTabBarClass DraggingTab " + action);
                             _owner.DoBindAction(action, false, _owner.DraggingTab);
                         }
                     }
@@ -792,7 +792,7 @@ namespace QTTabBarLib {
                     MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Middle, Control.ModifierKeys);
                     BindAction action;
                     if(Config.Mouse.TabActions.TryGetValue(chord, out action)) {
-                        QTUtility2.log("QTTabBarClass MouseButtons.Middle " + action);
+                        QTLogger.log("QTTabBarClass MouseButtons.Middle " + action);
                         _owner.DoBindAction(action, false, tabMouseOn);
                     }
                 }
@@ -835,7 +835,7 @@ namespace QTTabBarLib {
                 MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Double, Control.ModifierKeys);
                 BindAction action;
                 if(Config.Mouse.BarActions.TryGetValue(chord, out action)) {
-                    QTUtility2.log("QTTabBarClass_MouseDoubleClick " + action);
+                    QTLogger.log("QTTabBarClass_MouseDoubleClick " + action);
                     _owner.DoBindAction(action);
                 }
             }
@@ -854,7 +854,7 @@ namespace QTTabBarLib {
                 BindAction action;
                 
                 if(Config.Mouse.BarActions.TryGetValue(chord, out action)) {
-                    QTUtility2.log("QTTabBarClass_MouseUp " + action );
+                    QTLogger.log("QTTabBarClass_MouseUp " + action );
                     _owner.DoBindAction(action);
                 }
             }
@@ -919,7 +919,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception, "tabsubdir");
+                    QTLogger.MakeErrorLog(exception, "tabsubdir");
                 }
             }
 
@@ -1123,7 +1123,7 @@ namespace QTTabBarLib {
             }
 
             public void tsmiBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                QTUtility2.log("QTTabBarClass tsmiBranchRoot_DropDownItemClicked");
+                QTLogger.log("QTTabBarClass tsmiBranchRoot_DropDownItemClicked");
                 QTabItem tag = (QTabItem)((ToolStripMenuItem)sender).Tag;
                 if(tag != null) {
                     _owner.NavigateBranches(tag, ((QMenuItem)e.ClickedItem).MenuItemArguments.Index);

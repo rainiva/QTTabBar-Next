@@ -110,7 +110,7 @@ namespace QTTabBarLib {
                         }
                     }
                     if(_owner.TravelLog != null) {
-                        QTUtility2.log("ReleaseComObject TravelLog");
+                        QTLogger.log("ReleaseComObject TravelLog");
                         Marshal.FinalReleaseComObject(_owner.TravelLog);
                         _owner.TravelLog = null;
                     }
@@ -124,7 +124,7 @@ namespace QTTabBarLib {
                     }
                     foreach(ITravelLogEntry entry in _owner.LogEntryDic.Values) {
                         if(entry != null) {
-                            QTUtility2.log("ReleaseComObject entry");
+                            QTLogger.log("ReleaseComObject entry");
                             Marshal.FinalReleaseComObject(entry);
                         }
                     }
@@ -133,7 +133,7 @@ namespace QTTabBarLib {
                     _owner.CloseDWBase(dwReserved);
                 }
                 catch(Exception exception2) {
-                    QTUtility2.MakeErrorLog(exception2, "tabbar closing");
+                    QTLogger.MakeErrorLog(exception2, "tabbar closing");
                 }
             }
         }

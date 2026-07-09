@@ -99,7 +99,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception ex)
                 {
-                    QTUtility2.MakeErrorLog(ex, "MessageForm btnOk2_Click");
+                    QTLogger.MakeErrorLog(ex, "MessageForm btnOk2_Click");
                 }
             }
         }

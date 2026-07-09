@@ -335,7 +335,7 @@ namespace QTTabBarLib {
                 }
                 catch(Exception exception) {
                     PluginManager.HandlePluginException(exception, IntPtr.Zero, pi.Name, "Loading plugin.");
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                 }
                 return null;
             }
@@ -437,7 +437,7 @@ namespace QTTabBarLib {
 
             public void MakeErrorLog(Exception ex, string optional )
             {
-                QTUtility2.MakeErrorLog(ex, optional);
+                QTLogger.MakeErrorLog(ex, optional);
             }
 
             public void RefreshPlugins() {

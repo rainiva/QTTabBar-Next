@@ -14,7 +14,7 @@ namespace QTTabBarLib {
             }
 
             public void RefreshOptions() {
-                QTUtility2.log("QTTabBarClass RefreshOptions");
+                QTLogger.log("QTTabBarClass RefreshOptions");
                 _owner.SuspendLayout();
                 _owner.tabControl1.SuspendLayout();
                 _owner.tabControl1.RefreshOptions(false);
@@ -64,7 +64,7 @@ namespace QTTabBarLib {
             }
 
             public void ShowSearchBar(bool fShow) {
-                QTUtility2.log("QTTabBarClass ShowSearchBar fShow: " + fShow);
+                QTLogger.log("QTTabBarClass ShowSearchBar fShow: " + fShow);
                 if(!OSDetector.IsXP) {
                     if(!fShow) {
                         return;
@@ -83,7 +83,7 @@ namespace QTTabBarLib {
             }
 
             public void ToggleTopMost() {
-                QTUtility2.log("QTTabBarClass ToggleTopMost");
+                QTLogger.log("QTTabBarClass ToggleTopMost");
                 if(PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(_owner.ExplorerHandle, -20), 8) != IntPtr.Zero) {
                     PInvoke.SetWindowPos(_owner.ExplorerHandle, (IntPtr)(-2), 0, 0, 0, 0, 3);
                     _owner.NowTopMost = false;

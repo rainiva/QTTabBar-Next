@@ -41,11 +41,11 @@ namespace QTTabBarLib {
                 }
                 catch(SerializationException serializationException) {
                     // A blocked/non-whitelisted or malformed payload: degrade gracefully.
-                    QTUtility2.MakeErrorLog(serializationException, "ByteArrayToObject: rejected or malformed serialized payload");
+                    QTLogger.MakeErrorLog(serializationException, "ByteArrayToObject: rejected or malformed serialized payload");
                     return null;
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception, "ByteArrayToObject:" + Encoding.Default.GetString(arrBytes));
+                    QTLogger.MakeErrorLog(exception, "ByteArrayToObject:" + Encoding.Default.GetString(arrBytes));
                 }
             }
             return null;

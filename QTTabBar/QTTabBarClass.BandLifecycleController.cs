@@ -25,7 +25,7 @@ namespace QTTabBarLib {
             }
 
             public void UIActivateIO(int fActivate, ref MSG Msg) {
-                QTUtility2.log("QTTabBarClass UIActivateIO");
+                QTLogger.log("QTTabBarClass UIActivateIO");
                 if(fActivate != 0) {
                     _owner.tabControl1.Focus();
                     _owner.tabControl1.FocusNextTab(ModifierKeys == Keys.Shift, true, false);

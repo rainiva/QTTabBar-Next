@@ -145,7 +145,7 @@ namespace QTTabBarLib {
             // }
             // catch (Exception ex)
             // {
-            //     QTUtility2.MakeErrorLog(ex, "QTUtility.RefreshShellStateValues" );
+            //     QTLogger.MakeErrorLog(ex, "QTUtility.RefreshShellStateValues" );
             // }
         }
         ///////////////////////// ���� by indiff ////////////////////////////////////
@@ -160,7 +160,7 @@ namespace QTTabBarLib {
             // Maybe I should...
             String processName = Process.GetCurrentProcess().ProcessName.ToLower();
             if(processName == "iexplore" || processName == "regasm" || processName == "gacutil") {
-                QTUtility2.log("QTUtility return :" + processName);
+                QTLogger.log("QTUtility return :" + processName);
                 return;
             }
 
@@ -264,7 +264,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
         }
 
@@ -580,7 +580,7 @@ namespace QTTabBarLib {
                 {
                     if (envKey == null)
                     {
-                        QTUtility2.log("can not get reg for personailize");
+                        QTLogger.log("can not get reg for personailize");
                         return false;
                     }
                     object value = envKey.GetValue("AppsUseLightTheme");

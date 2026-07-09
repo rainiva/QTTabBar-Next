@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -70,7 +70,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception ex)
                 {
-                    QTUtility2.MakeErrorLog(ex);
+                    QTLogger.MakeErrorLog(ex);
                 }
             }
             return false;
@@ -209,7 +209,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception ex)
                             {
-                                QTUtility2.MakeErrorLog(ex, "dicPluginButtons");
+                                QTLogger.MakeErrorLog(ex, "dicPluginButtons");
 
                             }
                         }
@@ -247,7 +247,7 @@ namespace QTTabBarLib {
              }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options11_ButtonBar InitializeConfig");
+                QTLogger.MakeErrorLog(exception, "Options11_ButtonBar InitializeConfig");
 
             }     
        }
@@ -304,7 +304,7 @@ namespace QTTabBarLib {
              }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options11_ButtonBar CommitConfig");
+                QTLogger.MakeErrorLog(exception, "Options11_ButtonBar CommitConfig");
 
             }     
         }
@@ -447,7 +447,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception ex)
                             {
-                                QTUtility2.MakeErrorLog(ex, "PluginButtonText");
+                                QTLogger.MakeErrorLog(ex, "PluginButtonText");
 
                             }
                         }
@@ -469,7 +469,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception ex)
                             {
-                                QTUtility2.MakeErrorLog(ex, "getImage");
+                                QTLogger.MakeErrorLog(ex, "getImage");
 
                             }
                         }

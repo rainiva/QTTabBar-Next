@@ -77,20 +77,20 @@ namespace QTTtabBarTests {
 
         #endregion
 
-        #region QTUtility2 facade still works after extraction
+        #region QTUtility2 log facades removed after C7f
 
         [Test]
-        public void QTUtility2_Still_Has_Log_Facade() {
+        public void QTUtility2_Log_Facades_Removed() {
             bool hasLog = typeof(QTUtility2).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Any(m => m.Name == "log");
-            Assert.IsTrue(hasLog, "QTUtility2 should still have at least one log facade method");
+            Assert.IsFalse(hasLog, "QTUtility2.log façade should be removed after C7f");
         }
 
         [Test]
-        public void QTUtility2_Still_Has_MakeErrorLog_Facade() {
+        public void QTUtility2_MakeErrorLog_Facades_Removed() {
             bool hasMakeErrorLog = typeof(QTUtility2).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Any(m => m.Name == "MakeErrorLog");
-            Assert.IsTrue(hasMakeErrorLog, "QTUtility2 should still have at least one MakeErrorLog facade method");
+            Assert.IsFalse(hasMakeErrorLog, "QTUtility2.MakeErrorLog façade should be removed after C7f");
         }
 
         #endregion

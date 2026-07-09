@@ -16,7 +16,7 @@ namespace QTTabBarLib {
             if(((tab != null) && !string.IsNullOrEmpty(CurrentAddress)) &&
                 ShellBrowser.TryGetSelection(out addressArray, out str, false, ShellBrowser)) {
                 if(addressArray != null && addressArray.Length > 0) {
-                    QTUtility2.log("SaveSelectedItems addressArray " + addressArray[0].Path);
+                    QTLogger.log("SaveSelectedItems addressArray " + addressArray[0].Path);
                 }
                 tab.SetSelectedItemsAt(CurrentAddress, addressArray, str);
             }
@@ -24,7 +24,7 @@ namespace QTTabBarLib {
 
         public void tabControl1_Selecting(object sender, QTabCancelEventArgs e) {
             if(NowTabsAddingRemoving) {
-                QTUtility2.log("tabControl1_Selecting");
+                QTLogger.log("tabControl1_Selecting");
                 e.Cancel = true;
             }
         }

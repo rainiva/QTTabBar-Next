@@ -142,7 +142,7 @@ namespace QTTabBarLib {
                             }
                         }
                         catch(Exception e) {
-                            QTUtility2.MakeErrorLog(e, "LoadApps");
+                            QTLogger.MakeErrorLog(e, "LoadApps");
                         }
                     }
                 }

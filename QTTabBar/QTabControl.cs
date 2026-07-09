@@ -576,7 +576,7 @@ namespace QTTabBarLib {
             Brush rectBrush = null;
             if (QTUtility.InNightMode)
             {
-                // QTUtility2.log("QTabControl DrawBackground InNightMode ");
+                // QTLogger.log("QTabControl DrawBackground InNightMode ");
                 rectBrush = new SolidBrush(Config.Skin.TabShadActiveColor);
                 // Color light = Color.FromArgb(242, 242, 242);
                 Color light = Color.FromArgb(122, 122, 122);
@@ -598,7 +598,7 @@ namespace QTTabBarLib {
             }
             else
             {
-                QTUtility2.log("QTabControl DrawBackground NormanMode ");
+                QTLogger.log("QTabControl DrawBackground NormanMode ");
                 rectBrush = SystemBrushes.Control;
                 g.FillRectangle(rectBrush, rctItem);
             }
@@ -631,7 +631,7 @@ namespace QTTabBarLib {
                         new Point(((rctItem.X + rctItem.Width) - num) - 1, rctItem.Y + 1), 
                         new Point((rctItem.X + rctItem.Width) - num, rctItem.Y + 2));
                     if(bSelected) {
-                        // QTUtility2.log("DrawBackground g.DrawLine bSelected");
+                        // QTLogger.log("DrawBackground g.DrawLine bSelected");
                         Pen pen = new Pen(colorSet[2], 2f);
                         g.DrawLine(pen, 
                             new Point(rctItem.X, (rctItem.Y + rctItem.Height) - 1), 
@@ -641,15 +641,15 @@ namespace QTTabBarLib {
                 }  else {  // ���ͼƬ��Ϊ��
                     Bitmap bitmap;
                     if(bSelected) {
-                        // QTUtility2.log("tabImages[0] ");
+                        // QTLogger.log("tabImages[0] ");
                         bitmap = tabImages[0];
                     }
                     else if(fHot || (iPseudoHotIndex == index)) {
-                        // QTUtility2.log("tabImages[2] ");
+                        // QTLogger.log("tabImages[2] ");
                         bitmap = tabImages[2];
                     }
                     else {
-                        // QTUtility2.log("tabImages[1] ");
+                        // QTLogger.log("tabImages[1] ");
                         bitmap = tabImages[1];
                     }
                     if(bitmap != null) { // ���ͼƬ��Ϊ��
@@ -672,11 +672,11 @@ namespace QTTabBarLib {
                                     new Rectangle(rctItem.Right - right, rctItem.Bottom - bottom, right, bottom)
                                 };
                                 Rectangle[] rectangleArray2 = new Rectangle[9];
-                                // QTUtility2.log("ͼƬ�������� 9 ");
+                                // QTLogger.log("ͼƬ�������� 9 ");
                                 int width = bitmap.Width;
                                 int height = bitmap.Height;
 
-                                // QTUtility2.log("ͼƬ����  " + width + " ͼƬ�߶�  " + height);
+                                // QTLogger.log("ͼƬ����  " + width + " ͼƬ�߶�  " + height);
                                 rectangleArray2[0] = new Rectangle(0, 0, left, top);
                                 rectangleArray2[1] = new Rectangle(left, 0, width - horizontal, top);
                                 rectangleArray2[2] = new Rectangle(width - right, 0, right, top);
@@ -690,7 +690,7 @@ namespace QTTabBarLib {
                                 {
                                     g.DrawImage(bitmap, rectangleArray[i], rectangleArray2[i], GraphicsUnit.Pixel);
                                 }
-                                // QTUtility2.log("drawbackground by image end");
+                                // QTLogger.log("drawbackground by image end");
                                 // bitmap.Dispose(); // ���ﵼ��ͼƬ����
                     }
                 }
@@ -735,14 +735,14 @@ namespace QTTabBarLib {
                     else {
                         renderer = vsr_MPressed;
                     }
-                    // QTUtility2.log("DrawBackground renderer.DrawBackground1");
+                    // QTLogger.log("DrawBackground renderer.DrawBackground1");
                     if (!QTUtility.InNightMode)
                     {
                         renderer.DrawBackground(g, rctItem);
                     }
                     return;
                 }
-                // QTUtility2.log("DrawBackground renderer.DrawBackground2");
+                // QTLogger.log("DrawBackground renderer.DrawBackground2");
                 if (!QTUtility.InNightMode)
                 {
                     renderer.DrawBackground(g, rctItem);
@@ -836,7 +836,7 @@ namespace QTTabBarLib {
                 }
                 DrawBackground(g, bSelected, fHot, rctItem, baseTabItem.Edge, fVisualStyle, index);
                 int tabPosYHalfTabHeight = (rctItem.Height - 0x10) / 2; // ��ǩY����� 10 ���ص�һ��
-                // QTUtility2.log("draw folder image " + fDrawFolderImg +  " baseTabItem.ImageKey " + baseTabItem.ImageKey );
+                // QTLogger.log("draw folder image " + fDrawFolderImg +  " baseTabItem.ImageKey " + baseTabItem.ImageKey );
                 // �ж��Ƿ�ʹ��ͼƬ
                 if(fDrawFolderImg && IconManager.ImageGlobalContainsKey(baseTabItem.ImageKey)) {
                     // ͼƬ���� 0x10 -> 16
@@ -907,15 +907,15 @@ namespace QTTabBarLib {
                 // [log] C:QTabControl M:DrawTab P:12464 T:1 cost:0���� 2022/10/1 16:57:52  textRect.Y 0
                 // [log] C:QTabControl M:DrawTab P:12464 T:1 cost:0���� 2022/10/1 16:57:52  textPosX 53.5
                 // [log] C:QTabControl M:DrawTab P:12464 T:1 cost:0.994���� 2022/10/1 16:57:52  textPosY 2.5
-                // QTUtility2.log(" Config.Skin.TabHeight " + Config.Skin.TabHeight);
-                // QTUtility2.log(" textRect.Height " + textRect.Height);
-                // QTUtility2.log(" baseTabItem.TitleTextSize.Height " + baseTabItem.TitleTextSize.Height);
-                // QTUtility2.log(" textRect.X " + textRect.X);
-                // QTUtility2.log(" textRect.Y " + textRect.Y);
-                // QTUtility2.log(" textPosX " + ((tabTextAlignment == StringAlignment.Center)
+                // QTLogger.log(" Config.Skin.TabHeight " + Config.Skin.TabHeight);
+                // QTLogger.log(" textRect.Height " + textRect.Height);
+                // QTLogger.log(" baseTabItem.TitleTextSize.Height " + baseTabItem.TitleTextSize.Height);
+                // QTLogger.log(" textRect.X " + textRect.X);
+                // QTLogger.log(" textRect.Y " + textRect.Y);
+                // QTLogger.log(" textPosX " + ((tabTextAlignment == StringAlignment.Center)
                 //     ? Math.Max(((textRect.Width - textWidth) / 2f), 0f) :
                 //     0f));
-                // QTUtility2.log(" textPosY " + Math.Max(((textRect.Height - baseTabItem.TitleTextSize.Height) / 2f) - 5, 0f));
+                // QTLogger.log(" textPosY " + Math.Max(((textRect.Height - baseTabItem.TitleTextSize.Height) / 2f) - 5, 0f));
                 // float textPosY = Math.Max(((textRect.Height - baseTabItem.TitleTextSize.Height) / 2f) - 5 , 0f);
                 // float textPosY = 0;
                 // 垂直居中：Y 偏移到标题中线，绘制高度用标题高度（勿用整栏高度再 Center，会偏下）
@@ -935,7 +935,7 @@ namespace QTTabBarLib {
                     
                     // Color clrTxtColor = bSelected ? colorSet[0] : colorSet[1];
                     // Color clrShdwColor = bSelected ? colorSet[3] : colorSet[4];
-                    // QTUtility2.log("DrawTextWithShadow1 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
+                    // QTLogger.log("DrawTextWithShadow1 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
                     DrawTextWithShadow(g, 
                         baseTabItem.Text, 
                         bSelected ? colorSet[0] : colorSet[1], 
@@ -947,7 +947,7 @@ namespace QTTabBarLib {
                         sfTypoGraphic);
                 }
                 else {
-                    // QTUtility2.log("g.DrawString1 color " + brshInactv.Color + " InNightMode " + QTUtility.InNightMode);
+                    // QTLogger.log("g.DrawString1 color " + brshInactv.Color + " InNightMode " + QTUtility.InNightMode);
                     if (QTUtility.InNightMode)
                     {
                         brshActive = new SolidBrush(Config.Skin.TabTextActiveColor);
@@ -983,7 +983,7 @@ namespace QTTabBarLib {
                         ), 
                         Math.Max(baseTabItem.SubTitleTextSize.Height, 1f));
                     if(fDrawShadow) {
-                        // QTUtility2.log("DrawTextWithShadow2 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
+                        // QTLogger.log("DrawTextWithShadow2 " + clrTxtColor + " " + clrShdwColor + " InNightMode " + QTUtility.InNightMode);
                         DrawTextWithShadow(g, 
                             (fAutoSubText ? "@" : ":") + baseTabItem.Comment, 
                             bSelected ? colorSet[0] : colorSet[1], 
@@ -993,7 +993,7 @@ namespace QTTabBarLib {
                             sfTypoGraphic);
                     }
                     else {
-                        // QTUtility2.log("g.DrawString2 color " + brshInactv.Color + " InNightMode " + QTUtility.InNightMode);
+                        // QTLogger.log("g.DrawString2 color " + brshInactv.Color + " InNightMode " + QTUtility.InNightMode);
                         g.DrawString((fAutoSubText ? "@" : ":") + baseTabItem.Comment, 
                             fntSubText, 
                             brshInactv, 
@@ -1033,7 +1033,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "DrawTab");
+                QTLogger.MakeErrorLog(e, "DrawTab");
             }
         }
 
@@ -1142,7 +1142,7 @@ namespace QTTabBarLib {
                      {
                          return null;
                      }
-                     QTUtility2.log(" return tabPage[0] 1");
+                     QTLogger.log(" return tabPage[0] 1");
                      return tabPages[0];
                  }
                  return null;
@@ -1157,7 +1157,7 @@ namespace QTTabBarLib {
             if (tabPages.Count == 1) {
                  if (tabPages[0].TabBounds.Contains(pt))
                  {
-                     QTUtility2.log("contains pt return tabPage[0] 2");
+                     QTLogger.log("contains pt return tabPage[0] 2");
                      return tabPages[0];
                  }
                  return null;
@@ -1479,7 +1479,7 @@ namespace QTTabBarLib {
                     ShowUpDown(fNeedToDrawUpDown);
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                 }
             }
         }
@@ -1511,7 +1511,7 @@ namespace QTTabBarLib {
                 drawRect.Y + drawRect.Height / 2 - 13, 
                 drawRect.Width / 2, 
                 drawRect.Height );
-            // QTUtility2.MakeErrorLog( "x:" + (drawRect.X + drawRect.Width) + ",y:" + (drawRect.Y + drawRect.Height / 2 - 10) + ",width:" + (drawRect.Width / 2) + ",height:" + (drawRect.Height));
+            // QTLogger.MakeErrorLog( "x:" + (drawRect.X + drawRect.Width) + ",y:" + (drawRect.Y + drawRect.Height / 2 - 10) + ",width:" + (drawRect.Width / 2) + ",height:" + (drawRect.Height));
             //  new Rectangle(num, 0, PLUSBUTTON_WIDTH, ScaledTabHeight).TranslateClient(num2, IsRightToLeft);
             // Draw rectangle to screen.
             // Pen blackPen = new Pen(Color.Blue);
@@ -1558,7 +1558,7 @@ namespace QTTabBarLib {
                 ShowUpDown(false);
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
         }
 
@@ -1766,7 +1766,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "SetFont fntBold");
+                QTLogger.MakeErrorLog(e, "SetFont fntBold");
 
             }
             if(fnt_Underline != null) {
@@ -1779,7 +1779,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "SetFont fnt_Underline");
+                QTLogger.MakeErrorLog(e, "SetFont fnt_Underline");
 
             }
             if(fntBold_Underline != null) {
@@ -1792,7 +1792,7 @@ namespace QTTabBarLib {
             }
             catch  (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "SetFont fntBold_Underline");
+                QTLogger.MakeErrorLog(e, "SetFont fntBold_Underline");
 
             }
             if(fntSubText != null) {
@@ -1806,7 +1806,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "SetFont sizeInPoints");
+                QTLogger.MakeErrorLog(e, "SetFont sizeInPoints");
 
             }
             if(fntDriveLetter != null) {
@@ -1819,7 +1819,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "SetFont 8.25f");
+                QTLogger.MakeErrorLog(e, "SetFont 8.25f");
 
             }
             QTabItem.TabFont = Font;

@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2022 indiff  Quizo, Paul Accisano
 //
@@ -36,26 +36,26 @@ namespace QTTabBarLib {
             string name = t.GUID.ToString("B");
             ComRegistrationManager.RegisterBand(name, "QTTabBar AutoLoader", "QTTabBar AutoLoader", "QTTabBar AutoLoader");
             ComRegistrationManager.RegisterBho(name);
-            QTUtility2.flog( "AutoLoader 注册表 QTTabBar 自动加载(安装)");
+            QTLogger.flog( "AutoLoader 注册表 QTTabBar 自动加载(安装)");
         }
 
         [ComUnregisterFunction]
         public static void Unregister(Type t) {
             ComRegistrationManager.UnregisterBho(t.GUID.ToString("B"));
-            QTUtility2.flog("AutoLoader 注册表 QTTabBar 自动加载(卸载)");
+            QTLogger.flog("AutoLoader 注册表 QTTabBar 自动加载(卸载)");
         }
 
         public int SetSite(object site) {
             // SetProcessDPIAware是Vista以上才有的函数，这样直接调用会使得程序不兼容XP
             // PInvoke.SetProcessDPIAware();
-            // QTUtility2.log("QTUtility AutoLoader SetSite SetProcessDPIAware 不兼容XP");
-            QTUtility2.flog("Win11Probe AutoLoader.SetSite");
-            QTUtility2.log("SetSite");
+            // QTLogger.log("QTUtility AutoLoader SetSite SetProcessDPIAware 不兼容XP");
+            QTLogger.flog("Win11Probe AutoLoader.SetSite");
+            QTLogger.log("SetSite");
             explorer = site as IWebBrowser2;
-            // QTUtility2.flog("QTTabBar AutoLoader SetSite ");
+            // QTLogger.flog("QTTabBar AutoLoader SetSite ");
             /*if(explorer == null || Process.GetCurrentProcess().ProcessName == "iexplore") {
-                QTUtility2.log("QTTabBar AutoLoader SetSite Throw Exception ");
-                // QTUtility2.flog("QTTabBar AutoLoader SetSite Throw Exception ");
+                QTLogger.log("QTTabBar AutoLoader SetSite Throw Exception ");
+                // QTLogger.flog("QTTabBar AutoLoader SetSite Throw Exception ");
                 // 基于指定的 IErrorInfo 接口，用特定失败 HRESULT 引发异常
                 Marshal.ThrowExceptionForHR(E_FAIL);
             }
@@ -63,8 +63,8 @@ namespace QTTabBarLib {
 
             if (explorer != null && Process.GetCurrentProcess().ProcessName.ToLower() != "iexplore")
             {
-                QTUtility2.log("QTTabBar AutoLoader SetSite ActivateIt ");
-                // QTUtility2.flog("QTTabBar AutoLoader SetSite ActivateIt ");
+                QTLogger.log("QTTabBar AutoLoader SetSite ActivateIt ");
+                // QTLogger.flog("QTTabBar AutoLoader SetSite ActivateIt ");
                 ActivateIt();
             }
 
@@ -95,16 +95,16 @@ namespace QTTabBarLib {
                 try {
 
 
-                    QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.TabBar");
+                    QTLogger.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.TabBar");
                     explorer.ShowBrowserBar(pvaTabBar, pvarShow, pvarSize);
-                    QTUtility2.log("QTTabBar AutoLoader 显示标签");
+                    QTLogger.log("QTTabBar AutoLoader 显示标签");
                     
-                    QTUtility2.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.ButtonBar");
+                    QTLogger.flog("Win11Probe AutoLoader.ActivateIt.ShowBrowserBar.ButtonBar");
                     explorer.ShowBrowserBar(pvaButtonBar, pvarShow, pvarSize);
-                    QTUtility2.log("QTTabBar AutoLoader 显示工具栏");
+                    QTLogger.log("QTTabBar AutoLoader 显示工具栏");
                 }
                 catch(COMException e) {
-                    QTUtility2.MakeErrorLog(e, "ActivateIt");
+                    QTLogger.MakeErrorLog(e, "ActivateIt");
                     MessageForm.Show(
                         IntPtr.Zero,
                         QTUtility.TextResourcesDic["ErrorDialogs"][2],
@@ -117,7 +117,7 @@ namespace QTTabBarLib {
                 }
 
                 key.SetValue("ActivationDate", installDateString);
-                QTUtility2.flog("QTTabBar AutoLoader add ActivationDate");
+                QTLogger.flog("QTTabBar AutoLoader add ActivationDate");
             }
         }
     }

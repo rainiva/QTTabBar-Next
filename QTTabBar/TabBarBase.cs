@@ -164,8 +164,8 @@ namespace QTTabBarLib
 
         protected void ShowMessageNavCanceled(string failedPath, bool fModal)
         {
-            QTUtility2.log("QTTabBarClass ShowMessageNavCanceled: " + failedPath);
-            QTUtility2.MakeErrorLog(null, string.Format("Failed navigation: {0}", failedPath));
+            QTLogger.log("QTTabBarClass ShowMessageNavCanceled: " + failedPath);
+            QTLogger.MakeErrorLog(null, string.Format("Failed navigation: {0}", failedPath));
             if (Config.Window.ShowFailNavMsg)
             {
                 MessageForm.Show(ExplorerHandle,
@@ -233,13 +233,13 @@ namespace QTTabBarLib
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             finally
             {
                 if (ppenum != null)
                 {
-                    QTUtility2.log("ReleaseComObject ppenum");
+                    QTLogger.log("ReleaseComObject ppenum");
                     Marshal.ReleaseComObject(ppenum);
                 }
             }

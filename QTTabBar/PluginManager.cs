@@ -168,7 +168,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "PluginManager.GetTrustedPluginDirectories: assembly location");
+                QTLogger.MakeErrorLog(ex, "PluginManager.GetTrustedPluginDirectories: assembly location");
             }
             return dirs;
         }
@@ -311,7 +311,7 @@ namespace QTTabBarLib {
                           || HasTrustedSignature(assemblyPath);
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex,
+                QTLogger.MakeErrorLog(ex,
                     "PluginManager.ValidatePluginSource: validation error; continuing (conservative)");
                 trusted = false;
             }
@@ -319,13 +319,13 @@ namespace QTTabBarLib {
             bool shouldContinue = true;
             if(!trusted) {
                 if(Config.Security.BlockUntrustedPlugins) {
-                    QTUtility2.MakeErrorLog(null,
+                    QTLogger.MakeErrorLog(null,
                         "PluginManager: blocked untrusted plugin (BlockUntrustedPlugins=true): "
                         + assemblyPath);
                     shouldContinue = false;
                 }
                 else {
-                    QTUtility2.MakeErrorLog(null,
+                    QTLogger.MakeErrorLog(null,
                         "PluginManager: plugin failed source/signature validation "
                         + "(unsigned or outside trusted directory); loading anyway (conservative policy): "
                         + assemblyPath);
@@ -652,7 +652,7 @@ StackTrace ---
                                     dicPluginInformations[pluginID] = info;
                                 }
                                 else {
-                                    QTUtility2.MakeErrorLog(null, "failed attribute");
+                                    QTLogger.MakeErrorLog(null, "failed attribute");
                                 }
                             }
                         }
@@ -661,11 +661,11 @@ StackTrace ---
                     }
                 }
                 catch(ReflectionTypeLoadException exception) {
-                    QTUtility2.MakeErrorLog(exception, "Failed to load plugin assembly.\r\n"
+                    QTLogger.MakeErrorLog(exception, "Failed to load plugin assembly.\r\n"
                             + exception.LoaderExceptions.StringJoin("\r\n") + "\r\n" + path);
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception, "Failed to load plugin assembly.\r\n" + path);
+                    QTLogger.MakeErrorLog(exception, "Failed to load plugin assembly.\r\n" + path);
                 }
             }
         }
@@ -734,7 +734,7 @@ StackTrace ---
                     }
                 }
                 catch(Exception exception2) {
-                    QTUtility2.MakeErrorLog(exception2);
+                    QTLogger.MakeErrorLog(exception2);
                 }
             }
             return null;
@@ -760,7 +760,7 @@ StackTrace ---
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception, "failed uninstall type");
+                QTLogger.MakeErrorLog(exception, "failed uninstall type");
             }
         }
 

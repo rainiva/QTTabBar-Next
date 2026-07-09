@@ -317,7 +317,7 @@ namespace QTTabBarLib {
 
         public override int SetSite(object pUnkSite) {
             if(BandObjectSite != null) {
-                QTUtility2.log("ReleaseComObject BandObjectSite");
+                QTLogger.log("ReleaseComObject BandObjectSite");
                 Marshal.ReleaseComObject(BandObjectSite);
             }
             BandObjectSite = (IInputObjectSite)pUnkSite;
@@ -339,7 +339,7 @@ namespace QTTabBarLib {
             // this seems not to be called on log off / shut down...
 
             if(iContextMenu2 != null) {
-                QTUtility2.log("ReleaseComObject iContextMenu2");
+                QTLogger.log("ReleaseComObject iContextMenu2");
                 Marshal.ReleaseComObject(iContextMenu2);
                 iContextMenu2 = null;
             }
@@ -615,7 +615,7 @@ namespace QTTabBarLib {
             }
             finally {
                 if(shellWindows != null) {
-                    QTUtility2.log("ReleaseComObject shellWindows");
+                    QTLogger.log("ReleaseComObject shellWindows");
                     Marshal.ReleaseComObject(shellWindows);
                 }
             }
@@ -2281,7 +2281,7 @@ namespace QTTabBarLib {
         private void OpenGroup(string group) {
             bool fForceNewWindow = (ModifierKeys == Keys.Control);
             if(!fForceNewWindow && Config.Window.CaptureNewWindows && InstanceManager.GetTotalInstanceCount() > 0) {
-                QTUtility2.log("BeginInvokeMain OpenGroup");
+                QTLogger.log("BeginInvokeMain OpenGroup");
                 InstanceManager.BeginInvokeMain(tabbar => tabbar.OpenGroup(@group, false));
             }
             else {
@@ -2407,7 +2407,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex);
+                QTLogger.MakeErrorLog(ex);
             }
         }
 

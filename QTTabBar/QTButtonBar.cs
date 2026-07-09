@@ -241,7 +241,7 @@ namespace QTTabBarLib {
                 base.CloseDW(dwReserved);
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception, "buttonbar closing");
+                QTLogger.MakeErrorLog(exception, "buttonbar closing");
             }
         }
         
@@ -937,7 +937,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception ex)
                 {
-                    QTUtility2.MakeErrorLog(ex);
+                    QTLogger.MakeErrorLog(ex);
                 }
             }
             return false;
@@ -1037,7 +1037,7 @@ namespace QTTabBarLib {
                 QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
                 // add by indiff dark mode
                 QTUtility.RefreshNightMode();
-                QTUtility2.log("OnExplorerAttached SwitchNighMode");
+                QTLogger.log("OnExplorerAttached SwitchNighMode");
                 Config.Skin.SwitchNighMode(QTUtility.InNightMode);
                 ConfigManager.UpdateConfig(true);
                 PInvoke.SetRedraw(ExplorerHandle, true);
@@ -1051,7 +1051,7 @@ namespace QTTabBarLib {
                     CreateItems();
                 }
             } catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "QTButtonBar OnExplorerAttached");
+                QTLogger.MakeErrorLog(ex, "QTButtonBar OnExplorerAttached");
             }
         }
 
@@ -1154,11 +1154,11 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "RearrangeFolderView");
+                QTLogger.MakeErrorLog(e, "RearrangeFolderView");
             }
             finally {
                 if(ppshv != null) {
-                    QTUtility2.log("ReleaseComObject ppshv");
+                    QTLogger.log("ReleaseComObject ppshv");
                     Marshal.ReleaseComObject(ppshv);
                 }
             }
@@ -1187,7 +1187,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "RefreshSearchBox");
+                QTLogger.MakeErrorLog(e, "RefreshSearchBox");
             }
             lstPUITEMIDCHILD.Clear();
             if(fBrowserRefreshRequired) {
@@ -1298,12 +1298,12 @@ namespace QTTabBarLib {
                     }
                     finally {
                         if(ppv != null) {
-                            QTUtility2.log("ReleaseComObject ppv");
+                            QTLogger.log("ReleaseComObject ppv");
                             Marshal.ReleaseComObject(ppv);
                         }
                     }
                     if(zero == IntPtr.Zero) {
-                        QTUtility2.MakeErrorLog(null, "ShellViewIncrementalSearch failed current pidl");
+                        QTLogger.MakeErrorLog(null, "ShellViewIncrementalSearch failed current pidl");
                         return false;
                     }
                     view2.ItemCount(SVGIO.ALLVIEW, out num);
@@ -1318,7 +1318,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception e)
                             {
-                                QTUtility2.MakeErrorLog(e, "ShellViewIncrementalSearch new Regex");
+                                QTLogger.MakeErrorLog(e, "ShellViewIncrementalSearch new Regex");
                                 QTUtility.AsteriskPlay();
                                 return false;
                             }
@@ -1394,20 +1394,20 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
                 addedItems = false;
             }
             finally {
                 if(ppshv != null) {
-                    QTUtility2.log("ReleaseComObject ppv");
+                    QTLogger.log("ReleaseComObject ppv");
                     Marshal.ReleaseComObject(ppshv);
                 }
                 if((shellFolder != null) && (Marshal.ReleaseComObject(shellFolder) != 0)) {
-                    QTUtility2.MakeErrorLog(null, "shellfolder is not released.");
+                    QTLogger.MakeErrorLog(null, "shellfolder is not released.");
                 }
                 else
                 {
-                    QTUtility2.log("ReleaseComObject shellFolder");
+                    QTLogger.log("ReleaseComObject shellFolder");
                 }
                 if(zero != IntPtr.Zero) {
                     PInvoke.CoTaskMemFree(zero);
@@ -1861,7 +1861,7 @@ namespace QTTabBarLib {
 
         protected override void OnDpiChanged(int oldDpi, int newDpi)
         {
-            // QTUtility2.log("QTButtonBar OnDpiChanged");
+            // QTLogger.log("QTButtonBar OnDpiChanged");
             RefreshHeight();
         }
 
@@ -1909,7 +1909,7 @@ namespace QTTabBarLib {
             }
             catch (COMException exception)
             {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             finally
             {

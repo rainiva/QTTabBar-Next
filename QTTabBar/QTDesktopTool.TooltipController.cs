@@ -42,7 +42,7 @@ namespace QTTabBarLib {
                         return true;
                     }
                     catch(Exception ex) {
-                        QTUtility2.MakeErrorLog(ex, "QTDesktopTool DesktopTooltipController ShowSubDirTip");
+                        QTLogger.MakeErrorLog(ex, "QTDesktopTool DesktopTooltipController ShowSubDirTip");
                     }
                 }
                 return false;

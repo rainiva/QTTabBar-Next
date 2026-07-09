@@ -27,11 +27,15 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTUtility2_Log_Facades_Forward_To_QTLogger() {
+        public void QTUtility2_Log_Forwarders_Removed() {
             string content = System.IO.File.ReadAllText(
                 System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "QTUtility2.cs"));
-            Assert.IsTrue(content.Contains("QTLogger.log("));
-            Assert.IsTrue(content.Contains("QTLogger.MakeErrorLog("));
+            Assert.IsFalse(content.Contains("public static void log("),
+                "QTUtility2.log façade should be removed after C7f");
+            Assert.IsFalse(content.Contains("public static void flog("),
+                "QTUtility2.flog façade should be removed after C7f");
+            Assert.IsFalse(content.Contains("public static void MakeErrorLog("),
+                "QTUtility2.MakeErrorLog façade should be removed after C7f");
         }
 
         private static string FindRepoRoot() {

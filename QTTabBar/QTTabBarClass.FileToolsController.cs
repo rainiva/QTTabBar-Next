@@ -96,7 +96,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch (Exception e){
-                    QTUtility2.MakeErrorLog( e, "DoFileTools");
+                    QTLogger.MakeErrorLog( e, "DoFileTools");
                 }
                 if(index == 4) {
                     ShowMD5(null);

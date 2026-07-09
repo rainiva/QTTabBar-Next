@@ -93,7 +93,7 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "CreateIDL");
+                QTLogger.MakeErrorLog(exception, "CreateIDL");
                 return zero;
             }
             Marshal.Copy(data, 0, zero, length);
@@ -116,7 +116,7 @@ namespace QTTabBarLib.Interop {
                         }
                     }
                     catch(Exception exception) {
-                        QTUtility2.MakeErrorLog(exception);
+                        QTLogger.MakeErrorLog(exception);
                     }                    
                 }
             }
@@ -148,11 +148,11 @@ namespace QTTabBarLib.Interop {
             }
             finally {
                 if(obj2 != null) {
-                    QTUtility2.log("ReleaseComObject obj2");
+                    QTLogger.log("ReleaseComObject obj2");
                     Marshal.ReleaseComObject(obj2);
                 }
                 if(ppv != null) {
-                    QTUtility2.log("ReleaseComObject ppv");
+                    QTLogger.log("ReleaseComObject ppv");
                     Marshal.ReleaseComObject(ppv);
                 }
                 if(zero != IntPtr.Zero) {
@@ -216,11 +216,11 @@ namespace QTTabBarLib.Interop {
             }
             finally {
                 if(obj2 != null) {
-                    QTUtility2.log("ReleaseComObject obj2");
+                    QTLogger.log("ReleaseComObject obj2");
                     Marshal.ReleaseComObject(obj2);
                 }
                 if(ppv != null) {
-                    QTUtility2.log("ReleaseComObject ppv");
+                    QTLogger.log("ReleaseComObject ppv");
                     Marshal.ReleaseComObject(ppv);
                 }
                 foreach(IntPtr ptr6 in list) {
@@ -256,7 +256,7 @@ namespace QTTabBarLib.Interop {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "GetAttributes");
+                    QTLogger.MakeErrorLog(exception, "GetAttributes");
                 }
                 finally {
                     if(ppv != null) {
@@ -294,11 +294,11 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "ShellMethods GetDisplayNameOf");
+                QTLogger.MakeErrorLog(ex, "ShellMethods GetDisplayNameOf");
             }
             finally {
                 if(ppv != null) {
-                    QTUtility2.log("ReleaseComObject ppv");
+                    QTLogger.log("ReleaseComObject ppv");
                     Marshal.ReleaseComObject(ppv);
                 }
             }
@@ -349,11 +349,11 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "ShellMethods _ShellLinkObject");
+                QTLogger.MakeErrorLog(ex, "ShellMethods _ShellLinkObject");
             }
             finally {
                 if(o != null) {
-                    QTUtility2.log("ReleaseComObject o");
+                    QTLogger.log("ReleaseComObject o");
                     Marshal.ReleaseComObject(o);
                 }
             }
@@ -372,12 +372,12 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "ShellMethods GetLinkTargetPath");
+                QTLogger.MakeErrorLog(ex, "ShellMethods GetLinkTargetPath");
 
             }
             finally {
                 if(o != null) {
-                    QTUtility2.log("ReleaseComObject o");
+                    QTLogger.log("ReleaseComObject o");
                     Marshal.ReleaseComObject(o);
                 }
             }
@@ -437,11 +437,11 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "ShellMethods GetShellFolder");
+                QTLogger.MakeErrorLog(ex, "ShellMethods GetShellFolder");
             }
             finally {
                 if(ppshf != null) {
-                    QTUtility2.log("ReleaseComObject ppshf");
+                    QTLogger.log("ReleaseComObject ppshf");
                     Marshal.ReleaseComObject(ppshf);
                 }
             }
@@ -469,15 +469,15 @@ namespace QTTabBarLib.Interop {
                     }
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                 }
                 finally {
                     if(ppv != null) {
-                        QTUtility2.log("ReleaseComObject ppv");
+                        QTLogger.log("ReleaseComObject ppv");
                         Marshal.ReleaseComObject(ppv);
                     }
                     if(o != null) {
-                        QTUtility2.log("ReleaseComObject o");
+                        QTLogger.log("ReleaseComObject o");
                         Marshal.ReleaseComObject(o);
                     }
                 }
@@ -531,7 +531,7 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "ShellMethods GetTargetIfFolderLink");
+                QTLogger.MakeErrorLog(ex, "ShellMethods GetTargetIfFolderLink");
             }
             return di;
         }
@@ -545,7 +545,7 @@ namespace QTTabBarLib.Interop {
                 }
                 catch (Exception ex)
                 {
-                    QTUtility2.MakeErrorLog(ex, "ShellMethods IsTargetPathContained");
+                    QTLogger.MakeErrorLog(ex, "ShellMethods IsTargetPathContained");
                 }
             }
             return false;
@@ -589,14 +589,14 @@ namespace QTTabBarLib.Interop {
                                 }
                             }
                             catch(Exception exception) {
-                                QTUtility2.MakeErrorLog(exception);
+                                QTLogger.MakeErrorLog(exception);
                             }                            
                         }
                     }
                 }
             }
             catch(Exception exception2) {
-                QTUtility2.MakeErrorLog(exception2, null);
+                QTLogger.MakeErrorLog(exception2, null);
             }
             return false;
         }
@@ -677,7 +677,7 @@ namespace QTTabBarLib.Interop {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "ShellMethods ShellGetPath2");
+                QTLogger.MakeErrorLog(ex, "ShellMethods ShellGetPath2");
             }
             return zero;
         }

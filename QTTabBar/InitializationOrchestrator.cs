@@ -43,32 +43,32 @@ namespace QTTabBarLib {
                 if(_initialized) return;
                 _initialized = true;
             try {
-                QTUtility2.log("QTUtility RefreshShellStateValues");
+                QTLogger.log("QTUtility RefreshShellStateValues");
                 // RefreshShellStateValues();
 
                 // Load the config
                 ConfigManager.Initialize();
-                QTUtility2.log("QTUtility ��������");
+                QTLogger.log("QTUtility ��������");
                 
                 // Initialize the instance manager
                 InstanceManager.Initialize();
-                QTUtility2.log("QTUtility ��ʼ��InstanceManager");
+                QTLogger.log("QTUtility ��ʼ��InstanceManager");
 
                 // Create and enable the API hooks
                 HookLibManager.Initialize();
-                QTUtility2.log("QTUtility ������������ API hooks");
+                QTLogger.log("QTUtility ������������ API hooks");
 
                 // Create the global imagelist
                 QTUtility.ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
                 IconManager.AddImageToGlobal("folder", IconManager.GetIcon(string.Empty, false));
-                QTUtility2.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
+                QTLogger.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
 
                 // Load groups/apps
                 GroupsManager.LoadGroups();
-                QTUtility2.log("QTUtility ���ط������");
+                QTLogger.log("QTUtility ���ط������");
                 
                 AppsManager.LoadApps();
-                QTUtility2.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
+                QTLogger.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
 
                 if(Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)) {
                     QTUtility.TextResourcesDic = QTResourceManager.ReadLanguageFile(Config.Lang.LangFile);
@@ -101,7 +101,7 @@ namespace QTTabBarLib {
                
 
                 // ���ò�����������
-                /*QTUtility2.log("QTUtility ���غ��Ե�·�� ������� ��������");
+                /*QTLogger.log("QTUtility ���غ��Ե�·�� ������� ��������");
                 string[] theNoCaptures = { "::{26EE0668-A00A-44D7-9371-BEB064C98683}",
                                            "::{26EE0668-A00A-44D7-9371-BEB064C98683}\0",
                                            "::{7007ACC7-3202-11D1-AAD2-00805FC1270E}" };
@@ -140,14 +140,14 @@ namespace QTTabBarLib {
                                                */
                 // ���ò�����������
                 QTUtility.GetShellClickMode();
-                QTUtility2.log("QTUtility Get Shell Click Mode");
+                QTLogger.log("QTUtility Get Shell Click Mode");
 
                 // Initialize plugins
                 PluginManager.Initialize();
-                QTUtility2.log("QTUtility �������в��");
+                QTLogger.log("QTUtility �������в��");
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             }
         }

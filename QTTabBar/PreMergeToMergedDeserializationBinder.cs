@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using System.Reflection;
 
@@ -110,7 +110,7 @@ namespace QTTabBarLib
 
                 }
 
-                QTUtility2.MakeErrorLog(null,
+                QTLogger.MakeErrorLog(null,
 
                     "PreMergeToMergedDeserializationBinder: FMDServiceProxy migration failed for " + typeName);
 
@@ -154,7 +154,7 @@ namespace QTTabBarLib
 
                 {
 
-                    QTUtility2.MakeErrorLog("PreMergeToMergedDeserializationBinder rejected non-whitelisted type: [" + assemblyName + "] " + typeName);
+                    QTLogger.MakeErrorLog("PreMergeToMergedDeserializationBinder rejected non-whitelisted type: [" + assemblyName + "] " + typeName);
 
                     throw new SerializationException(
 

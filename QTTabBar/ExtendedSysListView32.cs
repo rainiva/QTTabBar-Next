@@ -87,7 +87,7 @@ namespace QTTabBarLib {
                             QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)13, null, (IntPtr)GetItemCount());
                         }
                      */
-                        QTUtility2.log("LVN.ITEMCHANGED");
+                        QTLogger.log("LVN.ITEMCHANGED");
                         bool flag = !OSDetector.IsXP && Config.Tweaks.ToggleFullRowSelect;
                         NMLISTVIEW nmlistview2 = (NMLISTVIEW)Marshal.PtrToStructure(msg.LParam, typeof(NMLISTVIEW));
                         if(nmlistview2.uChanged == 8 /*LVIF_STATE*/) {
@@ -104,12 +104,12 @@ namespace QTTabBarLib {
                                      (newCut != oldCut)) &&
                                     ShellBrowser.ViewMode == FVM.DETAILS)
                                 {
-                                    QTUtility2.log("LVN.ITEMCHANGED nmlistview2.iItem " + nmlistview2.iItem);
+                                    QTLogger.log("LVN.ITEMCHANGED nmlistview2.iItem " + nmlistview2.iItem);
                                     PInvoke.SendMessage(nmlistview2.hdr.hwndFrom, LVM.REDRAWITEMS, (IntPtr)nmlistview2.iItem, (IntPtr)nmlistview2.iItem);
                                 }
                             }
                             if(newSelected != oldSelected) {
-                                QTUtility2.log("newSelected != oldSelected  OnSelectionChanged " );
+                                QTLogger.log("newSelected != oldSelected  OnSelectionChanged " );
                                 OnSelectionChanged(ref msg);
                             }
                         }

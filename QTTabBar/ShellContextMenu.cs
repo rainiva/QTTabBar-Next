@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -162,12 +162,12 @@ namespace QTTabBarLib {
             finally {
                 if(shellFolderParent != null)
                 {
-                    QTUtility2.log("ReleaseComObject shellFolderParent");
+                    QTLogger.log("ReleaseComObject shellFolderParent");
                     Marshal.ReleaseComObject(shellFolderParent);
                 }
 
                 if(pIContextMenu2 != null) {
-                    QTUtility2.log("ReleaseComObject pIContextMenu2");
+                    QTLogger.log("ReleaseComObject pIContextMenu2");
                     Marshal.ReleaseComObject(pIContextMenu2);
                     pIContextMenu2 = null;
                 }
@@ -255,7 +255,7 @@ namespace QTTabBarLib {
             }
             finally {
                 if(shellFolder != null) {
-                    QTUtility2.log("ReleaseComObject shellFolder");
+                    QTLogger.log("ReleaseComObject shellFolder");
                     Marshal.ReleaseComObject(shellFolder);
                 }
                 if(pIDLFirst != IntPtr.Zero) {
@@ -265,7 +265,7 @@ namespace QTTabBarLib {
                     PInvoke.CoTaskMemFree(pIDL);
                 }
                 if(pIContextMenu2 != null) {
-                    QTUtility2.log("ReleaseComObject pIContextMenu2");
+                    QTLogger.log("ReleaseComObject pIContextMenu2");
                     Marshal.ReleaseComObject(pIContextMenu2);
                     pIContextMenu2 = null;
                 }
@@ -276,7 +276,7 @@ namespace QTTabBarLib {
         
         public void Dispose() {
             if(pIContextMenu2 != null) {
-                QTUtility2.log("ReleaseComObject pIContextMenu2");
+                QTLogger.log("ReleaseComObject pIContextMenu2");
                 Marshal.FinalReleaseComObject(pIContextMenu2);
                 pIContextMenu2 = null;
             }

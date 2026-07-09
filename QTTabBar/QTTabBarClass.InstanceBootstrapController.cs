@@ -26,7 +26,7 @@ namespace QTTabBarLib {
                         installDateString = key == null ? minDate : (string)key.GetValue("InstallDate", minDate);
                         if(PathValidator.IsSimpleDateStr(installDateString)) {
                             try {
-                                QTUtility2.log("installDateString " + installDateString);
+                                QTLogger.log("installDateString " + installDateString);
                                 installDate = DateTime.Parse(installDateString);
                             }
                             catch(Exception) {
@@ -37,7 +37,7 @@ namespace QTTabBarLib {
                                 DateTime lastActivation;
                                 var value = (string)key2.GetValue("ActivationDate", minDate);
                                 try {
-                                    QTUtility2.log("ActivationDate " + value);
+                                    QTLogger.log("ActivationDate " + value);
                                     lastActivation = DateTime.Parse(value);
                                 }
                                 catch(Exception) {
@@ -54,7 +54,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception e) {
-                    QTUtility2.MakeErrorLog(e, "QTTabBarClass 构造函数初始化安装时间");
+                    QTLogger.MakeErrorLog(e, "QTTabBarClass 构造函数初始化安装时间");
                 }
                 return false;
             }

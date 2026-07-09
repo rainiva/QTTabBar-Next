@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -74,7 +74,7 @@ namespace QTTabBarLib {
                     }
                 }
 
-                QTUtility2.log("init LangEntry success count: " + QTUtility.TextResourcesDic.Count);
+                QTLogger.log("init LangEntry success count: " + QTUtility.TextResourcesDic.Count);
                 ICollectionView view = CollectionViewSource.GetDefaultView(LangItems);
                 PropertyGroupDescription groupDescription = new PropertyGroupDescription("Location");
                 view.GroupDescriptions.Add(groupDescription);
@@ -82,7 +82,7 @@ namespace QTTabBarLib {
              }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options13_Language ");
+                QTLogger.MakeErrorLog(exception, "Options13_Language ");
             }           
         }
 
@@ -93,7 +93,7 @@ namespace QTTabBarLib {
               }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options13_Language InitializeConfig");
+                QTLogger.MakeErrorLog(exception, "Options13_Language InitializeConfig");
 
             }           
        }
@@ -108,7 +108,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options13_Language InitializeConfig");
+                QTLogger.MakeErrorLog(exception, "Options13_Language InitializeConfig");
 
             }           
        }
@@ -153,7 +153,7 @@ namespace QTTabBarLib {
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
                 var dict = QTResourceManager.ReadLanguageFile(ofd.FileName);
-                QTUtility2.log("read file: " + ofd.FileName + " dict count:" + dict.Count);
+                QTLogger.log("read file: " + ofd.FileName + " dict count:" + dict.Count);
                 // QTUtility.ValidateTextResources(ref dict);
                 LangItems.Clear();
                 // reload LangItems;
@@ -255,7 +255,7 @@ namespace QTTabBarLib {
                 MessageBox.Show(QTUtility.TextResourcesDic["Options_Page13_Language"][10]);
             }
             catch(Exception exception2) {
-                QTUtility2.MakeErrorLog(exception2);
+                QTLogger.MakeErrorLog(exception2);
             }
         }
 
@@ -328,7 +328,7 @@ namespace QTTabBarLib {
                 MessageBox.Show(QTUtility.TextResourcesDic["Options_Page13_Language"][10]);
             }
             catch(Exception exception2) {
-                QTUtility2.MakeErrorLog(exception2);
+                QTLogger.MakeErrorLog(exception2);
             }
         }
 
@@ -432,7 +432,7 @@ namespace QTTabBarLib {
                 */
                 if (!QTUtility.TextResourcesDic.ContainsKey(Key))
                 {
-                    QTUtility2.flog("*** TextResourcesDic not contains key " + Key );
+                    QTLogger.flog("*** TextResourcesDic not contains key " + Key );
                 }
                 else
                 {
@@ -440,11 +440,11 @@ namespace QTTabBarLib {
                     QTUtility.TextResourcesDic.TryGetValue(Key, out res2);
                     if (res2 == null)
                     {
-                        QTUtility2.flog("*** TextResourcesDic key " + Key + " res2 is null");
+                        QTLogger.flog("*** TextResourcesDic key " + Key + " res2 is null");
                     }
                     if (res2.Length == 0)
                     {
-                        QTUtility2.flog("*** TextResourcesDic key " + Key + " res2 length is zero");
+                        QTLogger.flog("*** TextResourcesDic key " + Key + " res2 length is zero");
                     }
                 }
                 if (Index >= 0)

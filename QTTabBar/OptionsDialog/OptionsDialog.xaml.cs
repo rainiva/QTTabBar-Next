@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -192,7 +192,7 @@ namespace QTTabBarLib {
                 ContentRendered += (sender, args) => Topmost = false;
                 // SetProcessDPIAware是Vista以上才有的函数，这样直接调用会使得程序不兼容XP
                 PInvoke.SetProcessDPIAware();
-                // QTUtility2.log("QTUtility OptionsDialog SetProcessDPIAware 不兼容XP");
+                // QTLogger.log("QTUtility OptionsDialog SetProcessDPIAware 不兼容XP");
                 InitializeComponent();
                 FluentThemeManager.ApplyTo(this);
                 
@@ -200,7 +200,7 @@ namespace QTTabBarLib {
                 // this.DataContext = container.Resolve<LoginViewModel>((typeof(LoginView),this));
 
 
-                //   QTUtility2.log("InitializeComponent end");
+                //   QTLogger.log("InitializeComponent end");
                 // 设置默认的title 和版本
                 string str = QTUtility.CurrentVersion.ToString();
                 if (QTUtility.BetaRevision.Major > 0)
@@ -213,7 +213,7 @@ namespace QTTabBarLib {
                 }
                 this.Title += str + QTUtility.BuildVerion; //  +"_" + QTUtility2.MakeVersionString();
 
-             //   QTUtility2.log("set title end");           
+             //   QTLogger.log("set title end");           
                 int i = 0;
                 optionTabs = new OptionsDialogTab[] {
                     new Options01_Window        { Index = i++},
@@ -249,14 +249,14 @@ namespace QTTabBarLib {
                 var selectedIndex = WorkingConfig.desktop.lstSelectedIndex;
                 if(selectedIndex < 0 || selectedIndex >= optionTabs.Length) selectedIndex = 0;
                 lstCategories.SelectedIndex = selectedIndex;
-              //  QTUtility2.log("InitializeConfig end");
+              //  QTLogger.log("InitializeConfig end");
 
                 //////////// setting by qwop .
                 setByQwop();
-              //  QTUtility2.log("利用主屏幕的宽度设置，选项窗体的宽度， 和绝对高度 end");
+              //  QTLogger.log("利用主屏幕的宽度设置，选项窗体的宽度， 和绝对高度 end");
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception, "OptionsDialog constructor");
+                QTLogger.MakeErrorLog(exception, "OptionsDialog constructor");
                 MessageBox.Show(
                     exception.ToString(),
                     "OptionsDialog",
@@ -901,7 +901,7 @@ namespace QTTabBarLib {
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, "btnFontChoose_Click");
+                QTLogger.MakeErrorLog(ex, "btnFontChoose_Click");
 
             }
         }

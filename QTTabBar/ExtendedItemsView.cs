@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -313,7 +313,7 @@ namespace QTTabBarLib {
             switch(msg.Msg) {
                 case LVM.GETSELECTEDCOLUMN:
                 {
-                    QTUtility2.log("GETSELECTEDCOLUMN");
+                    QTLogger.log("GETSELECTEDCOLUMN");
                     return true;
                 }
                 case LVM.SCROLL: {
@@ -492,7 +492,7 @@ namespace QTTabBarLib {
             // QTUtility2.debugMessage(msg);
             if(msg.Msg == WM_ACTIVATESEL)
             {
-                QTUtility2.log("WM_ACTIVATESEL");
+                QTLogger.log("WM_ACTIVATESEL");
                 int mk = Marshal.ReadInt32(msg.WParam);
                 Keys modKeys = Keys.None;
                 if((mk & 0x04) != 0) modKeys |= Keys.Shift;
@@ -506,16 +506,16 @@ namespace QTTabBarLib {
 
             switch(msg.Msg) {
                 /*case 8:  // SFVM_SELECTIONCHANGED          8 /* undocumented #1#
-                    QTUtility2.log("SFVM_SELECTIONCHANGED msgWParam " + msg.WParam);
-                    QTUtility2.log("SFVM_SELECTIONCHANGED msgLParam " + msg.LParam);
+                    QTLogger.log("SFVM_SELECTIONCHANGED msgWParam " + msg.WParam);
+                    QTLogger.log("SFVM_SELECTIONCHANGED msgLParam " + msg.LParam);
                     break;*/
                 // Undocumented message that seems to be fired every time the 
                 // selection changes.
                 case WM.USER + 163:  // 1024 +163 = 1187  => 4A3
                     // var msgWParam = msg.WParam; //  0 
                     // var msgLParam = msg.LParam; //  0
-                    // QTUtility2.log("selection changes msgWParam " + msg.WParam);
-                    // QTUtility2.log("selection changes msgLParam " + msg.LParam);
+                    // QTLogger.log("selection changes msgWParam " + msg.WParam);
+                    // QTLogger.log("selection changes msgLParam " + msg.LParam);
                     OnSelectionChanged(ref msg);
                     break;
                 

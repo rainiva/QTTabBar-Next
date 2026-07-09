@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2022  Quizo, Paul Accisano, indiff
 //
@@ -93,7 +93,7 @@ namespace QTTabBarLib {
                         }
                         catch (Exception ex)
                         {
-                            QTUtility2.MakeErrorLog(ex, "tabControl1.SelectTab");
+                            QTLogger.MakeErrorLog(ex, "tabControl1.SelectTab");
                             return;
                         }
                     }
@@ -348,7 +348,7 @@ namespace QTTabBarLib {
                         _owner.contextMenuTab.ResumeLayout();
                     }
                 }
-                catch (Exception ex) { QTUtility2.MakeErrorLog(ex); }
+                catch (Exception ex) { QTLogger.MakeErrorLog(ex); }
             }
 
             // 创建标签分组
@@ -537,7 +537,7 @@ namespace QTTabBarLib {
                         _owner.tsmiAddToGroup.DragDrop += (sender, e) => {
                             _owner.NowTabDragging = true;
                             var dataObject = e.Data;
-                            QTUtility2.log("e.Data: " + dataObject);
+                            QTLogger.log("e.Data: " + dataObject);
                             _owner.NowTabDragging = false;
                         };
 
@@ -574,7 +574,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception e) {
-                    QTUtility2.MakeErrorLog(e);
+                    QTLogger.MakeErrorLog(e);
                 }
             }
 
@@ -675,14 +675,14 @@ namespace QTTabBarLib {
             }
 
             public bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
-                QTUtility2.log("QTTabBarClass FolderLinkClicked");
+                QTLogger.log("QTTabBarClass FolderLinkClicked");
                 MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
                 BindAction action;
                 if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
                     _owner.DoBindAction(action, false, null, wrapper);
                     return true;
                 }
-                QTUtility2.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");
+                QTLogger.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");
                 return false;
             }
         }

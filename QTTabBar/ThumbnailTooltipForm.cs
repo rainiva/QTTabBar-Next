@@ -179,7 +179,7 @@ namespace QTTabBarLib {
                     }
                     catch (Exception e)
                     {
-                        QTUtility2.MakeErrorLog(e, "CreateThumbnail");
+                        QTLogger.MakeErrorLog(e, "CreateThumbnail");
                         return false;
                     }
                 }
@@ -235,7 +235,7 @@ namespace QTTabBarLib {
                     return true;
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                     return false;
                 }
             }
@@ -276,7 +276,7 @@ namespace QTTabBarLib {
                         }
                         catch (Exception e)
                         {
-                            QTUtility2.MakeErrorLog(e, "ExtIsText");
+                            QTLogger.MakeErrorLog(e, "ExtIsText");
                             fFontAsigned = false;
                         }
                         int num2 = 0x100;
@@ -301,7 +301,7 @@ namespace QTTabBarLib {
                         return true;
                     }
                     catch(Exception exception2) {
-                        QTUtility2.MakeErrorLog(exception2, null);
+                        QTLogger.MakeErrorLog(exception2, null);
                         return false;
                     }
                 }
@@ -627,7 +627,7 @@ namespace QTTabBarLib {
             detechted = TryGetEncoding(buffer);
             if (detechted != null)
             {
-                QTUtility2.log(" try get encoding " + detechted.EncodingName + " " + detechted.CodePage);
+                QTLogger.log(" try get encoding " + detechted.EncodingName + " " + detechted.CodePage);
                 return detechted.GetString(buffer);
             }
 
@@ -635,8 +635,8 @@ namespace QTTabBarLib {
             detechted = DetectEncoding(buffer);
             if (detechted != null)
             {
-                // QTUtility2.log(" try get DetectInputCodepage " + detechted.EncodingName + " " + detechted.CodePage);
-                QTUtility2.log(" try get DetectEncoding " + detechted.EncodingName + " " + detechted.CodePage);
+                // QTLogger.log(" try get DetectInputCodepage " + detechted.EncodingName + " " + detechted.CodePage);
+                QTLogger.log(" try get DetectEncoding " + detechted.EncodingName + " " + detechted.CodePage);
                 return detechted.GetString(buffer);
             }
             return Encoding.Default.GetString(buffer);
@@ -1348,13 +1348,13 @@ namespace QTTabBarLib {
                 }
                 catch(Exception exception2) {
                     PluginManager.HandlePluginException(exception2, IntPtr.Zero, "Unknown IEncodingDetector", "Getting Encoding object.");
-                    QTUtility2.MakeErrorLog(exception2);
+                    QTLogger.MakeErrorLog(exception2);
                 }
             }
             if(encoding == null) {
                 encoding = TxtEnc.GetEncoding(ref buffer);
 
-                QTUtility2.log("TxtEnc :" + encoding.EncodingName + " " + encoding.CodePage);
+                QTLogger.log("TxtEnc :" + encoding.EncodingName + " " + encoding.CodePage);
 
                 if((encoding == null) ||
                    (((
@@ -1366,7 +1366,7 @@ namespace QTTabBarLib {
                     encoding = Encoding.Default;
                 }
             }
-            QTUtility2.log("Final :" + encoding.EncodingName + " " + encoding.CodePage);
+            QTLogger.log("Final :" + encoding.EncodingName + " " + encoding.CodePage);
             return encoding.GetString(buffer);
         }
 
@@ -1403,7 +1403,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception e)
                             {
-                                QTUtility2.MakeErrorLog(e, "LoadThumbnail GetShellInfoTipText");
+                                QTLogger.MakeErrorLog(e, "LoadThumbnail GetShellInfoTipText");
                             }
                             return data;
                         }
@@ -1411,22 +1411,22 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             finally {
                 if(zero != IntPtr.Zero) {
                     PInvoke.CoTaskMemFree(zero);
                 }
                 if(ppsi != null) {
-                    QTUtility2.log("ReleaseComObject ppsi");
+                    QTLogger.log("ReleaseComObject ppsi");
                     Marshal.ReleaseComObject(ppsi);
                 }
                 if(ppvThumb != null) {
-                    QTUtility2.log("ReleaseComObject ppvThumb");
+                    QTLogger.log("ReleaseComObject ppvThumb");
                     Marshal.ReleaseComObject(ppvThumb);
                 }
                 if(o != null) {
-                    QTUtility2.log("ReleaseComObject o");
+                    QTLogger.log("ReleaseComObject o");
                     Marshal.ReleaseComObject(o);
                 }
             }
@@ -1465,7 +1465,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception e)
                             {
-                                QTUtility2.MakeErrorLog(e, "GetShellInfoTipText");
+                                QTLogger.MakeErrorLog(e, "GetShellInfoTipText");
                             }
                             return data;
                         }
@@ -1473,18 +1473,18 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             finally {
                 if(zero != IntPtr.Zero) {
                     PInvoke.CoTaskMemFree(zero);
                 }
                 if(ppv != null) {
-                    QTUtility2.log("ReleaseComObject ppv");
+                    QTLogger.log("ReleaseComObject ppv");
                     Marshal.ReleaseComObject(ppv);
                 }
                 if(obj2 != null) {
-                    QTUtility2.log("ReleaseComObject obj2");
+                    QTLogger.log("ReleaseComObject obj2");
                     Marshal.ReleaseComObject(obj2);
                 }
             }
@@ -1699,7 +1699,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                 }
             }
         }

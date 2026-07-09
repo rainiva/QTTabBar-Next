@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -46,7 +46,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options10_Apps InitializeConfig");
+                QTLogger.MakeErrorLog(exception, "Options10_Apps InitializeConfig");
 
             }     
         }
@@ -66,7 +66,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options10_Apps CommitConfig");
+                QTLogger.MakeErrorLog(exception, "Options10_Apps CommitConfig");
 
             }     
          }

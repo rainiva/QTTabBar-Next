@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -33,7 +33,7 @@ namespace QTTabBarLib {
         private bool fPreventSelChange;
 
         public TreeViewWrapper(IntPtr hwnd, INameSpaceTreeControl treeControl) {
-            QTUtility2.log("TreeViewWrapper init");
+            QTLogger.log("TreeViewWrapper init");
             this.treeControl = treeControl;
             treeController = new NativeWindowController(hwnd);
             treeController.MessageCaptured += TreeControl_MessageCaptured;
@@ -42,7 +42,7 @@ namespace QTTabBarLib {
         }
 
         private bool HandleClick(Point pt, Keys modifierKeys, bool middle) {
-            QTUtility2.log("TreeViewWrapper HandleClick");
+            QTLogger.log("TreeViewWrapper HandleClick");
             IShellItem item = null;
             try {
                 TVHITTESTINFO structure = new TVHITTESTINFO { pt = pt };
@@ -63,7 +63,7 @@ namespace QTTabBarLib {
             }
             finally {
                 if(item != null) {
-                    QTUtility2.log("ReleaseComObject item");
+                    QTLogger.log("ReleaseComObject item");
                     Marshal.ReleaseComObject(item);
                 }
             }
@@ -73,13 +73,13 @@ namespace QTTabBarLib {
         private bool TreeControl_MessageCaptured(ref Message msg) {
             switch(msg.Msg) {
                 case WM.USER:
-                    QTUtility2.log("TreeViewWrapper TreeControl_MessageCaptured WM.USER");
+                    QTLogger.log("TreeViewWrapper TreeControl_MessageCaptured WM.USER");
                     fPreventSelChange = false;
                     break;
 
                 case WM.MBUTTONUP:
                     if (treeControl != null && TreeViewClicked != null) {
-                        QTUtility2.log("TreeViewWrapper TreeControl_MessageCaptured MBUTTONUP");
+                        QTLogger.log("TreeViewWrapper TreeControl_MessageCaptured MBUTTONUP");
                         HandleClick(QTUtility2.PointFromLPARAM(msg.LParam), Control.ModifierKeys, true);
                     }
                     break;
@@ -87,7 +87,7 @@ namespace QTTabBarLib {
                 case WM.DESTROY:
                     if(treeControl != null)
                     {
-                        QTUtility2.log("TreeViewWrapper TreeControl_MessageCaptured DESTROY");
+                        QTLogger.log("TreeViewWrapper TreeControl_MessageCaptured DESTROY");
                         Marshal.ReleaseComObject(treeControl);
                         treeControl = null;
                     }
@@ -103,7 +103,7 @@ namespace QTTabBarLib {
                 switch(nmhdr.code) {
                     case -2: /* NM_CLICK */
                         if(Control.ModifierKeys != Keys.None) {
-                            QTUtility2.log("TreeViewWrapper ParentControl_MessageCaptured WM.NOTIFY NM_CLICK");
+                            QTLogger.log("TreeViewWrapper ParentControl_MessageCaptured WM.NOTIFY NM_CLICK");
                             Point pt = Control.MousePosition;
                             PInvoke.ScreenToClient(nmhdr.hwndFrom, ref pt);
                             if(HandleClick(pt, Control.ModifierKeys, false)) {
@@ -115,7 +115,7 @@ namespace QTTabBarLib {
                         break;
 
                     case -450: /* TVN_SELECTIONCHANGING */
-                        QTUtility2.log("TreeViewWrapper ParentControl_MessageCaptured WM.NOTIFY TVN_SELECTIONCHANGING");
+                        QTLogger.log("TreeViewWrapper ParentControl_MessageCaptured WM.NOTIFY TVN_SELECTIONCHANGING");
                         if(fPreventSelChange) {
                             msg.Result = (IntPtr)1;
                             return true;
@@ -131,7 +131,7 @@ namespace QTTabBarLib {
         public void Dispose() {
             if(fDisposed) return;
             if(treeControl != null) {
-                QTUtility2.log("ReleaseComObject treeControl");
+                QTLogger.log("ReleaseComObject treeControl");
                 Marshal.ReleaseComObject(treeControl);
                 treeControl = null;
             }

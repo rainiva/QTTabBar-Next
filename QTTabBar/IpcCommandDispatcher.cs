@@ -15,7 +15,7 @@ namespace QTTabBarLib {
                     work = OptionsDialog.OpenOnServer;
                     break;
                 default:
-                    QTUtility2.MakeErrorLog("IpcCommandDispatcher: unsupported server command " + command);
+                    QTLogger.MakeErrorLog("IpcCommandDispatcher: unsupported server command " + command);
                     return true;
             }
 
@@ -36,7 +36,7 @@ namespace QTTabBarLib {
                     IntPtr tabBarHandle;
                     int index;
                     if(!IpcCommandMessage.TryDecodeSelectTab(payload, out tabBarHandle, out index)) {
-                        QTUtility2.MakeErrorLog("IpcCommandDispatcher: invalid SelectTab payload");
+                        QTLogger.MakeErrorLog("IpcCommandDispatcher: invalid SelectTab payload");
                         return true;
                     }
                     work = () => ExecuteSelectTab(tabBarHandle, index);
@@ -52,10 +52,10 @@ namespace QTTabBarLib {
                     work = AppsManager.LoadApps;
                     return true;
                 case IpcCommand.OpenOptions:
-                    QTUtility2.MakeErrorLog("IpcCommandDispatcher: OpenOptions received on client callback");
+                    QTLogger.MakeErrorLog("IpcCommandDispatcher: OpenOptions received on client callback");
                     return true;
                 default:
-                    QTUtility2.MakeErrorLog("IpcCommandDispatcher: unsupported client command " + command);
+                    QTLogger.MakeErrorLog("IpcCommandDispatcher: unsupported client command " + command);
                     return true;
             }
         }

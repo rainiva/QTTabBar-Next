@@ -153,7 +153,7 @@ namespace QTTabBarLib {
                             }
                             catch (Exception exception)
                             {
-                                QTUtility2.MakeErrorLog(exception, "CopyFileNames");
+                                QTLogger.MakeErrorLog(exception, "CopyFileNames");
                             }
                         }
                         if(!string.IsNullOrEmpty(path)) {
@@ -179,7 +179,7 @@ namespace QTTabBarLib {
                         }
                         catch (Exception exception)
                         {
-                            QTUtility2.MakeErrorLog(exception, "CopyFileNames foreach");
+                            QTLogger.MakeErrorLog(exception, "CopyFileNames foreach");
                             continue;
                         }
                     }
@@ -248,19 +248,19 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "DropDownMenuDropTarget_HandleCreated");
+                QTLogger.MakeErrorLog(exception, "DropDownMenuDropTarget_HandleCreated");
             }
         }
 
         private void dropTargetWrapper_DragDropEnd(object sender, EventArgs e) {
-            QTUtility2.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragDropEnd");
+            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragDropEnd");
             CancelClosingAncestors(false, false);
             ShowItemToolTips = true;
             Close(ToolStripDropDownCloseReason.AppFocusChange);
         }
 
         private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
-            QTUtility2.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileDrop");
+            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileDrop");
             fRespondModKeys = fRespondModKeysTemp;
             fEnableShiftKey = fEnableShiftKeyTemp;
             hwnd = IntPtr.Zero;
@@ -287,7 +287,7 @@ namespace QTTabBarLib {
 
         private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState)
         {
-            QTUtility2.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileEnter");
+            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileEnter");
             fRespondModKeysTemp = fRespondModKeys;
             fEnableShiftKeyTemp = fEnableShiftKey;
             fRespondModKeys = false;
@@ -314,7 +314,7 @@ namespace QTTabBarLib {
         }
 
         private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
-            QTUtility2.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileLeave");
+            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileLeave");
             fRespondModKeys = fRespondModKeysTemp;
             fEnableShiftKey = fEnableShiftKeyTemp;
             strDraggingDrive = null;
@@ -336,7 +336,7 @@ namespace QTTabBarLib {
         }
 
         private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
-            QTUtility2.log("QTTabBarClass DropDownMenuDropTargets dropTargetWrapper_DragFileOver " );
+            QTLogger.log("QTTabBarClass DropDownMenuDropTargets dropTargetWrapper_DragFileOver " );
             int iSourceState = -1;
             Point point = PointToClient(new Point(e.X, e.Y));
             ToolStripItem itemAt = GetItemAt(point);
@@ -519,7 +519,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "DropDownMeanuDropTarget OnOpened");
+                QTLogger.MakeErrorLog(exception, "DropDownMeanuDropTarget OnOpened");
             }
             if(((((OwnerItem == null) || (OwnerItem.Owner == null)) || !OwnerItem.Owner.RectangleToScreen(OwnerItem.Bounds).Contains(MousePosition)) && (!fIsRootMenu || fShownByKey)) && (((DisplayedItems.Count > 0) && !IsKeyTargetItem(DisplayedItems[0])) && fContainsFileDropList)) {
                 fKeyTargetIsThis = true;

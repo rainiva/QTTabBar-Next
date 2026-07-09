@@ -51,7 +51,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "ComRegistrationManager.UnregisterBho");
+                QTLogger.MakeErrorLog(ex, "ComRegistrationManager.UnregisterBho");
             }
         }
 
@@ -76,7 +76,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "ComRegistrationManager.UnregisterToolbar");
+                QTLogger.MakeErrorLog(ex, "ComRegistrationManager.UnregisterToolbar");
             }
         }
 
@@ -92,7 +92,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "ComRegistrationManager.UnregisterClsid");
+                QTLogger.MakeErrorLog(ex, "ComRegistrationManager.UnregisterClsid");
             }
         }
 

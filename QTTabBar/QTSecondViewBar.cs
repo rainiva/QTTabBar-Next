@@ -89,7 +89,7 @@ namespace QTTabBarLib
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex);
+                QTLogger.MakeErrorLog(ex);
             }
         }
 
@@ -99,7 +99,7 @@ namespace QTTabBarLib
             {
                 using (IDLWrapper wrapper = new IDLWrapper(Config.Window.DefaultLocation))
                 {
-                    QTUtility2.log("tabControl1_PlusButtonClicked others default " + Config.Window.DefaultLocation);
+                    QTLogger.log("tabControl1_PlusButtonClicked others default " + Config.Window.DefaultLocation);
                     if (ShellBrowser.Navigate(wrapper) != 0)
                     {
                         listView.SetFocus();
@@ -148,7 +148,7 @@ namespace QTTabBarLib
             /*if (CurrentLocation == null)
             {
                 CurrentLocation = (ShellObject)KnownFolders.Computer;
-                QTUtility2.log("CurrentLocation init");
+                QTLogger.log("CurrentLocation init");
             }*/
 
             explorerBrowser = new ExplorerBrowser.WindowsForms.ExplorerBrowser();
@@ -411,7 +411,7 @@ namespace QTTabBarLib
             catch (Exception ex)
             {
                 string optional = ".UpdateView";
-                QTUtility2.MakeErrorLog(ex, optional);
+                QTLogger.MakeErrorLog(ex, optional);
             }
             finally
             {
@@ -422,7 +422,7 @@ namespace QTTabBarLib
 
         public void RefreshRebarBand()
         {
-            QTUtility2.log("RefreshRebarBand start");
+            QTLogger.log("RefreshRebarBand start");
             // REBARBANDINFO* lParam = stackalloc REBARBANDINFO[1];
             REBARBANDINFO lParam = new REBARBANDINFO();
             // lParam.cbSize = sizeof(REBARBANDINFO);
@@ -451,7 +451,7 @@ namespace QTTabBarLib
                 );
             PInvoke.SendMessage(this.ReBarHandle, 561, 0, 0);
             PInvoke.SendMessage(this.ReBarHandle, 562, 0, 0);
-            QTUtility2.log("RefreshRebarBand end");
+            QTLogger.log("RefreshRebarBand end");
         }
 
         private void InitializeInstallation()
@@ -468,7 +468,7 @@ namespace QTTabBarLib
                     }
                 }
             }
-            QTUtility2.log("QTTabBarClass InitializeInstallation  pDisp :" + null + " locationURL :" + (string)locationURL);
+            QTLogger.log("QTTabBarClass InitializeInstallation  pDisp :" + null + " locationURL :" + (string)locationURL);
             Explorer_NavigateComplete2(null, ref locationURL);
         }
 
@@ -480,11 +480,11 @@ namespace QTTabBarLib
         {
             IsShown = true;
             //  安装钩子
-            QTUtility2.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
+            QTLogger.log("QTTabBarClass InitializeOpenedWindow  InstallHooks");
             InstallHooks();
             /*if (QTUtility.WindowAlpha < 0xff)
             {
-                QTUtility2.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
+                QTLogger.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
                 PInvoke.SetWindowLongPtr(ExplorerHandle, -20, PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000));
                 PInvoke.SetLayeredWindowAttributes(ExplorerHandle, 0, QTUtility.WindowAlpha, 2);
             }*/
@@ -548,7 +548,7 @@ namespace QTTabBarLib
             {
                 // case 20:
                 case WM.ERASEBKGND: // 0x0014当窗口背景必须被擦除时（例如在窗口改变大小时）
-                    QTUtility2.log("WM.ERASEBKGND " + this.IsVertical);
+                    QTLogger.log("WM.ERASEBKGND " + this.IsVertical);
                     Rectangle rectangle = new Rectangle(Point.Empty, PInvoke.GetWindowRect(msg.HWnd).Size);
                     if (this.IsVertical)
                     {
@@ -595,7 +595,7 @@ namespace QTTabBarLib
                     return true;
                 // case 70:
                 case WM.WINDOWPOSCHANGING:  // 当窗口位置、大小、Z顺序要改变时会发送 WM_WINDOWPOSCHANGING
-                    QTUtility2.log("WM.WINDOWPOSCHANGING " + this.IsVertical);
+                    QTLogger.log("WM.WINDOWPOSCHANGING " + this.IsVertical);
                     WINDOWPOS* lparam = (WINDOWPOS*)(void*)msg.LParam;
                     if (!this.UserResizing && this.BaseBarPreferredSize != 0 &&
                         !QTUtility2.HasFlag(lparam->flags, SWP.NOSIZE))
@@ -648,18 +648,18 @@ namespace QTTabBarLib
                     }
                     break;
                 case 123:
-                    QTUtility2.log("123 " + this.IsVertical);
+                    QTLogger.log("123 " + this.IsVertical);
                     return true;
                 case 163:
                     // this.OnBaseBarBorderDoubleClick((int)(long)msg.WParam);
-                    QTUtility2.log("163 " + this.IsVertical);
+                    QTLogger.log("163 " + this.IsVertical);
                     break;
                 case 561:
-                    QTUtility2.log("561 " + this.IsVertical);
+                    QTLogger.log("561 " + this.IsVertical);
                     this.UserResizing = true;
                     break;
                 case 562:
-                    QTUtility2.log("562 " + this.IsVertical);
+                    QTLogger.log("562 " + this.IsVertical);
                     try
                     {
                         if (this.IsVertical)
@@ -747,11 +747,11 @@ namespace QTTabBarLib
             switch (msg.Msg)
             {
                 case WM.PAINT: // WM_PAINT 0x000F 15 要求一个窗口重绘自己
-                    QTUtility2.log("rebarSubclassProc WM_PAINT " + this.IsVertical);
+                    QTLogger.log("rebarSubclassProc WM_PAINT " + this.IsVertical);
                     msg.Result = PInvoke.DefWindowProc(msg.HWnd, msg.Msg, msg.WParam, msg.LParam);
                     return true;
                 case WM.ERASEBKGND: // WM_ERASEBKGND 0x0014 20 当窗口背景必须被擦除时（例如在窗口改变大小时）
-                    QTUtility2.log("rebarSubclassProc WM_ERASEBKGND " + this.IsVertical);
+                    QTLogger.log("rebarSubclassProc WM_ERASEBKGND " + this.IsVertical);
                     RECT pRect;
                     PInvoke.GetWindowRect(msg.HWnd, out pRect);
                     Rectangle rct = new Rectangle(0, 0, pRect.Width, pRect.Height);
@@ -835,7 +835,7 @@ namespace QTTabBarLib
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex,
+                QTLogger.MakeErrorLog(ex,
                         String.Format("LParam: {0:x4}, WParam: {1:x4}", (long)lParam, (long)wParam));
             }
             return PInvoke.CallNextHookEx(hHook_Key, nCode, wParam, lParam);
@@ -860,7 +860,7 @@ namespace QTTabBarLib
                             return ptr;
 
                         /*case WM.MBUTTONDOWN: // add by indiff
-                            QTUtility2.log("CallbackMouseProc Handle_MButtonUp_Tree");
+                            QTLogger.log("CallbackMouseProc Handle_MButtonUp_Tree");
                             if (Handle_MButtonUp_Tree(ExplorerHandle,lParam))
                             {
                                 break;
@@ -892,7 +892,7 @@ namespace QTTabBarLib
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex, String.Format("LParam: {0:x4}, WParam: {1:x4}", (long)lParam, (long)wParam));
+                QTLogger.MakeErrorLog(ex, String.Format("LParam: {0:x4}, WParam: {1:x4}", (long)lParam, (long)wParam));
             }
             return PInvoke.CallNextHookEx(hHook_Mouse, nCode, wParam, lParam);
         }
@@ -938,7 +938,7 @@ namespace QTTabBarLib
 
                     if (msg.message == WM_NEWTREECONTROL)
                     {
-                        QTUtility2.log("CallbackGetMsgProc WM_NEWTREECONTROL");
+                        QTLogger.log("CallbackGetMsgProc WM_NEWTREECONTROL");
                         object obj = Marshal.GetObjectForIUnknown(msg.wParam);
                         try
                         {
@@ -964,7 +964,7 @@ namespace QTTabBarLib
                                                 // }
                                                 // treeViewWrapper = new TreeViewWrapper(hwnd, control);
                                                 // treeViewWrapper.TreeViewClicked += FolderLinkClicked;
-                                                QTUtility2.log("CallbackGetMsgProc regedit TreeViewClicked");
+                                                QTLogger.log("CallbackGetMsgProc regedit TreeViewClicked");
                                                 obj = null; // Release the object only if we didn't get this far.
                                             }
                                         }
@@ -976,7 +976,7 @@ namespace QTTabBarLib
                         {
                             if (obj != null)
                             {
-                                QTUtility2.log("ReleaseComObject obj");
+                                QTLogger.log("ReleaseComObject obj");
                                 Marshal.ReleaseComObject(obj);
                             }
                         }
@@ -1051,13 +1051,13 @@ namespace QTTabBarLib
                         case WM.MBUTTONUP:
                             if (!Explorer.Busy) // && !Config.NoMidClickTree
                             {
-                                QTUtility2.log("CallbackGetMsgProc MBUTTONUP NoMidClickTree");
+                                QTLogger.log("CallbackGetMsgProc MBUTTONUP NoMidClickTree");
                                 // Handle_MButtonUp_Tree(msg);
                             }
                             break;
                         case WM.SYSCOLORCHANGE:
                             QTUtility.RefreshNightMode();
-                            QTUtility2.log("SYSCOLORCHANGE SwitchNighMode");
+                            QTLogger.log("SYSCOLORCHANGE SwitchNighMode");
                             Config.Skin.SwitchNighMode(QTUtility.InNightMode); // 如果关闭自动变色则不进行变色
                             ConfigManager.UpdateConfig(true);
                             this.tabControl1.InitializeColors();
@@ -1103,7 +1103,7 @@ namespace QTTabBarLib
                                 }
                                 catch (Exception e)
                                 {
-                                    QTUtility2.MakeErrorLog(e, "CallbackGetMsgProc WM.Close");
+                                    QTLogger.MakeErrorLog(e, "CallbackGetMsgProc WM.Close");
                                 }
                                 Marshal.StructureToPtr(new MSG(), lParam, false);
                             }
@@ -1122,13 +1122,13 @@ namespace QTTabBarLib
                             break;
 
                         /*case 48648:  // not work
-                            QTUtility2.log("48648");
+                            QTLogger.log("48648");
                             break;*/
                     }
                 }
                 catch (Exception ex)
                 {
-                    QTUtility2.MakeErrorLog(ex, String.Format("Message: {0:x4}", msg.message));
+                    QTLogger.MakeErrorLog(ex, String.Format("Message: {0:x4}", msg.message));
                 }
             }
             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
@@ -1234,7 +1234,7 @@ namespace QTTabBarLib
 
                 if (TravelLog != null)
                 {
-                    QTUtility2.log("ReleaseComObject TravelLog");
+                    QTLogger.log("ReleaseComObject TravelLog");
                     Marshal.FinalReleaseComObject(TravelLog);
                     TravelLog = null;
                 }
@@ -1252,7 +1252,7 @@ namespace QTTabBarLib
                 {
                     if (entry != null)
                     {
-                        QTUtility2.log("ReleaseComObject entry");
+                        QTLogger.log("ReleaseComObject entry");
                         Marshal.FinalReleaseComObject(entry);
                     }
                 }*/
@@ -1260,7 +1260,7 @@ namespace QTTabBarLib
             }
             catch (Exception exception2)
             {
-                QTUtility2.MakeErrorLog(exception2, "tabbar closing");
+                QTLogger.MakeErrorLog(exception2, "tabbar closing");
             }
             base.CloseDW(dwReserved);
         }
@@ -1315,7 +1315,7 @@ namespace QTTabBarLib
             }
             catch (Exception ex)
             {
-                QTUtility2.MakeErrorLog(ex);
+                QTLogger.MakeErrorLog(ex);
             }
         }
 
@@ -1395,7 +1395,7 @@ namespace QTTabBarLib
 
         protected override void OnExplorerAttached()
         {
-            QTUtility2.log("QTTabBarClass OnExplorerAttached");
+            QTLogger.log("QTTabBarClass OnExplorerAttached");
             ExplorerHandle = (IntPtr)Explorer.HWND;
             /*try
             {
@@ -1414,7 +1414,7 @@ namespace QTTabBarLib
             }
             catch (COMException exception)
             {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }*/
             // this.explorerManager = InstanceManager.Register((BandObject)this, (object)this.bandObjectSite);
 
@@ -1460,7 +1460,7 @@ namespace QTTabBarLib
             ref bool Cancel)
         {
             // DebugUtil.WriteLine("QTTabBarClass Explorer_BeforeNavigate2:" ); // add by qwop.
-            QTUtility2.log("QTSecondViewBar Explorer_BeforeNavigate2  pDisp :" + pDisp
+            QTLogger.log("QTSecondViewBar Explorer_BeforeNavigate2  pDisp :" + pDisp
                                                                              + " URL :" + (string)URL
                                                                              + " Flags :" + Flags
                                                                              + " TargetFrameName :" + TargetFrameName
@@ -1477,7 +1477,7 @@ namespace QTTabBarLib
 
         private void Explorer_NavigateComplete2(object pDisp, ref object URL)
         {
-            QTUtility2.log("QTSecondViewBar Explorer_NavigateComplete2  pDisp :"
+            QTLogger.log("QTSecondViewBar Explorer_NavigateComplete2  pDisp :"
                            + pDisp
                            + " URL :" + (string)URL
             );

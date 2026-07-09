@@ -111,7 +111,7 @@ namespace QTTabBarLib {
                 ReadCache();
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
         }
 
@@ -170,7 +170,7 @@ namespace QTTabBarLib {
             }
             finally {
                 if(shellFolder != null) {
-                    QTUtility2.log("ReleaseComObject shellFolder");
+                    QTLogger.log("ReleaseComObject shellFolder");
                     Marshal.ReleaseComObject(shellFolder);
                 }   
             }
@@ -271,11 +271,11 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "GetIDLHash");
+                QTLogger.MakeErrorLog(exception, "GetIDLHash");
             }
             finally {
                 if(ppshf != null) {
-                    QTUtility2.log("ReleaseComObject ppshf");
+                    QTLogger.log("ReleaseComObject ppshf");
                     Marshal.ReleaseComObject(ppshf);
                 }
             }
@@ -402,7 +402,7 @@ namespace QTTabBarLib {
                 fCacheDirty = false;
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
         }
 
@@ -478,7 +478,7 @@ namespace QTTabBarLib {
                         }
                     }
                     catch(Exception exception) {
-                        QTUtility2.MakeErrorLog(exception);
+                        QTLogger.MakeErrorLog(exception);
                     }
                 }
             }
@@ -559,7 +559,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "IsFileSystemFile");
+                    QTLogger.MakeErrorLog(exception, "IsFileSystemFile");
                 }
                 return false;
             }
@@ -572,7 +572,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "IsFileSystemFolder");
+                    QTLogger.MakeErrorLog(exception, "IsFileSystemFolder");
                 }
                 return false;
             }
@@ -624,7 +624,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "IsLinkToDeadFolder");
+                    QTLogger.MakeErrorLog(exception, "IsLinkToDeadFolder");
                 }
                 return flag;
             }
@@ -638,7 +638,7 @@ namespace QTTabBarLib {
                     }
                     catch (Exception exception)
                     {
-                        QTUtility2.MakeErrorLog(exception, "IsReadyIfDrive");
+                        QTLogger.MakeErrorLog(exception, "IsReadyIfDrive");
                     }
                 }
                 return true;

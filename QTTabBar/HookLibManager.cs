@@ -84,7 +84,7 @@ namespace QTTabBarLib {
         /** Do not initialize hook.*/
         public static void Initialize_donot()
         {
-            QTUtility2.log("Do not initialize hook" );
+            QTLogger.log("Do not initialize hook" );
         }
 
         public static void Initialize_bgtool()
@@ -100,7 +100,7 @@ namespace QTTabBarLib {
             if (HookStateManager.Handle == IntPtr.Zero)
             {
                 int error = Marshal.GetLastWin32Error();
-                QTUtility2.MakeErrorLog(null, "LoadLibrary error: " + error);
+                QTLogger.MakeErrorLog(null, "LoadLibrary error: " + error);
             }
             else
             {
@@ -115,7 +115,7 @@ namespace QTTabBarLib {
                     }
                     catch (Exception e)
                     {
-                        QTUtility2.MakeErrorLog(e, "");
+                        QTLogger.MakeErrorLog(e, "");
                     }
 
                 }
@@ -123,10 +123,10 @@ namespace QTTabBarLib {
 
             if (retcode == 0)
             {
-                QTUtility2.log("HookLib Initialize success");
+                QTLogger.log("HookLib Initialize success");
                 return;
             }
-            QTUtility2.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
+            QTLogger.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
 
             MessageForm.Show(IntPtr.Zero,
                 String.Format(
@@ -144,7 +144,7 @@ namespace QTTabBarLib {
 
         public static void Initialize()
         {
-            QTUtility2.flog("Win11Probe HookLibManager.Initialize.Start");
+            QTLogger.flog("Win11Probe HookLibManager.Initialize.Start");
             try
             {
                 if (HookStateManager.IsLoaded)
@@ -162,7 +162,7 @@ namespace QTTabBarLib {
                         "") as string) ?? "";
                 bool isServer = productName.ToLower().Contains("server");
                 if(isServer) {
-                    QTUtility2.log("can not hook in server by registry check");
+                    QTLogger.log("can not hook in server by registry check");
                     HookStateManager.SetLoaded(false);
                     return;
                 }
@@ -188,30 +188,30 @@ namespace QTTabBarLib {
 
                 if (!File.Exists(libPath))
                 {
-                    QTUtility2.flog("not exists file , close auto hook " + libPath);
+                    QTLogger.flog("not exists file , close auto hook " + libPath);
                     HookStateManager.SetLoaded(false);
                     return;
                 }
-                QTUtility2.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
-                QTUtility2.flog("load library " + libPath );
+                QTLogger.flog("Win11Probe HookLibManager.Initialize.LoadLibrary");
+                QTLogger.flog("load library " + libPath );
                 HookStateManager.SetHandle(PInvoke.LoadLibrary(libPath));
-                QTUtility2.flog("load library hHookLib " + HookStateManager.Handle);
+                QTLogger.flog("load library hHookLib " + HookStateManager.Handle);
                 int retcode = -1;
                 if(HookStateManager.Handle == IntPtr.Zero) {
                     int error = Marshal.GetLastWin32Error();
-                    QTUtility2.MakeErrorLog(null, "LoadLibrary error: " + error);
+                    QTLogger.MakeErrorLog(null, "LoadLibrary error: " + error);
                 }
                 else {
                     IntPtr pFunc = PInvoke.GetProcAddress(HookStateManager.Handle, "Initialize");
                     if(pFunc != IntPtr.Zero) {
                         InitHookLibDelegate initialize = (InitHookLibDelegate) 
                             Marshal.GetDelegateForFunctionPointer(pFunc, typeof(InitHookLibDelegate));
-                            QTUtility2.flog("Win11Probe HookLibManager.Initialize.InvokeNativeInitialize");
+                            QTLogger.flog("Win11Probe HookLibManager.Initialize.InvokeNativeInitialize");
                         try {
                             retcode = initialize(callbackStruct);
                         }
                         catch(Exception e) {
-                            QTUtility2.MakeErrorLog(e, "HookLibManager.Initialize: native Initialize threw");
+                            QTLogger.MakeErrorLog(e, "HookLibManager.Initialize: native Initialize threw");
                             HookStateManager.SetLoaded(false);
                         }
                     }
@@ -220,11 +220,11 @@ namespace QTTabBarLib {
                 if (retcode == 0)
                 {
                     HookStateManager.SetLoaded(true);
-                    QTUtility2.log("HookLib Initialize success");
+                    QTLogger.log("HookLib Initialize success");
                     // MessageBox.Show("HookLib Initialize success");
                     return;
                 }
-                QTUtility2.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
+                QTLogger.MakeErrorLog(null, "HookLib Initialize failed: " + retcode);
                 HookStateManager.SetLoaded(false);
                 MessageForm.Show(IntPtr.Zero,
                     String.Format(
@@ -241,24 +241,24 @@ namespace QTTabBarLib {
             catch (DllNotFoundException dllEx)
             {
                 // Hook DLL (or a dependency) could not be resolved: degrade to disabled.
-                QTUtility2.MakeErrorLog(dllEx, "HookLibManager.Initialize: hook DLL not found; disabling hooks");
+                QTLogger.MakeErrorLog(dllEx, "HookLibManager.Initialize: hook DLL not found; disabling hooks");
                 HookStateManager.SetLoaded(false);
             }
             catch (System.Security.SecurityException secEx)
             {
                 // Registry / security access denied during OS detection or config read.
-                QTUtility2.MakeErrorLog(secEx, "HookLibManager.Initialize: registry/security access failure; disabling hooks");
+                QTLogger.MakeErrorLog(secEx, "HookLibManager.Initialize: registry/security access failure; disabling hooks");
                 HookStateManager.SetLoaded(false);
             }
             catch (UnauthorizedAccessException uaEx)
             {
-                QTUtility2.MakeErrorLog(uaEx, "HookLibManager.Initialize: unauthorized registry access; disabling hooks");
+                QTLogger.MakeErrorLog(uaEx, "HookLibManager.Initialize: unauthorized registry access; disabling hooks");
                 HookStateManager.SetLoaded(false);
             }
             catch (Exception ex)
             {
                 // Any other unexpected failure must not interrupt Explorer startup.
-                QTUtility2.MakeErrorLog(ex, "HookLibManager.Initialize: unexpected failure; disabling hooks");
+                QTLogger.MakeErrorLog(ex, "HookLibManager.Initialize: unexpected failure; disabling hooks");
                 HookStateManager.SetLoaded(false);
             }
         }
@@ -289,7 +289,7 @@ namespace QTTabBarLib {
                 IDL = wrapper.IDL;
             }
             InstanceManager.BeginInvokeMain(tabbar => {
-                QTUtility2.log("BeginInvokeMain OpenNewTabOrWindow");
+                QTLogger.log("BeginInvokeMain OpenNewTabOrWindow");
                 using (IDLWrapper wrapper = new IDLWrapper(IDL)) {
                     tabbar.OpenNewTabOrWindow(wrapper, true);
                 }
@@ -301,7 +301,7 @@ namespace QTTabBarLib {
 
         public static void InitShellBrowserHook(IShellBrowser shellBrowser)
         {
-            QTUtility2.flog("Win11Probe HookLibManager.InitShellBrowserHook.Start");
+            QTLogger.flog("Win11Probe HookLibManager.InitShellBrowserHook.Start");
             lock (typeof(HookLibManager))
             {
                 if(HookStateManager.ShellBrowserHooked || HookStateManager.Handle == IntPtr.Zero) return;
@@ -314,16 +314,16 @@ namespace QTTabBarLib {
                 int retcode = -1;
                 try {
                     retcode = initShellBrowserHook(pShellBrowser);
-                    QTUtility2.flog("Win11Probe HookLibManager.InitShellBrowserHook.NativeResult " + retcode);
+                    QTLogger.flog("Win11Probe HookLibManager.InitShellBrowserHook.NativeResult " + retcode);
                 }
                 catch(Exception e) {
-                    QTUtility2.MakeErrorLog(e, "");
+                    QTLogger.MakeErrorLog(e, "");
                 }
                 finally {
                     Marshal.Release(pShellBrowser);
                 }
                 if(retcode != 0) {
-                    QTUtility2.MakeErrorLog(null, "InitShellBrowserHook failed: " + retcode);
+                    QTLogger.MakeErrorLog(null, "InitShellBrowserHook failed: " + retcode);
 
                     MessageForm.Show(IntPtr.Zero,
                         String.Format(
@@ -360,7 +360,7 @@ namespace QTTabBarLib {
                 }
             }
             catch (Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "HookLibManager.GetTrustedInstallDirectory");
+                QTLogger.MakeErrorLog(ex, "HookLibManager.GetTrustedInstallDirectory");
             }
             return null;
         }
@@ -412,12 +412,12 @@ namespace QTTabBarLib {
                 string legacyFull = Path.Combine(legacyDir, fileName);
                 if (File.Exists(legacyFull)) {
                     if (blockLegacyPath) {
-                        QTUtility2.MakeErrorLog(null,
+                        QTLogger.MakeErrorLog(null,
                             "HookLibManager: blocked legacy user-writable hook path (BlockLegacyHookDllPath=true): "
                             + legacyFull);
                         return trustedFull;
                     }
-                    QTUtility2.MakeErrorLog(null,
+                    QTLogger.MakeErrorLog(null,
                         "HookLibManager: trusted install copy of " + fileName
                         + " not found; falling back to legacy user-writable path " + legacyFull);
                     return legacyFull;
@@ -437,7 +437,7 @@ namespace QTTabBarLib {
             if(!HookStateManager.IsLoaded || HookStateManager.Handle == IntPtr.Zero) return;
             for(int i = 0; i < hookStatus.Length; i++) {
                 if(hookStatus[i] != 0) {
-                    QTUtility2.flog("Hook " + ((Hooks)i) + " status: " + hookStatus[i]);
+                    QTLogger.flog("Hook " + ((Hooks)i) + " status: " + hookStatus[i]);
                 }
             }
         }

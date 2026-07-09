@@ -9,7 +9,7 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public abstract partial class TabBarBase {
         internal void AddInsertTab(QTabItem tab) {
-            QTUtility2.log("TabBarBase AddInsertTab");
+            QTLogger.log("TabBarBase AddInsertTab");
             switch(Config.Tabs.NewTabPosition) {
                 case TabPos.Leftmost:
                     tabControl1.TabPages.Insert(0, tab);
@@ -114,7 +114,7 @@ namespace QTTabBarLib {
                                     }
                                     finally {
                                         if(ppv != null) {
-                                            QTUtility2.log("ReleaseComObject ppv");
+                                            QTLogger.log("ReleaseComObject ppv");
                                             Marshal.ReleaseComObject(ppv);
                                         }
                                     }

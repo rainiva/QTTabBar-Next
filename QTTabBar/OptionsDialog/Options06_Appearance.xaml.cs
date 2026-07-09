@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -47,7 +47,7 @@ namespace QTTabBarLib {
             // 修复颜色重置导致暗黑模式混乱问题
             WorkingConfig.skin.SkinAutoColorChangeClose = false;
             Config.Skin.SkinAutoColorChangeClose = false;
-            QTUtility2.log("reset SwitchNighMode");
+            QTLogger.log("reset SwitchNighMode");
             WorkingConfig.skin.SwitchNighMode( QTUtility.getNightMode() );
             DataContext = WorkingConfig.skin;
         }

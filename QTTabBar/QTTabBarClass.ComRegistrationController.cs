@@ -13,7 +13,7 @@ namespace QTTabBarLib {
             }
 
             public static void Unregister(Type t) {
-                QTUtility2.log("QTTabBarClass Unregister");
+                QTLogger.log("QTTabBarClass Unregister");
                 string name = t.GUID.ToString("B");
                 ComRegistrationManager.UnregisterAll(name);
                 try {
@@ -24,7 +24,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, "Unregister.CLSID2");
+                    QTLogger.MakeErrorLog(ex, "Unregister.CLSID2");
                 }
             }
         }

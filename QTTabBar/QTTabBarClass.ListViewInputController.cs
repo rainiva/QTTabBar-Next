@@ -50,7 +50,7 @@ namespace QTTabBarLib {
             }
 
             public bool OnSelectionActivated(Keys modKeys) {
-                QTUtility2.log("ListView_SelectionActivated");
+                QTLogger.log("ListView_SelectionActivated");
                 if(_timerSelectionChanged != null) {
                     _timerSelectionChanged.Enabled = false;
                 }
@@ -199,7 +199,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                 }
                 finally {
                     if(zero != IntPtr.Zero) {
@@ -249,7 +249,7 @@ namespace QTTabBarLib {
 
                 try {
                     var tabText = _owner.tabControl1.TabPages[0].Text;
-                    QTUtility2.log("ListView_SelectionChanged this.TabCount " + _owner.TabCount +
+                    QTLogger.log("ListView_SelectionChanged this.TabCount " + _owner.TabCount +
                                    " fHideExplorer " + _owner.fHideExplorer +
                                    " mCmdType " + _owner.mCmdType +
                                    " tabItem Text " + tabText
@@ -280,7 +280,7 @@ namespace QTTabBarLib {
 
                                                     if(QTUtility2.IsNotEmpty(key)) {
                                                         RegistryUtil.WriteSelection(key, so.ParsingName);
-                                                        QTUtility2.log(
+                                                        QTLogger.log(
                                                             " WriteSelection " +
                                                             key +
                                                             " path " + so.ParsingName
@@ -306,13 +306,13 @@ namespace QTTabBarLib {
                                 }
                             }
                             catch(Exception e) {
-                                QTUtility2.MakeErrorLog(e, "关闭窗口");
+                                QTLogger.MakeErrorLog(e, "关闭窗口");
                             }
                         }
                     }
                 }
                 catch(Exception e) {
-                    QTUtility2.MakeErrorLog(e, "获取选中文件出错");
+                    QTLogger.MakeErrorLog(e, "获取选中文件出错");
                 }
 
                 if(
@@ -321,7 +321,7 @@ namespace QTTabBarLib {
                     (_owner.mCmdType == 3) &&
                     QTUtility2.IsEmpty(_owner.tabControl1.TabPages[0].Text)) {
                     try {
-                        QTUtility2.log("other cmd close windows  ");
+                        QTLogger.log("other cmd close windows  ");
                         WindowUtils.CloseExplorer(_owner.ExplorerHandle, 2, true);
                     }
                     finally {
@@ -333,7 +333,7 @@ namespace QTTabBarLib {
                 MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Middle, ModifierKeys);
                 BindAction action;
                 if(Config.Mouse.MarginActions.TryGetValue(chord, out action)) {
-                    QTUtility2.log("ListView_MiddleClick " + action);
+                    QTLogger.log("ListView_MiddleClick " + action);
                     if(_owner.listView.PointIsBackground(pt, false)) {
                         return _owner.DoBindAction(action);
                     }
@@ -344,7 +344,7 @@ namespace QTTabBarLib {
                         return false;
                     }
                     using(IDLWrapper wrapper = _owner.ShellBrowser.GetItem(index)) {
-                        QTUtility2.log("QTTabBarClass ListView_MiddleClick " + action);
+                        QTLogger.log("QTTabBarClass ListView_MiddleClick " + action);
                         return _owner.DoBindAction(action, false, null, wrapper);
                     }
                 }
@@ -370,7 +370,7 @@ namespace QTTabBarLib {
                 MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Double, ModifierKeys);
                 BindAction action;
                 if(Config.Mouse.MarginActions.TryGetValue(chord, out action) && _owner.listView.PointIsBackground(pt, false)) {
-                    QTUtility2.log("ListView_DoubleClick " + action);
+                    QTLogger.log("ListView_DoubleClick " + action);
                     _owner.DoBindAction(action);
                     return true;
                 }
@@ -394,7 +394,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception e1) {
-                    QTUtility2.MakeErrorLog(e1, "QTTabBarClass timerSelectionChanged_Tick");
+                    QTLogger.MakeErrorLog(e1, "QTTabBarClass timerSelectionChanged_Tick");
                 }
             }
         }

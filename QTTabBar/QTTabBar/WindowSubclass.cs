@@ -1,4 +1,4 @@
-﻿using QTTabBarLib.Interop;
+using QTTabBarLib.Interop;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -65,7 +65,7 @@ namespace QTTabBarLib
       }
       catch (Exception ex)
       {
-        QTUtility2.MakeErrorLog(ex);
+        QTLogger.MakeErrorLog(ex);
       }
     }
 
@@ -97,7 +97,7 @@ namespace QTTabBarLib
           catch (Exception ex)
           {
             string optional = "msg: " + msg.Msg;
-            QTUtility2.MakeErrorLog(ex, optional);
+            QTLogger.MakeErrorLog(ex, optional);
           }
         }
         if (uMsg == RegisteredMessage.Unsubclass)
@@ -111,7 +111,7 @@ namespace QTTabBarLib
       }
       catch (Exception ex)
       {
-        QTUtility2.MakeErrorLog(ex, "1");
+        QTLogger.MakeErrorLog(ex, "1");
       }
       try
       {
@@ -119,7 +119,7 @@ namespace QTTabBarLib
       }
       catch (Exception ex)
       {
-          QTUtility2.MakeErrorLog(ex, "2");
+          QTLogger.MakeErrorLog(ex, "2");
           return IntPtr.Zero;
       }
     }

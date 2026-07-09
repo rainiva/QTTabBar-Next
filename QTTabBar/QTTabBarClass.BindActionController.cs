@@ -329,9 +329,9 @@ namespace QTTabBarLib {
                         break;
 
                     case BindAction.UpOneLevelTab:
-                        // QTUtility2.log("QTTabBarClass UpOneLevelTab");
+                        // QTLogger.log("QTTabBarClass UpOneLevelTab");
                     case BindAction.UpOneLevel:
-                        QTUtility2.log("QTTabBarClass case UpOneLevel");
+                        QTLogger.log("QTTabBarClass case UpOneLevel");
                         _owner.UpOneLevel(); // Hmm...
                         break;
 

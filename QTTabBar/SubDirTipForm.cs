@@ -258,7 +258,7 @@ namespace QTTabBarLib {
                         }
                     }
                     catch(Exception exception) {
-                        QTUtility2.MakeErrorLog(exception, "creating subdir menu");
+                        QTLogger.MakeErrorLog(exception, "creating subdir menu");
                     }
                 }
                 if(!flag) {
@@ -332,7 +332,7 @@ namespace QTTabBarLib {
                         }
                     }
                     catch(Exception exception2) {
-                        QTUtility2.MakeErrorLog(exception2, "creating subfile menu");
+                        QTLogger.MakeErrorLog(exception2, "creating subfile menu");
                     }
                 }
                 collection.Sort(extComparer);
@@ -436,11 +436,11 @@ namespace QTTabBarLib {
                 }
                 finally {
                     if(shellFolder != null) {
-                        QTUtility2.log("ReleaseComObject shellFolder");
+                        QTLogger.log("ReleaseComObject shellFolder");
                         Marshal.ReleaseComObject(shellFolder);
                     }
                     if(ppenumIDList != null) {
-                        QTUtility2.log("ReleaseComObject ppenumIDList");
+                        QTLogger.log("ReleaseComObject ppenumIDList");
                         Marshal.ReleaseComObject(ppenumIDList);
                     }
                     if(zero != IntPtr.Zero) {
@@ -1055,7 +1055,7 @@ namespace QTTabBarLib {
                 timerToolTipByKey.Tag = null;
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
         }
 
@@ -1136,13 +1136,13 @@ namespace QTTabBarLib {
                     {
                         qtTabBarClass.OpenNewTab(wrapper3, true);
                     }
-                    QTUtility2.log("tsmi_MouseUp MouseButtons.Middle " + item.Path);
+                    QTLogger.log("tsmi_MouseUp MouseButtons.Middle " + item.Path);
                 }
             }
             else
             {
                 fMiddleButton = false;
-                QTUtility2.log("tsmi_MouseUp others");
+                QTLogger.log("tsmi_MouseUp others");
             }
             draggingPath = null;
             draggingItem = null;

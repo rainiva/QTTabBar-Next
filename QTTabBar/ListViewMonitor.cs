@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -95,15 +95,15 @@ namespace QTTabBarLib {
 
             if(hwndListView == IntPtr.Zero)
             {
-                QTUtility2.log("new AbstractListView");
+                QTLogger.log("new AbstractListView");
                 CurrentListView = new AbstractListView();
             }
             else if(fIsSysListView) {
-                QTUtility2.log("new ExtendedSysListView32");
+                QTLogger.log("new ExtendedSysListView32");
                 CurrentListView = new ExtendedSysListView32(ShellBrowser, hwndShellView, hwndListView, hwndSubDirTipMessageReflect);
             }
             else {
-                QTUtility2.log("new ExtendedItemsView");
+                QTLogger.log("new ExtendedItemsView");
                 CurrentListView = new ExtendedItemsView(ShellBrowser, hwndShellView, hwndListView, hwndSubDirTipMessageReflect);
             }
             CurrentListView.ListViewDestroyed += ListView_Destroyed;

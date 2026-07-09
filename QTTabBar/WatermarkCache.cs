@@ -269,7 +269,7 @@ namespace QTTabBarLib {
 
             catch(Exception ex) {
 
-                QTUtility2.MakeErrorLog(ex, "ViewPerceivedTypeResolver.IsUnderKnownFolder");
+                QTLogger.MakeErrorLog(ex, "ViewPerceivedTypeResolver.IsUnderKnownFolder");
 
                 return false;
 
@@ -339,7 +339,7 @@ namespace QTTabBarLib {
 
             catch(Exception ex) {
 
-                QTUtility2.MakeErrorLog(ex, "KeyResourceConverters.ToBitmap: " + path);
+                QTLogger.MakeErrorLog(ex, "KeyResourceConverters.ToBitmap: " + path);
 
                 return null;
 

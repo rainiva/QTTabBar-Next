@@ -401,7 +401,7 @@ namespace QTTabBarLib {
                           {
                               if (address.Path != null && Directory.Exists(address.Path))
                               {
-                                  QTUtility2.log("TryGetSelection " + address.Path);
+                                  QTLogger.log("TryGetSelection " + address.Path);
                                   // OpenNewTab(address.Path, action == BindAction.ItemsOpenInNewTabNoSel);
                               }
                           }
@@ -743,7 +743,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, String.Format("Message: {0:x4}", m.Msg));
+                QTLogger.MakeErrorLog(ex, String.Format("Message: {0:x4}", m.Msg));
             }
         }
 
@@ -770,7 +770,7 @@ namespace QTTabBarLib {
 
         protected override void OnDpiChanged(int oldDpi, int newDpi)
         {
-            QTUtility2.log("QTTabBarClass OnDpiChanged old=" + oldDpi + " new=" + newDpi);
+            QTLogger.log("QTTabBarClass OnDpiChanged old=" + oldDpi + " new=" + newDpi);
             Dpi = newDpi;
             RefreshBandHeightForCurrentDpi();
         }

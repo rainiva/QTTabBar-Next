@@ -31,11 +31,11 @@ namespace QTTabBarLib {
             bool consumed = false;
             if(MessageCaptured != null)
             {
-                // QTUtility2.log("msg\t" + Enum.GetName(typeof(MsgEnum), m.Msg) + "\tw\t" + m.WParam + "\tl\t" + m.LParam);
+                // QTLogger.log("msg\t" + Enum.GetName(typeof(MsgEnum), m.Msg) + "\tw\t" + m.WParam + "\tl\t" + m.LParam);
                 /*switch (m.Msg)
                 {
                     case 26:
-                        QTUtility2.log("NativeWindowController WndProc 26");
+                        QTLogger.log("NativeWindowController WndProc 26");
                         string str = string.Empty;
                         try
                         {
@@ -81,7 +81,7 @@ namespace QTTabBarLib {
                     consumed = MessageCaptured(ref m);
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, String.Format(m.ToString()));
+                    QTLogger.MakeErrorLog(ex, String.Format(m.ToString()));
                 }
             }
             if(!consumed) {

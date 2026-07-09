@@ -43,7 +43,7 @@ namespace QTTabBarLib {
                     }
                     if((!flag || (_owner.ContextMenuedTab == _owner.CurrentTab)) && _owner.CurrentTab.TabLocked)
                     {
-                        QTUtility2.log("Clone Tab Button1");
+                        QTLogger.log("Clone Tab Button1");
                         _owner.CloneTabButton(_owner.CurrentTab, targetPath, true, _owner.TabIndex());
                         return;
                     }
@@ -63,13 +63,13 @@ namespace QTTabBarLib {
                             _owner.NowTabCloned = targetPath == _owner.CurrentAddress;
                             _owner.ContextMenuedTab.NavigatedTo(targetPath, null, 1, false);
                             _owner.tabControl1.SelectTab(_owner.ContextMenuedTab);
-                            QTUtility2.log("NavigatedTo SelectTab");
+                            QTLogger.log("NavigatedTo SelectTab");
                         }
                         return;
                     }
                     using(IDLWrapper wrapper4 = new IDLWrapper(targetPath)) {
                         _owner.ShellBrowser.Navigate(wrapper4);
-                        QTUtility2.log("ShellBrowser.Navigate");
+                        QTLogger.log("ShellBrowser.Navigate");
                         return;
                     }
                 }
@@ -79,14 +79,14 @@ namespace QTTabBarLib {
                         ErrorDialog = true,
                         ErrorDialogParentHandle = _owner.ExplorerHandle
                     });
-                    QTUtility2.log("Process.Start");
+                    QTLogger.log("Process.Start");
                     if(Config.Misc.KeepRecentFiles) {
                         StaticReg.ExecutedPathsList.Add(clickedItem.Path);
-                        QTUtility2.log("StaticReg.ExecutedPathsList.Add");
+                        QTLogger.log("StaticReg.ExecutedPathsList.Add");
                     }
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, "ExecuteItem");
+                    QTLogger.MakeErrorLog(ex, "ExecuteItem");
                 }
             }
 

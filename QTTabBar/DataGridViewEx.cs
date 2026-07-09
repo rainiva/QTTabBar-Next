@@ -132,7 +132,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "PaintBackGround");
+                    QTLogger.MakeErrorLog(exception, "PaintBackGround");
                     goto Label_00E1;
                 }
             }

@@ -43,11 +43,11 @@ namespace QTTabBarLib {
                 var shellBrowserEx = TabInstanceRegistry.GetThreadTabBar().GetShellBrowser();
                 if (shellBrowserEx != null && shellBrowserEx.folderView != null)
                 {
-                    QTUtility2.log("shellBrowserEx.folderView from thread");
+                    QTLogger.log("shellBrowserEx.folderView from thread");
                     return shellBrowserEx.folderView; 
                 }
 
-                QTUtility2.log("shellBrowserEx.folderView from field");
+                QTLogger.log("shellBrowserEx.folderView from field");
                 return folderView;
             }
             set { folderView = value; }
@@ -90,12 +90,12 @@ namespace QTTabBarLib {
 
         public void Dispose() {
             if(shellBrowser != null) {
-              QTUtility2.log("ReleaseComObject shellBrowser");
+              QTLogger.log("ReleaseComObject shellBrowser");
               Marshal.FinalReleaseComObject(shellBrowser);
               shellBrowser = null;
             }
             if(folderView != null) {
-                QTUtility2.log("ReleaseComObject folderView");
+                QTLogger.log("ReleaseComObject folderView");
                Marshal.ReleaseComObject(folderView);
              //  folderView = null;
             }
@@ -117,7 +117,7 @@ namespace QTTabBarLib {
         public int GetFocusedIndex()
         {
             int focusedIndex;
-            // QTUtility2.log("GetFocusedIndex  folderView " + folderView);
+            // QTLogger.log("GetFocusedIndex  folderView " + folderView);
             return folderView != null && folderView.GetFocusedItem(out focusedIndex) == 0
                 ? focusedIndex : -1;
         }
@@ -133,7 +133,7 @@ namespace QTTabBarLib {
             if(folderView == null) return new IDLWrapper();
             IntPtr ppidl = IntPtr.Zero;
             try {
-                // QTUtility2.log("GetItem  folderView " + folderView + " idx " + idx );
+                // QTLogger.log("GetItem  folderView " + folderView + " idx " + idx );
                 /*if (InstanceManager.GetTotalInstanceCount() > 0)
                 {
                     var shellBrowserEx = TabInstanceRegistry.GetThreadTabBar().GetShellBrowser();
@@ -203,7 +203,7 @@ namespace QTTabBarLib {
             }
             finally {
                 if(list != null) {
-                    QTUtility2.log("ReleaseComObject list");
+                    QTLogger.log("ReleaseComObject list");
                     Marshal.ReleaseComObject(list);
                 }
             }
@@ -220,7 +220,7 @@ namespace QTTabBarLib {
                     folderView = AcquireFolderViewFromShellView(ppshv);
                 }
             }
-            QTUtility2.log(" GetSelectedCount folderView is null ? " + (folderView == null) ); // 测试是否未空？  by indiff
+            QTLogger.log(" GetSelectedCount folderView is null ? " + (folderView == null) ); // 测试是否未空？  by indiff
             return folderView != null && folderView.ItemCount(SVGIO.SELECTION, out count) == 0 ? count : 0;
         }
 
@@ -237,11 +237,11 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "GetShellPath");
+                QTLogger.MakeErrorLog(e, "GetShellPath");
             }
             finally {
                 if(ppv != null) {
-                    QTUtility2.log("ReleaseComObject ppv");
+                    QTLogger.log("ReleaseComObject ppv");
                     Marshal.ReleaseComObject(ppv);
                 }
             }
@@ -312,7 +312,7 @@ namespace QTTabBarLib {
             if(shellBrowser == null) return;
 
             if(folderView != null) {
-                QTUtility2.log("ReleaseComObject folderView to reset");
+                QTLogger.log("ReleaseComObject folderView to reset");
                 Marshal.ReleaseComObject(folderView);
                 folderView = null;
             }
@@ -345,7 +345,7 @@ namespace QTTabBarLib {
                 }
                 catch (COMException e)
                 {
-                    QTUtility2.MakeErrorLog(e, " ShellBrowserEx Navigate");
+                    QTLogger.MakeErrorLog(e, " ShellBrowserEx Navigate");
                 }
             }
             return 1;
@@ -375,11 +375,11 @@ namespace QTTabBarLib {
                 }
                 catch (COMException e)
                 {
-                    QTUtility2.MakeErrorLog(e, " SetUsingListView COMException");
+                    QTLogger.MakeErrorLog(e, " SetUsingListView COMException");
                 }
                 catch (InvalidComObjectException e)
                 {
-                    QTUtility2.MakeErrorLog(e, " SetUsingListView InvalidComObjectException");
+                    QTLogger.MakeErrorLog(e, " SetUsingListView InvalidComObjectException");
                 }  // add by indiff 2023.03.15
             }
         }
@@ -396,13 +396,13 @@ namespace QTTabBarLib {
                     if (null != wrapper && wrapper.Available)
                     {
                         if(!string.IsNullOrEmpty(matchName) && matchName != wrapper.ParseName) {
-                          //  QTUtility2.log("TryGetHotTrackPath not match " + matchName + " wrapper.ParseName " + wrapper.ParseName);
+                          //  QTLogger.log("TryGetHotTrackPath not match " + matchName + " wrapper.ParseName " + wrapper.ParseName);
                             return false;
                         }
                         using(IDLWrapper wrapper2 = ILAppend(wrapper.PIDL)) {
                             path = wrapper2.ParseName;
                             if(!string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) < 0) {
-                              //  QTUtility2.log("TryGetHotTrackPath  path " + path + " wrapper.ParseName " + wrapper2.ParseName);
+                              //  QTLogger.log("TryGetHotTrackPath  path " + path + " wrapper.ParseName " + wrapper2.ParseName);
                                 return true;
                             }
                             path = null;
@@ -411,7 +411,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             return false;
         }
@@ -454,7 +454,7 @@ namespace QTTabBarLib {
         }
 
         public bool TrySetSelection(Address[] addresses, string pathToFocus, bool fDeselectOthers) {
-            QTUtility2.log("TrySetSelection " + pathToFocus);
+            QTLogger.log("TrySetSelection " + pathToFocus);
             IShellView shellView = folderView as IShellView;
             if(addresses == null || folderView == null || shellView == null) return false;
             try {
@@ -495,13 +495,13 @@ namespace QTTabBarLib {
                         // SVSI_FOCUSED
                         shellView.SelectItem(pIDLFOCUSCHILD, SVSIF.FOCUSED | SVSIF.ENSUREVISIBLE);
 
-                        QTUtility2.log("TrySetSelection success:" + pathToFocus);
+                        QTLogger.log("TrySetSelection success:" + pathToFocus);
                     }
                 }
                 return true;
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex);
+                QTLogger.MakeErrorLog(ex);
             }
             
             return false;

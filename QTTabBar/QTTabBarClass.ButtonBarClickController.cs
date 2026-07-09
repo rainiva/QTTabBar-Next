@@ -28,7 +28,7 @@ namespace QTTabBarLib {
                         break;
 
                     case QTButtonBar.BII_CLONE:
-                        QTUtility2.log("QTTabBarLib.QTTabBarClass.CloneCurrentTab 复制标签");
+                        QTLogger.log("QTTabBarLib.QTTabBarClass.CloneCurrentTab 复制标签");
                         _owner.CloneCurrentTab();
                         break;
 
@@ -78,7 +78,7 @@ namespace QTTabBarLib {
                         break;
 
                     case QTButtonBar.BII_GOUPONELEVEL:
-                        QTUtility2.log("QTButtonBar.BII_GOUPONELEVEL UpOneLevel");
+                        QTLogger.log("QTButtonBar.BII_GOUPONELEVEL UpOneLevel");
                         _owner.UpOneLevel();
                         break;
 

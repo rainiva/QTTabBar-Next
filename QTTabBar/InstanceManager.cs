@@ -136,7 +136,7 @@ namespace QTTabBarLib {
             public void SelectTabOnOtherTabBar(IntPtr tabBarHandle, int index) {
                 ICommClient comm;
                 if(sdInstances.TryGetValue(tabBarHandle, out comm)) {
-                    QTUtility2.log("SelectTabOnOtherTabBar comm.Execute");
+                    QTLogger.log("SelectTabOnOtherTabBar comm.Execute");
                     comm.Execute(IpcCommandMessage.EncodeSelectTab(tabBarHandle, index));
                 }
             }
@@ -151,7 +151,7 @@ namespace QTTabBarLib {
                 }
                 ICommClient callback = sdInstances.Peek();
                 if(doAsync) {
-                    QTUtility2.log("ExecuteOnMainProcess callback.Execute doAsync");
+                    QTLogger.log("ExecuteOnMainProcess callback.Execute doAsync");
                     // if (!IsDead( callback ))
                     // {
                         AsyncHelper.BeginInvoke(new Action(() => {
@@ -162,13 +162,13 @@ namespace QTTabBarLib {
                                 }
                             }
                             catch(Exception e) {
-                                QTUtility2.MakeErrorLog(e, "AsyncHelper.BeginInvoke");
+                                QTLogger.MakeErrorLog(e, "AsyncHelper.BeginInvoke");
                             }
                         }));
                     // }
                 }
                 else {
-                    QTUtility2.log("ExecuteOnMainProcess callback.Execute");
+                    QTLogger.log("ExecuteOnMainProcess callback.Execute");
                     callback.Execute(encodedAction);
                 }
                 return false;
@@ -190,7 +190,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex);
+                    QTLogger.MakeErrorLog(ex);
                 }
             }
 
@@ -202,7 +202,7 @@ namespace QTTabBarLib {
                     return null;
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex);
+                    QTLogger.MakeErrorLog(ex);
                     return null;
                 }
             }
@@ -220,23 +220,23 @@ namespace QTTabBarLib {
                     foreach(ICommClient target in targets) {
                         try {
                             i++;
-                            // QTUtility2.log("CommService Broadcast count : " + targets.Count + " handle index: " + i);
+                            // QTLogger.log("CommService Broadcast count : " + targets.Count + " handle index: " + i);
                             if (!IsDead(target)) {
                                 target.Execute(encodedAction);
                             }
                         }
                         catch (Exception ex)
                         {
-                            QTUtility2.MakeErrorLog(ex);
+                            QTLogger.MakeErrorLog(ex);
                         }
                     }
 
                     // TimeSpan abs2 = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                    // QTUtility2.log(string.Format("Broadcast async cost {0} ", abs2.TotalMilliseconds));
+                    // QTLogger.log(string.Format("Broadcast async cost {0} ", abs2.TotalMilliseconds));
                 }));
 
                 // TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                // QTUtility2.log(string.Format("Broadcast sync cost {0} ", abs.TotalMilliseconds));
+                // QTLogger.log(string.Format("Broadcast sync cost {0} ", abs.TotalMilliseconds));
             }
 
             public void DeleteInstance(IntPtr hwnd) {
@@ -273,7 +273,7 @@ namespace QTTabBarLib {
             public void Execute(byte[] encodedAction) {
                 Delegate thedel = null;
                 try {
-                    QTUtility2.log("InstanceManager CommClient Execute : ");
+                    QTLogger.log("InstanceManager CommClient Execute : ");
                     if(encodedAction == null || encodedAction.Length == 0) {
                         return;
                     }
@@ -286,20 +286,20 @@ namespace QTTabBarLib {
 
                     thedel = ByteToDel(encodedAction);
                     if(thedel != null && thedel.Method != null) {
-                        QTUtility2.log("InstanceManager CommClient DynamicInvoke action: " + thedel + " method:" + thedel.Method);
+                        QTLogger.log("InstanceManager CommClient DynamicInvoke action: " + thedel + " method:" + thedel.Method);
                         MarshalDelegateToUi(thedel);
                     }
                 }
                 catch(NullReferenceException ex) {
-                    QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "NullReferenceException"));
+                    QTLogger.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "NullReferenceException"));
                     SafeReinitialize();
                 }
                 catch(ObjectDisposedException ex) {
-                    QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "ObjectDisposedException"));
+                    QTLogger.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "ObjectDisposedException"));
                     SafeReinitialize();
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "Exception"));
+                    QTLogger.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "Exception"));
                     SafeReinitialize();
                 }
             }
@@ -311,7 +311,7 @@ namespace QTTabBarLib {
                 }
                 else {
                     if(ui == null) {
-                        QTUtility2.log("CommClient.Execute: no main UI control registered, executing on current thread");
+                        QTLogger.log("CommClient.Execute: no main UI control registered, executing on current thread");
                     }
                     action();
                 }
@@ -326,13 +326,13 @@ namespace QTTabBarLib {
                             toInvoke.DynamicInvoke();
                         }
                         catch(Exception marshaledEx) {
-                            QTUtility2.MakeErrorLog(marshaledEx, BuildExecuteErrorContext(toInvoke, "MarshaledException"));
+                            QTLogger.MakeErrorLog(marshaledEx, BuildExecuteErrorContext(toInvoke, "MarshaledException"));
                         }
                     }));
                 }
                 else {
                     if(ui == null) {
-                        QTUtility2.log("CommClient.Execute: no main UI control registered, executing on current thread");
+                        QTLogger.log("CommClient.Execute: no main UI control registered, executing on current thread");
                     }
                     thedel.DynamicInvoke();
                 }
@@ -370,12 +370,12 @@ namespace QTTabBarLib {
                     if (id != null) callerSid = id.User;
                 }
                 catch (Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, "InstanceManager.SameUserAuthorizationManager");
+                    QTLogger.MakeErrorLog(ex, "InstanceManager.SameUserAuthorizationManager");
                 }
                 if (IsAuthorizedCaller(callerSid)) {
                     return true;
                 }
-                QTUtility2.MakeErrorLog("InstanceManager: rejected unauthorized IPC caller, sid="
+                QTLogger.MakeErrorLog("InstanceManager: rejected unauthorized IPC caller, sid="
                         + (callerSid == null ? "<unknown>" : callerSid.Value));
                 return false;
             }
@@ -439,7 +439,7 @@ namespace QTTabBarLib {
                 }
             }
             catch (Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "InstanceManager.IsAuthorizedCaller");
+                QTLogger.MakeErrorLog(ex, "InstanceManager.IsAuthorizedCaller");
                 return false;
             }
         }
@@ -532,13 +532,13 @@ namespace QTTabBarLib {
 
         private static void SafeReinitialize() {
             try {
-                QTUtility2.log("InstanceManager.SafeReinitialize: resetting comm channels");
+                QTLogger.log("InstanceManager.SafeReinitialize: resetting comm channels");
                 CloseCommResources();
                 _initialized = false;
                 Initialize();
             }
             catch(Exception reinitEx) {
-                QTUtility2.MakeErrorLog(reinitEx, "InstanceManager.SafeReinitialize: re-initialize failed");
+                QTLogger.MakeErrorLog(reinitEx, "InstanceManager.SafeReinitialize: re-initialize failed");
             }
         }
 
@@ -596,18 +596,18 @@ namespace QTTabBarLib {
         public static bool EnsureMainProcess(Action action) {
             ICommService service = GetChannel();
             if(service != null && service.IsMainProcess()) return true;
-            QTUtility2.log("InstanceManager EnsureMainProcess");
+            QTLogger.log("InstanceManager EnsureMainProcess");
             ExecuteOnMainProcess(action, false);
             return false;
         }
 
         public static void InvokeMain(Action<QTTabBarClass> action) {
-            // QTUtility2.log("InstanceManager InvokeMain");
+            // QTLogger.log("InstanceManager InvokeMain");
             ExecuteOnMainProcess(() => TabInstanceRegistry.LocalInvokeMain(action), false);
         }
 
         public static void BeginInvokeMain(Action<QTTabBarClass> action) {
-            // QTUtility2.log("InstanceManager BeginInvokeMain");
+            // QTLogger.log("InstanceManager BeginInvokeMain");
             ExecuteOnMainProcess(() => TabInstanceRegistry.LocalInvokeMain(action, true), true);
         }
 
@@ -655,7 +655,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex);
+                    QTLogger.MakeErrorLog(ex);
                 }
             }
             else {
@@ -670,7 +670,7 @@ namespace QTTabBarLib {
                     return func();
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex);
+                    QTLogger.MakeErrorLog(ex);
                     return default(T);
                 }
             }

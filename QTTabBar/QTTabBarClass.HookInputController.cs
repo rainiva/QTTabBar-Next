@@ -26,7 +26,7 @@ namespace QTTabBarLib {
 
             public void EnableApiHook() {
                 HookLibManager.Initialize();
-                QTUtility2.log("QTUtility enabled API hooks");
+                QTLogger.log("QTUtility enabled API hooks");
             }
 
             public void Install(int currentThreadId) {
@@ -71,7 +71,7 @@ namespace QTTabBarLib {
                         }
 
                         if(msg.message == _owner.WM_NEWTREECONTROL) {
-                            QTUtility2.log("CallbackGetMsgProc WM_NEWTREECONTROL");
+                            QTLogger.log("CallbackGetMsgProc WM_NEWTREECONTROL");
                             object obj = Marshal.GetObjectForIUnknown(msg.wParam);
                             try {
                                 if(obj != null) {
@@ -90,7 +90,7 @@ namespace QTTabBarLib {
                                                     }
                                                     _owner.treeViewWrapper = new TreeViewWrapper(hwnd, control);
                                                     _owner.treeViewWrapper.TreeViewClicked += (wrapper, modifierKeys, middle) => _owner._menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
-                                                    QTUtility2.log("CallbackGetMsgProc regedit TreeViewClicked");
+                                                    QTLogger.log("CallbackGetMsgProc regedit TreeViewClicked");
                                                     obj = null;
                                                 }
                                             }
@@ -100,7 +100,7 @@ namespace QTTabBarLib {
                             }
                             finally {
                                 if(obj != null) {
-                                    QTUtility2.log("ReleaseComObject obj");
+                                    QTLogger.log("ReleaseComObject obj");
                                     Marshal.ReleaseComObject(obj);
                                 }
                             }
@@ -111,20 +111,20 @@ namespace QTTabBarLib {
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
                         else if(msg.message == _owner.WM_SELECTFILE) {
-                            QTUtility2.log(" select file 1 " + " wparam " + wParam + " lparam " + lParam);
+                            QTLogger.log(" select file 1 " + " wparam " + wParam + " lparam " + lParam);
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
 
                         switch(msg.message) {
                             case WM.MBUTTONUP:
                                 if(!_owner.Explorer.Busy) {
-                                    QTUtility2.log("CallbackGetMsgProc MBUTTONUP NoMidClickTree");
+                                    QTLogger.log("CallbackGetMsgProc MBUTTONUP NoMidClickTree");
                                     Handle_MButtonUp_Tree(msg);
                                 }
                                 break;
                             case WM.SYSCOLORCHANGE:
                                 QTUtility.RefreshNightMode();
-                                QTUtility2.log("SYSCOLORCHANGE SwitchNighMode");
+                                QTLogger.log("SYSCOLORCHANGE SwitchNighMode");
                                 Config.Skin.SwitchNighMode(QTUtility.InNightMode);
                                 ConfigManager.UpdateConfig(true);
                                 _owner.tabControl1.InitializeColors();
@@ -159,7 +159,7 @@ namespace QTTabBarLib {
                                         }
                                     }
                                     catch(Exception e) {
-                                        QTUtility2.MakeErrorLog(e, "CallbackGetMsgProc WM.Close");
+                                        QTLogger.MakeErrorLog(e, "CallbackGetMsgProc WM.Close");
                                     }
                                     Marshal.StructureToPtr(new MSG(), lParam, false);
                                 }
@@ -177,7 +177,7 @@ namespace QTTabBarLib {
                         }
                     }
                     catch(Exception ex) {
-                        QTUtility2.MakeErrorLog(ex, String.Format("Message: {0:x4}", msg.message));
+                        QTLogger.MakeErrorLog(ex, String.Format("Message: {0:x4}", msg.message));
                     }
                 }
                 return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
@@ -235,7 +235,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex,
+                    QTLogger.MakeErrorLog(ex,
                             String.Format("LParam: {0:x4}, WParam: {1:x4}", (long)lParam, (long)wParam));
                 }
                 return PInvoke.CallNextHookEx(hHook_Key, nCode, wParam, lParam);
@@ -266,7 +266,7 @@ namespace QTTabBarLib {
                                     break;
                                 }
                                 if(((int)wParam) == WM.XBUTTONUP && !_owner.Explorer.Busy) {
-                                    QTUtility2.log("QTTabBarClass WM.XBUTTONUP " + action);
+                                    QTLogger.log("QTTabBarClass WM.XBUTTONUP " + action);
                                     _owner.DoBindAction(action);
                                 }
                                 return ptr;
@@ -274,7 +274,7 @@ namespace QTTabBarLib {
                     }
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, String.Format("LParam: {0:x4}, WParam: {1:x4}", (long)lParam, (long)wParam));
+                    QTLogger.MakeErrorLog(ex, String.Format("LParam: {0:x4}, WParam: {1:x4}", (long)lParam, (long)wParam));
                 }
                 return PInvoke.CallNextHookEx(hHook_Mouse, nCode, wParam, lParam);
             }
@@ -325,58 +325,58 @@ namespace QTTabBarLib {
             }
 
             unsafe private void Handle_MButtonUp_Tree(MSG msg) {
-                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree msg");
+                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree msg");
                 if(!_owner.Explorer.Busy && msg.hwnd != null) {
-                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree hwnd  " + msg.hwnd);
+                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree hwnd  " + msg.hwnd);
                     TVHITTESTINFO structure = new TVHITTESTINFO { pt = QTUtility2.PointFromLPARAM(msg.lParam) };
                     IntPtr wParam = PInvoke.SendMessage(msg.hwnd, 0x1111, IntPtr.Zero, ref structure);
-                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree wParam  " + wParam);
+                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree wParam  " + wParam);
                     if(wParam != IntPtr.Zero) {
-                        QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree SendMessage  start " + 4362);
+                        QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree SendMessage  start " + 4362);
                         Stack<IntPtr> numStack = new Stack<IntPtr>();
                         do {
                             numStack.Push(wParam);
                         }
                         while((wParam = PInvoke.SendMessage(msg.hwnd, 4362, (IntPtr)3, wParam)) != IntPtr.Zero);
-                        QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree SendMessage  end " + 4362);
+                        QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree SendMessage  end " + 4362);
                         TVITEM* ptrTvitem = stackalloc TVITEM[1];
                         ptrTvitem->mask = 4;
                         int num1 = 0;
                         IntPtr pidl = IntPtr.Zero;
-                        QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Count " + numStack.Count);
+                        QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Count " + numStack.Count);
                         while(numStack.Count > 0) {
                             ptrTvitem->hItem = numStack.Pop();
-                            QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Pop hItem " + ptrTvitem->hItem);
+                            QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Pop hItem " + ptrTvitem->hItem);
                             bool flag1 = num1 == 2 && numStack.Count == 0 && ShellMethods.GetPath(pidl) == "::{031E4825-7B94-4DC3-B131-E946B44C8DD5}";
                             bool flag2 = num1 == 1 && numStack.Count == 0 && ShellMethods.GetPath(pidl) == "::{679F85CB-0220-4080-B29B-5540CC05AAB6}";
-                            QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Pop flag1 " + flag1 + " flag2 " + flag2);
+                            QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Pop flag1 " + flag1 + " flag2 " + flag2);
                             if(!(IntPtr.Zero != PInvoke.SendMessage(msg.hwnd, 4414, (void*)null, (void*)ptrTvitem))) {
-                                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree  while return1 ");
+                                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree  while return1 ");
                                 return;
                             }
 
                             if(!(ptrTvitem->lParam != IntPtr.Zero)) {
-                                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree  while return2 ");
+                                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree  while return2 ");
                                 return;
                             }
                             IntPtr num2 = IntPtr.Zero;
                             try {
                                 num2 = PInvoke.ILCombine(pidl, *(IntPtr*)*(IntPtr*)(void*)ptrTvitem->lParam);
-                                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Pop ILCombine  " + num2 + " pidl " + pidl);
+                                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree numStack.Pop ILCombine  " + num2 + " pidl " + pidl);
                                 if(pidl != IntPtr.Zero) {
                                     PInvoke.CoTaskMemFree(pidl);
-                                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree CoTaskMemFree pidl " + pidl);
+                                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree CoTaskMemFree pidl " + pidl);
                                 }
                             }
                             catch(Exception e) {
-                                QTUtility2.MakeErrorLog(e, "QTTabBarClass Handle_MButtonUp_Tree Exception");
+                                QTLogger.MakeErrorLog(e, "QTTabBarClass Handle_MButtonUp_Tree Exception");
                             }
 
                             if(flag1 | flag2) {
-                                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree ShellMethods.GetPath " + num2);
+                                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree ShellMethods.GetPath " + num2);
                                 string path = ShellMethods.GetPath(num2);
                                 if(!string.IsNullOrEmpty(path)) {
-                                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree path  " + path);
+                                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree path  " + path);
                                     uint theOut = 0;
                                     PInvoke.SHParseDisplayName(path, IntPtr.Zero, out pidl, 0, out theOut);
                                     if(num2 != IntPtr.Zero)
@@ -387,14 +387,14 @@ namespace QTTabBarLib {
                                 }
                             }
                             else {
-                                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree flag1 " + flag1 + " flag2" + flag2);
+                                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree flag1 " + flag1 + " flag2" + flag2);
                                 pidl = num2;
                             }
                             ++num1;
                         }
 
                         if(pidl != null && pidl != IntPtr.Zero) {
-                            QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree pidl " + pidl);
+                            QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree pidl " + pidl);
                             MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Middle, ModifierKeys);
                             BindAction action;
 
@@ -410,11 +410,11 @@ namespace QTTabBarLib {
                                     if(Config.Mouse.ItemActions.TryGetValue(chord, out action)) {
                                         if(action == BindAction.ItemOpenInNewTab) {
                                             _owner.OpenNewTab(wrapper, false);
-                                            QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTab");
+                                            QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTab");
                                         }
                                         else if(action == BindAction.ItemOpenInNewTabNoSel) {
                                             _owner.OpenNewTab(wrapper, true);
-                                            QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTabNoSel");
+                                            QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTabNoSel");
                                         }
                                     }
                                     else {
@@ -425,11 +425,11 @@ namespace QTTabBarLib {
                                             _owner.OpenNewTab(wrapper, false);
                                         }
                                     }
-                                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree IsFolder IsReadyIfDrive " + wrapper.Path);
+                                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree IsFolder IsReadyIfDrive " + wrapper.Path);
                                 }
                                 else if(wrapper.IsLink) {
                                     if(wrapper.IsLinkToDeadFolder) {
-                                        QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree wrapper.IsLinkToDeadFolder");
+                                        QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree wrapper.IsLinkToDeadFolder");
                                         return;
                                     }
                                     using(IDLWrapper idlwTarget = new IDLWrapper(ShellMethods.GetLinkTargetIDL(wrapper.Path))) {
@@ -439,11 +439,11 @@ namespace QTTabBarLib {
                                             if(Config.Mouse.ItemActions.TryGetValue(chord, out action)) {
                                                 if(action == BindAction.ItemOpenInNewTab) {
                                                     _owner.OpenNewTab(wrapper, false);
-                                                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTab");
+                                                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTab");
                                                 }
                                                 else if(action == BindAction.ItemOpenInNewTabNoSel) {
                                                     _owner.OpenNewTab(wrapper, true);
-                                                    QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTabNoSel");
+                                                    QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTabNoSel");
                                                 }
                                             }
                                             else {
@@ -454,7 +454,7 @@ namespace QTTabBarLib {
                                                     _owner.OpenNewTab(wrapper, false);
                                                 }
                                             }
-                                            QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree IsLink GetLinkTargetIDL" + wrapper.Path);
+                                            QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree IsLink GetLinkTargetIDL" + wrapper.Path);
                                         }
                                     }
                                 }
@@ -463,16 +463,16 @@ namespace QTTabBarLib {
                     }
                 }
                 else {
-                    QTUtility2.log("QTTabBarClass Explorer.Busy msg.hwnd " + msg.hwnd);
+                    QTLogger.log("QTTabBarClass Explorer.Busy msg.hwnd " + msg.hwnd);
                 }
             }
 
             private bool Handle_MButtonUp_Tree(IntPtr hwnd, IntPtr lParam) {
-                QTUtility2.log("QTTabBarClass Handle_MButtonUp_Tree");
+                QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree");
                 IntPtr ptr;
                 if(_owner.ShellBrowser.IsFolderTreeVisible(out ptr) && hwnd == ptr) {
                     TVHITTESTINFO structure = new TVHITTESTINFO { pt = QTUtility2.PointFromLPARAM(lParam) };
-                    QTUtility2.log("QTTabBarClass structure " + structure);
+                    QTLogger.log("QTTabBarClass structure " + structure);
                     IntPtr wParam = PInvoke.SendMessage(ptr, 0x1111, IntPtr.Zero, ref structure);
                     if(wParam != IntPtr.Zero) {
                         int num = (int)PInvoke.SendMessage(ptr, 0x1127, wParam, (IntPtr)2);
@@ -522,7 +522,7 @@ namespace QTTabBarLib {
                             if(_owner.listView.HasFocus()) {
                                 if(!fRepeat) {
                                     if(Config.Tweaks.BackspaceUpLevel) {
-                                        QTUtility2.log("QTTabBarClass BackspaceUpLevel UpOneLevel");
+                                        QTLogger.log("QTTabBarClass BackspaceUpLevel UpOneLevel");
                                         _owner.UpOneLevel();
                                     }
                                     else {
@@ -580,7 +580,7 @@ namespace QTTabBarLib {
                 int imkey = (int)mkey | QTUtility.FLAG_KEYENABLED;
                 for(int i = 0; i < Config.Keys.Shortcuts.Length; ++i) {
                     if(Config.Keys.Shortcuts[i] == imkey) {
-                        QTUtility2.log("QTTabBarClass imkey " + (BindAction)i);
+                        QTLogger.log("QTTabBarClass imkey " + (BindAction)i);
                         return _owner.DoBindAction((BindAction)i);
                     }
                 }

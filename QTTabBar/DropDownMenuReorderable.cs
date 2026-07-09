@@ -217,7 +217,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "DropDownMeanuDropTarget GetScrollButtons");
+                QTLogger.MakeErrorLog(exception, "DropDownMeanuDropTarget GetScrollButtons");
             }
         }
 
@@ -345,7 +345,7 @@ namespace QTTabBarLib {
                     type.GetMethod("Cancel", Type.EmptyTypes).Invoke(property.GetValue(this, null), null);
                 }
                 catch(Exception exception) {
-                    QTUtility2.MakeErrorLog(exception);
+                    QTLogger.MakeErrorLog(exception);
                 }
             }
         }
@@ -504,7 +504,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "DropDownMeanuDropTarget OnLayout");
+                    QTLogger.MakeErrorLog(exception, "DropDownMeanuDropTarget OnLayout");
                 }
             }
         }
@@ -845,7 +845,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
         }
 

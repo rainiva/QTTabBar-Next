@@ -65,7 +65,7 @@ namespace QTTabBarLib {
                 }
                 finally {
                     if(_owner.ShellBrowser.GetIShellBrowser() != null) {
-                        QTUtility2.log("ReleaseComObject ShellBrowser.GetIShellBrowser()");
+                        QTLogger.log("ReleaseComObject ShellBrowser.GetIShellBrowser()");
                         Marshal.ReleaseComObject(_owner.ShellBrowser.GetIShellBrowser());
                     }
 
@@ -118,7 +118,7 @@ namespace QTTabBarLib {
                     return;
                 }
 
-                QTUtility2.log("Wait4Select");
+                QTLogger.log("Wait4Select");
                 int count = 1;
                 Timer timer = new Timer { Interval = 1000 };
                 timer.Tick += (sender, args) => {
@@ -128,24 +128,24 @@ namespace QTTabBarLib {
                             timer.Stop();
                         }
                         string SelectionPath = RegistryUtil.ReadSelection(_owner.CurrentTab.CurrentPath);
-                        QTUtility2.log(
+                        QTLogger.log(
                             " ReadSelection key " +
                             _owner.CurrentTab.CurrentPath +
                             " path " + SelectionPath
                         );
                         if(QTUtility2.IsNotEmpty(SelectionPath)) {
-                            QTUtility2.log("find mainShellView ");
+                            QTLogger.log("find mainShellView ");
                             IShellView mainShellView = null;
                             bool selected = false;
                             if(0 == _owner.ShellBrowser.GetIShellBrowser().QueryActiveShellView(out mainShellView)) {
                                 mainShellView.Refresh();
-                                QTUtility2.log("Refresh ");
+                                QTLogger.log("Refresh ");
                                 using(IDLWrapper wrapper = new IDLWrapper(SelectionPath)) {
                                     if(wrapper.Available && wrapper.PIDL != IntPtr.Zero) {
-                                        QTUtility2.log("wrapper " + wrapper.Path);
+                                        QTLogger.log("wrapper " + wrapper.Path);
                                         IntPtr pIDLRltv = PInvoke.ILFindLastID(wrapper.PIDL);
                                         if(pIDLRltv != IntPtr.Zero) {
-                                            QTUtility2.log("SelectItem " + pIDLRltv);
+                                            QTLogger.log("SelectItem " + pIDLRltv);
                                             mainShellView.SelectItem(pIDLRltv, SVSIF.SELECT |
                                                                            SVSIF.DESELECTOTHERS |
                                                                            SVSIF.ENSUREVISIBLE
@@ -161,7 +161,7 @@ namespace QTTabBarLib {
                         }
                     }
                     catch(Exception e) {
-                        QTUtility2.MakeErrorLog(e, "读取微信或者qq打开后的选中文件");
+                        QTLogger.MakeErrorLog(e, "读取微信或者qq打开后的选中文件");
                     }
                 };
                 timer.Start();
@@ -173,14 +173,14 @@ namespace QTTabBarLib {
                 timer.Tick += (sender, args) => {
                     count++;
                     if(count >= 10) {
-                        QTUtility2.log("CloseExplorer QTTabBarClass start");
+                        QTLogger.log("CloseExplorer QTTabBarClass start");
                         timer.Stop();
                         _owner.Explorer.Quit();
                         WindowUtils.CloseExplorer(_owner.ExplorerHandle, 0);
-                        QTUtility2.log("CloseExplorer QTTabBarClass  end");
+                        QTLogger.log("CloseExplorer QTTabBarClass  end");
                     }
 
-                    QTUtility2.log("QTTabBarClass timer.Tick TryGetSelection ");
+                    QTLogger.log("QTTabBarClass timer.Tick TryGetSelection ");
                     try {
                         var tabItem = _owner.tabControl1.TabPages[0];
                         IShellView shellView = null;
@@ -201,7 +201,7 @@ namespace QTTabBarLib {
                                 if(shellObjectCollection.Count > 0) {
                                     List<string> list = new List<string>();
                                     foreach(ShellObject so in shellObjectCollection) {
-                                        QTUtility2.log("add so.Name " + so.Name + " so.ParsingName " + so.ParsingName);
+                                        QTLogger.log("add so.Name " + so.Name + " so.ParsingName " + so.ParsingName);
                                         list.Add(so.ParsingName);
 
                                         SelectionTracker.PutSelect(tabItem.CurrentPath, list);

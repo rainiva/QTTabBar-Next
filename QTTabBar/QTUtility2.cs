@@ -212,35 +212,12 @@ namespace QTTabBarLib {
             return ((clr.R | (clr.G << 8)) | (clr.B << 0x10));
         }
 
-        /**
-         * force log
-         */
-        public static void flog(string optional)
-        { QTLogger.flog(optional);
-        }
-
-        public static void log(string optional)
-        { QTLogger.log(optional);
-        }
-
-
         public static void log2(string optional)
         { Logger.log2(optional);
         }
 
         public static void err(string optional)
         { Logger.err(optional);
-        }
-
-        // private static DateTime dateTime ;
-                // ����һЩ���� ��־
-                
-        public static void log(string level, string optional,Dictionary<String, String> dic=null)
-        { QTLogger.log(level, optional, dic);
-        }
-
-
-        public static void MakeErrorLog(Exception ex, string optional = null) { QTLogger.MakeErrorLog(ex, optional);
         }
 
         /*
@@ -286,10 +263,6 @@ namespace QTTabBarLib {
                 sw.Close();
                 sw.Dispose();
             }
-        }
-
-        public static void MakeErrorLog( string optional = null)
-        { QTLogger.MakeErrorLog(optional);
         }
 
         public static string MakeKeyString(Keys key) {
@@ -382,7 +355,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception e)
                 {
-                    QTUtility2.MakeErrorLog(e, "check http ftp");
+                    QTLogger.MakeErrorLog(e, "check http ftp");
                 }
             }
             return path;
@@ -443,7 +416,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception e)
                 {
-                    QTUtility2.MakeErrorLog(e, "new DriveInfo");
+                    QTLogger.MakeErrorLog(e, "new DriveInfo");
                     return false;
                 }
                 switch(drive.DriveType) {
@@ -542,7 +515,7 @@ namespace QTTabBarLib {
             }
             catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "SetStringClipboard");
+                QTLogger.MakeErrorLog(e, "SetStringClipboard");
                 QTUtility.SoundPlay();
             }
         }
@@ -714,7 +687,7 @@ namespace QTTabBarLib {
                     return;
                 }
 
-                log("check msg\t " + Enum.GetName(typeof(MsgEnum), msg.Msg) + " msg int " + msg.Msg +
+                QTLogger.log("check msg\t " + Enum.GetName(typeof(MsgEnum), msg.Msg) + " msg int " + msg.Msg +
                                "\tw\t" + msg.WParam + "\tl\t" + msg.LParam);
             }
         }
@@ -740,7 +713,7 @@ namespace QTTabBarLib {
                     // ignore 
                     return;
                 }
-                log("check msg\t " + name + " msg int " + msg.message +
+                QTLogger.log("check msg\t " + name + " msg int " + msg.message +
                     "\tw\t" + msg.wParam + "\tl\t" + msg.lParam);
             }
         }
@@ -767,7 +740,7 @@ namespace QTTabBarLib {
             StreamReader sOut = myProcess.StandardOutput;//��׼������
             StreamReader sErr = myProcess.StandardError;//��׼������ 
             sIn.Write(MyDosComLine1 + Environment.NewLine);//��һ��DOS����
-            log("write dos command: " + MyDosComLine1);
+            QTLogger.log("write dos command: " + MyDosComLine1);
             sIn.Write("exit" + Environment.NewLine);//������DOS����˳�DOS����
             if (myProcess.HasExited == false)
             {

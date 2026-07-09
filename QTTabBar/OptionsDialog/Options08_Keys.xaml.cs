@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -51,7 +51,7 @@ namespace QTTabBarLib {
                     Plugin p;
                     if(!PluginManager.TryGetStaticPluginInstance(info.PluginID, out p) || !p.PluginInformation.Enabled) continue;
                     string[] actions = null;
-                    QTUtility2.log("plugin: " + p.PluginInformation.Name + " Enabled :" + p.PluginInformation.Enabled);
+                    QTLogger.log("plugin: " + p.PluginInformation.Name + " Enabled :" + p.PluginInformation.Enabled);
                     try {
                         if (null != p &&
                             null != p.Instance && // 修复空指针问题 by indiff
@@ -63,7 +63,7 @@ namespace QTTabBarLib {
                     catch (Exception ex)
                     {
                         // 这里打印出插件的名称
-                        QTUtility2.MakeErrorLog(ex, "plugin: " + p.PluginInformation.Name + "!p.Instance.QueryShortcutKeys");
+                        QTLogger.MakeErrorLog(ex, "plugin: " + p.PluginInformation.Name + "!p.Instance.QueryShortcutKeys");
                    
                     }
                     if(actions == null) continue;
@@ -85,7 +85,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options08_Keys InitializeConfig");
+                QTLogger.MakeErrorLog(exception, "Options08_Keys InitializeConfig");
 
             }
         }

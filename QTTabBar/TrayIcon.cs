@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2022  Quizo, Paul Accisano, indiff
 //
@@ -195,13 +195,13 @@ namespace QTTabBarLib
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
             }
             finally
             {
                 if (o != null)
                 {
-                    QTUtility2.log("ReleaseComObject o");
+                    QTLogger.log("ReleaseComObject o");
                     Marshal.ReleaseComObject(o);
                 }
             }

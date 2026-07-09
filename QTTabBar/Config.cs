@@ -1,4 +1,4 @@
-﻿/* File Info 
+/* File Info 
  * Author:      indiff
  * CreateTime:  2021/1/5下午1:58:08 
  * LastEditor:  indiff
@@ -292,11 +292,11 @@ namespace QTTabBarLib {
                 }
             }
             catch(UnauthorizedAccessException ex) {
-                QTUtility2.MakeErrorLog(ex, "SafeGetRegistryValue access denied. path=" + subKeyPath + " value=" + valueName);
+                QTLogger.MakeErrorLog(ex, "SafeGetRegistryValue access denied. path=" + subKeyPath + " value=" + valueName);
                 return defaultValue;
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "SafeGetRegistryValue failed. path=" + subKeyPath + " value=" + valueName);
+                QTLogger.MakeErrorLog(ex, "SafeGetRegistryValue failed. path=" + subKeyPath + " value=" + valueName);
                 return defaultValue;
             }
         }
@@ -735,7 +735,7 @@ namespace QTTabBarLib {
 
                 if (isNighMode)
                 {
-                    QTUtility2.log("change nightMode white skinChanged " + this.SkinAutoColorChangeClose);
+                    QTLogger.log("change nightMode white skinChanged " + this.SkinAutoColorChangeClose);
                     // UseTabSkin = false;  // 标签背景
                     // TabImageFile = "";  // 标签背景文件
                     // TabSizeMargin = Padding.Empty;  // 设置边缘
@@ -782,7 +782,7 @@ namespace QTTabBarLib {
                     // TabMaxWidth = 200;
                     // FixedWidthTabs = false;
                     // TabTextFont = new Font(new FontFamily("微软雅黑"), 9f);
-                    QTUtility2.log("change nightMode black skinChanged " + this.SkinAutoColorChangeClose);
+                    QTLogger.log("change nightMode black skinChanged " + this.SkinAutoColorChangeClose);
                     ToolBarTextColor = Color.Black;
                     TabTextActiveColor = Color.Black;
                     TabTextInactiveColor = Color.Black;
@@ -1211,9 +1211,9 @@ namespace QTTabBarLib {
 
         public static void Initialize() {
             LoadedConfig = new Config();
-            QTUtility2.log("初始化配置信息成功");
+            QTLogger.log("初始化配置信息成功");
             ReadConfig();
-            QTUtility2.log("注册表读取配置信息成功");
+            QTLogger.log("注册表读取配置信息成功");
         }
 
         public static void UpdateConfig(bool fBroadcast = true) {
@@ -1373,7 +1373,7 @@ namespace QTTabBarLib {
                 if(!OSDetector.IsWin7) Config.Tweaks.ForceSysListView = true;
             } catch (Exception e)
             {
-                QTUtility2.MakeErrorLog(e, "ReadConfig foreach category");
+                QTLogger.MakeErrorLog(e, "ReadConfig foreach category");
             }
         }
 
@@ -1384,7 +1384,7 @@ namespace QTTabBarLib {
 
         public static void WriteConfig(bool DesktopOnly = false) {
             const string RegPath = RegConst.Root + RegConst.Config;
-            QTUtility2.log("WriteConfig " + RegPath);
+            QTLogger.log("WriteConfig " + RegPath);
             foreach(var category in ConfigMetadataCache.Categories) {
                 if(DesktopOnly && category.CategoryProperty.Name != "desktop") {
                     continue;
@@ -1407,7 +1407,7 @@ namespace QTTabBarLib {
                                 try {
                                     ser.WriteObject(stream,value);
                                 } catch (Exception e) {
-                                    QTUtility2.MakeErrorLog(e);
+                                    QTLogger.MakeErrorLog(e);
                                 }
                                 stream.Position = 0;
                                 StreamReader streamReader = new StreamReader(stream);

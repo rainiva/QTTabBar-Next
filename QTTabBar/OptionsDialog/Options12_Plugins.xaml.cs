@@ -1,4 +1,4 @@
-﻿//    This file is part of QTTabBar, a shell extension for Microsoft
+//    This file is part of QTTabBar, a shell extension for Microsoft
 //    Windows Explorer.
 //    Copyright (C) 2007-2021  Quizo, Paul Accisano
 //
@@ -46,7 +46,7 @@ namespace QTTabBarLib {
              }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options12_Plugins InitializeConfig");
+                QTLogger.MakeErrorLog(exception, "Options12_Plugins InitializeConfig");
 
             }     
          }
@@ -102,7 +102,7 @@ namespace QTTabBarLib {
              }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "Options12_Plugins CommitConfig");
+                QTLogger.MakeErrorLog(exception, "Options12_Plugins CommitConfig");
 
             }     
          }
@@ -119,7 +119,7 @@ namespace QTTabBarLib {
                     p.Instance.OnOption();
                 }
                 catch(Exception ex) {
-                    QTUtility2.MakeErrorLog(ex, "btnPluginOptions_Click");
+                    QTLogger.MakeErrorLog(ex, "btnPluginOptions_Click");
                     PluginManager.HandlePluginException(ex, new WindowInteropHelper(Window.GetWindow(this)).Handle,
                             entry.Name, "Open plugin option.");
                 }

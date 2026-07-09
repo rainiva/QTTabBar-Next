@@ -145,7 +145,7 @@ namespace QTTabBarLib {
                 path = Environment.ExpandEnvironmentVariables(path);
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "ExpandEnvironmentVariables");
+                QTLogger.MakeErrorLog(ex, "ExpandEnvironmentVariables");
             }
             MenuItemArguments mia = new MenuItemArguments(app, shellBrowser, MenuGenre.Application);
             if(path.StartsWith(@"\\") || path.StartsWith("::") || !Directory.Exists(path)) {
@@ -303,7 +303,7 @@ namespace QTTabBarLib {
             try {
                 Process.Start(((QMenuItem)e.ClickedItem).Path);
             } catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "realDirectory_DropDownItemClicked");
+                QTLogger.MakeErrorLog(ex, "realDirectory_DropDownItemClicked");
                 MessageBox.Show(
                     String.Format(
                         QTUtility.TextResourcesDic["ErrorDialogs"][0],

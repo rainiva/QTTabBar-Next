@@ -409,28 +409,28 @@ namespace QTTabBarLib {
             //     [log] PID:15516 TID:1 2022/9/22 9:17:17  parent name ShellTabWindowClass
             //     [log] PID:15516 TID:1 2022/9/22 9:17:17  parent name CabinetWClass
             var name = PInvoke.GetClassName(handle);
-            QTUtility2.log("name " + name);
+            QTLogger.log("name " + name);
             var parent = PInvoke.GetParent(handle);
             name = PInvoke.GetClassName(parent);
-            QTUtility2.log(" parent name " + name);
+            QTLogger.log(" parent name " + name);
             parent = PInvoke.GetParent(parent);
             name = PInvoke.GetClassName(parent);
-            QTUtility2.log(" parent name " + name);
+            QTLogger.log(" parent name " + name);
 
             // var findWindowEx = PInvoke.FindWindowEx(parent, IntPtr.Zero, "DUIViewWndClassName", null);
             IntPtr findWindowEx = WindowUtils.FindChildWindow(parent, hwnd => PInvoke.GetClassName(hwnd) == "DirectUIHWND");
             if (IntPtr.Zero != findWindowEx)
             {
-                QTUtility2.log(" found DirectUIHWND ");
+                QTLogger.log(" found DirectUIHWND ");
                 handle = findWindowEx;
             }
             // parent = PInvoke.GetParent(parent);
             // name = PInvoke.GetClassName(parent);
-            // QTUtility2.log(" parent name " + name);
+            // QTLogger.log(" parent name " + name);
             /*handle = findParent("ShellTabWindowClass");
             if (handle == IntPtr.Zero)
             {   
-                QTUtility2.log("SetBackgroundImage not found class" );
+                QTLogger.log("SetBackgroundImage not found class" );
                 return false;
             }*/
             // We have to clear any pre-existing background image, otherwise the attempt to set the image will fail.
@@ -460,7 +460,7 @@ namespace QTTabBarLib {
             if(setResult == IntPtr.Zero && lvbkimage.hBmp != IntPtr.Zero) {
                 PInvoke.DeleteObject(lvbkimage.hBmp);
             }
-            QTUtility2.log("SetWaterMarkImage " + BG_IMG);
+            QTLogger.log("SetWaterMarkImage " + BG_IMG);
             return (setResult != IntPtr.Zero);
         }
 
@@ -481,7 +481,7 @@ namespace QTTabBarLib {
         }
 
         protected virtual bool ListViewController_MessageCaptured(ref Message msg) {
-            // QTUtility2.log("ListViewController msg\t" + Enum.GetName(typeof(MsgEnum), msg.Msg) + "\tw\t" + msg.WParam + "\tl\t" + msg.LParam);
+            // QTLogger.log("ListViewController msg\t" + Enum.GetName(typeof(MsgEnum), msg.Msg) + "\tw\t" + msg.WParam + "\tl\t" + msg.LParam);
             if(msg.Msg == WM_AFTERPAINT) {
                 RefreshSubDirTip(true);
                 // SetBackgroundImage(true, true, 0, 0);
@@ -522,7 +522,7 @@ namespace QTTabBarLib {
                         using (Bitmap bmp = freeBitmap.Clone())
                         {
                             bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                            QTUtility2.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
+                            QTLogger.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
                             graphics.DrawImage(bmp, rctDw);
                         }
 
@@ -568,21 +568,21 @@ namespace QTTabBarLib {
                                 // visualProperties.GetColor(VPCOLORFLAGS.VPCF_SORTCOLUMN, out pcr2);
                                 // int pcr3;
                                 // visualProperties.GetColor(VPCOLORFLAGS.VPCF_TEXT, out pcr3);
-                                // QTUtility2.log("on focus changed pcr1 : " + pcr1);
-                                // QTUtility2.log("on focus changed pcr2 : " + pcr2);
-                                // QTUtility2.log("on focus changed pcr3 : " + pcr3);
+                                // QTLogger.log("on focus changed pcr1 : " + pcr1);
+                                // QTLogger.log("on focus changed pcr2 : " + pcr2);
+                                // QTLogger.log("on focus changed pcr3 : " + pcr3);
                                 //
                                 // visualProperties.SetColor(VPCOLORFLAGS.VPCF_BACKGROUND, pcr1);
                                 // visualProperties.SetColor(VPCOLORFLAGS.VPCF_SORTCOLUMN, pcr2);
                                 // visualProperties.SetColor(VPCOLORFLAGS.VPCF_TEXT, pcr3);
 
-                                QTUtility2.log("on focus set water mark: " );
+                                QTLogger.log("on focus set water mark: " );
                                 var dToutiaoX1080IntellijIdea3Png = @"D:\toutiao\1920x1080-intellij-idea3.png";
                                 using (FreeBitmap freeBitmap = new FreeBitmap(dToutiaoX1080IntellijIdea3Png))
                                 using (Bitmap bmp = freeBitmap.Clone())
                                 {
                                     bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                    QTUtility2.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
+                                    QTLogger.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
                                     // LVBKIMAGE* lParam = stackalloc LVBKIMAGE[1];
                                     // lParam->ulFlags = 805306368;
                                     // lParam->hbm = bmp.GetHbitmap(Color.Black);
@@ -650,7 +650,7 @@ namespace QTTabBarLib {
                              using (Bitmap bmp = freeBitmap.Clone())
                              {
                                  bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                 QTUtility2.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
+                                 QTLogger.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
                                  graphics.DrawImage(bmp, rctDw);
                              }
  
@@ -714,7 +714,7 @@ namespace QTTabBarLib {
                     }
                     break;
                 /*case 48648: // no walking
-                    QTUtility2.log("48648");
+                    QTLogger.log("48648");
                     break;*/
             }
             return false;
@@ -749,7 +749,7 @@ namespace QTTabBarLib {
                     }
                 }
                 finally {
-                    QTUtility2.log("ReleaseComObject obj");
+                    QTLogger.log("ReleaseComObject obj");
                     Marshal.ReleaseComObject(obj);
                 }
             }
@@ -894,7 +894,7 @@ namespace QTTabBarLib {
 
         protected void OnSelectionChanged(ref Message msg/*object sender, SelectionChangedEventArgs e*/)
         {
-            QTUtility2.log("OnSelectionChanged");
+            QTLogger.log("OnSelectionChanged");
             if(SelectionChanged != null) {
                 SelectionChanged(/*sender, e*/);
             }
@@ -1026,7 +1026,7 @@ namespace QTTabBarLib {
             }
             catch (Exception exception)
             {
-                QTUtility2.MakeErrorLog(exception, "ExtendedListViewCommon ShowAndClickSubDirTip");
+                QTLogger.MakeErrorLog(exception, "ExtendedListViewCommon ShowAndClickSubDirTip");
             }
         }
 
@@ -1060,7 +1060,7 @@ namespace QTTabBarLib {
                 }
                 catch (Exception exception)
                 {
-                    QTUtility2.MakeErrorLog(exception, "ExtendedListViewCommon ShowSubDirTip");
+                    QTLogger.MakeErrorLog(exception, "ExtendedListViewCommon ShowSubDirTip");
                 }
                 return flag;
             }

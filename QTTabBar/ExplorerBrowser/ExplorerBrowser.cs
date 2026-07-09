@@ -1,4 +1,4 @@
-﻿//Copyright (c) Microsoft Corporation.  All rights reserved.
+//Copyright (c) Microsoft Corporation.  All rights reserved.
 
 
 using System;
@@ -194,7 +194,7 @@ namespace QTTabBarLib.ExplorerBrowser.WindowsForms
             if (shellObject == null)
             {
                 throw new ArgumentNullException("shellObject");
-                QTUtility2.log("return false1");
+                QTLogger.log("return false1");
                 return false;
             }
 
@@ -208,7 +208,7 @@ namespace QTTabBarLib.ExplorerBrowser.WindowsForms
                 HResult hr = explorerBrowserControl.BrowseToObject(shellObject.NativeShellItem, 0);
                 if (hr != HResult.Ok)
                 {
-                    QTUtility2.log("return false2 " + hr);
+                    QTLogger.log("return false2 " + hr);
                     if ((hr == HResult.ResourceInUse || hr == HResult.Canceled) && NavigationFailed != null)
                     {
                         var args = new NavigationFailedEventArgs
@@ -227,7 +227,7 @@ namespace QTTabBarLib.ExplorerBrowser.WindowsForms
                     return true;
                 }
             }
-            QTUtility2.log("return false2");
+            QTLogger.log("return false2");
             return false;
         }
 

@@ -58,10 +58,10 @@ namespace QTTabBarLib.Interop {
 
         public int DragDrop(IDataObject pDataObj, int grfKeyState, Point pt, ref DragDropEffects pdwEffect) {
             try {
-                QTUtility2.log("QTTabBarClass DropTargetWrapper DragDrop" );
+                QTLogger.log("QTTabBarClass DropTargetWrapper DragDrop" );
                 if(DragFileOver != null) { 
-                    // Èç¹ûÍÏ×§·ÅÏÂµÄÊÂ¼þ²»Îª¿Õ£¬Ôò½øÐÐÊÂ¼þµÄ²Ù×÷
-                    QTUtility2.log("QTTabBarClass DropTargetWrapper DragFileOver " + DragFileOver);
+                    // ï¿½ï¿½ï¿½ï¿½ï¿½×§ï¿½ï¿½ï¿½Âµï¿½ï¿½Â¼ï¿½ï¿½ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½Ä²ï¿½ï¿½ï¿½
+                    QTLogger.log("QTTabBarClass DropTargetWrapper DragFileOver " + DragFileOver);
                     DragEventArgs e = new DragEventArgs(null, grfKeyState, 
                                         pt.X, pt.Y, 
                         DragDropEffects.Move | 
@@ -72,12 +72,12 @@ namespace QTTabBarLib.Interop {
                     pdwEffect = e.Effect;
                 }
                 else {
-                    QTUtility2.log("QTTabBarClass DropTargetWrapper DragFileOver pdwEffect " + DragDropEffects.Copy);
-                    // ÉèÖÃÍÏ×§µÄ²Ù×÷Ð§¹ûÎª¸´ÖÆ
+                    QTLogger.log("QTTabBarClass DropTargetWrapper DragFileOver pdwEffect " + DragDropEffects.Copy);
+                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×§ï¿½Ä²ï¿½ï¿½ï¿½Ð§ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
                     pdwEffect = DragDropEffects.Copy;
                 }
                 if(pdwEffect != DragDropEffects.None) {
-                    // Èç¹ûÍÏ×§ÊÂ¼þ²Ù×÷
+                    // ï¿½ï¿½ï¿½ï¿½ï¿½×§ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
                     if(DragFileDrop != null) {
                         IntPtr ptr;
                         byte[] buffer;
@@ -118,15 +118,15 @@ namespace QTTabBarLib.Interop {
                                             }
                                             catch (Exception exception)
                                             {
-                                                QTUtility2.MakeErrorLog(exception, "QTTabBarClass DropTargetWrapper DragFileDrop 0");
+                                                QTLogger.MakeErrorLog(exception, "QTTabBarClass DropTargetWrapper DragFileDrop 0");
                                             }
                                             finally {
                                                 if(ppv != null) {
-                                                    QTUtility2.log("ReleaseComObject ppv");
+                                                    QTLogger.log("ReleaseComObject ppv");
                                                     Marshal.ReleaseComObject(ppv);
                                                 }
                                                 if(obj2 != null) {
-                                                    QTUtility2.log("ReleaseComObject obj2");
+                                                    QTLogger.log("ReleaseComObject obj2");
                                                     Marshal.ReleaseComObject(obj2);
                                                 }
                                                 if(DragDropEnd != null) {
@@ -152,7 +152,7 @@ namespace QTTabBarLib.Interop {
                     }
                     catch (Exception exception)
                     {
-                        QTUtility2.MakeErrorLog(exception, "QTTabBarClass DropTargetWrapper PInvoke.SendMessage0x233");
+                        QTLogger.MakeErrorLog(exception, "QTTabBarClass DropTargetWrapper PInvoke.SendMessage0x233");
                     }
                     finally {
                         PInvoke.ReleaseStgMedium(ref medium);
@@ -161,7 +161,7 @@ namespace QTTabBarLib.Interop {
             }
             finally {
                 if(pDataObj != null) {
-                    QTUtility2.log("ReleaseComObject pDataObj");
+                    QTLogger.log("ReleaseComObject pDataObj");
                     Marshal.FinalReleaseComObject(pDataObj);
                 }
             }
@@ -170,7 +170,7 @@ namespace QTTabBarLib.Interop {
 
         public int DragEnter(IDataObject pDataObj, int grfKeyState, Point pt, ref DragDropEffects pdwEffect) {
             try {
-                QTUtility2.log("QTTabBarClass DropTargetWrapper DragEnter");
+                QTLogger.log("QTTabBarClass DropTargetWrapper DragEnter");
                 if(DragFileEnter != null) {
                     FORMATETC format = new FORMATETC();
                     format.cfFormat = 15;
@@ -187,7 +187,7 @@ namespace QTTabBarLib.Interop {
                             }
                             catch (Exception exception)
                             {
-                                QTUtility2.MakeErrorLog(exception, "QTTabBarClass DropTargetWrapper DragEnter");
+                                QTLogger.MakeErrorLog(exception, "QTTabBarClass DropTargetWrapper DragEnter");
                                 pdwEffect = DragDropEffects.None;
                             }
                             goto Label_00A0;
@@ -204,7 +204,7 @@ namespace QTTabBarLib.Interop {
             }
             finally {
                 if(pDataObj != null) {
-                    QTUtility2.log("ReleaseComObject pDataObj");
+                    QTLogger.log("ReleaseComObject pDataObj");
                     Marshal.FinalReleaseComObject(pDataObj);
                 }
             }
@@ -213,7 +213,7 @@ namespace QTTabBarLib.Interop {
         }
 
         public int DragLeave() {
-            QTUtility2.log("QTTabBarClass DropTargetWrapper DragLeave");
+            QTLogger.log("QTTabBarClass DropTargetWrapper DragLeave");
             if(DragFileLeave != null) {
                 DragFileLeave(null, EventArgs.Empty);
             }
@@ -221,7 +221,7 @@ namespace QTTabBarLib.Interop {
         }
 
         public int DragOver(int grfKeyState, Point pt, ref DragDropEffects pdwEffect) {
-            QTUtility2.log("QTTabBarClass DropTargetWrapper DragOver");
+            QTLogger.log("QTTabBarClass DropTargetWrapper DragOver");
             iLastKeyState = grfKeyState;
             if(DragFileOver != null) {
                 DragEventArgs e = new DragEventArgs(null, grfKeyState, pt.X, pt.Y, DragDropEffects.Move | DragDropEffects.Copy | DragDropEffects.Scroll, DragDropEffects.None);
@@ -235,7 +235,7 @@ namespace QTTabBarLib.Interop {
         }
 
         public static DragDropEffects MakeEffect(int grfKeyState, int iSourceState) {
-            QTUtility2.log("QTTabBarClass DropTargetWrapper DragDropEffects");
+            QTLogger.log("QTTabBarClass DropTargetWrapper DragDropEffects");
             switch((grfKeyState & 0x2c)) {
                 case 12:
                 case 0x20:

@@ -91,7 +91,7 @@ namespace QTTabBarLib {
                 MessageBox.Show(msg);
                 return null;
             } catch (Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
+                QTLogger.MakeErrorLog(exception);
                 return null;
             }
         }

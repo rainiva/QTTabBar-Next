@@ -57,7 +57,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "FluentThemeTokens.ReadSystemAccentColor");
+                QTLogger.MakeErrorLog(ex, "FluentThemeTokens.ReadSystemAccentColor");
             }
             return AccentFallback;
         }

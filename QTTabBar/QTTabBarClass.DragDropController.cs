@@ -67,7 +67,7 @@ namespace QTTabBarLib {
             }
 
             public void DragFileOver(object sender, DragEventArgs e) {
-                QTUtility2.log("QTTabBarClass dropTargetWrapper_DragFileOver");
+                QTLogger.log("QTTabBarClass dropTargetWrapper_DragFileOver");
                 e.Effect = DragDropEffects.None;
                 QTabItem mouseOnTab = _owner.tabControl1.GetTabMouseOn();
                 bool flag = true;
@@ -124,7 +124,7 @@ namespace QTTabBarLib {
             }
 
             internal static int HandleDragEnter(IntPtr hDrop, out string strDraggingDrive, out string strDraggingStartPath) {
-                QTUtility2.log("QTTabBarClass HandleDragEnter IsFolder hDrop " + hDrop +
+                QTLogger.log("QTTabBarClass HandleDragEnter IsFolder hDrop " + hDrop +
                                " out string strDraggingDrive, out string strDraggingStartPath");
                 strDraggingDrive = (strDraggingStartPath = null);
                 int capacity = (int)PInvoke.DragQueryFile(hDrop, uint.MaxValue, null, 0);

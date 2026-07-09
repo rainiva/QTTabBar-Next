@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace QTTabBarLib {
     public abstract partial class TabBarBase {
         public void tabControl1_SelectedIndexChanged(object sender, EventArgs e) {
-            QTUtility2.log("tabControl1_SelectedIndexChanged");
+            QTLogger.log("tabControl1_SelectedIndexChanged");
             QTabItem selectedTab = tabControl1.SelectedTab;
             string currentPath = selectedTab.CurrentPath;
             if(IsSpecialFolderNeedsToTravel(currentPath) &&

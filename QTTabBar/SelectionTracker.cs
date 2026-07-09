@@ -39,7 +39,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception e) {
-                QTUtility2.MakeErrorLog(e, "PutSelect");
+                QTLogger.MakeErrorLog(e, "PutSelect");
             }
             finally {
                 Interlocked.Exchange(ref inSelectDict, 0);
@@ -56,7 +56,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception e) {
-                QTUtility2.MakeErrorLog(e, "RemoveSelect");
+                QTLogger.MakeErrorLog(e, "RemoveSelect");
             }
             finally {
                 Interlocked.Exchange(ref inSelectDict, 0);
@@ -74,7 +74,7 @@ namespace QTTabBarLib {
                 }
             }
             catch(Exception e) {
-                QTUtility2.MakeErrorLog(e, "GetSelect");
+                QTLogger.MakeErrorLog(e, "GetSelect");
                 return null;
             }
             finally {
