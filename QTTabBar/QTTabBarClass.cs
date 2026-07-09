@@ -92,6 +92,18 @@ namespace QTTabBarLib {
         internal bool DoBindAction(BindAction action, bool fRepeat = false, QTabItem tab = null, IDLWrapper item = null)
             => _bindActionController.DoBindAction(action, fRepeat, tab, item);
 
+        protected override void PerformBindAction(BindAction action, bool fRepeat = false, QTabItem tab = null, IDLWrapper item = null) {
+            DoBindAction(action, fRepeat, tab, item);
+        }
+
+        protected override QTabItem CloneTabButtonForMouse(QTabItem tab, string optionURL, bool fSelect, int index) {
+            return _tabManager.CloneTabButton(tab, optionURL, fSelect, index);
+        }
+
+        protected override void ShowSubdirTipForTab(QTabItem tab, bool fShow, int offsetX, bool fKey, bool fParent) {
+            _tabManager.ShowSubdirTip_Tab(tab, fShow, offsetX, fKey, fParent);
+        }
+
         private void createNewFile() => _shellCommandController.CreateNewFile();
 
         private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
@@ -115,14 +127,7 @@ namespace QTTabBarLib {
         private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
 
         private ContextMenuStripEx contextMenuDropped;
-        private QTabItem ContextMenuedTab;
 
-        
-        
-        private Cursor curTabCloning;
-        private Cursor curTabDrag;
-        private Rectangle DraggingDestRect;
-        private QTabItem DraggingTab;
         private DropTargetWrapper dropTargetWrapper;
         private NativeWindowController explorerController;
         
@@ -457,7 +462,7 @@ namespace QTTabBarLib {
         }
 
         private Cursor GetCursor(bool fDragging) {
-            return _tabManager.GetCursor(fDragging);
+            return GetTabDragCursor(fDragging);
         }
         /**
          * new �Ƿ��������أ�
@@ -791,7 +796,6 @@ namespace QTTabBarLib {
         protected List<ToolStripItem> lstPluginMenuItems_Tab;
 
         protected bool NowOpenedByGroupOpener;
-        protected bool NowTabDragging;
         protected bool NowTopMost;
 
         public bool HideExplorer

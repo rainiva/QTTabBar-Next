@@ -426,6 +426,12 @@
     <Compile Include="TabBarBase.ExplorerAttach.cs">
       <DependentUpon>TabBarBase.cs</DependentUpon>
     </Compile>
+    <Compile Include="TabBarBase.WindowMessages.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.MouseHandlers.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Toolbar.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />
@@ -666,6 +672,8 @@
     <Compile Include="QTUtility.cs" />
     <Compile Include="QTLogger.cs" />
     <Compile Include="RegistryHelper.cs" />
+    <Compile Include="ValidationHelper.cs" />
+    <Compile Include="AssemblyInfoHelper.cs" />
     <Compile Include="QTUtility2.cs" />
     <Compile Include="SubDirTipForm.cs">
       <SubType>Form</SubType>

@@ -1467,10 +1467,10 @@ namespace QTTabBarLib {
 
         private void ReadSetting() {
             lstItemOrder.Clear();
-            lstItemOrder.Add(QTUtility.ValidateMinMax(Config.Desktop.FirstItem, 0, ITEMTYPE_COUNT));
-            lstItemOrder.Add(QTUtility.ValidateMinMax(Config.Desktop.SecondItem, 0, ITEMTYPE_COUNT));
-            lstItemOrder.Add(QTUtility.ValidateMinMax(Config.Desktop.ThirdItem, 0, ITEMTYPE_COUNT));
-            lstItemOrder.Add(QTUtility.ValidateMinMax(Config.Desktop.FourthItem, 0, ITEMTYPE_COUNT));
+            lstItemOrder.Add(ValidationHelper.ValidateMinMax(Config.Desktop.FirstItem, 0, ITEMTYPE_COUNT));
+            lstItemOrder.Add(ValidationHelper.ValidateMinMax(Config.Desktop.SecondItem, 0, ITEMTYPE_COUNT));
+            lstItemOrder.Add(ValidationHelper.ValidateMinMax(Config.Desktop.ThirdItem, 0, ITEMTYPE_COUNT));
+            lstItemOrder.Add(ValidationHelper.ValidateMinMax(Config.Desktop.FourthItem, 0, ITEMTYPE_COUNT));
             for(int i = 0; i < ITEMTYPE_COUNT; i++) {
                 if(!lstItemOrder.Contains(i)) {
                     lstItemOrder.Add(i);

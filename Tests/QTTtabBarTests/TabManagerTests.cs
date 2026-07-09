@@ -186,20 +186,29 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabControl1_MouseDown() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_MouseDown", AnyInstance),
-                "TabManager should host tabControl1_MouseDown");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_MouseDown", AnyInstance),
+                "TabManager should not host tabControl1_MouseDown after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_MouseDown",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_MouseDown after W3h");
         }
 
         [Test]
         public void TabManager_Hosts_TabControl1_MouseMove() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_MouseMove", AnyInstance),
-                "TabManager should host tabControl1_MouseMove");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_MouseMove", AnyInstance),
+                "TabManager should not host tabControl1_MouseMove after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_MouseMove",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_MouseMove after W3h");
         }
 
         [Test]
         public void TabManager_Hosts_TabControl1_MouseUp() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_MouseUp", AnyInstance),
-                "TabManager should host tabControl1_MouseUp");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_MouseUp", AnyInstance),
+                "TabManager should not host tabControl1_MouseUp after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_MouseUp",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_MouseUp after W3h");
         }
 
         [Test]
@@ -232,8 +241,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabControl1_CloseButtonClicked() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_CloseButtonClicked", AnyInstance),
-                "TabManager should host tabControl1_CloseButtonClicked");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_CloseButtonClicked", AnyInstance),
+                "TabManager should not host tabControl1_CloseButtonClicked after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_CloseButtonClicked",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_CloseButtonClicked after W3h");
         }
 
         [Test]
@@ -244,20 +256,29 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabControl1_MouseDoubleClick() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_MouseDoubleClick", AnyInstance),
-                "TabManager should host tabControl1_MouseDoubleClick");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_MouseDoubleClick", AnyInstance),
+                "TabManager should not host tabControl1_MouseDoubleClick after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_MouseDoubleClick",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_MouseDoubleClick after W3h");
         }
 
         [Test]
         public void TabManager_Hosts_TabControl1_MouseEnter() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_MouseEnter", AnyInstance),
-                "TabManager should host tabControl1_MouseEnter");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_MouseEnter", AnyInstance),
+                "TabManager should not host tabControl1_MouseEnter after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_MouseEnter",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_MouseEnter after W3h");
         }
 
         [Test]
         public void TabManager_Hosts_TabControl1_MouseLeave() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_MouseLeave", AnyInstance),
-                "TabManager should host tabControl1_MouseLeave");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_MouseLeave", AnyInstance),
+                "TabManager should not host tabControl1_MouseLeave after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_MouseLeave",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_MouseLeave after W3h");
         }
 
         [Test]
@@ -274,8 +295,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabControl1_TabIconMouseDown() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_TabIconMouseDown", AnyInstance),
-                "TabManager should host tabControl1_TabIconMouseDown");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_TabIconMouseDown", AnyInstance),
+                "TabManager should not host tabControl1_TabIconMouseDown after W3h");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_TabIconMouseDown",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_TabIconMouseDown after W3h");
         }
 
         [Test]
@@ -393,30 +417,30 @@ namespace QTTtabBarTests {
 
         [Test]
         public void QTTabBarClass_Has_NowTabDragging_Field() {
-            FieldInfo f = typeof(QTTabBarClass).GetField("NowTabDragging",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(f, "QTTabBarClass should have NowTabDragging field");
+            FieldInfo f = typeof(TabBarBase).GetField("NowTabDragging",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            Assert.IsNotNull(f, "TabBarBase should host NowTabDragging after W3h");
         }
 
         [Test]
         public void QTTabBarClass_Has_DraggingTab_Field() {
-            FieldInfo f = typeof(QTTabBarClass).GetField("DraggingTab",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(f, "QTTabBarClass should have DraggingTab field");
+            FieldInfo f = typeof(TabBarBase).GetField("DraggingTab",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            Assert.IsNotNull(f, "TabBarBase should host DraggingTab after W3h");
         }
 
         [Test]
         public void QTTabBarClass_Has_DraggingDestRect_Field() {
-            FieldInfo f = typeof(QTTabBarClass).GetField("DraggingDestRect",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(f, "QTTabBarClass should have DraggingDestRect field");
+            FieldInfo f = typeof(TabBarBase).GetField("DraggingDestRect",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            Assert.IsNotNull(f, "TabBarBase should host DraggingDestRect after W3h");
         }
 
         [Test]
         public void QTTabBarClass_Has_ContextMenuedTab_Field() {
-            FieldInfo f = typeof(QTTabBarClass).GetField("ContextMenuedTab",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(f, "QTTabBarClass should have ContextMenuedTab field");
+            FieldInfo f = typeof(TabBarBase).GetField("ContextMenuedTab",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            Assert.IsNotNull(f, "TabBarBase should host ContextMenuedTab after W3h");
         }
 
         #endregion

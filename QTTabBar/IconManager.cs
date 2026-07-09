@@ -91,6 +91,12 @@ namespace QTTabBarLib {
             return Resources_Image.icoEmpty;
         }
 
+        private static readonly string[] CompressedExtensions = { ".zip", ".lzh", ".cab" };
+
+        public static bool ExtIsCompressed(string ext) {
+            return CompressedExtensions.Contains(ext);
+        }
+
         public static string GetImageKey(string path, string ext) {
             if(!string.IsNullOrEmpty(path)) {
                 if(QTUtility2.IsNetworkPath(path)) {
@@ -300,6 +306,80 @@ namespace QTTabBarLib {
             lock(QTUtility.imageListLock) {
                 return QTUtility.ImageListGlobal.Images[key];
             }
+        }
+
+        public static ImageReservationKey ReserveImageKey(QMenuItem qmi, string path, string ext) {
+            ImageReservationKey key = null;
+            if(string.IsNullOrEmpty(path)) {
+                return new ImageReservationKey("noimage", 0);
+            }
+            if(!string.IsNullOrEmpty(ext)) {
+                ext = ext.ToLower();
+                if(ExtHasIcon(ext) && !QTUtility2.IsNetworkPath(path)) {
+                    return new ImageReservationKey(path, 2);
+                }
+                return new ImageReservationKey(ext, 1);
+            }
+            if(QTUtility2.IsNetworkPath(path)) {
+                if(PathValidator.IsNetworkRootFolder(path)) {
+                    return new ImageReservationKey(path, 4);
+                }
+                return new ImageReservationKey("folder", 3);
+            }
+            if(path.StartsWith("::")) {
+                return new ImageReservationKey(path, 4);
+            }
+            if(path.Contains("*?*?*")) {
+                return new ImageReservationKey(path, 5);
+            }
+            if(QTUtility2.IsShellPathButNotFileSystem(path)) {
+                return new ImageReservationKey(path, 6);
+            }
+            if(path.StartsWith("ftp://") || path.StartsWith("http://")) {
+                return new ImageReservationKey("folder", 3);
+            }
+            try {
+                if(qmi.Exists) {
+                    if(qmi.Target == MenuTarget.Folder) {
+                        if(qmi.HasIcon) {
+                            return new ImageReservationKey(path, 4);
+                        }
+                        return new ImageReservationKey("folder", 3);
+                    }
+                    if(qmi.Target == MenuTarget.File) {
+                        ext = Path.GetExtension(path).ToLower();
+                        if(ext.Length == 0) {
+                            return new ImageReservationKey("noext", 0);
+                        }
+                        if(ExtHasIcon(ext)) {
+                            return new ImageReservationKey(path, 2);
+                        }
+                        return new ImageReservationKey(ext, 1);
+                    }
+                }
+                DirectoryInfo info = new DirectoryInfo(path);
+                if(info.Exists) {
+                    FileAttributes attributes = info.Attributes;
+                    if(((attributes & FileAttributes.System) != 0) || ((attributes & FileAttributes.ReadOnly) != 0)) {
+                        return new ImageReservationKey(path, 4);
+                    }
+                    return new ImageReservationKey("folder", 3);
+                }
+                if(!File.Exists(path)) {
+                    return new ImageReservationKey("noimage", 0);
+                }
+                ext = Path.GetExtension(path).ToLower();
+                if(ext.Length == 0) {
+                    return new ImageReservationKey("noext", 0);
+                }
+                if(ExtHasIcon(ext)) {
+                    return new ImageReservationKey(path, 2);
+                }
+                key = new ImageReservationKey(ext, 1);
+            }
+            catch {
+            }
+            return key;
         }
     }
 }

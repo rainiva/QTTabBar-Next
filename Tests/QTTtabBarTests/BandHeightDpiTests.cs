@@ -87,8 +87,8 @@ namespace QTTtabBarTests {
             // when TabHeight=30. Correct validation clamps OverlapPixels itself.
             int tabHeight = 30;
             int overlapPixels = 0;
-            int wrong = QTUtility.ValidateMinMax(tabHeight, 0, 20);
-            int correct = QTUtility.ValidateMinMax(overlapPixels, 0, 20);
+            int wrong = ValidationHelper.ValidateMinMax(tabHeight, 0, 20);
+            int correct = ValidationHelper.ValidateMinMax(overlapPixels, 0, 20);
             Assert.AreEqual(20, wrong, "documents the buggy expression result");
             Assert.AreEqual(0, correct, "OverlapPixels must stay 0 when configured as 0");
             Assert.AreNotEqual(wrong, correct);

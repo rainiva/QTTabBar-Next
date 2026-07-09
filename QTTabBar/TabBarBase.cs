@@ -114,6 +114,13 @@ namespace QTTabBarLib
         protected ITravelLogStg TravelLog;
         public QTTabBarClass.PluginServer pluginServer { get; set; }
 
+        protected bool NowTabDragging;
+        protected QTabItem ContextMenuedTab;
+        protected Cursor curTabCloning;
+        protected Cursor curTabDrag;
+        protected Rectangle DraggingDestRect;
+        protected QTabItem DraggingTab;
+
         protected bool NavigatedByCode;
 
         protected bool NowTabsAddingRemoving;

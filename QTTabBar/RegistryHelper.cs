@@ -113,5 +113,10 @@ namespace QTTabBarLib {
                 rk.SetValue(valName, (long)hwnd, RegistryValueKind.QWord);
             }
         }
+
+        public static T GetValueSafe<T>(RegistryKey rk, string valName, T defaultVal) {
+            object value = rk.GetValue(valName, defaultVal);
+            return value != null && value is T ? (T)value : defaultVal;
+        }
     }
 }

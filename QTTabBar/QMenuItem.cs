@@ -100,7 +100,7 @@ namespace QTTabBarLib {
         }
 
         public void SetImageReservationKey(string path, string ext) {
-            imageReservationKey = QTUtility.ReserveImageKey(this, path, ext);
+            imageReservationKey = IconManager.ReserveImageKey(this, path, ext);
             ImageKey = imageReservationKey.ImageKey;
             fImageLoaded = imageReservationKey.ImageKey == "folder";
         }

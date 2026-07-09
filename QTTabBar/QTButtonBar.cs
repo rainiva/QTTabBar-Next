@@ -118,7 +118,7 @@ namespace QTTabBarLib {
 
         #endregion
 
-        #region Event Handlers
+        #region Event Handlers (Click/Mouse)
 
         /**
          * 当点击在 splitbutton 则进行显示
@@ -221,6 +221,10 @@ namespace QTTabBarLib {
             }
         }
 
+        #endregion
+
+        #region Construction & Lifecycle
+
         public override void CloseDW(uint dwReserved) {
             try {
                 if(shellContextMenu != null) {
@@ -232,10 +236,12 @@ namespace QTTabBarLib {
                         PInvoke.CoTaskMemFree(ptr);
                     }
                 }
+                #region Drag & Drop
                 if(dropTargetWrapper != null) {
                     dropTargetWrapper.Dispose();
                     dropTargetWrapper = null;
                 }
+                #endregion
                 ButtonBarRegistry.UnregisterButtonBar();
                 fFinalRelease = false;
                 base.CloseDW(dwReserved);
@@ -245,6 +251,10 @@ namespace QTTabBarLib {
             }
         }
         
+        #endregion
+
+        #region Context Menu
+
         private void copyButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
             if(tabBar != null) {
@@ -276,6 +286,10 @@ namespace QTTabBarLib {
                 base2.Items[0].Enabled = base2.Items[1].Enabled = base2.Items[2].Enabled = base2.Items[3].Enabled = false;
             }
         }
+
+        #endregion
+
+        #region Button Creation & Layout
 
         private ToolStripDropDownButton CreateDropDownButton(int index) {
             ToolStripDropDownButton button = new ToolStripDropDownButton();
@@ -796,6 +810,10 @@ namespace QTTabBarLib {
             button.DropDown.ResumeLayout();
         }
 
+        #endregion
+
+        #region Construction & Lifecycle
+
         public override void GetBandInfo(uint dwBandID, uint dwViewMode, ref DESKBANDINFO dbi) {
             if((dbi.dwMask & DBIM.ACTUAL) != (0)) {
                 dbi.ptActual.X = Size.Width;
@@ -1033,7 +1051,9 @@ namespace QTTabBarLib {
                     ExplorerHandle = (IntPtr)Explorer.HWND;
                 }
                 ButtonBarRegistry.RegisterButtonBar(this);
+                #region Drag & Drop
                 dropTargetWrapper = new DropTargetWrapper(this);
+                #endregion
                 QTTabBarClass tabBar = TabInstanceRegistry.GetThreadTabBar();
                 // add by indiff dark mode
                 QTUtility.RefreshNightMode();
@@ -1073,6 +1093,10 @@ namespace QTTabBarLib {
                 base.OnPaintBackground(e);
             }
         }
+
+        #endregion
+
+        #region Event Handlers (Click/Mouse)
 
         private void pluginButton_ButtonClick(object sender, EventArgs e) {
             ToolStripItem item = (ToolStripItem)sender;
@@ -1136,6 +1160,10 @@ namespace QTTabBarLib {
                 }
             }
         }
+
+        #endregion
+
+        #region Search Box
 
         // TODO this doesn't even work.
         private void RearrangeFolderView() {
@@ -1416,6 +1444,10 @@ namespace QTTabBarLib {
             return addedItems;
         }
 
+        #endregion
+
+        #region Construction & Lifecycle
+
         protected override bool ShouldHaveBreak() {
             bool breakBar = true;
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
@@ -1435,6 +1467,10 @@ namespace QTTabBarLib {
             }
         }
 
+        #endregion
+
+        #region Search Box
+
         private void timerSearchBox_Rearrange_Tick(object sender, EventArgs e) {
             if(!fSearchBoxInputStart) {
                 timerSearchBox_Rearrange.Stop();
@@ -1451,6 +1487,10 @@ namespace QTTabBarLib {
                 //timerSearchBox_Rearrange.Start();
             }
         }
+
+        #endregion
+
+        #region Event Handlers (Click/Mouse)
 
         private void toolStrip_GotFocus(object sender, EventArgs e) {
             if(IsHandleCreated) {
@@ -1503,6 +1543,10 @@ namespace QTTabBarLib {
                 Explorer.StatusText = (bAlpha * 100 / (int)byte.MaxValue).ToString() + "%"; 
             }
         }
+
+        #endregion
+
+        #region Construction & Lifecycle
 
         public override int TranslateAcceleratorIO(ref MSG msg) {
             if(msg.message == WM.KEYDOWN) {
@@ -1711,6 +1755,10 @@ namespace QTTabBarLib {
             return true;
         }
 
+        #endregion
+
+        #region Button Creation & Layout
+
         internal bool RefreshButtons() {
             if(NavDropDown != null && NavDropDown.Visible) {
                 NavDropDown.Close(ToolStripDropDownCloseReason.AppClicked);
@@ -1817,6 +1865,10 @@ namespace QTTabBarLib {
             return true;
         }
 
+        #endregion
+
+        #region Construction & Lifecycle
+
         protected override void WndProc(ref Message m) {
             switch(m.Msg) {
                 case WM.INITMENUPOPUP:
@@ -1916,6 +1968,8 @@ namespace QTTabBarLib {
                 this.ResumeLayout();
             }
         }
+
+        #endregion
     }
 
     internal sealed class ImageStrip : IDisposable {
@@ -1992,7 +2046,5 @@ namespace QTTabBarLib {
                 transparentColor = value;
             }
         }
-
-        #endregion
     }
 }

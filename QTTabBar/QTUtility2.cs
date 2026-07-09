@@ -52,23 +52,6 @@ namespace QTTabBarLib {
             }
         }
 
-        public static void AllocDebugConsole() { Logger.AllocDebugConsole();
-        }
-
-
-
-        public static T DeepClone<T>(T obj) {
-            using(var ms = new MemoryStream()) {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Binder = new PreMergeToMergedDeserializationBinder();
-                formatter.Serialize(ms, obj);
-                ms.Position = 0;
-                var deserialize = (T)formatter.Deserialize(ms);
-                Close( ms );
-                return deserialize;
-            }
-        }
-
         public static string Enquote(this string s) {
             return "\"" + s + "\"";
         }
@@ -114,14 +97,6 @@ namespace QTTabBarLib {
                     return path;
             }
             return ShellMethods.GetDisplayName(path);
-        }
-
-        public static T GetRegistryValueSafe<T>(RegistryKey rk, string valName, T defaultVal) {
-            object obj2 = rk.GetValue(valName, defaultVal);
-            if((obj2 != null) && (obj2 is T)) {
-                return (T)obj2;
-            }
-            return defaultVal;
         }
 
         public static void InitializeTemporaryPaths() {
@@ -210,14 +185,6 @@ namespace QTTabBarLib {
 
         public static int MakeCOLORREF(Color clr) {
             return ((clr.R | (clr.G << 8)) | (clr.B << 0x10));
-        }
-
-        public static void log2(string optional)
-        { Logger.log2(optional);
-        }
-
-        public static void err(string optional)
-        { Logger.err(optional);
         }
 
         /*
@@ -375,7 +342,7 @@ namespace QTTabBarLib {
         public static string MakeVersionString() {
             // qwop comment  ���� .net framework �İ汾��
             if(QTUtility.IS_DEV_VERSION) {
-                return "DevBuild: " + QTUtility.GetLinkerTimestamp() + " (" + Environment.Version + ")";
+                return "DevBuild: " + AssemblyInfoHelper.GetLinkerTimestamp() + " (" + Environment.Version + ")";
             }
             else {
                 string str = QTUtility.CurrentVersion.ToString();
@@ -432,7 +399,7 @@ namespace QTTabBarLib {
             }
             if(File.Exists(path)) {
                 string ext = Path.GetExtension(path).ToLower();
-                return (QTUtility.ExtIsCompressed(ext) || (!OSDetector.IsXP && (ext == ".search-ms")));
+                return (IconManager.ExtIsCompressed(ext) || (!OSDetector.IsXP && (ext == ".search-ms")));
             }
             if(OSDetector.IsXP || ((!path.Contains(@".zip\") && !path.Contains(@".cab\")) && !path.Contains(@".lzh\"))) {
                 return !Path.IsPathRooted(path);
@@ -459,13 +426,6 @@ namespace QTTabBarLib {
                 (short)(((int)lParam) & 0xffff),
                 (short)((((int)lParam) >> 0x10) & 0xffff));
         }
-
-        public static T GetValueSafe<T>(RegistryKey rk, string valName, T defaultVal)
-        {
-            object obj1 = rk.GetValue(valName, (object) defaultVal);
-            return obj1 != null && obj1 is T ? (T) obj1 : defaultVal;
-        }
-
 
         public static string SanitizePathString(string path) {
             if(path == null) {

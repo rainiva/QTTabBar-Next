@@ -152,7 +152,7 @@ namespace QTTabBarLib {
             // determines if INTERVAL_CHECK_DAYs have passed since the last check.
             using(RegistryKey key = Registry.CurrentUser.OpenSubKey(RegConst.Root)) {
                 if(key != null) {
-                    long ticks = QTUtility2.GetRegistryValueSafe(key, "LastChecked", -1L);
+                    long ticks = RegistryHelper.GetValueSafe(key, "LastChecked", -1L);
                     if(DateTime.MinValue.Ticks < ticks && ticks < DateTime.MaxValue.Ticks) {
                         return (DateTime.Now - new DateTime(ticks)).Days > INTERVAL_CHECK_DAY;
                     }

@@ -170,12 +170,6 @@ namespace QTTabBarLib {
         }
 
 
-        private readonly static string[] strCompressedExt = new string[] { ".zip", ".lzh", ".cab" };
-
-        public static bool ExtIsCompressed(string ext) {
-            return strCompressedExt.Contains(ext);
-        }
-
         public static void GetHiddenFileSettings(out bool fShowHidden, out bool fShowSystem) {
             const uint SSF_SHOWALLOBJECTS   = 0x00001;
             const uint SSF_SHOWSUPERHIDDEN  = 0x40000;
@@ -185,56 +179,12 @@ namespace QTTabBarLib {
             fShowSystem = ss.fShowSuperHidden != 0;
         }
 
-        public static DateTime GetLinkerTimestamp() {
-            string filePath = System.Reflection.Assembly.GetCallingAssembly().Location;
-            const int c_PeHeaderOffset = 60;
-            const int c_LinkerTimestampOffset = 8;
-            byte[] buf = new byte[2048];
-            Stream stream = null;
-
-            try {
-                stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                stream.Read(buf, 0, 2048);
-            }
-            finally {
-                QTUtility2.Close(stream);
-            }
-
-            int offset = BitConverter.ToInt32(buf, c_PeHeaderOffset);
-            int secondsSince1970 = BitConverter.ToInt32(buf, offset + c_LinkerTimestampOffset);
-            DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
-            dt = dt.AddSeconds(secondsSince1970);
-            dt = dt.AddHours(TimeZone.CurrentTimeZone.GetUtcOffset(dt).Hours);
-            return dt;
-        }
-
         public static IEnumerable<KeyValuePair<string, string>> GetResourceStrings(this ResourceManager res) {
             var dict = res.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
             var e = dict.GetEnumerator();
             while(e.MoveNext()) {
                 yield return new KeyValuePair<string, string>((string)e.Key, (string)e.Value);
             }
-        }
-
-        public static T[] GetSettingValue<T>(T[] inputValues, T[] defaultValues, bool fClone) {
-            if((inputValues == null) || (inputValues.Length == 0)) {
-                if(!fClone) {
-                    return defaultValues;
-                }
-                return (T[])defaultValues.Clone();
-            }
-            int length = defaultValues.Length;
-            int num2 = inputValues.Length;
-            T[] localArray = new T[length];
-            for(int i = 0; i < length; i++) {
-                if(i < num2) {
-                    localArray[i] = inputValues[i];
-                }
-                else {
-                    localArray[i] = defaultValues[i];
-                }
-            }
-            return localArray;
         }
 
         public static void GetShellClickMode() {
@@ -431,80 +381,6 @@ namespace QTTabBarLib {
             }
         }
 
-        public static ImageReservationKey ReserveImageKey(QMenuItem qmi, string path, string ext) {
-            ImageReservationKey key = null;
-            if(string.IsNullOrEmpty(path)) {
-                return new ImageReservationKey("noimage", 0);
-            }
-            if(!string.IsNullOrEmpty(ext)) {
-                ext = ext.ToLower();
-                if(IconManager.ExtHasIcon(ext) && !QTUtility2.IsNetworkPath(path)) {
-                    return new ImageReservationKey(path, 2);
-                }
-                return new ImageReservationKey(ext, 1);
-            }
-            if(QTUtility2.IsNetworkPath(path)) {
-                if(PathValidator.IsNetworkRootFolder(path)) {
-                    return new ImageReservationKey(path, 4);
-                }
-                return new ImageReservationKey("folder", 3);
-            }
-            if(path.StartsWith("::")) {
-                return new ImageReservationKey(path, 4);
-            }
-            if(path.Contains("*?*?*")) {
-                return new ImageReservationKey(path, 5);
-            }
-            if(QTUtility2.IsShellPathButNotFileSystem(path)) {
-                return new ImageReservationKey(path, 6);
-            }
-            if(path.StartsWith("ftp://") || path.StartsWith("http://")) {
-                return new ImageReservationKey("folder", 3);
-            }
-            try {
-                if(qmi.Exists) {
-                    if(qmi.Target == MenuTarget.Folder) {
-                        if(qmi.HasIcon) {
-                            return new ImageReservationKey(path, 4);
-                        }
-                        return new ImageReservationKey("folder", 3);
-                    }
-                    if(qmi.Target == MenuTarget.File) {
-                        ext = Path.GetExtension(path).ToLower();
-                        if(ext.Length == 0) {
-                            return new ImageReservationKey("noext", 0);
-                        }
-                        if(IconManager.ExtHasIcon(ext)) {
-                            return new ImageReservationKey(path, 2);
-                        }
-                        return new ImageReservationKey(ext, 1);
-                    }
-                }
-                DirectoryInfo info = new DirectoryInfo(path);
-                if(info.Exists) {
-                    FileAttributes attributes = info.Attributes;
-                    if(((attributes & FileAttributes.System) != 0) || ((attributes & FileAttributes.ReadOnly) != 0)) {
-                        return new ImageReservationKey(path, 4);
-                    }
-                    return new ImageReservationKey("folder", 3);
-                }
-                if(!File.Exists(path)) {
-                    return new ImageReservationKey("noimage", 0);
-                }
-                ext = Path.GetExtension(path).ToLower();
-                if(ext.Length == 0) {
-                    return new ImageReservationKey("noext", 0);
-                }
-                if(IconManager.ExtHasIcon(ext)) {
-                    return new ImageReservationKey(path, 2);
-                }
-                key = new ImageReservationKey(ext, 1);
-            }
-            catch {
-            }
-            return key;
-        }
-
         /**
          * �ǲ��� path ���Ե�
          */
@@ -558,10 +434,6 @@ namespace QTTabBarLib {
             // TODO
         }
 
-        public static void ValidateMinMax(ref int value, int min, int max) {
-            value = ValidateMinMax(value, min, max);
-        }
-
         public static void RefreshNightMode() {
             InNightMode = getNightMode();
         }
@@ -606,20 +478,6 @@ namespace QTTabBarLib {
                 }
             // }
            return true;
-        }
-
-
-
-        public static int ValidateMinMax(int value, int min, int max) {
-            int a = Math.Min(min, max);
-            int b = Math.Max(min, max);
-            if(value < a) {
-                value = a;
-            }
-            else if(value > b) {
-                value = b;
-            }
-            return value;
         }
 
         public static bool isChinese()

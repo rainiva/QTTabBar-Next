@@ -10,7 +10,7 @@ namespace QTTabBarLib {
         public OptionsFluentPoCWindow() {
             InitializeComponent();
             FluentThemeManager.ApplyTo(this);
-            workingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
+            workingConfig = SerializationHelper.DeepClone(ConfigManager.LoadedConfig);
             navList.SelectedIndex = 2;
             ShowPage("tweaks");
         }

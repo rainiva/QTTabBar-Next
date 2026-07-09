@@ -1326,22 +1326,22 @@ namespace QTTabBarLib {
                     }
                 }
                 Config.Tips.PreviewFont = Config.Tips.PreviewFont ?? Control.DefaultFont;
-                Config.Tips.PreviewMaxWidth = QTUtility.ValidateMinMax(Config.Tips.PreviewMaxWidth, 128, 1920);
-                Config.Tips.PreviewMaxHeight = QTUtility.ValidateMinMax(Config.Tips.PreviewMaxHeight, 96, 1200);
-                Config.Misc.TabHistoryCount = QTUtility.ValidateMinMax(Config.Misc.TabHistoryCount, 1, 30);
-                Config.Misc.FileHistoryCount = QTUtility.ValidateMinMax(Config.Misc.FileHistoryCount, 1, 30);
-                Config.Misc.NetworkTimeout = QTUtility.ValidateMinMax(Config.Misc.NetworkTimeout, 0, 120);
-                Config.Skin.TabHeight = QTUtility.ValidateMinMax(Config.Skin.TabHeight, 10, 50);
+                Config.Tips.PreviewMaxWidth = ValidationHelper.ValidateMinMax(Config.Tips.PreviewMaxWidth, 128, 1920);
+                Config.Tips.PreviewMaxHeight = ValidationHelper.ValidateMinMax(Config.Tips.PreviewMaxHeight, 96, 1200);
+                Config.Misc.TabHistoryCount = ValidationHelper.ValidateMinMax(Config.Misc.TabHistoryCount, 1, 30);
+                Config.Misc.FileHistoryCount = ValidationHelper.ValidateMinMax(Config.Misc.FileHistoryCount, 1, 30);
+                Config.Misc.NetworkTimeout = ValidationHelper.ValidateMinMax(Config.Misc.NetworkTimeout, 0, 120);
+                Config.Skin.TabHeight = ValidationHelper.ValidateMinMax(Config.Skin.TabHeight, 10, 50);
                 // 调整标签最小宽度
-				Config.Skin.TabMinWidth = QTUtility.ValidateMinMax(Config.Skin.TabMinWidth, 10, 100);
-                Config.Skin.TabMaxWidth = QTUtility.ValidateMinMax(Config.Skin.TabMaxWidth, 50, 999);
-                Config.Skin.OverlapPixels = QTUtility.ValidateMinMax(Config.Skin.OverlapPixels, 0, 20);
+				Config.Skin.TabMinWidth = ValidationHelper.ValidateMinMax(Config.Skin.TabMinWidth, 10, 100);
+                Config.Skin.TabMaxWidth = ValidationHelper.ValidateMinMax(Config.Skin.TabMaxWidth, 50, 999);
+                Config.Skin.OverlapPixels = ValidationHelper.ValidateMinMax(Config.Skin.OverlapPixels, 0, 20);
                 Config.Skin.TabTextFont = Config.Skin.TabTextFont ?? Control.DefaultFont;
                 Func<Padding, Padding> validatePadding = p => {
-                    p.Left   = QTUtility.ValidateMinMax(p.Left,   0, 99);
-                    p.Top    = QTUtility.ValidateMinMax(p.Top,    0, 99);
-                    p.Right  = QTUtility.ValidateMinMax(p.Right,  0, 99);
-                    p.Bottom = QTUtility.ValidateMinMax(p.Bottom, 0, 99);
+                    p.Left   = ValidationHelper.ValidateMinMax(p.Left,   0, 99);
+                    p.Top    = ValidationHelper.ValidateMinMax(p.Top,    0, 99);
+                    p.Right  = ValidationHelper.ValidateMinMax(p.Right,  0, 99);
+                    p.Bottom = ValidationHelper.ValidateMinMax(p.Bottom, 0, 99);
                     return p;
                 };
                 Config.Skin.RebarSizeMargin = validatePadding(Config.Skin.RebarSizeMargin);

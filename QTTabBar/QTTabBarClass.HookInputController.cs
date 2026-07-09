@@ -123,55 +123,18 @@ namespace QTTabBarLib {
                                 }
                                 break;
                             case WM.SYSCOLORCHANGE:
-                                QTUtility.RefreshNightMode();
-                                QTLogger.log("SYSCOLORCHANGE SwitchNighMode");
-                                Config.Skin.SwitchNighMode(QTUtility.InNightMode);
-                                ConfigManager.UpdateConfig(true);
-                                _owner.tabControl1.InitializeColors();
-                                PInvoke.SetRedraw(_owner.ExplorerHandle, true);
-                                PInvoke.RedrawWindow(_owner.ExplorerHandle, IntPtr.Zero, IntPtr.Zero, 0x289);
+                                _owner.HandleSysColorChangeHookMessage();
                                 break;
 
                             case WM.CLOSE:
-                                if(OSDetector.IsXP) {
-                                    if((msg.hwnd == _owner.ExplorerHandle) && HandleCLOSE(msg.lParam)) {
-                                        Marshal.StructureToPtr(new MSG(), lParam, false);
-                                    }
-                                    break;
-                                }
-
-                                string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
-                                                     where item2.TabLocked
-                                                     select item2.CurrentPath).ToArray();
-                                QTUtility.SaveLockedTabs(list);
-                                if(msg.hwnd == WindowUtils.GetShellTabWindowClass(_owner.ExplorerHandle)) {
-                                    try {
-                                        bool flag = _owner.tabControl1.TabCount == 1;
-                                        string currentPath = _owner.tabControl1.SelectedTab.CurrentPath;
-                                        if(!Directory.Exists(currentPath) &&
-                                           currentPath.Length > 3) {
-                                            if(flag) {
-                                                WindowUtils.CloseExplorer(_owner.ExplorerHandle, 2);
-                                            }
-                                            else {
-                                                _owner.CloseTab(_owner.tabControl1.SelectedTab, true);
-                                            }
-                                        }
-                                    }
-                                    catch(Exception e) {
-                                        QTLogger.MakeErrorLog(e, "CallbackGetMsgProc WM.Close");
-                                    }
+                                if(_owner.TryHandleHookCloseMessage(msg, out bool suppressClose) && suppressClose) {
                                     Marshal.StructureToPtr(new MSG(), lParam, false);
                                 }
                                 break;
 
                             case WM.COMMAND:
-                                if(OSDetector.IsXP) {
-                                    int num = ((int)((long)msg.wParam)) & 0xffff;
-                                    if(num == 0xa021) {
-                                        WindowUtils.CloseExplorer(_owner.ExplorerHandle, 3);
-                                        Marshal.StructureToPtr(new MSG(), lParam, false);
-                                    }
+                                if(_owner.TryHandleHookCommandMessage(msg, out bool suppressCommand) && suppressCommand) {
+                                    Marshal.StructureToPtr(new MSG(), lParam, false);
                                 }
                                 break;
                         }

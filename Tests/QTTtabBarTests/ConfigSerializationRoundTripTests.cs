@@ -20,7 +20,7 @@ namespace QTTtabBarTests {
         [Test]
         public void DeepClone_Returns_Distinct_Instance() {
             Config original = new Config();
-            Config clone = QTUtility2.DeepClone(original);
+            Config clone = SerializationHelper.DeepClone(original);
 
             Assert.IsNotNull(clone, "DeepClone should not return null");
             Assert.AreNotSame(original, clone, "DeepClone should return a distinct instance");
@@ -31,7 +31,7 @@ namespace QTTtabBarTests {
         public void DeepClone_Preserves_FreshConfig_SkinDefaults() {
             // 锁定 _Skin 构造函数默认值经过序列化往返后保持一致。
             Config original = new Config();
-            Config clone = QTUtility2.DeepClone(original);
+            Config clone = SerializationHelper.DeepClone(original);
 
             Assert.AreEqual(original.skin.TabHeight, clone.skin.TabHeight, "TabHeight default should survive round-trip");
             Assert.AreEqual(original.skin.TabMinWidth, clone.skin.TabMinWidth, "TabMinWidth default should survive round-trip");
@@ -55,7 +55,7 @@ namespace QTTtabBarTests {
             original.skin.TabSizeMargin = new Padding(1, 2, 3, 4);
             original.skin.TabTextFont = new Font("Arial", 11f, FontStyle.Bold);
 
-            Config clone = QTUtility2.DeepClone(original);
+            Config clone = SerializationHelper.DeepClone(original);
 
             Assert.AreEqual(42, clone.skin.TabHeight);
             Assert.AreEqual(333, clone.skin.TabMaxWidth);
@@ -80,7 +80,7 @@ namespace QTTtabBarTests {
         [Test]
         public void DeepClone_Preserves_AllCategoryObjects_NotNull() {
             // 锁定 Config 图中所有分类子对象都可序列化并在往返后非空。
-            Config clone = QTUtility2.DeepClone(new Config());
+            Config clone = SerializationHelper.DeepClone(new Config());
 
             Assert.IsNotNull(clone.window);
             Assert.IsNotNull(clone.tabs);

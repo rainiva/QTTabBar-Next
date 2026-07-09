@@ -131,7 +131,7 @@ namespace QTTtabBarTests
         public void DeepClone_Config_Roundtrips_Successfully()
         {
             Config original = new Config { tabs = { ActivateNewTab = false } };
-            Config clone = QTUtility2.DeepClone(original);
+            Config clone = SerializationHelper.DeepClone(original);
             Assert.IsNotNull(clone);
             Assert.AreEqual(original.tabs.ActivateNewTab, clone.tabs.ActivateNewTab);
         }
@@ -144,7 +144,7 @@ namespace QTTtabBarTests
             Assert.IsNotNull(original.tips.PreviewFont);
             Assert.IsNotNull(original.skin.TabTextFont);
 
-            Config clone = QTUtility2.DeepClone(original);
+            Config clone = SerializationHelper.DeepClone(original);
 
             Assert.IsNotNull(clone);
             Assert.AreEqual(original.tips.PreviewFont.Name, clone.tips.PreviewFont.Name);

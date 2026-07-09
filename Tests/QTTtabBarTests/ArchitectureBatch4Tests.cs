@@ -61,10 +61,21 @@ namespace QTTtabBarTests {
         [Test]
         public void QTButtonBar_Has_Region_Organization() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTButtonBar.cs"));
-            Assert.IsTrue(content.Contains("#region Construction & Lifecycle"),
-                "QTButtonBar should use region organization");
-            Assert.IsTrue(content.Contains("#region Event Handlers"),
-                "QTButtonBar should group event handlers in a region");
+            string[] expectedRegions = {
+                "Construction & Lifecycle",
+                "Button Creation & Layout",
+                "Event Handlers (Click/Mouse)",
+                "Drag & Drop",
+                "Context Menu",
+                "Search Box",
+            };
+            foreach(string region in expectedRegions) {
+                Assert.IsTrue(content.Contains("#region " + region),
+                    "QTButtonBar should include #region " + region);
+            }
+            int regionCount = content.Split(new[] { "#region " }, StringSplitOptions.None).Length - 1;
+            Assert.GreaterOrEqual(regionCount, expectedRegions.Length,
+                "QTButtonBar should use finer-grained region organization");
         }
 
         private static string FindRepoRoot() {

@@ -71,17 +71,17 @@ namespace QTTabBarLib {
                 _owner.tabControl1.Selecting += _owner.tabControl1_Selecting;
                 _owner.tabControl1.SelectedIndexChanged += _owner.tabControl1_SelectedIndexChanged;
                 _owner.tabControl1.GotFocus += _owner.Controls_GotFocus;
-                _owner.tabControl1.MouseEnter += _owner._tabManager.tabControl1_MouseEnter;
-                _owner.tabControl1.MouseLeave += _owner._tabManager.tabControl1_MouseLeave;
-                _owner.tabControl1.MouseDown += _owner._tabManager.tabControl1_MouseDown;
-                _owner.tabControl1.MouseUp += _owner._tabManager.tabControl1_MouseUp;
-                _owner.tabControl1.MouseMove += _owner._tabManager.tabControl1_MouseMove;
-                _owner.tabControl1.MouseDoubleClick += _owner._tabManager.tabControl1_MouseDoubleClick;
+                _owner.tabControl1.MouseEnter += _owner.tabControl1_MouseEnter;
+                _owner.tabControl1.MouseLeave += _owner.tabControl1_MouseLeave;
+                _owner.tabControl1.MouseDown += _owner.tabControl1_MouseDown;
+                _owner.tabControl1.MouseUp += _owner.tabControl1_MouseUp;
+                _owner.tabControl1.MouseMove += _owner.tabControl1_MouseMove;
+                _owner.tabControl1.MouseDoubleClick += _owner.tabControl1_MouseDoubleClick;
                 _owner.tabControl1.ItemDrag += _owner._tabManager.tabControl1_ItemDrag;
                 _owner.tabControl1.PointedTabChanged += _owner._tabManager.tabControl1_PointedTabChanged;
                 _owner.tabControl1.TabCountChanged += _owner._tabManager.tabControl1_TabCountChanged;
-                _owner.tabControl1.CloseButtonClicked += _owner._tabManager.tabControl1_CloseButtonClicked;
-                _owner.tabControl1.TabIconMouseDown += _owner._tabManager.tabControl1_TabIconMouseDown;
+                _owner.tabControl1.CloseButtonClicked += _owner.tabControl1_CloseButtonClicked;
+                _owner.tabControl1.TabIconMouseDown += _owner.tabControl1_TabIconMouseDown;
                 _owner.tabControl1.PlusButtonClicked += _owner.tabControl1_PlusButtonClicked;
 
                 _owner.contextMenuTab.Items.Add(new ToolStripMenuItem());
@@ -102,8 +102,8 @@ namespace QTTabBarLib {
                 _owner.Height = scaledHeight;
                 _owner.BandHeight = scaledHeight;
                 _owner.ContextMenuStrip = _owner.contextMenuSys;
-                _owner.MouseDoubleClick += _owner._tabManager.QTTabBarClass_MouseDoubleClick;
-                _owner.MouseUp += _owner._tabManager.QTTabBarClass_MouseUp;
+                _owner.MouseDoubleClick += _owner.QTTabBarClass_MouseDoubleClick;
+                _owner.MouseUp += _owner.QTTabBarClass_MouseUp;
                 _owner.tabControl1.ResumeLayout(false);
                 _owner.contextMenuSys.ResumeLayout(false);
                 _owner.contextMenuTab.ResumeLayout(false);

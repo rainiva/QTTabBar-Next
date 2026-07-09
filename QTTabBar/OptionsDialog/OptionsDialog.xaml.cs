@@ -237,7 +237,7 @@ namespace QTTabBarLib {
                 }
                 lstCategories.ItemsSource = navItems;
 
-                WorkingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
+                WorkingConfig = SerializationHelper.DeepClone(ConfigManager.LoadedConfig);
                 foreach(OptionsDialogTab tab in optionTabs) {
                     tab.WorkingConfig = WorkingConfig;
                     IHotkeyContainer ihc = tab as IHotkeyContainer;
@@ -391,7 +391,7 @@ namespace QTTabBarLib {
             foreach(OptionsDialogTab tab in optionTabs) {
                 tab.CommitConfig();
             }
-            ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
+            ConfigManager.LoadedConfig = SerializationHelper.DeepClone(WorkingConfig);
             ConfigManager.PersistConfigChanges();
             ExplorerManager.ClearWatermarkCache();
         }
