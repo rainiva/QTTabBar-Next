@@ -559,6 +559,7 @@ namespace QTTabBarLib {
 
         protected override void OnExplorerAttached() {
             _explorerControllerModule.OnExplorerAttachedCore();
+            FinishExplorerAttached();
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) {

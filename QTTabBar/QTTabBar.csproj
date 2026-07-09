@@ -423,6 +423,9 @@
     <Compile Include="TabBarBase.TabSelection.cs">
       <DependentUpon>TabBarBase.cs</DependentUpon>
     </Compile>
+    <Compile Include="TabBarBase.ExplorerAttach.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Toolbar.cs" />
     <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />

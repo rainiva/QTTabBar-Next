@@ -1389,7 +1389,10 @@ namespace QTTabBarLib
             }
         }
 
-        private bool fProcessingStartups = true;
+        protected override void OnExplorerAttachActivate() {
+            Activate();
+        }
+
         protected override void OnExplorerAttached()
         {
             QTUtility2.log("QTTabBarClass OnExplorerAttached");
@@ -1419,9 +1422,7 @@ namespace QTTabBarLib
             // Explorer.NavigateComplete2 += Explorer_NavigateComplete2;
             // this.viewContainer.CreateControl();
             // this.InstallHooks();
-            this.fProcessingStartups = false;
-            Activate();
-            base.OnExplorerAttached();
+            FinishExplorerAttached();
         }
 
         private VisualStyleRenderer bgRenderer;
