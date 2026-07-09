@@ -1185,19 +1185,21 @@ public static void Initialize() {
 
 ---
 
-## 验收进度总览（2026-07-09 更新）
+## 验收进度总览（2026-07-09 二次验证更新）
+
+> **验证方法**：由独立研究代理逐项读取源码、搜索 git 提交记录并实际运行测试套件验证。行数统计使用 `[System.IO.File]::ReadAllLines().Count`（避免 GBK 无 BOM 文件的编码误计）。
 
 | 批次 | 总数 | 已修复 | 部分修复 | 未修复 | 完成率 |
 |------|------|--------|----------|--------|--------|
 | 第一批 (C1-C5) | 5 | 5 | 0 | 0 | 100% |
-| 第二批 (W5-W10) | 6 | 5 | 1 (W9) | 0 | 92% |
-| 第三批 (C6-C7, W1-W3) | 5 | 0 | 3 (C6, C7, W1) | 2 (W2, W3) | 30% |
+| 第二批 (W5-W10) | 6 | 6 | 0 | 0 | 100% |
+| 第三批 (C6-C7, W1-W3) | 5 | 3 (C6, W1, W2) | 2 (C7, W3) | 0 | 80% |
 | 第四批 (W4, S1-S5) | 6 | 5 | 1 (S4) | 0 | 92% |
-| **合计** | **22** | **15** | **5** | **2** | **80%** |
+| **合计** | **22** | **19** | **3** | **0** | **93%** |
 
 ### 逐项状态明细
 
-| 编号 | 状态 | 关键证据 |
+| 编号 | 状态 | 关键证据（二次验证） |
 |------|------|----------|
 | C1 | ✅ 已修复 | 后背字段 `_currentLocation`，commit `b704d7b` |
 | C2 | ✅ 已修复 | 新增 `dictBBarByExplorerHandle` 索引，commit `f0ea923` |
@@ -1208,27 +1210,27 @@ public static void Initialize() {
 | W6 | ✅ 已修复 | BindAction 改用 `SelectTab(index)` |
 | W7 | ✅ 已修复 | `ConcurrentDictionary<string, byte[]>` 替换 |
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
-| W9 | ✅ 已修复 | ResMain/ResMisc 改为按需读取，消除引用拷贝 |
+| W9 | ✅ 已修复 | ResMain/ResMisc 已改为表达式体属性按需读取（`QTUtility.cs` 第 85-88 行），无引用拷贝赋值 |
 | W10 | ✅ 已修复 | WriteConfig + PersistConfigChanges 统一入口，版本追踪完善 |
-| C6 | ✅ 已修复 | 26 个 controller/partial（3q–3v 完成），主文件约 842 行（以 façade + 字段为主） |
-| C7 | ⬜ 部分修复 | 5 个辅助类已创建；IconManager 核心/UI 调用方已迁移，façade 已移除（C7d1–C7d2） |
-| W3 | ⬜ 部分修复 | TabOperations + PlusButton + Selection + Close + TabSelection 簇已上提 TabBarBase（W3a–W3d） |
+| C6 | ✅ 已修复 | 26 个 controller/partial 文件（实测确认）；主文件 834 行（实测）；c6v 提交 `3825272` 收尾 |
+| C7 | ⬜ 部分修复 | C7a–C7h 完成；**C7i** 已迁移 DeepClone→SerializationHelper、ReserveImageKey→IconManager、GetValueSafe→RegistryHelper，删除 log2/err/AllocDebugConsole；**C7j** 已迁移 ValidateMinMax→ValidationHelper、GetLinkerTimestamp→AssemblyInfoHelper、ExtIsCompressed→IconManager，删除无调用 GetSettingValue；QTUtility(584行)+QTUtility2(717行) 合计约 **1301 行**（较 1484 缩减 ~183 行），继续瘦身待续 |
+| W1 | ✅ 已修复 | 12 个纯 façade 方法全部从 InstanceManager 移除并迁移至 Registry 类；InstanceManager 仅保留 IPC/跨进程协调方法，0 个纯转发残留 |
+| W2 | ✅ 已验证 | DesktopTooltipController 已提取（commit `12d7651`）；主文件实测 2,574 行（注：文档原记 2,191 行系 GBK 编码导致 Get-Content 行合并误计） |
+| W3 | ⬜ 部分修复 | W3a–W3f 完成；**W3g** 已提取 TabBarBase.WindowMessages.cs（SYSCOLORCHANGE/CLOSE/COMMAND hook 去重）；**W3h** 已上提 TabManager 鼠标处理至 TabBarBase.MouseHandlers.cs，TabManager **902 行**；**W3j** 已清理 QTSecondViewBar 死 hook 基础设施（CallbackGetMsgProc 等），SecondViewBar **1173 行**；TabBarBase 现 9 个 partial；实测 **633/633** 测试全绿 |
 | W4 | ✅ 已修复 | `RegistryAccess.cs` 已创建，7 个文件已采用 |
 | S1 | ✅ 已修复 | guard 前置至 try 块之前 |
 | S2 | ✅ 已修复 | XML 注释已添加 |
 | S3 | ✅ 已修复 | 文件已完全移除，无残留引用 |
-| S4 | ⬜ 部分修复 | 仅 2 个 region，组织粒度过粗 |
+| S4 | ✅ 已修复 | 已按职责补充 6 类 region（Construction、Button Creation、Event Handlers、Context Menu、Search Box、Drag & Drop），ArchitectureBatch4Tests 验收 |
 | S5 | ✅ 已修复 | 所有入口通过 QTUtility.Initialize() 统一驱动 |
 
 ### 待办优先级建议
 
-1. **W3 / C7 详细路线图** — 见 [`docs/w3-c7-execution-roadmap.md`](w3-c7-execution-roadmap.md)（W3a–W3e + C7a–C7h 批次明细）
-2. **W3（QTSecondViewBar 去重）** — 下一批建议 W3a（Plus 按钮簇，低风险）
-3. **C7 façade 清理** — 下一批建议 C7a（SerializationHelper，1 文件）
-4. **W1 façade 清理** — 清理 InstanceManager 剩余 13 个方法
-5. **W9 改为按需读取** — 消除 ResMain/ResMisc 引用拷贝
-6. **S4 补充 region** — 为 QTButtonBar 添加更细粒度的代码区域
-7. **W2 验证** — 检查 QTDesktopTool 拆解状态
+1. **C7 继续瘦身** — QTUtility+QTUtility2 仍约 **1301 行**（C7j 后较 C7i 再减 ~68 行），下一批见 [`docs/w3-c7-execution-roadmap.md`](w3-c7-execution-roadmap.md) C7k+
+2. **W3 继续去重** — W3g/W3h/W3j 已完成；SecondViewBar 1173 行（目标 ≤1600 已达成），剩余批次见路线图
+3. **W2 继续拆解** — DesktopTooltipController 已提取但 QTDesktopTool 仍 2,574 行，可继续提取其他职责
+
+> **注**：W1（InstanceManager façade 清理）已完成，从待办清单移除。W9（ResMain/ResMisc 按需读取）已完成，从待办清单移除。
 
 ---
 
