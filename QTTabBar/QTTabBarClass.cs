@@ -66,6 +66,7 @@ namespace QTTabBarLib {
         private MenuController _menuController;
         private TabManager _tabManager;
         private ExplorerControllerModule _explorerControllerModule;
+        private DragDropController _dragDropController;
         private ContextMenuStripEx contextMenuDropped;
         private QTabItem ContextMenuedTab;
 
@@ -79,7 +80,6 @@ namespace QTTabBarLib {
         private NativeWindowController explorerController;
         
         private bool fHideExplorer;
-        private bool fDrivesContainedDD;
         private static bool fInitialized;
         private readonly bool fIsFirstLoad;
         private volatile bool FirstNavigationCompleted;
@@ -110,8 +110,6 @@ namespace QTTabBarLib {
 
 
         
-        private string strDraggingDrive;
-        private string strDraggingStartPath;
         private SubDirTipForm subDirTip_Tab;
         private QTabItem tabForDD;
         private TabSwitchForm tabSwitcher;
@@ -1949,92 +1947,19 @@ namespace QTTabBarLib {
         // TryParseCommandlineParams moved to ExplorerControllerModule (Batch 13)
 
         private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
-            HideToolTipForDD();
-            hwnd = tabControl1.Handle;
-            idlReal = null;
-            QTabItem tabMouseOn = tabControl1.GetTabMouseOn();
-            if((tabMouseOn == null) || !Config.Tabs.DragOverTabOpensSDT) {
-                return 1;
-            }
-            if((tabMouseOn.CurrentIDL != null) && (tabMouseOn.CurrentIDL.Length > 0)) {
-                idlReal = tabMouseOn.CurrentIDL;
-                return 0;
-            }
-            return -1;
+            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
         }
 
         private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState) {
-            if(Config.Tabs.DragOverTabOpensSDT) {
-                int num = HandleDragEnter(hDrop, out strDraggingDrive, out strDraggingStartPath);
-                fDrivesContainedDD = num == 2;
-                if(num == -1) {
-                    return DragDropEffects.None;
-                }
-                if(tabControl1.GetTabMouseOn() == null) {
-                    return DragDropEffects.Copy;
-                }
-                switch(num) {
-                    case 0:
-                        return DropTargetWrapper.MakeEffect(grfKeyState, 0);
-
-                    case 1:
-                        return DropTargetWrapper.MakeEffect(grfKeyState, 1);
-
-                    case 2:
-                        return DragDropEffects.None;
-                }
-            }
-            return DragDropEffects.Copy;
+            return _dragDropController.DragFileEnter(hDrop, pnt, grfKeyState);
         }
 
         private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
-            HideToolTipForDD();
-            strDraggingDrive = null;
-            strDraggingStartPath = null;
-            tabControl1.Refresh();
+            _dragDropController.DragFileLeave(sender, e);
         }
 
         private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
-            QTUtility2.log("QTTabBarClass dropTargetWrapper_DragFileOver");
-            e.Effect = DragDropEffects.None;
-            QTabItem mouseOnTab = tabControl1.GetTabMouseOn(); // ��������ı�ǩ 
-            bool flag = true;
-            if(mouseOnTab != tabForDD) {
-                tabControl1.Refresh();
-                HideSubDirTip_Tab_Menu();
-                fToggleTabMenu = false;
-                flag = false;
-            }
-            if(mouseOnTab == null) {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else if(mouseOnTab.CurrentPath.Length > 2) {
-                if(fDrivesContainedDD || strDraggingStartPath.PathEquals(mouseOnTab.CurrentPath)) {
-                    if(toolTipForDD != null) {
-                        toolTipForDD.Hide(tabControl1);
-                    }
-                    ShowToolTipForDD(mouseOnTab, -1, e.KeyState); // ��ʾtip ��ʾ��Ϣ
-                }
-                else {
-                    using(IDLWrapper wrapper = new IDLWrapper(mouseOnTab.CurrentIDL, !flag)) {
-                        if(wrapper.Available && wrapper.IsDropTarget) {
-                            string b = mouseOnTab.CurrentPath.Substring(0, 3);
-                            int num = strDraggingDrive != null && strDraggingDrive.Equals(b, StringComparison.OrdinalIgnoreCase)
-                                    ? 0 : 1;
-                            ShowToolTipForDD(mouseOnTab, num, e.KeyState);
-                            e.Effect = Config.Tabs.DragOverTabOpensSDT
-                                    ? DropTargetWrapper.MakeEffect(e.KeyState, num)
-                                    : DragDropEffects.Copy;
-                        }
-                        else {
-                            HideToolTipForDD();
-                        }
-                    }
-                }
-            }
-            else {
-                HideToolTipForDD();
-            }
+            _dragDropController.DragFileOver(sender, e);
         }
 
         // Explorer_BeforeNavigate2 moved to ExplorerControllerModule (Batch 13)
@@ -2532,47 +2457,7 @@ namespace QTTabBarLib {
         }
 
         internal static int HandleDragEnter(IntPtr hDrop, out string strDraggingDrive, out string strDraggingStartPath) {
-            QTUtility2.log("QTTabBarClass HandleDragEnter IsFolder hDrop " + hDrop + 
-                           " out string strDraggingDrive, out string strDraggingStartPath" );
-            strDraggingDrive = (strDraggingStartPath = null);
-            int capacity = (int)PInvoke.DragQueryFile(hDrop, uint.MaxValue, null, 0);
-            if(capacity < 1) {
-                return -1;
-            }
-            List<string> list = new List<string>(capacity);
-            for(int i = 0; i < capacity; i++) {
-                StringBuilder lpszFile = new StringBuilder(260);
-                PInvoke.DragQueryFile(hDrop, (uint)i, lpszFile, lpszFile.Capacity);
-                if(lpszFile.Length > 0) {
-                    list.Add(lpszFile.ToString());
-                }
-            }
-            if(list.Count <= 0) {
-                return -1;
-            }
-            if(list[0].Length < 4) {
-                return 2;
-            }
-            bool flag = true;
-            string b = QTUtility2.MakeRootName(list[0]);
-            foreach(string str2 in list) {
-                if(File.Exists(str2) || Directory.Exists(str2)) {
-                    if(str2.Length <= 3) {
-                        return 2;
-                    }
-                    if(!QTUtility2.MakeRootName(str2).PathEquals(b)) {
-                        flag = false;
-                    }
-                    continue;
-                }
-                return -1;
-            }
-            if(flag) {
-                strDraggingDrive = b;
-                strDraggingStartPath = Path.GetDirectoryName(list[0]);
-                return 0;
-            }
-            return 1;
+            return DragDropController.HandleDragEnter(hDrop, out strDraggingDrive, out strDraggingStartPath);
         }
 
         private static void HandleF5() {
@@ -2580,18 +2465,7 @@ namespace QTTabBarLib {
         }
 
         private void HandleFileDrop(IntPtr hDrop) {
-            HideToolTipForDD();
-            int capacity = (int)PInvoke.DragQueryFile(hDrop, uint.MaxValue, null, 0);
-            if(capacity >= 1) {
-                // ��ȡ��ק���ļ��б�
-                List<string> listDroppedPaths = new List<string>(capacity);
-                for(int i = 0; i < capacity; i++) {
-                    StringBuilder lpszFile = new StringBuilder(260);
-                    PInvoke.DragQueryFile(hDrop, (uint)i, lpszFile, lpszFile.Capacity);
-                    listDroppedPaths.Add(lpszFile.ToString());
-                }
-                OpenDroppedFolder(listDroppedPaths);
-            }
+            _dragDropController.HandleFileDrop(hDrop);
         }
 
         private bool HandleKEYDOWN(Keys key, bool fRepeat) {
@@ -3024,6 +2898,7 @@ namespace QTTabBarLib {
             tabControl1.RefreshOptions(true);
             _tabManager = new TabManager(this);
             _menuController = new MenuController(this);
+            _dragDropController = new DragDropController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
             tabControl1.Deselecting += _tabManager.tabControl1_Deselecting;
             tabControl1.Selecting += _tabManager.tabControl1_Selecting;

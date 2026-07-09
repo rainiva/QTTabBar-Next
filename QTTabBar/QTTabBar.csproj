@@ -35,7 +35,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <RuntimeIdentifiers>win;win-x86</RuntimeIdentifiers>
     <NuGetPackageImportStamp>
@@ -432,6 +432,7 @@
     <Compile Include="DropDownMenuDropTarget.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="EmbeddedAssemblyLoader.cs" />
     <Compile Include="DropDownMenuReorderable.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -569,6 +570,9 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
 <Compile Include="QTTabBarClass.ExplorerController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.DragDropController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTUtility.cs" />
