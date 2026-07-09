@@ -29,7 +29,7 @@ namespace QTTtabBarTests {
         public void QTTabBarClass_No_Longer_Implements_ItemActivation_And_TravelToolbar_Bodies() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string listView = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ListViewInputController.cs"));
-            string explorer = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerController.cs"));
+            string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsFalse(main.Contains("private bool HandleItemActivate("));
             Assert.IsFalse(main.Contains("private bool travelBtnController_MessageCaptured("));
             Assert.IsFalse(main.Contains("private string MakeTravelBtnTooltipText("));

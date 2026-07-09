@@ -20,12 +20,21 @@ namespace QTTtabBarTests {
             int caseIndex = content.IndexOf("case " + caseLabel + ":", StringComparison.Ordinal);
             Assert.GreaterOrEqual(caseIndex, 0, "Missing " + caseLabel + " handler");
             int breakIndex = content.IndexOf("break;", caseIndex, StringComparison.Ordinal);
-            Assert.Greater(breakIndex, caseIndex);
-            return content.Substring(caseIndex, breakIndex - caseIndex);
+            int returnIndex = content.IndexOf("return true;", caseIndex, StringComparison.Ordinal);
+            int endIndex = breakIndex;
+            if(returnIndex >= 0 && (breakIndex < 0 || returnIndex < breakIndex)) {
+                endIndex = returnIndex + "return true;".Length;
+            }
+            Assert.Greater(endIndex, caseIndex);
+            return content.Substring(caseIndex, endIndex - caseIndex);
         }
 
         private static string ReadBindActionSource() {
             string root = FindRepoRoot();
+            string corePath = Path.Combine(root, "QTTabBar", "TabBarBase.BindActions.cs");
+            if(File.Exists(corePath)) {
+                return File.ReadAllText(corePath);
+            }
             string controllerPath = Path.Combine(root, "QTTabBar", "QTTabBarClass.BindActionController.cs");
             if(File.Exists(controllerPath)) {
                 return File.ReadAllText(controllerPath);

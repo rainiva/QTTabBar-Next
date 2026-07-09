@@ -35,12 +35,13 @@ namespace QTTtabBarTests {
 
         [Test]
         public void SecondViewBar_Has_No_Duplicate_SysColorChange_Hook_Logic() {
-            string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTSecondViewBar.cs"));
+            string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsFalse(content.Contains("Config.Skin.SwitchNighMode(QTUtility.InNightMode);"),
                 "QTSecondViewBar should not duplicate SYSCOLORCHANGE skin logic after W3g/W3j");
             Assert.IsFalse(content.Contains("CallbackGetMsgProc"),
                 "QTSecondViewBar dead hook proc should be removed after W3j");
+            Assert.IsTrue(content.Contains("HandleSysColorChangeHookMessage()"),
+                "SecondViewBar should delegate SYSCOLORCHANGE via WindowSubclass after review fix");
         }
 
         private static string FindRepoRoot() {

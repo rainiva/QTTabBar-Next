@@ -57,7 +57,8 @@ namespace QTTtabBarTests {
 
         [Test]
         public void Config_Uses_ValidationHelper_For_Clamp() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Config.cs"));
+            string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot()) +
+                File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTDesktopTool.SettingsController.cs"));
             Assert.IsTrue(content.Contains("ValidationHelper.ValidateMinMax"),
                 "Config should clamp via ValidationHelper after C7j");
             Assert.IsFalse(content.Contains("QTUtility.ValidateMinMax"),

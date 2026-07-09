@@ -6,7 +6,7 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3W3jTests {
         [Test]
         public void SecondViewBar_Has_No_Dead_Hook_Procs() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTSecondViewBar.cs"));
+            string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
             string[] removed = {
                 "CallbackKeyboardProc",
                 "CallbackMouseProc",
@@ -24,7 +24,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void SecondViewBar_Still_Uses_WindowSubclass_Hooks() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTSecondViewBar.cs"));
+            string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(content.Contains("baseBarSubclassProc"),
                 "QTSecondViewBar should keep active WindowSubclass hooks after W3j");
             Assert.IsTrue(content.Contains("InstallHooks"),
@@ -32,10 +32,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void SecondViewBar_Line_Count_Reduced_After_Dead_Hook_Removal() {
-            int lines = File.ReadAllLines(Path.Combine(FindRepoRoot(), "QTTabBar", "QTSecondViewBar.cs")).Length;
-            Assert.LessOrEqual(lines, 1350,
-                "QTSecondViewBar should shrink materially after removing dead hook procs (W3j)");
+        public void SecondViewBar_SubclassProc_Handles_SysColorChange() {
+            string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
+            Assert.IsTrue(content.Contains("case WM.SYSCOLORCHANGE:"),
+                "SecondViewBar baseBarSubclassProc should handle SYSCOLORCHANGE after review fix");
         }
 
         private static string FindRepoRoot() {

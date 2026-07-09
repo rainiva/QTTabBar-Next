@@ -141,7 +141,7 @@ namespace QTTabBarLib {
                 }
                 SingleClickMode = flag1;
                 ShowInfoTip = flag2;*/
-                InNightMode = true; // getNightMode();
+                RefreshNightMode();
             // }
             // catch (Exception ex)
             // {
@@ -448,7 +448,7 @@ namespace QTTabBarLib {
                         return QTUtility2.GetValueSafe<int>(rk, "AppsUseLightTheme", 1) == 0;
                 }*/
 
-                using (var envKey = Registry.CurrentUser.OpenSubKey(REG_PERSONALIZE, true))
+                using (var envKey = Registry.CurrentUser.OpenSubKey(REG_PERSONALIZE, false))
                 {
                     if (envKey == null)
                     {

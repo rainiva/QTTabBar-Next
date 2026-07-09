@@ -131,7 +131,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void InitializationOrchestrator_Sets_Initialized_On_Exception() {
+        public void InitializationOrchestrator_Sets_Initialized_Only_After_Successful_Try() {
             string sourcePath = Path.Combine(FindRepoRoot(), "QTTabBar", "InitializationOrchestrator.cs");
             string content = File.ReadAllText(sourcePath);
             int lockIndex = content.IndexOf("lock(_lock)", StringComparison.Ordinal);
@@ -141,8 +141,14 @@ namespace QTTtabBarTests {
             Assert.GreaterOrEqual(tryIndex, 0, "InitializationOrchestrator should wrap init body in try");
 
             string guardSection = content.Substring(lockIndex, tryIndex - lockIndex);
-            Assert.IsTrue(guardSection.Contains("_initialized = true"),
-                "InitializationOrchestrator should set _initialized before the init try block to prevent infinite retry");
+            Assert.IsFalse(guardSection.Contains("_initialized = true"),
+                "InitializationOrchestrator must not set _initialized before try; failed init should remain retryable");
+
+            int catchIndex = content.IndexOf("catch(Exception exception)", tryIndex, StringComparison.Ordinal);
+            Assert.Greater(catchIndex, tryIndex);
+            string tryBody = content.Substring(tryIndex, catchIndex - tryIndex);
+            Assert.IsTrue(tryBody.Contains("_initialized = true"),
+                "InitializationOrchestrator should set _initialized at the end of a successful try block");
         }
     }
 }

@@ -48,7 +48,7 @@ namespace QTTabBarLib {
             WorkingConfig.skin.SkinAutoColorChangeClose = false;
             Config.Skin.SkinAutoColorChangeClose = false;
             QTLogger.log("reset SwitchNighMode");
-            WorkingConfig.skin.SwitchNighMode( QTUtility.getNightMode() );
+            ThemeRefreshService.ApplyPreviewTheme(WorkingConfig.skin);
             DataContext = WorkingConfig.skin;
         }
 

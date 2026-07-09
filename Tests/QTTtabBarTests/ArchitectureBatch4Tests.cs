@@ -60,7 +60,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void QTButtonBar_Has_Region_Organization() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTButtonBar.cs"));
+            string content = QTButtonBarSourceTestHelper.ReadCombined(FindRepoRoot());
             string[] expectedRegions = {
                 "Construction & Lifecycle",
                 "Button Creation & Layout",

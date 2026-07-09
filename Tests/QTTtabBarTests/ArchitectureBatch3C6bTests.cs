@@ -21,7 +21,7 @@ namespace QTTtabBarTests {
         public void Hook_Callbacks_Delegate_To_HookInputController() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
-            string explorer = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerController.cs"));
+            string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(main.Contains("_hookInputController"),
                 "QTTabBarClass should own a HookInputController instance");
             Assert.IsTrue(build.Contains("new HookInputController(_owner)"),

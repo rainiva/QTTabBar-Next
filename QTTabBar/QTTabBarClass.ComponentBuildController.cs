@@ -77,9 +77,9 @@ namespace QTTabBarLib {
                 _owner.tabControl1.MouseUp += _owner.tabControl1_MouseUp;
                 _owner.tabControl1.MouseMove += _owner.tabControl1_MouseMove;
                 _owner.tabControl1.MouseDoubleClick += _owner.tabControl1_MouseDoubleClick;
-                _owner.tabControl1.ItemDrag += _owner._tabManager.tabControl1_ItemDrag;
-                _owner.tabControl1.PointedTabChanged += _owner._tabManager.tabControl1_PointedTabChanged;
-                _owner.tabControl1.TabCountChanged += _owner._tabManager.tabControl1_TabCountChanged;
+                _owner.tabControl1.ItemDrag += _owner.tabControl1_ItemDrag;
+                _owner.tabControl1.PointedTabChanged += _owner.tabControl1_PointedTabChanged;
+                _owner.tabControl1.TabCountChanged += _owner.tabControl1_TabCountChanged;
                 _owner.tabControl1.CloseButtonClicked += _owner.tabControl1_CloseButtonClicked;
                 _owner.tabControl1.TabIconMouseDown += _owner.tabControl1_TabIconMouseDown;
                 _owner.tabControl1.PlusButtonClicked += _owner.tabControl1_PlusButtonClicked;
@@ -88,7 +88,7 @@ namespace QTTabBarLib {
                 _owner.contextMenuTab.ShowImageMargin = false;
                 _owner.contextMenuTab.ItemClicked += _owner._menuController.contextMenuTab_ItemClicked;
                 _owner.contextMenuTab.Opening += _owner._menuController.contextMenuTab_Opening;
-                _owner.contextMenuTab.Closed += _owner._tabManager.contextMenuTab_Closed;
+                _owner.contextMenuTab.Closed += _owner.contextMenuTab_Closed;
                 _owner.contextMenuSys.Items.Add(new ToolStripMenuItem());
                 _owner.contextMenuSys.ShowImageMargin = false;
                 _owner.contextMenuSys.ItemClicked += _owner._menuController.contextMenuSys_ItemClicked;

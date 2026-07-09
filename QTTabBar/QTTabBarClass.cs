@@ -61,7 +61,6 @@ namespace QTTabBarLib {
         private BreadcrumbBar breadcrumbBar;
         
         
-        private IContainer components;
         private MenuController _menuController;
         private TabManager _tabManager;
         private ExplorerControllerModule _explorerControllerModule;
@@ -97,11 +96,27 @@ namespace QTTabBarLib {
         }
 
         protected override QTabItem CloneTabButtonForMouse(QTabItem tab, string optionURL, bool fSelect, int index) {
-            return _tabManager.CloneTabButton(tab, optionURL, fSelect, index);
+            return CloneTabButtonCore(tab, optionURL, fSelect, index);
+        }
+
+        protected override void OnNavigateBranches(QTabItem tab, int index) {
+            NavigateBranches(tab, index);
+        }
+
+        protected override void OnOpenNewWindowFromMenu(IDLWrapper idlw) {
+            OpenNewWindow(idlw);
         }
 
         protected override void ShowSubdirTipForTab(QTabItem tab, bool fShow, int offsetX, bool fKey, bool fParent) {
-            _tabManager.ShowSubdirTip_Tab(tab, fShow, offsetX, fKey, fParent);
+            ShowSubdirTip_Tab(tab, fShow, offsetX, fKey, fParent);
+        }
+
+        internal override void WireSubDirTipTabEvents(SubDirTipForm form) {
+            base.WireSubDirTipTabEvents(form);
+            form.MenuItemClicked += subDirTip_MenuItemClicked;
+            form.MultipleMenuItemsClicked += subDirTip_MultipleMenuItemsClicked;
+            form.MenuItemRightClicked += subDirTip_MenuItemRightClicked;
+            form.MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
         }
 
         private void createNewFile() => _shellCommandController.CreateNewFile();
@@ -139,28 +154,13 @@ namespace QTTabBarLib {
         
         private bool fNeedsNewWindowPulse;
         private bool fNowQuitting;
-        private bool fNowRestoring;
         private bool fNowTravelByTree;
-        private bool fToggleTabMenu;
         private ShellContextMenu shellContextMenu = new ShellContextMenu();
-        private int iModKeyStateDD;
-        private const int INTERVAL_SELCTTAB = 5000;
-        private const int INTERVAL_SHOWMENU = 0x4b0;
         private int iSequential_WM_CLOSE;
         private bool IsShown;
         private byte[] lastAttemptedBrowseObjectIDL;
         private byte[] lastCompletedBrowseObjectIDL;
         
-        private ToolStripTextBox menuTextBoxTabAlias;
-
-
-        
-        private SubDirTipForm subDirTip_Tab;
-        private QTabItem tabForDD;
-        private TabSwitchForm tabSwitcher;
-        private Timer timerOnTab;
-        
-        private ToolTip toolTipForDD;
         private NativeWindowController travelBtnController;
         
         
@@ -299,7 +299,7 @@ namespace QTTabBarLib {
         }
 
         private void CloseLeftRight(bool fLeft, int index) {
-            _tabManager.CloseLeftRight(fLeft, index);
+            base.CloseLeftRight(fLeft, index);
         }
 
 
@@ -345,7 +345,7 @@ namespace QTTabBarLib {
 
         // ���ӵ���ǩ�鹦��
         private void Add2Group(QTabItem contextMenuedTab) {
-            _tabManager.Add2Group(contextMenuedTab);
+            ((TabBarBase)this).Add2Group(contextMenuedTab);
         }
         internal List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
             return _menuController.CreateNavBtnMenuItems(fCurrent);
@@ -501,14 +501,8 @@ namespace QTTabBarLib {
             _dragDropController.HandleFileDrop(hDrop);
         }
 
-        private void HideSubDirTip_Tab_Menu() {
-            _tabManager.HideSubDirTip_Tab_Menu();
-        }
         private void HideTabSwitcher(bool fSwitch) {
-            _tabManager.HideTabSwitcher(fSwitch);
-        }
-        private void HideToolTipForDD() {
-            _tabManager.HideToolTipForDD();
+            ((TabBarBase)this).HideTabSwitcher(fSwitch);
         }
         private void InitializeComponent() {
             components = new Container();
@@ -606,17 +600,17 @@ namespace QTTabBarLib {
         private static void Register(Type t) => ComRegistrationController.Register(t);
 
         private void ReorderTab(int index, bool fDescending) {
-            _tabManager.ReorderTab(index, fDescending);
+            ((TabBarBase)this).ReorderTab(index, fDescending);
         }
         internal void ReplaceByGroup(string groupName) {
             _tabManager.ReplaceByGroup(groupName);
         }
         private void RestoreLastClosed() {
-            _tabManager.RestoreLastClosed();
+            ((TabBarBase)this).RestoreLastClosed();
         }
-        // �ָ���ǩ
+        // 恢复标签
         private void RestoreTabsOnInitialize(int iIndex, string openingPath) {
-            _tabManager.RestoreTabsOnInitialize(iIndex, openingPath);
+            ((TabBarBase)this).RestoreTabsOnInitialize(iIndex, openingPath);
         }
 
        
@@ -648,27 +642,20 @@ namespace QTTabBarLib {
             return listView;
         }
         
-        // ��ʾ��Ŀ¼��ʾ��Ϣ
-        private void ShowSubdirTip_Tab(QTabItem tab, bool fShow, int offsetX, bool fKey, bool fParent) {
-            _tabManager.ShowSubdirTip_Tab(tab, fShow, offsetX, fKey, fParent);
-        }
         private bool ShowTabSwitcher(bool fShift, bool fRepeat) {
-            return _tabManager.ShowTabSwitcher(fShift, fRepeat);
+            return ((TabBarBase)this).ShowTabSwitcher(fShift, fRepeat);
         }
         /**
          * ��ʾ������Ϣ
          *  shift ��ʾ��ϸ��Ϣ
          */
-        private void ShowToolTipForDD(QTabItem tab, int iState, int grfKeyState) {
-            _tabManager.ShowToolTipForDD(tab, iState, grfKeyState);
-        }
         private void subDirTip_MenuItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             _tabTooltipController.SubDirTip_MenuItemClicked(sender, e);
         }
 
         // �޸�Ԥ��Ŀ¼��ת����ȷ�ı�ǩλ��
         private int TabIndex() {
-            return _tabManager.TabIndex();
+            return TabIndexForNewTab();
         }
         private void subDirTip_MenuItemRightClicked(object sender, ItemRightClickedEventArgs e) {
             _tabTooltipController.SubDirTip_MenuItemRightClicked(sender, e);
@@ -725,7 +712,7 @@ namespace QTTabBarLib {
        
 
         private void tsmiBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            _tabManager.tsmiBranchRoot_DropDownItemClicked(sender, e);
+            ((TabBarBase)this).tsmiBranchRoot_DropDownItemClicked(sender, e);
         }
         public override void UIActivateIO(int fActivate, ref MSG Msg) => _bandLifecycleController.UIActivateIO(fActivate, ref Msg);
 

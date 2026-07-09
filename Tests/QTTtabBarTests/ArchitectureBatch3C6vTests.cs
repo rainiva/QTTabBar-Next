@@ -33,7 +33,8 @@ namespace QTTtabBarTests {
             Assert.IsFalse(main.Contains("private void EnableApiHook("));
             Assert.IsFalse(main.Contains("private void OnAwake("));
             Assert.IsTrue(comReg.Contains("ComRegistrationManager.RegisterBand("));
-            Assert.IsTrue(hook.Contains("HookLibManager.Initialize()"));
+            Assert.IsFalse(hook.Contains("HookLibManager.Initialize()"),
+                "HookInputController should not reinitialize HookLibManager; orchestrator owns that");
         }
 
         private static string FindRepoRoot() {

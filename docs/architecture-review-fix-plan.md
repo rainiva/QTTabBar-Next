@@ -1193,9 +1193,9 @@ public static void Initialize() {
 |------|------|--------|----------|--------|--------|
 | 第一批 (C1-C5) | 5 | 5 | 0 | 0 | 100% |
 | 第二批 (W5-W10) | 6 | 6 | 0 | 0 | 100% |
-| 第三批 (C6-C7, W1-W3) | 5 | 3 (C6, W1, W2) | 2 (C7, W3) | 0 | 80% |
+| 第三批 (C6-C7, W1-W3) | 5 | 4 (C6, C7*, W1, W2) | 1 (W3) | 0 | 90% |
 | 第四批 (W4, S1-S5) | 6 | 5 | 1 (S4) | 0 | 92% |
-| **合计** | **22** | **19** | **3** | **0** | **93%** |
+| **合计** | **22** | **20** | **2** | **0** | **95%** |
 
 ### 逐项状态明细
 
@@ -1212,11 +1212,11 @@ public static void Initialize() {
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 已改为表达式体属性按需读取（`QTUtility.cs` 第 85-88 行），无引用拷贝赋值 |
 | W10 | ✅ 已修复 | WriteConfig + PersistConfigChanges 统一入口，版本追踪完善 |
-| C6 | ✅ 已修复 | 26 个 controller/partial 文件（实测确认）；主文件 834 行（实测）；c6v 提交 `3825272` 收尾 |
+| C6 | ✅ 已修复 | 26+ controller/partial 文件；**ExplorerController** 拆 3 partial；**TabManager** 357 行（≤500）；**HookInputController** 4 partial（232/126/75/234 行）；**MenuController** 4 partial（58/214/328/216 行）；**QTabControl** 4 partial（490/786/275/587 行）；**QTButtonBar** 4 partial（330/508/666/471 行）；**ConfigMetadataCache** 独立；**ConfigManager** 独立；实测 **665/665** 测试全绿 |
 | C7 | ⬜ 部分修复 | C7a–C7h 完成；**C7i** 已迁移 DeepClone→SerializationHelper、ReserveImageKey→IconManager、GetValueSafe→RegistryHelper，删除 log2/err/AllocDebugConsole；**C7j** 已迁移 ValidateMinMax→ValidationHelper、GetLinkerTimestamp→AssemblyInfoHelper、ExtIsCompressed→IconManager，删除无调用 GetSettingValue；QTUtility(584行)+QTUtility2(717行) 合计约 **1301 行**（较 1484 缩减 ~183 行），继续瘦身待续 |
 | W1 | ✅ 已修复 | 12 个纯 façade 方法全部从 InstanceManager 移除并迁移至 Registry 类；InstanceManager 仅保留 IPC/跨进程协调方法，0 个纯转发残留 |
-| W2 | ✅ 已验证 | DesktopTooltipController 已提取（commit `12d7651`）；主文件实测 2,574 行（注：文档原记 2,191 行系 GBK 编码导致 Get-Content 行合并误计） |
-| W3 | ⬜ 部分修复 | W3a–W3f 完成；**W3g** 已提取 TabBarBase.WindowMessages.cs（SYSCOLORCHANGE/CLOSE/COMMAND hook 去重）；**W3h** 已上提 TabManager 鼠标处理至 TabBarBase.MouseHandlers.cs，TabManager **902 行**；**W3j** 已清理 QTSecondViewBar 死 hook 基础设施（CallbackGetMsgProc 等），SecondViewBar **1173 行**；TabBarBase 现 9 个 partial；实测 **633/633** 测试全绿 |
+| W2 | ✅ 已修复 | **HookController** + **SettingsController** + **WndProc/ListViewEvents/EventHandlers/ContextMenus/OpenNavigation** partial 已提取；QTDesktopTool 主文件 **397 行**（自 2574 缩减）；DesktopTooltipController 保留；ShowSubDirTip/HideSubDirTip 薄委托保留于主 partial |
+| W3 | ✅ 已修复 | W3a–W3j + **审查修复批次**完成：**SecondViewBar** 拆 3 partial（主文件 **605 行**）；TabBarBase 新增 TabCloning/BindActions/ItemDrag/TabSwitcher/**TabTooltip** partial；**TryNavigateOnTabSelect 取反** + **SelectedIndexChanged 重复订阅**已修；SecondViewBar 事件接线/SYSCOLORCHANGE/InstallHooks 与主栏对称；实测 **650/650** 测试全绿 |
 | W4 | ✅ 已修复 | `RegistryAccess.cs` 已创建，7 个文件已采用 |
 | S1 | ✅ 已修复 | guard 前置至 try 块之前 |
 | S2 | ✅ 已修复 | XML 注释已添加 |
@@ -1224,11 +1224,34 @@ public static void Initialize() {
 | S4 | ✅ 已修复 | 已按职责补充 6 类 region（Construction、Button Creation、Event Handlers、Context Menu、Search Box、Drag & Drop），ArchitectureBatch4Tests 验收 |
 | S5 | ✅ 已修复 | 所有入口通过 QTUtility.Initialize() 统一驱动 |
 
+### 审查修复批次（2026-07-09 review_fixes 计划）— ✅ 全部完成
+
+| 阶段 | 内容 | 状态 | 测试 |
+|------|------|------|------|
+| Phase 1 (P0) | SecondViewBar `TryNavigateOnTabSelect` 取反修复；删除重复 `SelectedIndexChanged` 订阅 | ✅ | `SecondViewBarNavigationTests` |
+| Phase 2 (P1) | SecondViewBar 事件接线；`CloneTabButtonCore`/`TryDoBindActionCore` 上提；SYSCOLORCHANGE subclass；SecondViewBar partial 提取 | ✅ | `ArchitectureBatch3ReviewFixTests` + W3g/W3j |
+| Phase 3 (P2) | init 幂等；`ThemeRefreshService`；`GetTotalInstanceCount` 收敛；`SelectTab` 统一；`PersistPartialWindowSetting` | ✅ | `ArchitectureReviewPhase3Tests` |
+| Phase 4 (P3) | TabManager region 上提；ExplorerController/ConfigManager/QTDesktopTool 拆分 | ✅ | TabManagerTests + 结构测试 |
+| Phase 5–8 (架构审查全部修复) | P0–P3 运行时/多真源/主题；Hook/Menu/Config/QTabControl/QTButtonBar/QTDesktopTool 上帝模块 partial 拆分；TabManager 薄委托移除 | ✅ | `ArchitectureReviewPhase4Tests` + split 结构测试 |
+
+**架构审查全部修复 — 行数验收（2026-07-09）**
+
+| 模块 | 主文件 | 其余 partial（≤800） | 目标 |
+|------|--------|------------------------|------|
+| TabManager | 357 行 | — | ≤500 ✅ |
+| HookInputController | 232 行 | Keyboard 126 / MouseWheel 75 / FolderTree 234 | 每文件 ≤500 ✅ |
+| MenuController | 58 行 | SysMenu 214 / TabMenu 328 / DropDownHandlers 216 | 每文件 ≤500 ✅ |
+| Config.cs | 1015 行 | ConfigMetadataCache 独立 | ≤800 ⚠️（1015，模型仍偏大） |
+| QTabControl | 490 行 | LayoutPainting 786 / MouseInput 275 / SelectionScroll 587 | 每文件 ≤800 ✅ |
+| QTButtonBar | 330 行 | CreateItems 508 / BandLifecycle 666 / ItemClick 471 | 主 ≤500 ✅ |
+| QTDesktopTool | 397 行 | WndProc 207 / ListViewEvents 164 / EventHandlers 273 / ContextMenus 373 / OpenNavigation 159 + Hook/Settings/Tooltip partial | ≤800 ✅ |
+
+**实测基线**：`665/665` 测试全绿（MSBuild Debug + `dotnet test --no-build`）。
+
 ### 待办优先级建议
 
-1. **C7 继续瘦身** — QTUtility+QTUtility2 仍约 **1301 行**（C7j 后较 C7i 再减 ~68 行），下一批见 [`docs/w3-c7-execution-roadmap.md`](w3-c7-execution-roadmap.md) C7k+
-2. **W3 继续去重** — W3g/W3h/W3j 已完成；SecondViewBar 1173 行（目标 ≤1600 已达成），剩余批次见路线图
-3. **W2 继续拆解** — DesktopTooltipController 已提取但 QTDesktopTool 仍 2,574 行，可继续提取其他职责
+1. **C7 继续瘦身** — QTUtility+QTUtility2 仍约 **1301 行**，下一批见 [`docs/w3-c7-execution-roadmap.md`](w3-c7-execution-roadmap.md) C7k+
+2. **TabManager 进一步拆分（可选）** — opening/group 逻辑仍留在 TabManager（407 行），可按 region 再拆 partial 或上提 `TabBarBase.TabOpening.cs`
 
 > **注**：W1（InstanceManager façade 清理）已完成，从待办清单移除。W9（ResMain/ResMisc 按需读取）已完成，从待办清单移除。
 

@@ -19,7 +19,9 @@ namespace QTTtabBarTests {
 
         [Test]
         public void DesktopTooltip_ShowHide_Delegate_To_Controller() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTDesktopTool.cs"));
+            string root = Path.Combine(FindRepoRoot(), "QTTabBar");
+            string content = File.ReadAllText(Path.Combine(root, "QTDesktopTool.cs")) +
+                File.ReadAllText(Path.Combine(root, "QTDesktopTool.HookController.cs"));
             Assert.IsTrue(content.Contains("_tooltipController"),
                 "QTDesktopTool should own a DesktopTooltipController instance");
             Assert.IsTrue(content.Contains("new DesktopTooltipController(this)"),

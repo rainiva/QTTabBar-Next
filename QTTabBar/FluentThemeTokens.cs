@@ -38,7 +38,7 @@ namespace QTTabBarLib {
         public static Color TextSecondary => IsDark ? TextSecondaryDark : TextSecondaryLight;
 
         public static void RefreshFromSystem() {
-            QTUtility.RefreshNightMode();
+            ThemeRefreshService.RefreshCacheOnly();
             IsDark = QTUtility.InNightMode;
             AccentColor = ReadSystemAccentColor();
         }

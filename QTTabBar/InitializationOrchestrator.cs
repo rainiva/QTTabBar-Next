@@ -41,10 +41,9 @@ namespace QTTabBarLib {
             if(_initialized) return;
             lock(_lock) {
                 if(_initialized) return;
-                _initialized = true;
             try {
                 QTLogger.log("QTUtility RefreshShellStateValues");
-                // RefreshShellStateValues();
+                QTUtility.RefreshShellStateValues();
 
                 // Load the config
                 ConfigManager.Initialize();
@@ -71,9 +70,14 @@ namespace QTTabBarLib {
                 QTLogger.log("QTUtility ����ȫ���ļ���ͼƬ�б�");
 
                 if(Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)) {
-                    QTUtility.TextResourcesDic = QTResourceManager.ReadLanguageFile(Config.Lang.LangFile);
+                    Dictionary<string, string[]> langResources =
+                        QTResourceManager.ReadLanguageFile(Config.Lang.LangFile);
+                    lock(QTUtility.syncRoot) {
+                        QTUtility.TextResourcesDic = langResources;
+                    }
                 }
                 QTResourceManager.ValidateTextResources();
+                ThemeRefreshService.ApplyLoadedSkinFromSystemTheme();
 
                 using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                     if(key != null) {
@@ -145,6 +149,7 @@ namespace QTTabBarLib {
                 // Initialize plugins
                 PluginManager.Initialize();
                 QTLogger.log("QTUtility �������в��");
+                _initialized = true;
             }
             catch(Exception exception) {
                 QTLogger.MakeErrorLog(exception);

@@ -31,7 +31,7 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_Accelerator_And_MenuHandlers() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string menu = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.MenuController.cs"));
+            string menu = MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(main.Contains("_keyboardAcceleratorController.TranslateAccelerator("));
             Assert.IsFalse(main.Contains("private void menuitemAddToGroup_DropDownItemClicked("));
             Assert.IsFalse(main.Contains("private void menuitemHistory_DropDownItemClicked("));

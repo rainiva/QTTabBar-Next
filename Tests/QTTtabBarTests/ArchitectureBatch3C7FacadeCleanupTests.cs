@@ -6,7 +6,7 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C7FacadeCleanupTests {
         [Test]
         public void Config_Uses_QTResourceManager_ReadLanguageFile_Directly() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Config.cs"));
+            string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(content.Contains("QTResourceManager.ReadLanguageFile("));
             Assert.IsFalse(content.Contains("QTUtility.ReadLanguageFile("));
         }

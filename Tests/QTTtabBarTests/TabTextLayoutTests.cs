@@ -48,22 +48,21 @@ namespace QTTtabBarTests {
         private static string ReadQTabControlSource() {
             string dir = TestContext.CurrentContext.TestDirectory;
             for(int i = 0; i < 10; i++) {
-                string candidate = Path.Combine(dir, "QTTabBar", "QTabControl.cs");
+                string candidate = Path.Combine(dir, "QTTabBar Rebirth.sln");
                 if(File.Exists(candidate)) {
-                    return File.ReadAllText(candidate);
+                    return QTabControlSourceTestHelper.ReadCombined(dir);
                 }
-                // Walk up from bin/Debug/net48
-                string alt = Path.Combine(dir, "..", "..", "..", "..", "QTTabBar", "QTabControl.cs");
-                alt = Path.GetFullPath(alt);
-                if(File.Exists(alt)) {
-                    return File.ReadAllText(alt);
+                string alt = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", ".."));
+                candidate = Path.Combine(alt, "QTTabBar Rebirth.sln");
+                if(File.Exists(candidate)) {
+                    return QTabControlSourceTestHelper.ReadCombined(alt);
                 }
                 dir = Path.GetDirectoryName(dir);
                 if(string.IsNullOrEmpty(dir)) {
                     break;
                 }
             }
-            Assert.Inconclusive("Could not locate QTTabBar/QTabControl.cs from test output directory.");
+            Assert.Inconclusive("Could not locate repository root from test output directory.");
             return string.Empty;
         }
     }

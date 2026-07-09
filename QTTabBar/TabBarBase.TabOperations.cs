@@ -247,7 +247,7 @@ namespace QTTabBarLib {
                 else {
                     ShowMessageNavCanceled(newPath, false);
                     if(CurrentTab == null) {
-                        tabControl1.SelectedIndex = 0;
+                        tabControl1.SelectTab(0);
                     }
                 }
             }
@@ -259,7 +259,7 @@ namespace QTTabBarLib {
                 }
                 else {
                     if(CurrentTab == null) {
-                        tabControl1.SelectedIndex = 0;
+                        tabControl1.SelectTab(0);
                     }
                     else {
                         tabControl1.SelectTab(CurrentTab);

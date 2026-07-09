@@ -117,14 +117,18 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_ReorderTab() {
-            Assert.IsNotNull(TabManagerType.GetMethod("ReorderTab", AnyInstance),
-                "TabManager should host ReorderTab");
+            Assert.IsNull(TabManagerType.GetMethod("ReorderTab", AnyInstance),
+                "TabManager should not host ReorderTab after lift to TabBarBase");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("ReorderTab",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
         public void TabManager_Hosts_RestoreTabsOnInitialize() {
-            Assert.IsNotNull(TabManagerType.GetMethod("RestoreTabsOnInitialize", AnyInstance),
-                "TabManager should host RestoreTabsOnInitialize");
+            Assert.IsNull(TabManagerType.GetMethod("RestoreTabsOnInitialize", AnyInstance),
+                "TabManager should not host RestoreTabsOnInitialize after lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("RestoreTabsOnInitialize",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
@@ -156,8 +160,10 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_RestoreLastClosed() {
-            Assert.IsNotNull(TabManagerType.GetMethod("RestoreLastClosed", AnyInstance),
-                "TabManager should host RestoreLastClosed");
+            Assert.IsNull(TabManagerType.GetMethod("RestoreLastClosed", AnyInstance),
+                "TabManager should not host RestoreLastClosed after lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("RestoreLastClosed",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
@@ -250,8 +256,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabControl1_ItemDrag() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_ItemDrag", AnyInstance),
-                "TabManager should host tabControl1_ItemDrag");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_ItemDrag", AnyInstance),
+                "TabManager should not host tabControl1_ItemDrag after ItemDrag lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_ItemDrag",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host tabControl1_ItemDrag");
         }
 
         [Test]
@@ -283,14 +292,18 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabControl1_PointedTabChanged() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_PointedTabChanged", AnyInstance),
-                "TabManager should host tabControl1_PointedTabChanged");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_PointedTabChanged", AnyInstance),
+                "TabManager should not host tabControl1_PointedTabChanged after lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_PointedTabChanged",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
         public void TabManager_Hosts_TabControl1_TabCountChanged() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabControl1_TabCountChanged", AnyInstance),
-                "TabManager should host tabControl1_TabCountChanged");
+            Assert.IsNull(TabManagerType.GetMethod("tabControl1_TabCountChanged", AnyInstance),
+                "TabManager should not host tabControl1_TabCountChanged after lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabControl1_TabCountChanged",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
@@ -303,45 +316,53 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void TabManager_Hosts_TabSwitcher_Switched() {
-            Assert.IsNotNull(TabManagerType.GetMethod("tabSwitcher_Switched", AnyInstance),
-                "TabManager should host tabSwitcher_Switched");
+        public void TabBarBase_Hosts_TabSwitcher_Switched() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("tabSwitcher_Switched", AnyInstance),
+                "TabBarBase should host tabSwitcher_Switched");
         }
 
         [Test]
-        public void TabManager_Hosts_ShowTabSwitcher() {
-            Assert.IsNotNull(TabManagerType.GetMethod("ShowTabSwitcher", AnyInstance),
-                "TabManager should host ShowTabSwitcher");
+        public void TabBarBase_Hosts_ShowTabSwitcher() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("ShowTabSwitcher", AnyInstance),
+                "TabBarBase should host ShowTabSwitcher");
         }
 
         [Test]
-        public void TabManager_Hosts_HideTabSwitcher() {
-            Assert.IsNotNull(TabManagerType.GetMethod("HideTabSwitcher", AnyInstance),
-                "TabManager should host HideTabSwitcher");
+        public void TabBarBase_Hosts_HideTabSwitcher() {
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("HideTabSwitcher", AnyInstance),
+                "TabBarBase should host HideTabSwitcher");
         }
 
         [Test]
         public void TabManager_Hosts_ShowSubdirTip_Tab() {
-            Assert.IsNotNull(TabManagerType.GetMethod("ShowSubdirTip_Tab", AnyInstance),
-                "TabManager should host ShowSubdirTip_Tab");
+            Assert.IsNull(TabManagerType.GetMethod("ShowSubdirTip_Tab", AnyInstance),
+                "TabManager should not host ShowSubdirTip_Tab after TabTooltip lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("ShowSubdirTip_Tab",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
         public void TabManager_Hosts_HideSubDirTip_Tab_Menu() {
-            Assert.IsNotNull(TabManagerType.GetMethod("HideSubDirTip_Tab_Menu", AnyInstance),
-                "TabManager should host HideSubDirTip_Tab_Menu");
+            Assert.IsNull(TabManagerType.GetMethod("HideSubDirTip_Tab_Menu", AnyInstance),
+                "TabManager should not host HideSubDirTip_Tab_Menu after TabTooltip lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("HideSubDirTip_Tab_Menu",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
         public void TabManager_Hosts_ShowToolTipForDD() {
-            Assert.IsNotNull(TabManagerType.GetMethod("ShowToolTipForDD", AnyInstance),
-                "TabManager should host ShowToolTipForDD");
+            Assert.IsNull(TabManagerType.GetMethod("ShowToolTipForDD", AnyInstance),
+                "TabManager should not host ShowToolTipForDD after TabTooltip lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("ShowToolTipForDD",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
         public void TabManager_Hosts_HideToolTipForDD() {
-            Assert.IsNotNull(TabManagerType.GetMethod("HideToolTipForDD", AnyInstance),
-                "TabManager should host HideToolTipForDD");
+            Assert.IsNull(TabManagerType.GetMethod("HideToolTipForDD", AnyInstance),
+                "TabManager should not host HideToolTipForDD after TabTooltip lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("HideToolTipForDD",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
@@ -352,8 +373,10 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TabIndex() {
-            Assert.IsNotNull(TabManagerType.GetMethod("TabIndex", AnyInstance),
-                "TabManager should host TabIndex");
+            Assert.IsNull(TabManagerType.GetMethod("TabIndex", AnyInstance),
+                "TabManager should not host TabIndex after lift to TabBarBase");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("TabIndexForNewTab",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public));
         }
 
         [Test]
@@ -364,8 +387,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_Hosts_TimerOnTab_Tick() {
-            Assert.IsNotNull(TabManagerType.GetMethod("timerOnTab_Tick", AnyInstance),
-                "TabManager should host timerOnTab_Tick");
+            Assert.IsNull(TabManagerType.GetMethod("timerOnTab_Tick", AnyInstance),
+                "TabManager should not host timerOnTab_Tick after TabTooltip lift");
+            Assert.IsNotNull(typeof(TabBarBase).GetMethod("timerOnTab_Tick",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public),
+                "TabBarBase should host timerOnTab_Tick");
         }
 
         #endregion
@@ -500,9 +526,8 @@ namespace QTTtabBarTests {
             return (owner, tabManager);
         }
 
-        private static int InvokeTabIndex(object tabManager) {
-            return (int)TabManagerType.GetMethod("TabIndex", AnyInstance)
-                .Invoke(tabManager, null);
+        private static int InvokeTabIndex(QTTabBarClass owner) {
+            return ((TabBarBase)owner).TabIndexForNewTab();
         }
 
         private static int InvokeFacadeTabIndex(QTTabBarClass owner) {
@@ -512,61 +537,61 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabIndex_Rightmost_ReturnsTabCount() {
-            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            var (owner, _) = CreateTabManagerWithFakeOwner(5, 2);
             Config.Tabs.NewTabPosition = TabPos.Rightmost;
-            Assert.AreEqual(5, InvokeTabIndex(tm),
+            Assert.AreEqual(5, InvokeTabIndex(owner),
                 "Rightmost: TabIndex should equal TabPages.Count");
         }
 
         [Test]
         public void TabIndex_Right_ReturnsSelectedIndexPlusOne() {
-            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            var (owner, _) = CreateTabManagerWithFakeOwner(5, 2);
             Config.Tabs.NewTabPosition = TabPos.Right;
-            Assert.AreEqual(3, InvokeTabIndex(tm),
+            Assert.AreEqual(3, InvokeTabIndex(owner),
                 "Right: TabIndex should equal SelectedIndex + 1");
         }
 
         [Test]
         public void TabIndex_Left_ReturnsSelectedIndexMinusOne() {
-            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            var (owner, _) = CreateTabManagerWithFakeOwner(5, 2);
             Config.Tabs.NewTabPosition = TabPos.Left;
-            Assert.AreEqual(1, InvokeTabIndex(tm),
+            Assert.AreEqual(1, InvokeTabIndex(owner),
                 "Left: TabIndex should equal SelectedIndex - 1");
         }
 
         [Test]
         public void TabIndex_Leftmost_ReturnsZero() {
-            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            var (owner, _) = CreateTabManagerWithFakeOwner(5, 2);
             Config.Tabs.NewTabPosition = TabPos.Leftmost;
-            Assert.AreEqual(0, InvokeTabIndex(tm),
+            Assert.AreEqual(0, InvokeTabIndex(owner),
                 "Leftmost: TabIndex should be 0 (else branch)");
         }
 
         [Test]
         public void TabIndex_LastActive_ReturnsZero() {
-            var (_, tm) = CreateTabManagerWithFakeOwner(5, 2);
+            var (owner, _) = CreateTabManagerWithFakeOwner(5, 2);
             Config.Tabs.NewTabPosition = TabPos.LastActive;
-            Assert.AreEqual(0, InvokeTabIndex(tm),
+            Assert.AreEqual(0, InvokeTabIndex(owner),
                 "LastActive: TabIndex should be 0 (else branch)");
         }
 
         [Test]
         public void TabIndex_Rightmost_WithZeroTabs_ReturnsZero() {
-            var (_, tm) = CreateTabManagerWithFakeOwner(0, -1);
+            var (owner, _) = CreateTabManagerWithFakeOwner(0, -1);
             Config.Tabs.NewTabPosition = TabPos.Rightmost;
-            Assert.AreEqual(0, InvokeTabIndex(tm),
+            Assert.AreEqual(0, InvokeTabIndex(owner),
                 "Rightmost with 0 tabs: TabIndex should be 0");
         }
 
         [Test]
         public void TabIndex_Facade_Equals_Extraction_AllPositions() {
-            var (owner, tm) = CreateTabManagerWithFakeOwner(4, 1);
+            var (owner, _) = CreateTabManagerWithFakeOwner(4, 1);
             foreach(TabPos pos in (TabPos[])Enum.GetValues(typeof(TabPos))) {
                 Config.Tabs.NewTabPosition = pos;
                 int facade = InvokeFacadeTabIndex(owner);
-                int extracted = InvokeTabIndex(tm);
+                int extracted = InvokeTabIndex(owner);
                 Assert.AreEqual(facade, extracted,
-                    "TabIndex façade must equal extraction for TabPos.{0}", pos);
+                    "TabIndex façade must equal TabIndexForNewTab for TabPos.{0}", pos);
             }
         }
 

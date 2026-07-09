@@ -350,6 +350,12 @@
     <Compile Include="QTSecondViewBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="QTSecondViewBar.ComponentBuild.cs">
+      <DependentUpon>QTSecondViewBar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTSecondViewBar.SubclassHooks.cs">
+      <DependentUpon>QTSecondViewBar.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBar\WindowSubclass.cs" />
     <Compile Include="RegistryUtil.cs" />
     <Compile Include="Resources_Image.cs" />
@@ -401,6 +407,8 @@
     <Compile Include="RebarController.cs" />
     <Compile Include="MiscClasses.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="ConfigMetadataCache.cs" />
+    <Compile Include="ConfigManager.cs" />
     <Compile Include="Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>
@@ -430,6 +438,33 @@
       <DependentUpon>TabBarBase.cs</DependentUpon>
     </Compile>
     <Compile Include="TabBarBase.MouseHandlers.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabCloning.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.BindActions.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.ItemDrag.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabSwitcher.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabTooltip.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabReorder.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabRestoration.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabPluginEvents.cs">
+      <DependentUpon>TabBarBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TabBarBase.TabMenu.cs">
       <DependentUpon>TabBarBase.cs</DependentUpon>
     </Compile>
     <Compile Include="Toolbar.cs" />
@@ -477,6 +512,7 @@
     <Compile Include="PathValidator.cs" />
     <Compile Include="ConfigVersionTracker.cs" />
     <Compile Include="IpcCommandDispatcher.cs" />
+    <Compile Include="IpcDelegateGuard.cs" />
     <Compile Include="IpcCommandMessage.cs" />
     <Compile Include="Interop\BITMAPINFO.cs" />
     <Compile Include="Interop\BITMAPINFOHEADER.cs" />
@@ -578,14 +614,53 @@
     <Compile Include="QTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="QTabControl.LayoutPainting.cs">
+      <DependentUpon>QTabControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTabControl.MouseInput.cs">
+      <DependentUpon>QTabControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTabControl.SelectionScroll.cs">
+      <DependentUpon>QTabControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTabItem.cs" />
     <Compile Include="QTButtonBar.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="QTButtonBar.CreateItems.cs">
+      <DependentUpon>QTButtonBar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTButtonBar.BandLifecycle.cs">
+      <DependentUpon>QTButtonBar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTButtonBar.ItemClick.cs">
+      <DependentUpon>QTButtonBar.cs</DependentUpon>
     </Compile>
     <Compile Include="QTDesktopTool.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="QTDesktopTool.TooltipController.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.HookController.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.WndProc.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.ListViewEvents.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.EventHandlers.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.ContextMenus.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.OpenNavigation.cs">
+      <DependentUpon>QTDesktopTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTDesktopTool.SettingsController.cs">
       <DependentUpon>QTDesktopTool.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.cs">
@@ -594,16 +669,43 @@
     <Compile Include="QTTabBarClass.MenuController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.MenuController.SysMenu.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.MenuController.TabMenu.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.MenuController.DropDownHandlers.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
 <Compile Include="QTTabBarClass.TabManager.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
 <Compile Include="QTTabBarClass.ExplorerController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.WindowMessages.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.Navigation.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.Init.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.DragDropController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.HookInputController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.HookInputController.Keyboard.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.HookInputController.MouseWheel.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.HookInputController.FolderTree.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.FileToolsController.cs">
@@ -674,6 +776,7 @@
     <Compile Include="RegistryHelper.cs" />
     <Compile Include="ValidationHelper.cs" />
     <Compile Include="AssemblyInfoHelper.cs" />
+    <Compile Include="ThemeRefreshService.cs" />
     <Compile Include="QTUtility2.cs" />
     <Compile Include="SubDirTipForm.cs">
       <SubType>Form</SubType>

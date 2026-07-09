@@ -9,10 +9,7 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public abstract partial class TabBarBase {
         internal void HandleSysColorChangeHookMessage() {
-            QTUtility.RefreshNightMode();
-            QTLogger.log("SYSCOLORCHANGE SwitchNighMode");
-            Config.Skin.SwitchNighMode(QTUtility.InNightMode);
-            ConfigManager.UpdateConfig(true);
+            ThemeRefreshService.ApplySystemTheme(true);
             tabControl1.InitializeColors();
             PInvoke.SetRedraw(ExplorerHandle, true);
             PInvoke.RedrawWindow(ExplorerHandle, IntPtr.Zero, IntPtr.Zero, 0x289);

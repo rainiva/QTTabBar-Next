@@ -6,6 +6,12 @@ using System.Text;
 using Microsoft.Win32;
 
 namespace QTTabBarLib {
+    /// <summary>
+    /// Process-local ephemeral state shared across Explorer instances in this process.
+    /// Complements Registry/LoadedConfig: values here are not persisted as full config snapshots
+    /// and may be cleared on restart. CreateWindow* fields drive first-navigation; history lists
+    /// mirror user session data with capacity synced from Config on UpdateConfig.
+    /// </summary>
     internal static class StaticReg {
         internal static string CreateWindowGroup {
             get { return (string)ReadProp("CreateWindowGroup") ?? ""; }

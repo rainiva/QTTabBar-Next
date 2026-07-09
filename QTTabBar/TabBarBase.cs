@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -98,6 +99,7 @@ namespace QTTabBarLib
 
         #region --- Shared Fields (moved from QTTabBarClass / QTSecondViewBar) ---
 
+        protected IContainer components;
         public RebarController rebarController;
         protected string CurrentAddress;
         protected QTabItem CurrentTab;
@@ -128,6 +130,7 @@ namespace QTTabBarLib
         protected bool NowModalDialogShown;
         protected bool NowTabCloned;
         protected bool NowTabCreated;
+        protected bool fOpenedWindowInitialized;
         protected bool fNavigatedByTabSelection;
         protected int CurrentTravelLogIndex;
         protected int navBtnsFlag;

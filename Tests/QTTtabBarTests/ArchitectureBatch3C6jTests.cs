@@ -19,7 +19,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void MenuController_OpeningHandlers_Call_Local_Initializers() {
-            string menuController = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.MenuController.cs"));
+            string menuController = MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(menuController.Contains("InitializeSysMenu(false)"));
             Assert.IsTrue(menuController.Contains("InitializeTabMenu(false)"));
             Assert.IsFalse(menuController.Contains("_owner.InitializeSysMenu("),
@@ -31,7 +31,7 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_No_Longer_Implements_MenuInitialization_Bodies() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string menuController = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.MenuController.cs"));
+            string menuController = MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsFalse(main.Contains("private void InitializeSysMenu("),
                 "InitializeSysMenu should move out of QTTabBarClass.cs main partial");
             Assert.IsFalse(main.Contains("private void InitializeTabMenu("),

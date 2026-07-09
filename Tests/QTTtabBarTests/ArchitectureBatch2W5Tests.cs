@@ -64,7 +64,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void SetNoCapturePathsAndBroadcast_Uses_UpdateNoCapturePaths() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Config.cs"));
+            string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             int methodIndex = content.IndexOf("void SetNoCapturePathsAndBroadcast(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);
@@ -80,7 +80,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ApplyNoCapturePathsFromConfig_Uses_UpdateNoCapturePaths() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Config.cs"));
+            string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             int methodIndex = content.IndexOf("void ApplyNoCapturePathsFromConfig()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);

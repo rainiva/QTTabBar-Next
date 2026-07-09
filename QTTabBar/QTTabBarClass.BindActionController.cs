@@ -18,12 +18,8 @@ namespace QTTabBarLib {
             }
 
             public bool DoBindAction(BindAction action, bool fRepeat = false, QTabItem tab = null, IDLWrapper item = null) {
-                if(fRepeat && !(
-                        action == BindAction.GoBack ||
-                        action == BindAction.GoForward ||
-                        action == BindAction.TransparencyPlus ||
-                        action == BindAction.TransparencyMinus)) {
-                    return false;
+                if(_owner.TryDoBindActionCore(action, fRepeat, tab, item)) {
+                    return true;
                 }
 
                 if(tab == null) tab = _owner.CurrentTab;
@@ -46,79 +42,8 @@ namespace QTTabBarLib {
                         _owner.NavigateToFirstOrLast(false);
                         break;
 
-                    case BindAction.NextTab:
-                        if(_owner.tabControl1.SelectedIndex == _owner.tabControl1.TabCount - 1) {
-                            _owner.tabControl1.SelectTab(0);
-                        }
-                        else {
-                            _owner.tabControl1.SelectTab(_owner.tabControl1.SelectedIndex + 1);
-                        }
-                        break;
-
-                    case BindAction.PreviousTab:
-                        if(_owner.tabControl1.SelectedIndex == 0) {
-                            _owner.tabControl1.SelectTab(_owner.tabControl1.TabCount - 1);
-                        }
-                        else {
-                            _owner.tabControl1.SelectTab(_owner.tabControl1.SelectedIndex - 1);
-                        }
-                        break;
-
-                    case BindAction.FirstTab:
-                        _owner.tabControl1.SelectTab(0);
-                        break;
-
-                    case BindAction.LastTab:
-                        _owner.tabControl1.SelectTab(_owner.tabControl1.TabCount - 1);
-                        break;
-
-                    case BindAction.CloseCurrent:
-                    case BindAction.CloseTab:
-                        _owner.NowTabDragging = false;
-                        if(!tab.TabLocked) {
-                            if(_owner.tabControl1.TabCount > 1) {
-                                _owner.CloseTab(tab);
-                            }
-                            else {
-                                WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
-                            }
-                        }
-                        break;
-
-                    case BindAction.CloseAllButCurrent: // 关闭其他
-                    case BindAction.CloseAllButThis:
-                        _owner.CloseAllTabsExcept(tab);
-                        break;
-
-                    case BindAction.CloseLeft: // 关闭左
-                    case BindAction.CloseLeftTab:
-                        _owner.CloseLeftRight(true, tab.Index);
-                        break;
-
-                    case BindAction.CloseRight: // 关闭右边
-                    case BindAction.CloseRightTab:
-                        _owner.CloseLeftRight(false, tab.Index);
-                        break;
-
-                    case BindAction.CloseWindow: // 关闭窗口 indiff
-                        {
-                            string[] list = (from QTabItem item2 in _owner.tabControl1.TabPages
-                                             where item2.TabLocked
-                                             select item2.CurrentPath).ToArray();
-
-                            //MessageBox.Show(String.Join(",", list));
-                            QTUtility.SaveLockedTabs(list);
-                        }
-                        WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
-                        break;
-
                     case BindAction.RestoreLastClosed:
                         _owner.RestoreLastClosed();
-                        break;
-
-                    case BindAction.CloneCurrent: // 复制当前
-                    case BindAction.CloneTab:
-                        _owner.CloneTabButton(tab, null, true, -1);
                         break;
 
                     case BindAction.TearOffCurrent: //
@@ -131,15 +56,6 @@ namespace QTTabBarLib {
                         }
                         break;
 
-                    case BindAction.LockCurrent: // 关闭标签
-                    case BindAction.LockTab:
-                        tab.TabLocked = !tab.TabLocked;
-                        break;
-
-                    case BindAction.LockAll: // 锁定所有
-                        bool lockState = _owner.tabControl1.TabPages.Any(t => t.TabLocked);
-                        _owner.tabControl1.TabPages.ForEach(t => t.TabLocked = !lockState);
-                        break;
                     case BindAction.BrowseFolder: // 浏览文件夹
                         _owner.ChooseNewDirectory();
                         break;
@@ -281,17 +197,6 @@ namespace QTTabBarLib {
                         _owner.MinimizeToTray();
                         break;
 
-                    case BindAction.FocusTabBar:
-                        _owner.tabControl1.Focus();
-                        _owner.tabControl1.FocusNextTab(false, true, false);
-                        break;
-
-                    case BindAction.NewTab:
-                        using(IDLWrapper wrapper = new IDLWrapper(Config.Window.DefaultLocation)) {
-                            _owner.OpenNewTab(wrapper, false, true);    
-                        }
-                        break;
-
                     case BindAction.NewWindow:
                         using(IDLWrapper wrapper = new IDLWrapper(Config.Window.DefaultLocation)) {
                             _owner.OpenNewWindow(wrapper);
@@ -303,16 +208,6 @@ namespace QTTabBarLib {
                         break;
                     case BindAction.NewFile:
                         _owner.createNewFile();
-                        break;
-
-                    case BindAction.SwitchToLastActivated:
-                        if(_owner.lstActivatedTabs.Count > 1 && _owner.tabControl1.TabPages.Contains(_owner.lstActivatedTabs[_owner.lstActivatedTabs.Count - 2])) {
-                            try {
-                                _owner.tabControl1.SelectTab(_owner.lstActivatedTabs[_owner.lstActivatedTabs.Count - 2]);
-                            }
-                            catch(ArgumentException) {
-                            }
-                        }
                         break;
 
                     case BindAction.MergeWindows:
@@ -342,19 +237,6 @@ namespace QTTabBarLib {
                     case BindAction.Maximize:
                         break;
                     case BindAction.Minimize:
-                        break;
-
-                    case BindAction.CopyTabPath:
-                        // 复制标签页路径路径
-                        string currentPath = tab.CurrentPath;
-                        if(currentPath.IndexOf("???") != -1) {
-                            currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
-                        }
-                        QTUtility2.SetStringClipboard(currentPath);
-                        break;
-
-                    case BindAction.TabProperties:
-                        ShellMethods.ShowProperties(tab.CurrentIDL);
                         break;
 
                     case BindAction.ShowTabSubfolderMenu:

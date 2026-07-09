@@ -7,7 +7,7 @@ namespace QTTtabBarTests {
         [Test]
         public void Production_Code_Uses_QTResourceManager_Directly() {
             string plugin = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "PluginServer.cs"));
-            string config = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Config.cs"));
+            string config = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             string init = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InitializationOrchestrator.cs"));
             Assert.IsTrue(plugin.Contains("QTResourceManager.ReadLanguageFile("));
             Assert.IsFalse(plugin.Contains("QTUtility.ReadLanguageFile("));

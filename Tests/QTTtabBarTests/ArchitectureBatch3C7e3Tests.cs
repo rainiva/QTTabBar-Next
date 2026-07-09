@@ -41,7 +41,13 @@ namespace QTTtabBarTests {
         public void UiLayer_Files_Use_OSDetector_Directly() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string relative in UiLayerFiles) {
-                string content = File.ReadAllText(Path.Combine(root, relative));
+                string content = relative == "QTSecondViewBar.cs"
+                    ? SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot())
+                    : relative == "QTabControl.cs"
+                        ? QTabControlSourceTestHelper.ReadCombined(FindRepoRoot())
+                        : relative == "QTButtonBar.cs"
+                            ? QTButtonBarSourceTestHelper.ReadCombined(FindRepoRoot())
+                            : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("OSDetector."),
                     relative + " should call OSDetector directly after C7e3");
                 foreach(string pattern in OsFacadePatterns) {

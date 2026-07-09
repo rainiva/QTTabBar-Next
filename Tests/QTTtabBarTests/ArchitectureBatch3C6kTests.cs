@@ -20,7 +20,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ExplorerController_Calls_Local_InitializeOpenedWindow() {
-            string explorer = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerController.cs"));
+            string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(explorer.Contains("InitializeOpenedWindow();"));
             Assert.IsFalse(explorer.Contains("_owner.InitializeOpenedWindow("),
                 "ExplorerControllerModule should call its own InitializeOpenedWindow");
@@ -29,7 +29,7 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_No_Longer_Implements_WindowBootstrap_Bodies() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string explorer = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerController.cs"));
+            string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsFalse(main.Contains("private void InitializeNavBtns("));
             Assert.IsFalse(main.Contains("private void InitializeOpenedWindow("));
             Assert.IsFalse(main.Contains("private void InstallHooks("));

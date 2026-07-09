@@ -13,6 +13,18 @@ namespace QTTabBarLib {
             return paths;
         }
 
+        internal void CloseLeftRight(bool fLeft, int index) {
+            if(index == -1) {
+                index = tabControl1.SelectedIndex;
+            }
+            if(fLeft ? (index <= 0) : (index >= (tabControl1.TabCount - 1))) {
+                return;
+            }
+            CloseTabs(fLeft
+                    ? tabControl1.TabPages.Take(index).ToList()
+                    : tabControl1.TabPages.Skip(index + 1).ToList());
+        }
+
         internal bool HandleCLOSE(IntPtr lParam) {
             bool flag = Config.Window.CloseBtnClosesSingleTab;
             bool flag2 = Config.Window.CloseBtnClosesUnlocked;

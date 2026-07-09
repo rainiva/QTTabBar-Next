@@ -28,7 +28,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void PersistConfigChanges_Calls_WriteConfig_Then_UpdateConfig() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Config.cs"));
+            string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             int methodIndex = content.IndexOf("void PersistConfigChanges(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);
@@ -55,8 +55,9 @@ namespace QTTtabBarTests {
 
         [Test]
         public void QTDesktopTool_Uses_PersistConfigChanges() {
-            string content = File.ReadAllText(Path.Combine(
-                FindRepoRoot(), "QTTabBar", "QTDesktopTool.cs"));
+            string root = Path.Combine(FindRepoRoot(), "QTTabBar");
+            string content = File.ReadAllText(Path.Combine(root, "QTDesktopTool.cs")) +
+                File.ReadAllText(Path.Combine(root, "QTDesktopTool.SettingsController.cs"));
             Assert.IsTrue(content.Contains("PersistConfigChanges(true)"),
                 "QTDesktopTool desktop settings save should call PersistConfigChanges(true)");
         }

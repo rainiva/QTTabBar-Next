@@ -112,6 +112,15 @@ namespace QTTabBarLib {
             private static void CheckConnections() {
                 callbacks.RemoveAll(IsDead);
                 sdInstances.RemoveAllValues(c => !callbacks.Contains(c));
+                PruneDeadWindowHandles();
+            }
+
+            private static void PruneDeadWindowHandles() {
+                foreach(IntPtr hwnd in sdInstances.Keys.ToList()) {
+                    if(hwnd == IntPtr.Zero || !PInvoke.IsWindow(hwnd)) {
+                        sdInstances.Remove(hwnd);
+                    }
+                }
             }
 
             private static ICommClient GetCallback() {
@@ -405,11 +414,18 @@ namespace QTTabBarLib {
         }
 
         private static Delegate ByteToDel(byte[] buf) {
-            if (buf == null || buf.Length == 0 ) { return null; }
+            if(buf == null || buf.Length == 0) {
+                return null;
+            }
             object v = SerializationHelper.ByteArrayToObject(buf);
-            if (v == null) { return null; }
-            return ((SerializeDelegate)v).Delegate;
-            // return BinaryPack.BinaryConverter.Deserialize<SerializeDelegate>(buf);
+            if(v == null) {
+                return null;
+            }
+            Delegate del;
+            if(!IpcDelegateGuard.TryUnwrapDelegate(v, out del)) {
+                return null;
+            }
+            return del;
         }
 
         // P0-2: single factory for the IPC pipe binding, shared by the service host
@@ -618,17 +634,34 @@ namespace QTTabBarLib {
             TabInstanceRegistry.UnregisterTabBar(out handle);
             ICommService service = GetChannel();
             if(service != null && handle != IntPtr.Zero) {
-                try {
-                    service.DeleteInstance(handle);
-                }
-                catch {
-                    // WCF channel unavailable — rely on CheckConnections passive cleanup.
+                for(int attempt = 0; attempt < 2; attempt++) {
+                    try {
+                        service.DeleteInstance(handle);
+                        break;
+                    }
+                    catch {
+                        if(attempt == 1) {
+                            // WCF channel unavailable — rely on CheckConnections passive cleanup.
+                        }
+                    }
                 }
             }
             return false;
         }
 
-        public static int GetTotalInstanceCount() { ICommService service = GetChannel(); return service == null ? TabInstanceRegistry.Count : service.GetTotalInstanceCount(); }
+        public static int GetTotalInstanceCount() {
+            int local = TabInstanceRegistry.Count;
+            ICommService service = GetChannel();
+            if(service == null) {
+                return local;
+            }
+            try {
+                return Math.Max(local, service.GetTotalInstanceCount());
+            }
+            catch {
+                return local;
+            }
+        }
 
         public static void ExecuteOnServerProcess(Action action, bool doAsync) {
             ExecuteOnServerProcessBytes(DelToByte(action), doAsync, action);

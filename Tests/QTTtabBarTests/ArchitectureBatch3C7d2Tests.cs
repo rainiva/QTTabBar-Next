@@ -6,7 +6,7 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C7d2Tests {
         private static readonly string[] CoreLayerFiles = {
             "SubDirTipForm.cs",
-            "QTTabBarClass.ExplorerController.cs",
+            "QTTabBarClass.ExplorerController.Init.cs",
             "DropDownMenuBase.cs",
             "MenuUtility.cs",
             "TabSwitchForm.cs",
@@ -20,7 +20,11 @@ namespace QTTtabBarTests {
         public void CoreLayer_Files_Use_IconManager_Directly() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string relative in CoreLayerFiles) {
-                string content = File.ReadAllText(Path.Combine(root, relative));
+                string content = relative == "QTabControl.cs"
+                    ? QTabControlSourceTestHelper.ReadCombined(FindRepoRoot())
+                    : relative == "QTTabBarClass.MenuController.cs"
+                        ? MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot())
+                        : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("IconManager."),
                     relative + " should call IconManager directly after C7d2");
                 Assert.IsFalse(content.Contains("QTUtility.GetIcon("),
