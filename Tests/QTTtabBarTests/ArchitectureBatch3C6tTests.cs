@@ -1,0 +1,46 @@
+using System;
+using System.IO;
+using System.Reflection;
+using NUnit.Framework;
+using QTTabBarLib;
+
+namespace QTTtabBarTests {
+    [TestFixture]
+    public class ArchitectureBatch3C6tTests {
+        [Test]
+        public void ViewModeController_Owns_ChangeViewMode() {
+            var type = typeof(QTTabBarClass).GetNestedType("ViewModeController", BindingFlags.NonPublic);
+            Assert.IsNotNull(type);
+            Assert.IsNotNull(type.GetMethod("ChangeViewMode", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        }
+
+        [Test]
+        public void PluginMenuController_Owns_PluginItemsClick() {
+            var type = typeof(QTTabBarClass).GetNestedType("PluginMenuController", BindingFlags.NonPublic);
+            Assert.IsNotNull(type);
+            Assert.IsNotNull(type.GetMethod("PluginItemsClick", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        }
+
+        [Test]
+        public void QTTabBarClass_Delegates_ViewMode_And_PluginMenu() {
+            string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string viewMode = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ViewModeController.cs"));
+            string pluginMenu = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.PluginMenuController.cs"));
+            Assert.IsFalse(main.Contains("private void ChangeViewMode("));
+            Assert.IsFalse(main.Contains("private void pluginitems_Click("));
+            Assert.IsTrue(viewMode.Contains("ShellBrowser.ViewMode"));
+            Assert.IsTrue(pluginMenu.Contains("OnMenuItemClick"));
+        }
+
+        private static string FindRepoRoot() {
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while(dir != null) {
+                if(File.Exists(Path.Combine(dir.FullName, "QTTabBar Rebirth.sln"))) {
+                    return dir.FullName;
+                }
+                dir = dir.Parent;
+            }
+            throw new InvalidOperationException("Repository root not found.");
+        }
+    }
+}

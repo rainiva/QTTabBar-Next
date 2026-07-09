@@ -83,6 +83,8 @@ namespace QTTabBarLib {
         private ComponentBuildController _componentBuildController;
         private DroppedFilesController _droppedFilesController;
         private FolderTreeController _folderTreeController;
+        private ViewModeController _viewModeController;
+        private PluginMenuController _pluginMenuController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -255,43 +257,6 @@ namespace QTTabBarLib {
         // BeforeNavigate moved to ExplorerControllerModule (Batch 13)
 
         
-
-        private void ChangeViewMode(bool fUp) {
-            FVM orig = ShellBrowser.ViewMode;
-            FVM mode = orig;
-            switch(mode) {
-                case FVM.ICON:
-                    mode = fUp ? FVM.TILE : FVM.LIST;
-                    break;
-
-                case FVM.LIST:
-                    mode = fUp ? FVM.ICON : FVM.DETAILS;
-                    break;
-
-                case FVM.DETAILS:
-                    if(fUp) {
-                        mode = FVM.LIST;
-                    }
-                    break;
-
-                case FVM.THUMBNAIL:
-                    mode = fUp ? FVM.THUMBSTRIP : FVM.TILE;
-                    break;
-
-                case FVM.TILE:
-                    mode = fUp ? FVM.THUMBNAIL : FVM.ICON;
-                    break;
-
-                case FVM.THUMBSTRIP:
-                    if(!fUp) {
-                        mode = FVM.THUMBNAIL;
-                    }
-                    break;
-            }
-            if(mode != orig) {
-                ShellBrowser.ViewMode = mode;
-            }
-        }
 
         private static bool CheckProcessID(IntPtr hwnd1, IntPtr hwnd2) {
             uint num;
@@ -770,27 +735,6 @@ namespace QTTabBarLib {
         }
         internal void OpenNewWindow(IDLWrapper idlwGiven) {
             _tabManager.OpenNewWindow(idlwGiven);
-        }
-        private void pluginitems_Click(object sender, EventArgs e) {
-            ToolStripMenuItem item = (ToolStripMenuItem)sender;
-            string name = item.Name;
-            MenuType tag = (MenuType)item.Tag;
-            foreach(Plugin plugin in pluginServer.Plugins.Where(plugin => plugin.PluginInformation.PluginID == name)) {
-                try {
-                    if(tag == MenuType.Tab) {
-                        if(ContextMenuedTab != null) {
-                            plugin.Instance.OnMenuItemClick(tag, item.Text, new PluginServer.TabWrapper(ContextMenuedTab, this));
-                        }
-                    }
-                    else {
-                        plugin.Instance.OnMenuItemClick(tag, item.Text, null);
-                    }
-                }
-                catch(Exception exception) {
-                    PluginManager.HandlePluginException(exception, ExplorerHandle, plugin.PluginInformation.Name, "On menu item \"" + item.Text + "\"clicked.");
-                }
-                break;
-            }
         }
 
         // I don't like this.  It seems wrong to have this here instead of in the button bar class.

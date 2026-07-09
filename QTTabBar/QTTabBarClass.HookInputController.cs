@@ -726,7 +726,7 @@ namespace QTTabBarLib {
                                     return true;
 
                                 case Keys.Control:
-                                    _owner.ChangeViewMode(y > 0);
+                                    _owner._viewModeController.ChangeViewMode(y > 0);
                                     return true;
                             }
                         }

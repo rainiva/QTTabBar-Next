@@ -151,7 +151,7 @@ namespace QTTabBarLib {
                         ToolStripMenuItem item2 = new ToolStripMenuItem(_owner.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
                         item2.Name = str;
                         item2.Tag = MenuType.Bar;
-                        item2.Click += _owner.pluginitems_Click;
+                        item2.Click += _owner._pluginMenuController.PluginItemsClick;
                         _owner.contextMenuSys.Items.Insert(index, item2);
                         _owner.lstPluginMenuItems_Sys.Add(item2);
                     }
@@ -339,7 +339,7 @@ namespace QTTabBarLib {
                                 ToolStripMenuItem item7 = new ToolStripMenuItem(_owner.pluginServer.dicFullNamesMenuRegistered_Tab[str3]);
                                 item7.Name = str3;
                                 item7.Tag = MenuType.Tab;
-                                item7.Click += _owner.pluginitems_Click;
+                                item7.Click += _owner._pluginMenuController.PluginItemsClick;
                                 _owner.contextMenuTab.Items.Insert(num2, item7);
                                 _owner.lstPluginMenuItems_Tab.Add(item7);
                             }

@@ -624,6 +624,12 @@
     <Compile Include="QTTabBarClass.FolderTreeController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ViewModeController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.PluginMenuController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.ShellNavigationController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
