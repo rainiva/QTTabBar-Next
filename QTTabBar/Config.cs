@@ -1249,10 +1249,7 @@ namespace QTTabBarLib {
 
         public static void SetNoCapturePathsAndBroadcast(IEnumerable<string> paths) {
             List<string> list = paths == null ? new List<string>() : paths.ToList();
-            Config.Window.NoCaptureAt = string.Join(";", list.ToArray());
-            lock(QTUtility.syncRoot) {
-                QTUtility.NoCapturePathsList = new List<string>(list);
-            }
+            UpdateNoCapturePaths(list);
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Config + "Window")) {
                 if(key != null) {
                     key.SetValue("NoCaptureAt", Config.Window.NoCaptureAt ?? string.Empty);
@@ -1449,14 +1446,20 @@ namespace QTTabBarLib {
             }
         }
 
+        private static void UpdateNoCapturePaths(IEnumerable<string> paths) {
+            List<string> list = paths == null ? new List<string>() : paths.ToList();
+            Config.Window.NoCaptureAt = string.Join(";", list.ToArray());
+            lock(QTUtility.syncRoot) {
+                QTUtility.NoCapturePathsList = new List<string>(list);
+            }
+        }
+
         private static void ApplyNoCapturePathsFromConfig() {
             if(string.IsNullOrEmpty(Config.Window.NoCaptureAt)) {
+                UpdateNoCapturePaths(Array.Empty<string>());
                 return;
             }
-            lock(QTUtility.syncRoot) {
-                QTUtility.NoCapturePathsList = new List<string>(
-                    Config.Window.NoCaptureAt.Split(QTUtility.SEPARATOR_CHAR));
-            }
+            UpdateNoCapturePaths(Config.Window.NoCaptureAt.Split(QTUtility.SEPARATOR_CHAR));
         }
     }
 }
