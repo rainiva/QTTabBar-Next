@@ -76,6 +76,8 @@ namespace QTTabBarLib {
         private ShellUiController _shellUiController;
         private ButtonBarClickController _buttonBarClickController;
         private BandInfoController _bandInfoController;
+        private BandLifecycleController _bandLifecycleController;
+        private ShellNavigationController _shellNavigationController;
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
 
@@ -225,84 +227,12 @@ namespace QTTabBarLib {
         #endregion
 
         public QTTabBarClass() {
-            // Trigger QTUtility's static constructor as the single driver of the
-            // business initialization sequence. QTUtility.Initialize() is an empty
-            // method whose only purpose is to fire that static ctor, which in turn
-            // calls InitializationOrchestrator.Initialize() exactly once. Calling the
-            // orchestrator directly here would let its mid-sequence QTUtility.* access
-            // trigger the static ctor and re-enter the orchestrator (Monitor is
-            // reentrant), running the non-idempotent steps twice.
             QTUtility.Initialize();
-            // QTUtility2.AllocDebugConsole();
-            // Application.SetCompatibleTextRenderingDefault(false);
-            // Application.DoEvents();
-            /*try
-            {
-                ConfigurationManager.AppSettings.Set("EnableWindowsFormsHighDpiAutoResizing", "true");
-            }
-            catch (Exception) { /* Ignora l'eccezione #1# }*/
-            try {
-                string installDateString;
-                DateTime installDate;
-                string minDate = DateTime.MinValue.ToString();
-                using(RegistryKey key = RegistryAccess.OpenLocalMachineRoot(false)) {
-                    installDateString = key == null ? minDate : (string)key.GetValue("InstallDate", minDate);
-                    // ʱ���ʽ������ ���ܻᵼ�³�ʼ��ʧ��
-                    if (PathValidator.IsSimpleDateStr(installDateString))  // �����ж������Ƿ�����ȷ��ʽ
-                    {
-                        try
-                        {
-                            QTUtility2.log("installDateString " + installDateString);
-                            installDate = DateTime.Parse(installDateString);
-                        }
-                        catch (Exception e)
-                        {
-                            installDate = DateTime.ParseExact(installDateString, "yyyy/MM/dd HH:mm:ss", CultureInfo.CurrentCulture);
-                            // ignore exception 
-                        }
-
-                        using (RegistryKey key2 = RegistryAccess.OpenRootCreate())
-                        {
-                            DateTime lastActivation;
-                            // DateTime lastActivation = DateTime.Parse((string)key.GetValue("ActivationDate", minDate));
-                            var value = (string)key2.GetValue("ActivationDate", minDate);
-                            try
-                            {
-                                QTUtility2.log("ActivationDate " + value);
-                                lastActivation = DateTime.Parse(value);
-                            }
-                            catch (Exception e)
-                            {
-                                lastActivation = DateTime.ParseExact(value, "yyyy/MM/dd HH:mm:ss", CultureInfo.CurrentCulture);
-                                // ignore exception 
-                            }
-
-                            fIsFirstLoad = installDate.CompareTo(lastActivation) > 0;
-                            // ʱ���ʽ������ ���ܻᵼ�³�ʼ��ʧ��
-                            if (fIsFirstLoad)
-                                key.SetValue("ActivationDate", installDateString);
-                        }
-                    } 
-                    /*else if (QTUtility.IsShortDateStr(installDateString))
-                    {
-
-                    }*/
-                }
-                
-            }
-            catch (Exception e ){
-                QTUtility2.MakeErrorLog(e, "QTTabBarClass ���캯����ʼ����װʱ��");
-            }
-            if(!fInitialized) {
-                InitializeStaticFields();
-            }
-            // Initial height (DPI-scaled). GetBandDpiScale may still be 1.0 here;
-            // OnDpiChanged / SetBarRows refresh after the HWND exists.
+            fIsFirstLoad = InstanceBootstrapController.DetectFirstLoad();
+            InstanceBootstrapController.EnsureStaticFieldsInitialized();
             BandHeight = ComputeBandHeight(1, Config.Skin.TabHeight, GetBandDpiScale());
             InitializeComponent();
             lstActivatedTabs.Add(CurrentTab);
-
-            // Ĭ�ϻ�ȡ�Ƿ�������־
             QTUtility2.ENABLE_LOGGER = Config.Misc.EnableLog;
         }
 
@@ -856,6 +786,8 @@ namespace QTTabBarLib {
             _shellUiController = new ShellUiController(this);
             _buttonBarClickController = new ButtonBarClickController(this);
             _bandInfoController = new BandInfoController(this);
+            _bandLifecycleController = new BandLifecycleController(this);
+            _shellNavigationController = new ShellNavigationController(this);
             _tabTooltipController = new TabTooltipController(this);
             _windowManagementController = new WindowManagementController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
@@ -910,13 +842,6 @@ namespace QTTabBarLib {
 
         private void InitializeInstallation() {
             _explorerControllerModule.InitializeInstallation();
-        }
-
-        private static void InitializeStaticFields() {
-            fInitialized = true;
-            // 启用DPI感知 indiff
-            PInvoke.SetProcessDPIAware();
-            Application.EnableVisualStyles();
         }
 
         private void ListViewMonitor_ListViewChanged(object sender, EventArgs args) {
@@ -1094,12 +1019,7 @@ namespace QTTabBarLib {
 
         public override void ShowDW(bool fShow) {
             base.ShowDW(fShow);
-            if((fShow && !FirstNavigationCompleted) && ((Explorer != null) && (Explorer.ReadyState == tagREADYSTATE.READYSTATE_COMPLETE))) {
-                InitializeInstallation();
-            }
-            if(!fShow) {
-                ConfigManager.PersistBreakTabBar(BandHasBreak());
-            }
+            _bandLifecycleController.ShowDW(fShow);
         }
         // ��ʾĿ¼��
         private void ShowFolderTree(bool fShow) => _shellUiController.ShowFolderTree(fShow);
@@ -1203,13 +1123,7 @@ namespace QTTabBarLib {
         private void tsmiBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             _tabManager.tsmiBranchRoot_DropDownItemClicked(sender, e);
         }
-        public override void UIActivateIO(int fActivate, ref MSG Msg) {
-            QTUtility2.log("QTTabBarClass UIActivateIO");
-            if(fActivate != 0) {
-                tabControl1.Focus();
-                tabControl1.FocusNextTab(ModifierKeys == Keys.Shift, true, false);
-            }
-        }
+        public override void UIActivateIO(int fActivate, ref MSG Msg) => _bandLifecycleController.UIActivateIO(fActivate, ref Msg);
 
         [ComUnregisterFunction]
         private static void Unregister(Type t) {
@@ -1273,21 +1187,7 @@ namespace QTTabBarLib {
 #endif
         }
 
-        private void UpOneLevel()
-        {
-            // ������һ��Ŀ¼
-            if(CurrentTab.TabLocked) {
-                QTabItem tab = CurrentTab.Clone();
-                AddInsertTab(tab);
-                tabControl1.SelectTab(tab);
-            }
-            if(!QTUtility.IsXP) {
-                PInvoke.SendMessage(WindowUtils.GetShellTabWindowClass(ExplorerHandle), 0x111, (IntPtr)0xa022, IntPtr.Zero);
-            }
-            else {
-                PInvoke.SendMessage(ExplorerHandle, 0x111, (IntPtr)0xa022, IntPtr.Zero);
-            }
-        }
+        private void UpOneLevel() => _shellNavigationController.UpOneLevel();
 
         internal static void WaitTimeout(int msec) {
             Thread.Sleep(msec);
@@ -1349,19 +1249,7 @@ namespace QTTabBarLib {
             RefreshBandHeightForCurrentDpi();
         }
 
-        private void RefreshBandHeightForCurrentDpi()
-        {
-            int iType = 0;
-            if(Config.Tabs.MultipleTabRows) {
-                iType = Config.Tabs.ActiveTabOnBottomRow ? 1 : 2;
-            }
-            int rows = tabControl1 != null ? tabControl1.SetTabRowType(iType) : 1;
-            SetBarRows(rows);
-            if(tabControl1 != null) {
-                tabControl1.RefreshOptions(false);
-                tabControl1.Invalidate();
-            }
-        }
+        private void RefreshBandHeightForCurrentDpi() => _bandLifecycleController.RefreshBandHeightForCurrentDpi();
 
 
 

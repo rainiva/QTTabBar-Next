@@ -609,6 +609,15 @@
     <Compile Include="QTTabBarClass.BandInfoController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.BandLifecycleController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ShellNavigationController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.InstanceBootstrapController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTTabBarClass.TabTooltipController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
