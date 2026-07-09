@@ -194,7 +194,7 @@ namespace QTTabBarLib {
                                                  select item2.CurrentPath).ToArray();
 
                                 MessageBox.Show(String.Join(",", list));
-                                QTUtility2.WriteRegBinary(list, "TabsLocked", key);
+                                RegistryHelper.WriteRegBinary(list, "TabsLocked", key);
                             }*/
                             WindowUtils.CloseExplorer(tabBar.ExplorerHandle, 2);
                             return true;
@@ -228,7 +228,7 @@ namespace QTTabBarLib {
                             return tabBar.ShellBrowser.IsFolderTreeVisible();
 
                         case Commands.IsButtonBarVisible:
-                            return InstanceManager.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr);
+                            return ButtonBarRegistry.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr);
 
                         case Commands.ShowFolderTree:
                             if(!QTUtility.IsXP || !(arg is bool)) {
@@ -238,7 +238,7 @@ namespace QTTabBarLib {
                             return true;
 
                         case Commands.ShowButtonBar:
-                            if(!InstanceManager.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr)) {
+                            if(!ButtonBarRegistry.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr)) {
                             }
                             break;
 
@@ -246,15 +246,7 @@ namespace QTTabBarLib {
                             if(!(arg is string[])) {
                                 break;
                             }
-                            if(md5Form == null) {
-                                md5Form = new FileHashComputerForm();
-                            }
-                            if(md5Form.InvokeRequired) {
-                                md5Form.Invoke(new FormMethodInvoker(ShowMD5FormCore), new object[] { arg });
-                            }
-                            else {
-                                ShowMD5FormCore(arg);
-                            }
+                            ShowMD5((string[])arg);
                             return true;
 
                         case Commands.ShowProperties: {
@@ -625,7 +617,7 @@ namespace QTTabBarLib {
 
             /*public static bool TryCallButtonBar(Func<QTButtonBar, bool> func)
             {
-                QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
+                QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
                 return bbar != null && func(bbar);
             }*/
 

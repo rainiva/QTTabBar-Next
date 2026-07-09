@@ -363,6 +363,72 @@ namespace QTTabBarLib {
                 }
                 _owner.NowModalDialogShown = false;
             }
+
+            public List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
+                QTabItem item = fCurrent ? _owner.CurrentTab : _owner.ContextMenuedTab;
+                List<ToolStripItem> list = new List<ToolStripItem>();
+                List<LogData> branches = item.Branches;
+                if(branches.Count > 0) {
+                    ToolStripMenuItem item2 = new ToolStripMenuItem(QTUtility.ResMain[0x18]);
+                    item2.Tag = item;
+                    item2.DropDown = new DropDownMenuBase(container, true, true);
+                    item2.DropDown.ImageList = QTUtility.ImageListGlobal;
+                    item2.DropDownItemClicked += itemClickedEvent;
+                    int index = -1;
+                    foreach(LogData data in branches) {
+                        index++;
+                        if(_owner.IsSpecialFolderNeedsToTravel(data.Path)) {
+                            if(_owner.LogEntryDic.ContainsKey(data.Hash)) {
+                                goto Label_00B3;
+                            }
+                            continue;
+                        }
+                        if(!QTUtility2.PathExists(data.Path)) {
+                            continue;
+                        }
+                    Label_00B3:
+                        item2.DropDownItems.Add(MenuUtility.CreateMenuItem(new MenuItemArguments(data.Path, false, index, MenuGenre.Branch)));
+                    }
+                    if(item2.DropDownItems.Count > 0) {
+                        list.Add(new ToolStripSeparator());
+                        list.Add(item2);
+                    }
+                }
+                return list;
+            }
+
+            public List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
+                QTabItem item = fCurrent ? _owner.CurrentTab : _owner.ContextMenuedTab;
+                List<QMenuItem> list = new List<QMenuItem>();
+                string[] historyBack = item.GetHistoryBack();
+                string[] historyForward = item.GetHistoryForward();
+                if((historyBack.Length + historyForward.Length) > 1) {
+                    for(int i = historyBack.Length - 1; i >= 0; i--) {
+                        QMenuItem item2 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyBack[i], true, i, MenuGenre.Navigation));
+                        if(_owner.IsSpecialFolderNeedsToTravel(historyBack[i])) {
+                            item2.Enabled = _owner.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
+                        }
+                        else if(!QTUtility2.PathExists(historyBack[i])) {
+                            item2.Enabled = false;
+                        }
+                        if(item2.Enabled && (i == 0)) {
+                            item2.BackColor = QTUtility2.MakeModColor(SystemColors.Highlight);
+                        }
+                        list.Add(item2);
+                    }
+                    for(int j = 0; j < historyForward.Length; j++) {
+                        QMenuItem item3 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyForward[j], false, j, MenuGenre.Navigation));
+                        if(_owner.IsSpecialFolderNeedsToTravel(historyForward[j])) {
+                            item3.Enabled = _owner.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
+                        }
+                        else if(!QTUtility2.PathExists(historyForward[j])) {
+                            item3.Enabled = false;
+                        }
+                        list.Add(item3);
+                    }
+                }
+                return list;
+            }
         }
     }
 }

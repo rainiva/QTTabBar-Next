@@ -68,6 +68,14 @@ namespace QTTabBarLib {
         private ExplorerControllerModule _explorerControllerModule;
         private DragDropController _dragDropController;
         private HookInputController _hookInputController;
+        private FileToolsController _fileToolsController;
+        private TabTooltipController _tabTooltipController;
+        private WindowManagementController _windowManagementController;
+
+        internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
+
+        private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
+
         private ContextMenuStripEx contextMenuDropped;
         private QTabItem ContextMenuedTab;
 
@@ -100,7 +108,6 @@ namespace QTTabBarLib {
         private byte[] lastAttemptedBrowseObjectIDL;
         private byte[] lastCompletedBrowseObjectIDL;
         
-        private static FileHashComputerForm md5Form;
         private ToolStripTextBox menuTextBoxTabAlias;
 
 
@@ -184,7 +191,7 @@ namespace QTTabBarLib {
 
         public static QTTabBarClass GetThreadTabBar()
         {
-            return InstanceManager.GetThreadTabBar(); 
+            return TabInstanceRegistry.GetThreadTabBar(); 
         }
         #endregion
 
@@ -493,11 +500,7 @@ namespace QTTabBarLib {
                         key.SetValue("WindowAlpha", QTUtility.WindowAlpha);
                         IDLWrapper.SaveCache(key);
                     }
-                    if((md5Form != null) && !md5Form.InvokeRequired) {
-                        md5Form.SaveMD5FormStat();
-                        md5Form.Dispose();
-                        md5Form = null;
-                    }
+                    FileToolsController.DisposeMd5Form();
                     Cursor = Cursors.Default;
                     if((curTabDrag != null) && (curTabDrag != Cursors.Default)) {
                         PInvoke.DestroyIcon(curTabDrag.Handle);
@@ -577,36 +580,7 @@ namespace QTTabBarLib {
         }
 
         internal List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
-            QTabItem item = fCurrent ? CurrentTab : ContextMenuedTab;
-            List<ToolStripItem> list = new List<ToolStripItem>();
-            List<LogData> branches = item.Branches;
-            if(branches.Count > 0) {
-                ToolStripMenuItem item2 = new ToolStripMenuItem(QTUtility.ResMain[0x18]);
-                item2.Tag = item;
-                item2.DropDown = new DropDownMenuBase(container, true, true);
-                item2.DropDown.ImageList = QTUtility.ImageListGlobal;
-                item2.DropDownItemClicked += itemClickedEvent;
-                int index = -1;
-                foreach(LogData data in branches) {
-                    index++;
-                    if(IsSpecialFolderNeedsToTravel(data.Path)) {
-                        if(LogEntryDic.ContainsKey(data.Hash)) {
-                            goto Label_00B3;
-                        }
-                        continue;
-                    }
-                    if(!QTUtility2.PathExists(data.Path)) {
-                        continue;
-                    }
-                Label_00B3:
-                    item2.DropDownItems.Add(MenuUtility.CreateMenuItem(new MenuItemArguments(data.Path, false, index, MenuGenre.Branch)));
-                }
-                if(item2.DropDownItems.Count > 0) {
-                    list.Add(new ToolStripSeparator());
-                    list.Add(item2);
-                }
-            }
-            return list;
+            return _menuController.CreateBranchMenu(fCurrent, container, itemClickedEvent);
         }
 
         private static Cursor CreateCursor(Bitmap bmpColor) {
@@ -635,36 +609,7 @@ namespace QTTabBarLib {
             _tabManager.Add2Group(contextMenuedTab);
         }
         internal List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
-            QTabItem item = fCurrent ? CurrentTab : ContextMenuedTab;
-            List<QMenuItem> list = new List<QMenuItem>();
-            string[] historyBack = item.GetHistoryBack();
-            string[] historyForward = item.GetHistoryForward();
-            if((historyBack.Length + historyForward.Length) > 1) {
-                for(int i = historyBack.Length - 1; i >= 0; i--) {
-                    QMenuItem item2 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyBack[i], true, i, MenuGenre.Navigation));
-                    if(IsSpecialFolderNeedsToTravel(historyBack[i])) {
-                        item2.Enabled = LogEntryDic.ContainsKey(item.GetLogHash(true, i));
-                    }
-                    else if(!QTUtility2.PathExists(historyBack[i])) {
-                        item2.Enabled = false;
-                    }
-                    if(item2.Enabled && (i == 0)) {
-                        item2.BackColor = QTUtility2.MakeModColor(SystemColors.Highlight);
-                    }
-                    list.Add(item2);
-                }
-                for(int j = 0; j < historyForward.Length; j++) {
-                    QMenuItem item3 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyForward[j], false, j, MenuGenre.Navigation));
-                    if(IsSpecialFolderNeedsToTravel(historyForward[j])) {
-                        item3.Enabled = LogEntryDic.ContainsKey(item.GetLogHash(false, j));
-                    }
-                    else if(!QTUtility2.PathExists(historyForward[j])) {
-                        item3.Enabled = false;
-                    }
-                    list.Add(item3);
-                }
-            }
-            return list;
+            return _menuController.CreateNavBtnMenuItems(fCurrent);
         }
         
         // �����µ�tabҳ
@@ -1321,93 +1266,6 @@ namespace QTTabBarLib {
         }
 
         // todo: clean, enum.
-        internal bool DoFileTools(int index) {
-            try {
-                Address[] addressArray;
-                List<string> list;
-                int num;
-                string displayName = string.Empty;
-                switch(index) {
-                    case 0:
-                    case 1:
-                    case 4:
-                        string str2;
-                        if(!ShellBrowser.TryGetSelection(out addressArray, out str2, index == 1)) {
-                            goto Label_019C;
-                        }
-                        list = new List<string>();
-                        num = 0;
-                        goto Label_00A1;
-
-                    case 2:
-                    case 3: {
-                            using(IDLWrapper wrapper = ShellBrowser.GetShellPath()) {
-                                if(wrapper.Available) {
-                                    displayName = ShellMethods.GetDisplayName(wrapper.PIDL, index == 3);
-                                }
-                                goto Label_019C;
-                            }
-                        }
-                    case 5:
-                        foreach(QTabItem item in tabControl1.TabPages) {
-                            string currentPath = item.CurrentPath;
-                            int length = currentPath.IndexOf("???");
-                            if(length != -1) {
-                                currentPath = currentPath.Substring(0, length);
-                            }
-                            int num3 = currentPath.IndexOf("*?*?*");
-                            if(num3 != -1) {
-                                currentPath = currentPath.Substring(0, num3);
-                            }
-                            displayName = displayName + ((displayName.Length == 0) ? string.Empty : "\r\n") + currentPath;
-                        }
-                        goto Label_019C;
-
-                    default:
-                        goto Label_019C;
-                }
-            Label_004B:
-                if(addressArray[num].Path != null) {
-                    if(index != 4) {
-                        displayName = displayName + ((displayName.Length == 0) ? string.Empty : "\r\n") + addressArray[num].Path;
-                    }
-                    else {
-                        list.Add(addressArray[num].Path);
-                    }
-                }
-                num++;
-            Label_00A1:
-                if(num < addressArray.Length) {
-                    goto Label_004B;
-                }
-                if(index == 4) {
-                    ShowMD5(list.ToArray());
-                    return true;
-                }
-            Label_019C:
-                if(displayName.Length > 0) {
-                    QTUtility2.SetStringClipboard(displayName);
-                    return true;
-                }
-            }
-            catch (Exception e){
-                QTUtility2.MakeErrorLog( e, "DoFileTools");
-            }
-            if(index == 4) {
-                // .net4 ��������ǿ����������е�
-                /*QTUtility2.log("md5 out tabbar.OpenNewTab");
-                InstanceManager.BeginInvokeMain(tabbar =>
-                {
-                    QTUtility2.log("md5 inner tabbar.OpenNewTab");
-                    tabbar.OpenNewTab("c:/");
-                    tabbar.RestoreWindow();
-                });*/
-
-                ShowMD5(null);
-                return true;
-            }
-            return false;
-        }
 
         // ����ķ�ʽ  select 1 / factory 2 / other 3
         private int mCmdType = 0;
@@ -1904,6 +1762,9 @@ namespace QTTabBarLib {
             _menuController = new MenuController(this);
             _dragDropController = new DragDropController(this);
             _hookInputController = new HookInputController(this);
+            _fileToolsController = new FileToolsController(this);
+            _tabTooltipController = new TabTooltipController(this);
+            _windowManagementController = new WindowManagementController(this);
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
             tabControl1.Deselecting += _tabManager.tabControl1_Deselecting;
             tabControl1.Selecting += _tabManager.tabControl1_Selecting;
@@ -2625,33 +2486,9 @@ namespace QTTabBarLib {
         private void menuitemTabOrder_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             _tabManager.menuitemTabOrder_DropDownItemClicked(sender, e);
         }
-        private void MergeAllWindows() {
-            InstanceManager.PushTabBarInstance(this);
-            InstanceManager.TabBarBroadcast(tabbar => {
-                QTabItem[] tabs = tabbar.tabControl1.TabPages.Select(tab => tab.Clone(true)).ToArray();
-                InstanceManager.InvokeMain(main => {
-                    try {
-                        main.tabControl1.SetRedraw(false);
-                        foreach(QTabItem tab in tabs) {
-                            tab.ResetOwner(main.tabControl1);
-                            tab.ImageKey = tab.ImageKey; // this is so dumb, but unfortunately necessary
-                            // todo: make it less dumb.
-                        }
-                        QTabItem.CheckSubTexts(main.tabControl1);
-                        TryCallButtonBar(bbar => bbar.RefreshButtons());
-                    }
-                    finally {
-                        main.tabControl1.SetRedraw(true);
-                    }
-                });
-                WindowUtils.CloseExplorer(tabbar.ExplorerHandle, 2, true);
-            }, false);
-        }
 
         private void MinimizeToTray() {
-            InstanceManager.AddToTrayIcon(Handle, ExplorerHandle, CurrentAddress,
-                tabControl1.TabPages.Select(t => t.Text).ToArray(),
-                tabControl1.TabPages.Select(t => t.CurrentPath).ToArray());
+            _windowManagementController.MinimizeToTray();
         }
 
         // NavigateBackToTheFuture moved to ExplorerControllerModule (Batch 13)
@@ -2945,29 +2782,8 @@ namespace QTTabBarLib {
             }
         }
         
-        // ��ʾ·����MD5
         internal static void ShowMD5(string[] paths) {
-            if(md5Form == null) {
-                md5Form = new FileHashComputerForm();
-            }
-            List<string> list = new List<string>();
-            if(paths != null) {
-                list.AddRange(paths.Where(File.Exists));
-            }
-            string[] strArray = null;
-            if(list.Count > 0) {
-                strArray = list.ToArray();
-            }
-            if(md5Form.InvokeRequired) {
-                md5Form.Invoke(new FormMethodInvoker(ShowMD5FormCore), new object[] { strArray });
-            }
-            else {
-                ShowMD5FormCore(strArray);
-            }
-        }
-
-        private static void ShowMD5FormCore(object paths) {
-            md5Form.ShowFileHashForm((string[])paths);
+            FileToolsController.ShowMD5(paths);
         }
 
       
@@ -3010,80 +2826,7 @@ namespace QTTabBarLib {
             _tabManager.ShowToolTipForDD(tab, iState, grfKeyState);
         }
         private void subDirTip_MenuItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            QMenuItem clickedItem = (QMenuItem)e.ClickedItem;
-            if(clickedItem.Target == MenuTarget.Folder) {
-                if(clickedItem.IDLData != null) {
-                    using(IDLWrapper wrapper = new IDLWrapper(clickedItem.IDLData)) {
-                        ShellBrowser.Navigate(wrapper);
-                    }
-                    return;
-                }
-                string targetPath = clickedItem.TargetPath;
-                Keys modifierKeys = ModifierKeys;
-                bool flag = (subDirTip_Tab != null) && (sender == subDirTip_Tab);
-                if((modifierKeys & Keys.Control) == Keys.Control) {
-                    using(IDLWrapper wrapper2 = new IDLWrapper(targetPath)) {
-                        OpenNewWindow(wrapper2);
-                        return;
-                    }
-                }
-                if((modifierKeys & Keys.Shift) == Keys.Shift) {
-                    using(IDLWrapper wrapper3 = new IDLWrapper(targetPath)) {
-                        OpenNewTab(wrapper3, false, true);
-                        return;
-                    }
-                }
-                if((!flag || (ContextMenuedTab == CurrentTab)) && CurrentTab.TabLocked)
-                {
-                    QTUtility2.log("Clone Tab Button1");
-                    CloneTabButton(CurrentTab, targetPath, true, TabIndex());
-                    return;
-                }
-                if(flag && (ContextMenuedTab != CurrentTab)) {
-                    if(ContextMenuedTab != null) {
-                        if(ContextMenuedTab.TabLocked) {
-                            // QTUtility2.log("Clone Tab Button2");
-                            var index = TabIndex();
-                            // ����߼���һ����ǩ
-                            // tabControl1.TabPages.IndexOf(ContextMenuedTab) + 1
-                            CloneTabButton(
-                                ContextMenuedTab, 
-                                targetPath, 
-                                true,
-                                index
-                            );
-                            return;
-                        }
-
-                        NowTabCloned = targetPath == CurrentAddress;
-                        ContextMenuedTab.NavigatedTo(targetPath, null, 1, false);
-                        // ContextMenuedTab.NavigatedTo(targetPath, null, -1, false);
-                        tabControl1.SelectTab(ContextMenuedTab);
-                        QTUtility2.log("NavigatedTo SelectTab");
-                    }
-                    return;
-                }
-                using(IDLWrapper wrapper4 = new IDLWrapper(targetPath)) {
-                    ShellBrowser.Navigate(wrapper4);
-                    QTUtility2.log("ShellBrowser.Navigate");
-                    return;
-                }
-            }
-            try {
-                Process.Start(new ProcessStartInfo(clickedItem.Path) {
-                    WorkingDirectory = Path.GetDirectoryName(clickedItem.Path) ?? "",
-                    ErrorDialog = true,
-                    ErrorDialogParentHandle = ExplorerHandle
-                });
-                QTUtility2.log("Process.Start");
-                if(Config.Misc.KeepRecentFiles) {
-                    StaticReg.ExecutedPathsList.Add(clickedItem.Path);
-                    QTUtility2.log("StaticReg.ExecutedPathsList.Add");
-                }
-            }
-            catch(Exception ex) {
-                QTUtility2.MakeErrorLog(ex, "ExecuteItem");
-            }
+            _tabTooltipController.SubDirTip_MenuItemClicked(sender, e);
         }
 
         // �޸�Ԥ��Ŀ¼��ת����ȷ�ı�ǩλ��
@@ -3091,47 +2834,22 @@ namespace QTTabBarLib {
             return _tabManager.TabIndex();
         }
         private void subDirTip_MenuItemRightClicked(object sender, ItemRightClickedEventArgs e) {
-            QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-            if(clickedItem != null) {
-                using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                    e.HRESULT = shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle, false);
-                }
-            }
+            _tabTooltipController.SubDirTip_MenuItemRightClicked(sender, e);
         }
 
         private void subDirTip_MultipleMenuItemsClicked(object sender, EventArgs e) {
-            List<string> executedDirectories = ((SubDirTipForm)sender).ExecutedDirectories;
-            if((ModifierKeys & Keys.Control) == Keys.Control) {
-                QTUtility2.InitializeTemporaryPaths();
-                StaticReg.CreateWindowPaths.AddRange(executedDirectories);
-                using(IDLWrapper wrapper = new IDLWrapper(executedDirectories[0])) {
-                    OpenNewWindow(wrapper);
-                    return;
-                }
-            }
-            bool flag = true;
-            foreach(string str in executedDirectories) {
-                OpenNewTab(str, !flag);
-                flag = false;
-            }
+            _tabTooltipController.SubDirTip_MultipleMenuItemsClicked(sender, e);
         }
 
         private void subDirTip_MultipleMenuItemsRightClicked(object sender, ItemRightClickedEventArgs e) {
-            List<string> executedDirectories = ((SubDirTipForm)sender).ExecutedDirectories;
-            // TODO: Replace ExecutedDirectories with ExecutedIDLs.
-            List<byte[]> executedIDLs = executedDirectories.Select(path => {
-                using(IDLWrapper wrapper = new IDLWrapper(path)) {
-                    return wrapper.IDL;
-                }
-            }).ToList();
-            e.HRESULT = shellContextMenu.Open(executedIDLs, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle);
+            _tabTooltipController.SubDirTip_MultipleMenuItemsRightClicked(sender, e);
         }
 
         internal static void SyncTaskBarMenu() {
             // todo
             /*
             using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
-                IntPtr hWnd = QTUtility2.ReadRegHandle("TaskBarHandle", key);
+                IntPtr hWnd = RegistryHelper.ReadRegHandle("TaskBarHandle", key);
                 if((hWnd != IntPtr.Zero) && PInvoke.IsWindow(hWnd)) {
                     QTUtility2.SendCOPYDATASTRUCT(hWnd, (IntPtr)3, string.Empty, IntPtr.Zero);
                 }
@@ -3372,7 +3090,7 @@ namespace QTTabBarLib {
         }
 
         public static bool TryCallButtonBar(Func<QTButtonBar, bool> func) {
-            QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
+            QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
             return bbar != null && func(bbar);
         }
 
@@ -3506,15 +3224,7 @@ namespace QTTabBarLib {
         // todo: This seems like it should go after every new tab creation, no?
         private void RestoreWindow()
         {
-            bool fIsIconic = PInvoke.IsIconic(ExplorerHandle);
-            InstanceManager.RemoveFromTrayIcon(Handle);
-            WindowUtils.BringExplorerToFront(ExplorerHandle);
-            if(fIsIconic) {
-                foreach(QTabItem item2 in tabControl1.TabPages) {
-                    item2.RefreshRectangle();
-                }
-                tabControl1.Refresh();
-            }
+            _windowManagementController.RestoreWindow();
         }
 
         protected override void OnHandleCreated(EventArgs e)

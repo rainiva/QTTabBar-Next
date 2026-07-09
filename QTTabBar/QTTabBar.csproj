@@ -585,7 +585,18 @@
     <Compile Include="QTTabBarClass.HookInputController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.FileToolsController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.TabTooltipController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.WindowManagementController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="QTUtility.cs" />
+    <Compile Include="QTLogger.cs" />
+    <Compile Include="RegistryHelper.cs" />
     <Compile Include="QTUtility2.cs" />
     <Compile Include="SubDirTipForm.cs">
       <SubType>Form</SubType>
