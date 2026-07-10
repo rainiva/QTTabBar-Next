@@ -733,7 +733,9 @@
     <Compile Include="QTTabBarClass.ExplorerController.MessageRouting.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.DragDropController.cs">
+    <Compile Include="Input\IDragDropHost.cs" />
+    <Compile Include="Input\DragDropController.cs" />
+    <Compile Include="QTTabBarClass.DragDropHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.IpcNavigation.cs">

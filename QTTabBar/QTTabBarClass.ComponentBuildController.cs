@@ -46,7 +46,7 @@ namespace QTTabBarLib {
                 _owner.tabControl1.RefreshOptions(true);
                 _owner._tabManager = new TabManager(_owner);
                 _owner._menuController = new MenuController(_owner);
-                _owner._dragDropController = new DragDropController(_owner);
+                _owner._dragDropController = new DragDropController((IDragDropHost)_owner);
                 _owner._hookInputController = new HookInputController(_owner);
                 _owner._fileToolsController = new FileToolsController(_owner);
                 _owner._bindActionController = new BindActionController(_owner);

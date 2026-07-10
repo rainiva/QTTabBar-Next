@@ -19,13 +19,18 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTTabBarClass_Has_DragDropController_NestedType() {
-            Type nested = typeof(QTTabBarClass).GetNestedType(
-                "DragDropController",
-                BindingFlags.NonPublic);
-            Assert.IsNotNull(nested, "QTTabBarClass should expose DragDropController nested class");
-            FieldInfo ownerField = nested.GetField("_owner", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(ownerField, "DragDropController should hold _owner reference");
+        public void DragDropController_Is_Top_Level_And_Depends_On_IDragDropHost() {
+            Type controller = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.DragDropController", true);
+            Type host = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.IDragDropHost", true);
+
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("DragDropController",
+                BindingFlags.Public | BindingFlags.NonPublic));
+            ConstructorInfo[] constructors = controller.GetConstructors(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            Assert.AreEqual(1, constructors.Length);
+            ParameterInfo[] parameters = constructors[0].GetParameters();
+            Assert.AreEqual(1, parameters.Length);
+            Assert.AreSame(host, parameters[0].ParameterType);
         }
 
         [Test]
@@ -43,8 +48,8 @@ namespace QTTtabBarTests {
             string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             Assert.IsTrue(content.Contains("_dragDropController"),
                 "QTTabBarClass should own a DragDropController instance");
-            Assert.IsTrue(build.Contains("new DragDropController(_owner)"),
-                "ComponentBuildController should construct DragDropController during initialization");
+            Assert.IsTrue(build.Contains("new DragDropController((IDragDropHost)_owner)"),
+                "ComponentBuildController should construct DragDropController through its narrow host contract");
             int dropIndex = content.IndexOf("dropTargetWrapper_DragFileDrop(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(dropIndex, 0);
             int brace = content.IndexOf('{', dropIndex);
