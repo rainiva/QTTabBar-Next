@@ -56,6 +56,8 @@ namespace QTTtabBarTests {
                                 ? File.ReadAllText(Path.Combine(root, "ExtendedListViewCommon.cs")) +
                                   File.ReadAllText(Path.Combine(root, "ExtendedListViewCommon.WatermarkRenderer.cs")) +
                                   File.ReadAllText(Path.Combine(root, "ExtendedListViewCommon.ListViewHoverController.cs"))
+                            : relative == "SubDirTipForm.cs"
+                                ? SubDirTipFormSourceTestHelper.ReadCombined(FindRepoRoot())
                             : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("OSDetector."),
                     relative + " should call OSDetector directly after C7e3");

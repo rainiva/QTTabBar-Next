@@ -832,6 +832,9 @@
     <Compile Include="SubDirTipForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="SubDirTipForm.ShellMenuGenerator.cs">
+      <DependentUpon>SubDirTipForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="TabSwitchForm.cs">
       <SubType>Form</SubType>
     </Compile>

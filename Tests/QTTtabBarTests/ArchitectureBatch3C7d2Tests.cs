@@ -24,7 +24,9 @@ namespace QTTtabBarTests {
                     ? QTabControlSourceTestHelper.ReadCombined(FindRepoRoot())
                     : relative == "QTTabBarClass.MenuController.cs"
                         ? MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot())
-                        : File.ReadAllText(Path.Combine(root, relative));
+                        : relative == "SubDirTipForm.cs"
+                            ? SubDirTipFormSourceTestHelper.ReadCombined(FindRepoRoot())
+                            : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("IconManager."),
                     relative + " should call IconManager directly after C7d2");
                 Assert.IsFalse(content.Contains("QTUtility.GetIcon("),

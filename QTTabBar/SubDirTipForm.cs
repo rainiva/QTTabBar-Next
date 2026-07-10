@@ -27,7 +27,7 @@ using System.Windows.Forms;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    internal sealed class SubDirTipForm : Form {
+    internal sealed partial class SubDirTipForm : Form {
         private IContainer components;
         private DropDownMenuDropTarget contextMenuSubDir;
         private string currentDir;
@@ -71,6 +71,7 @@ namespace QTTabBarLib {
 
         public SubDirTipForm(IntPtr hwndMessageReflect, bool fEnableShiftKeyOnDDMR, AbstractListView lvw) {
             listView = lvw;
+            _menuGenerator = new ShellMenuGenerator(this);
             this.hwndMessageReflect = hwndMessageReflect;
             hwndDialogParent = listView.Handle;
             fDesktop = !fEnableShiftKeyOnDDMR;
@@ -173,333 +174,6 @@ namespace QTTabBarLib {
             if(MenuClosed != null) {
                 MenuClosed(this, EventArgs.Empty);
             }
-        }
-
-        private QMenuItem CreateDirectoryItem(DirectoryInfo diSub, string title, bool fIcon, bool fLink) {
-            bool flag;
-            FileSystemInfo targetIfFolderLink = ShellMethods.GetTargetIfFolderLink(diSub, out flag);
-            if(!flag) {
-                return null;
-            }
-            QMenuItem item = new QMenuItem(title, MenuTarget.Folder, MenuGenre.SubDirTip);
-            item.Exists = true;
-            item.HasIcon = fIcon;
-            string fullName = diSub.FullName;
-            if(fIcon) {
-                item.SetImageReservationKey(fullName, null);
-            }
-            else if(!fLink) {
-                item.ImageKey = "folder";
-            }
-            item.Path = fullName;
-            item.TargetPath = targetIfFolderLink.FullName;
-            item.QueryVirtualMenu += directoryItem_QueryVirtualMenu;
-            return item;
-        }
-
-        private List<QMenuItem> CreateMenu(DirectoryInfo di, string pathChild) {
-            List<QMenuItem> list = new List<QMenuItem>();
-            List<QMenuItem> collection = new List<QMenuItem>();
-            bool flag = true;
-            try {
-                flag = new DriveInfo(di.FullName).DriveFormat == "NTFS";
-            }
-            catch {
-            }
-            try {
-                bool flag2, flag3;
-                ShellFolderSettingsReader.GetHiddenFileSettings(out flag3, out flag2);
-                const FileAttributes attributes = FileAttributes.ReparsePoint | FileAttributes.System | FileAttributes.Hidden;
-                int num = 0;
-                foreach(DirectoryInfo info in di.GetDirectories()) {
-                    try {
-                        string fullName = info.FullName;
-                        string name = info.Name;
-                        if((((fullName.Length != 0x1c) || !name.PathEquals("System Volume Information")) && ((fullName.Length != 15) || !name.PathEquals("$RECYCLE.BIN"))) && ((fullName.Length != 11) || !name.PathEquals("RECYCLER"))) {
-                            FileAttributes attributes2 = info.Attributes;
-                            if(OSDetector.IsXP || ((attributes2 & attributes) != attributes)) {
-                                bool flag5 = (attributes2 & FileAttributes.System) != 0;
-                                bool flag6 = (attributes2 & FileAttributes.ReadOnly) != 0;
-                                bool flag7 = (attributes2 & FileAttributes.Hidden) != 0;
-                                if((!flag5 || flag2) && (!flag7 || flag3)) {
-                                    bool fTruncated;
-                                    string title = QTUtility2.MakeNameEllipsis(name, out fTruncated);
-                                    QMenuItem item = CreateDirectoryItem(info, title, flag5 || flag6, false);
-                                    if(item != null) {
-                                        if(fTruncated) {
-                                            item.OriginalTitle = name;
-                                        }
-                                        if((pathChild != null) && (item.Path == pathChild)) {
-                                            item.BackColor = QTUtility2.MakeModColor(SystemColors.Highlight);
-                                            pathChild = null;
-                                        }
-                                        list.Add(item);
-                                    }
-                                    else {
-                                        string path = fullName;
-                                        ToolStripMenuItemEx ex = new ToolStripMenuItemEx(title);
-                                        ex.Exists = true;
-                                        ex.SetImageReservationKey(path, null);
-                                        ex.ThumbnailIndex = 0xffff + num++;
-                                        ex.ThumbnailPath = path;
-                                        ex.Path = path;
-                                        ex.Name = name;
-                                        ex.Extension = Path.GetExtension(path).ToLower();
-                                        if(fTruncated) {
-                                            ex.OriginalTitle = name;
-                                        }
-                                        ex.MouseMove += tsmi_Files_MouseMove;
-                                        ex.MouseDown += tsmi_MouseDown;
-                                        ex.MouseUp += tsmi_MouseUp;
-                                        collection.Add(ex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch(Exception exception) {
-                        QTLogger.MakeErrorLog(exception, "creating subdir menu");
-                    }
-                }
-                if(!flag) {
-                    if(tsmiComparer == null) {
-                        tsmiComparer = new ToolStripMeuItemComparer();
-                    }
-                    list.Sort(tsmiComparer);
-                }
-                if(!Config.Tips.SubDirTipsFiles) {
-                    return list;
-                }
-                int num2 = 0;
-                string str5 = ".lnk";
-                string str6 = ".url";
-                foreach(FileInfo info2 in di.GetFiles()) {
-                    try {
-                        FileAttributes attributes3 = info2.Attributes;
-                        bool flag8 = (attributes3 & FileAttributes.System) != 0;
-                        bool flag9 = (attributes3 & FileAttributes.Hidden) != 0;
-                        if((!flag8 || flag2) && (!flag9 || flag3)) {
-                            string fileNameWithoutExtension;
-                            bool fTruncated;
-                            string lnkPath = info2.FullName;
-                            string str8 = lnkPath;
-                            string ext = info2.Extension.ToLower();
-                            if(ext == str5) {
-                                string linkTargetPath = ShellMethods.GetLinkTargetPath(lnkPath);
-                                if(!string.IsNullOrEmpty(linkTargetPath)) {
-                                    DirectoryInfo diSub = new DirectoryInfo(linkTargetPath);
-                                    if(diSub.Exists) {
-                                        string str12 = QTUtility2.MakeNameEllipsis(Path.GetFileNameWithoutExtension(info2.Name), out fTruncated);
-                                        QMenuItem item2 = CreateDirectoryItem(diSub, str12, false, true);
-                                        if(item2 != null) {
-                                            item2.Path = lnkPath;
-                                            item2.TargetPath = linkTargetPath;
-                                            item2.Name = info2.Name;
-                                            item2.Extension = ext;
-                                            if(fTruncated) {
-                                                item2.OriginalTitle = info2.Name;
-                                            }
-                                            item2.HasIcon = true;
-                                            item2.SetImageReservationKey(lnkPath, ext);
-                                            collection.Add(item2);
-                                        }
-                                        continue;
-                                    }
-                                    str8 = linkTargetPath;
-                                }
-                            }
-                            if((ext == str5) || (ext == str6)) {
-                                fileNameWithoutExtension = Path.GetFileNameWithoutExtension(info2.Name);
-                            }
-                            else {
-                                fileNameWithoutExtension = info2.Name;
-                            }
-                            ToolStripMenuItemEx ex2 = new ToolStripMenuItemEx(QTUtility2.MakeNameEllipsis(fileNameWithoutExtension, out fTruncated));
-                            ex2.ThumbnailIndex = num2++;
-                            ex2.ThumbnailPath = str8;
-                            ex2.Path = lnkPath;
-                            ex2.Name = info2.Name;
-                            ex2.Extension = ext;
-                            if(fTruncated) {
-                                ex2.OriginalTitle = fileNameWithoutExtension;
-                            }
-                            ex2.Exists = true;
-                            ex2.SetImageReservationKey(lnkPath, ext);
-                            ex2.MouseMove += tsmi_Files_MouseMove;
-                            ex2.MouseDown += tsmi_MouseDown;
-                            ex2.MouseUp += tsmi_MouseUp;
-                            collection.Add(ex2);
-                        }
-                    }
-                    catch(Exception exception2) {
-                        QTLogger.MakeErrorLog(exception2, "creating subfile menu");
-                    }
-                }
-                collection.Sort(extComparer);
-                list.AddRange(collection);
-            }
-            catch {
-            }
-            return list;
-        }
-
-        // TODO: clean
-        private List<QMenuItem> CreateMenuFromIDL(IDLWrapper idlw, byte[] idlChild) {
-            List<QMenuItem> list = new List<QMenuItem>();
-            List<QMenuItem> collection = new List<QMenuItem>();
-            if(idlw.Available) {
-                IShellFolder shellFolder = null;
-                IEnumIDList ppenumIDList = null;
-                IntPtr zero = IntPtr.Zero;
-                IntPtr ptr2 = IntPtr.Zero;
-                if(idlChild != null) {
-                    zero = ShellMethods.CreateIDL(idlChild);
-                    ptr2 = PInvoke.ILFindLastID(zero);
-                }
-                bool dummy;
-                bool flag;
-                ShellFolderSettingsReader.GetHiddenFileSettings(out flag, out dummy);
-                int grfFlags = 0x60;
-                if(flag) {
-                    grfFlags |= 0x80;
-                }
-                try {
-                    IntPtr ptr3;
-                    if(!ShellMethods.GetShellFolder(idlw.PIDL, out shellFolder) || (shellFolder.EnumObjects(IntPtr.Zero, grfFlags, out ppenumIDList) != 0)) {
-                        return list;
-                    }
-                    int num2 = 0;
-                    while(ppenumIDList.Next(1, out ptr3, null) == 0) {
-                        IntPtr pIDL = PInvoke.ILCombine(idlw.PIDL, ptr3);
-                        string str = ShellMethods.GetDisplayName(shellFolder, ptr3, false);
-                        if(!string.IsNullOrEmpty(str)) {
-                            uint rgfInOut = 0x60000000;
-                            IntPtr[] apidl = new IntPtr[] { ptr3 };
-                            if(shellFolder.GetAttributesOf(1, apidl, ref rgfInOut) == 0) {
-                                bool fTruncated;
-                                bool flag2 = (rgfInOut & 0x20000000) == 0x20000000;
-                                bool flag3 = (rgfInOut & 0x40000000) == 0x40000000;
-                                string name = ShellMethods.GetDisplayName(shellFolder, ptr3, true);
-                                string title = QTUtility2.MakeNameEllipsis(name, out fTruncated);
-                                if(flag3 && !flag2) {
-                                    ToolStripMenuItemEx ex = new ToolStripMenuItemEx(title);
-                                    ex.ThumbnailIndex = num2++;
-                                    ex.ThumbnailPath = str;
-                                    ex.Path = str;
-                                    ex.Name = name;
-                                    ex.Extension = Path.GetExtension(str).ToLower();
-                                    if(fTruncated) {
-                                        ex.OriginalTitle = name;
-                                    }
-                                    ex.Exists = true;
-                                    ex.SetImageReservationKey(str, Path.GetExtension(str).ToLower());
-                                    ex.MouseMove += tsmi_Files_MouseMove;
-                                    ex.MouseDown += tsmi_MouseDown;
-                                    ex.MouseUp += tsmi_MouseUp;
-                                    collection.Add(ex);
-                                }
-                                else {
-                                    QMenuItem item = new QMenuItem(title, flag2 ? MenuTarget.Folder : MenuTarget.File, MenuGenre.SubDirTip);
-                                    if(str.Length == 3) {
-                                        if(!IconManager.ImageGlobalContainsKey(str)) {
-                                            IconManager.AddImageToGlobal(str, IconManager.GetIcon(pIDL));
-                                        }
-                                        item.ImageKey = str;
-                                    }
-                                    else {
-                                        item.SetImageReservationKey(str, flag2 ? null : Path.GetExtension(str).ToLower());
-                                    }
-                                    item.Exists = flag3;
-                                    item.Path = str;
-                                    item.TargetPath = str;
-                                    item.ForceToolTip = true;
-                                    if((idlChild != null) && (shellFolder.CompareIDs((IntPtr)0x10000000, ptr3, ptr2) == 0)) {
-                                        item.BackColor = QTUtility2.MakeModColor(SystemColors.Highlight);
-                                    }
-                                    item.IDLData = ShellMethods.GetIDLData(pIDL);
-                                    item.QueryVirtualMenu += directory_FromIDL_QueryVirtualMenu;
-                                    list.Add(item);
-                                }
-                            }
-                            if(ptr3 != IntPtr.Zero) {
-                                PInvoke.CoTaskMemFree(ptr3);
-                            }
-                            if(pIDL != IntPtr.Zero) {
-                                PInvoke.CoTaskMemFree(pIDL);
-                            }
-                        }
-                    }
-                    collection.Sort(extComparer);
-                    list.AddRange(collection);
-                }
-                catch {
-                }
-                finally {
-                    if(shellFolder != null) {
-                        QTLogger.log("ReleaseComObject shellFolder");
-                        Marshal.ReleaseComObject(shellFolder);
-                    }
-                    if(ppenumIDList != null) {
-                        QTLogger.log("ReleaseComObject ppenumIDList");
-                        Marshal.ReleaseComObject(ppenumIDList);
-                    }
-                    if(zero != IntPtr.Zero) {
-                        PInvoke.CoTaskMemFree(zero);
-                    }
-                }
-            }
-            return list;
-        }
-
-        private List<QMenuItem> CreateParentMenu(IDLWrapper idlw, List<QMenuItem> lst) {
-            if(lst == null) {
-                lst = new List<QMenuItem>();
-            }
-            using(IDLWrapper wrapper = idlw.GetParent()) {
-                if(!wrapper.Available || !wrapper.HasPath) {
-                    return lst;
-                }
-                bool isDesktop = PInvoke.ILGetSize(wrapper.PIDL) == 2;
-                QMenuItem item = new QMenuItem(ShellMethods.GetDisplayName(wrapper.PIDL, true), MenuTarget.Folder, MenuGenre.SubDirTip);
-                if(!IconManager.ImageGlobalContainsKey(wrapper.Path)) {
-                    IconManager.AddImageToGlobal(wrapper.Path, IconManager.GetIcon(wrapper.PIDL));
-                }
-                item.ImageKey = item.Path = item.TargetPath = wrapper.Path;
-                item.IDLDataChild = idlw.IDL;
-                item.PathChild = idlw.Path;
-                item.MouseMove += tsmi_Folder_MouseMove;
-                DropDownMenuDropTarget target = new DropDownMenuDropTarget(null, true, !fDesktop, false, hwndDialogParent);
-                target.SuspendLayout();
-                target.CheckOnEdgeClick = true;
-                target.MessageParent = hwndMessageReflect;
-                target.Items.Add(new ToolStripMenuItem("dummy"));
-                target.ImageList = ResourceCache.ImageListGlobal;
-                target.SpaceKeyExecute = true;
-                target.MouseLeave += ddmr_MouseLeave;
-                target.ItemRightClicked += ddmr_ItemRightClicked;
-                target.Opened += ddmr_Opened;
-                target.MenuDragEnter += ddmr_MenuDragEnter;
-                // ��������м��¼�
-                item.DropDown = target;
-                item.DropDownOpening += tsmi_DropDownOpening;
-                item.DropDownItemClicked += ddmr_ItemClicked;
-                if(wrapper.IsFileSystem) {
-                    item.MouseDown += tsmi_MouseDown;
-                    item.MouseUp += tsmi_MouseUp;
-                    target.MouseDragMove += ddmr_MouseDragMove;
-                    target.MouseUpBeforeDrop += ddmr_MouseUpBeforeDrop;
-                    target.KeyUp += ddmr_KeyUp;
-                    target.PreviewKeyDown += ddmr_PreviewKeyDown;
-                    target.MouseScroll += ddmr_MouseScroll;
-                    target.Path = wrapper.Path;
-                }
-                target.ResumeLayout();
-                lst.Add(item);
-                if(!isDesktop) {
-                    CreateParentMenu(wrapper, lst);
-                }
-            }
-            return lst;
         }
 
 
@@ -634,77 +308,6 @@ namespace QTTabBarLib {
                     ((DropDownMenuReorderable)sender).UpdateToolTipByKey(null);
                 }
                 iToolTipIndex = -1;
-            }
-        }
-
-        private void directory_FromIDL_QueryVirtualMenu(object sender, EventArgs e) {
-            QMenuItem item = (QMenuItem)sender;
-            string path = item.Path;
-            item.MouseMove += tsmi_Folder_MouseMove;
-            bool flag = (path.ToLower() == @"a:\") || (path.ToLower() == @"b:\");
-            bool flag2 = (path.Length == 3) ? (!flag && new DriveInfo(path).IsReady) : true;
-            if((item.Target == MenuTarget.Folder) && flag2) {
-                DropDownMenuDropTarget target = new DropDownMenuDropTarget(null, true, !fDesktop, false, hwndDialogParent);
-                target.SuspendLayout();
-                target.CheckOnEdgeClick = true;
-                target.MessageParent = hwndMessageReflect;
-                target.Items.Add(new ToolStripMenuItem("dummy"));
-                target.ImageList = ResourceCache.ImageListGlobal;
-                target.SpaceKeyExecute = true;
-                target.Path = path;
-                target.MouseLeave += ddmr_MouseLeave;
-                target.ItemRightClicked += ddmr_ItemRightClicked;
-                target.Opened += ddmr_Opened;
-                target.MouseScroll += ddmr_MouseScroll;
-                if(item.Exists) {
-                    target.MouseDragMove += ddmr_MouseDragMove;
-                    target.MouseUpBeforeDrop += ddmr_MouseUpBeforeDrop;
-                    target.KeyUp += ddmr_KeyUp;
-                    target.PreviewKeyDown += ddmr_PreviewKeyDown;
-                    target.MenuDragEnter += ddmr_MenuDragEnter;
-                }
-                item.DropDown = target;
-                item.DropDownOpening += tsmi_DropDownOpening;
-                item.DropDownItemClicked += ddmr_ItemClicked;
-                target.ResumeLayout();
-            }
-        }
-
-        private void directoryItem_QueryVirtualMenu(object sender, EventArgs e) {
-            QMenuItem item = (QMenuItem)sender;
-            item.MouseMove += tsmi_Folder_MouseMove;
-            item.MouseDown += tsmi_MouseDown;
-            item.MouseUp += tsmi_MouseUp;
-            bool fSearchHidden;
-            bool fSearchSystem;
-            ShellFolderSettingsReader.GetHiddenFileSettings(out fSearchHidden, out fSearchSystem);
-            bool flag3 = Config.Tips.SubDirTipsFiles;
-            bool flag4;
-            using(FindFile file = new FindFile(item.TargetPath, fSearchHidden, fSearchSystem)) {
-                flag4 = file.SubDirectoryExists() || (flag3 && file.SubFileExists());
-            }
-            if(flag4) {
-                DropDownMenuDropTarget target = new DropDownMenuDropTarget(null, true, !fDesktop, false, hwndDialogParent);
-                target.SuspendLayout();
-                target.CheckOnEdgeClick = true;
-                target.MessageParent = hwndMessageReflect;
-                target.Items.Add(new ToolStripMenuItem("dummy"));
-                target.ImageList = ResourceCache.ImageListGlobal;
-                target.SpaceKeyExecute = true;
-                target.Path = item.TargetPath;
-                target.MouseLeave += ddmr_MouseLeave;
-                target.MouseDragMove += ddmr_MouseDragMove;
-                target.MouseUpBeforeDrop += ddmr_MouseUpBeforeDrop;
-                target.ItemRightClicked += ddmr_ItemRightClicked;
-                target.Opened += ddmr_Opened;
-                target.KeyUp += ddmr_KeyUp;
-                target.PreviewKeyDown += ddmr_PreviewKeyDown;
-                target.MenuDragEnter += ddmr_MenuDragEnter;
-                target.MouseScroll += ddmr_MouseScroll;
-                item.DropDown = target;
-                item.DropDownOpening += tsmi_DropDownOpening;
-                item.DropDownItemClicked += ddmr_ItemClicked;
-                target.ResumeLayout();
             }
         }
 
@@ -855,16 +458,16 @@ namespace QTTabBarLib {
             try {
                 if(currentIDL != null) {
                     using(IDLWrapper wrapper = new IDLWrapper(currentIDL)) {
-                        lstItems = CreateMenuFromIDL(wrapper, null);
+                        lstItems = _menuGenerator.CreateMenuFromIDL(wrapper, null);
                     }
                 }
                 else if(currentDir.StartsWith("::")) {
                     using(IDLWrapper wrapper2 = new IDLWrapper(currentDir)) {
-                        lstItems = CreateMenuFromIDL(wrapper2, null);
+                        lstItems = _menuGenerator.CreateMenuFromIDL(wrapper2, null);
                     }
                 }
                 else {
-                    lstItems = CreateMenu(new DirectoryInfo(currentDir), null);
+                    lstItems = _menuGenerator.CreateMenu(new DirectoryInfo(currentDir), null);
                 }
             }
             catch {
@@ -940,18 +543,18 @@ namespace QTTabBarLib {
             try {
                 if(fParent) {
                     using(IDLWrapper wrapper = new IDLWrapper(path)) {
-                        lstItems = CreateParentMenu(wrapper, null);
+                        lstItems = _menuGenerator.CreateParentMenu(wrapper, null);
                         lstItems.Reverse();
                     }
                 }
                 else if(path.StartsWith("::")) {
                     using(IDLWrapper wrapper2 = new IDLWrapper(path)) {
-                        lstItems = CreateMenuFromIDL(wrapper2, null);
+                        lstItems = _menuGenerator.CreateMenuFromIDL(wrapper2, null);
                     }
                 }
                 else {
                     DirectoryInfo di = new DirectoryInfo(currentDir);
-                    lstItems = CreateMenu(di, null);
+                    lstItems = _menuGenerator.CreateMenu(di, null);
                 }
             }
             catch {
@@ -1068,12 +671,12 @@ namespace QTTabBarLib {
             try {
                 if(item.TargetPath.StartsWith("::")) {
                     using(IDLWrapper wrapper = new IDLWrapper(item.TargetPath)) {
-                        lstItems = CreateMenuFromIDL(wrapper, item.IDLDataChild);
+                        lstItems = _menuGenerator.CreateMenuFromIDL(wrapper, item.IDLDataChild);
                     }
                 }
                 else {
                     DirectoryInfo di = new DirectoryInfo(item.TargetPath);
-                    lstItems = CreateMenu(di, item.PathChild);                    
+                    lstItems = _menuGenerator.CreateMenu(di, item.PathChild);                    
                 }
             }
             catch {
