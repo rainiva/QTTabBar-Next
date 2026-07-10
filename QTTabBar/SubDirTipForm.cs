@@ -73,6 +73,7 @@ namespace QTTabBarLib {
             listView = lvw;
             _menuGenerator = new ShellMenuGenerator(this);
             _thumbnailController = new ThumbnailController(this);
+            _dragDropController = new DragDropController(this);
             this.hwndMessageReflect = hwndMessageReflect;
             hwndDialogParent = listView.Handle;
             fDesktop = !fEnableShiftKeyOnDDMR;
@@ -86,7 +87,7 @@ namespace QTTabBarLib {
         private void CheckedItemsClick() {
             List<string> lstCheckedPaths = new List<string>();
             List<QMenuItem> lstCheckedItems = new List<QMenuItem>();
-            if(GetCheckedItems(contextMenuSubDir, lstCheckedPaths, lstCheckedItems, false)) {
+            if(_dragDropController.GetCheckedItems(contextMenuSubDir, lstCheckedPaths, lstCheckedItems, false)) {
                 lstTempDirectoryPaths.Clear();
                 foreach(QMenuItem item in lstCheckedItems) {
                     if((item is ToolStripMenuItemEx) || (item.IDLData != null)) {
@@ -105,7 +106,7 @@ namespace QTTabBarLib {
         private void CheckedItemsRightClick(ItemRightClickedEventArgs e) {
             List<string> lstCheckedPaths = new List<string>();
             List<QMenuItem> lstCheckedItems = new List<QMenuItem>();
-            if(!GetCheckedItems(contextMenuSubDir, lstCheckedPaths, lstCheckedItems, false)) return;
+            if(!_dragDropController.GetCheckedItems(contextMenuSubDir, lstCheckedPaths, lstCheckedItems, false)) return;
             if(lstCheckedPaths.Count <= 1) {
                 if(lstCheckedPaths.Count == 1) {
                     MenuItemRightClicked(this, e);
@@ -260,7 +261,7 @@ namespace QTTabBarLib {
                     DropDownMenuDropTarget ddmrt = (DropDownMenuDropTarget)sender;
                     ddmrt.SuppressMouseMove = false;
                     if(draggingItem.Checked) {
-                        DoDragDropCheckedItems(ddmrt);
+                        _dragDropController.DoDragDropCheckedItems(ddmrt);
                     }
                     else if(!string.IsNullOrEmpty(draggingPath) && ((draggingPath.Length > 3) || Directory.Exists(draggingPath))) {
                         fDragStarted = true;
@@ -321,55 +322,6 @@ namespace QTTabBarLib {
                 thumbnailTip = null;
             }
             base.Dispose(disposing);
-        }
-
-        private void DoDragDropCheckedItems(DropDownMenuDropTarget ddmrt) {
-            List<string> lstCheckedPaths = new List<string>();
-            List<QMenuItem> lstCheckedItems = new List<QMenuItem>();
-            if(GetCheckedItems(contextMenuSubDir, lstCheckedPaths, lstCheckedItems, true)) {
-                if(lstCheckedPaths.Count > 0) {
-                    try {
-                        string directoryName = Path.GetDirectoryName(lstCheckedPaths[0]);
-                        if(lstCheckedPaths.Any(str2 => !string.Equals(
-                                directoryName, Path.GetDirectoryName(str2), StringComparison.OrdinalIgnoreCase))) {
-                            SystemSounds.Beep.Play();
-                            ddmrt.SetSuppressMouseUp();
-                            return;
-                        }
-                        fDragStarted = true;
-                        List<ToolStripItem> list3 = contextMenuSubDir.Items.Cast<ToolStripItem>().ToList();
-                        ShellMethods.DoDragDrop(lstCheckedPaths, this, true);
-                        if(!fDragStarted) {
-                            foreach(ToolStripItem item2 in list3) {
-                                item2.Dispose();
-                            }
-                        }
-                        fDragStarted = false;
-                        contextMenuSubDir.Close(ToolStripDropDownCloseReason.ItemClicked);
-                    }
-                    catch {
-                    }
-                }
-                else {
-                    SystemSounds.Beep.Play();
-                    ddmrt.SetSuppressMouseUp();
-                }
-            }
-        }
-
-        private bool GetCheckedItems(DropDownMenuReorderable ddmr, List<string> lstCheckedPaths, List<QMenuItem> lstCheckedItems, bool fDragDrop) {
-            bool flag = false;
-            foreach(QMenuItem item2 in ddmr.Items.OfType<QMenuItem>()) {
-                if(item2.Checked) {
-                    flag = true;
-                    lstCheckedItems.Add(item2);
-                    lstCheckedPaths.Add(item2.Path);
-                }
-                else if(!fDragDrop && item2.HasDropDownItems && GetCheckedItems((DropDownMenuReorderable)item2.DropDown, lstCheckedPaths, lstCheckedItems, false)) {
-                    flag = true;
-                }
-            }
-            return flag;
         }
 
         public void HideMenu() {
@@ -653,40 +605,11 @@ namespace QTTabBarLib {
         }
 
         private void tsmi_MouseDown(object sender, MouseEventArgs e) {
-            if((e.Button == MouseButtons.Left) || (e.Button == MouseButtons.Right)) {
-                QMenuItem item = (QMenuItem)sender;
-                DropDownMenuReorderable owner = (DropDownMenuReorderable)item.Owner;
-                owner.SuppressStartIndex = owner.Items.IndexOf(item);
-                owner.SuppressMouseMove = true;
-                draggingItem = item;
-                draggingPath = item.Path;
-                pntDragStart = owner.PointToClient(MousePosition);
-            }
+            _dragDropController.tsmi_MouseDown(sender, e);
         }
 
         private void tsmi_MouseUp(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Middle)
-            {
-                // �м��½���ǩ
-                fMiddleButton = true;
-                QMenuItem item = (QMenuItem)sender;
-                var qtTabBarClass = TabInstanceRegistry.GetThreadTabBar();
-                if (null != qtTabBarClass)
-                {
-                    using (IDLWrapper wrapper3 = new IDLWrapper(item.Path))
-                    {
-                        qtTabBarClass.OpenNewTab(wrapper3, true);
-                    }
-                    QTLogger.log("tsmi_MouseUp MouseButtons.Middle " + item.Path);
-                }
-            }
-            else
-            {
-                fMiddleButton = false;
-                QTLogger.log("tsmi_MouseUp others");
-            }
-            draggingPath = null;
-            draggingItem = null;
+            _dragDropController.tsmi_MouseUp(sender, e);
         }
 
         protected override void WndProc(ref Message m) {

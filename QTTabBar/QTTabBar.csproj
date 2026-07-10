@@ -838,6 +838,9 @@
     <Compile Include="SubDirTipForm.ThumbnailController.cs">
       <DependentUpon>SubDirTipForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubDirTipForm.DragDropController.cs">
+      <DependentUpon>SubDirTipForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="TabSwitchForm.cs">
       <SubType>Form</SubType>
     </Compile>
