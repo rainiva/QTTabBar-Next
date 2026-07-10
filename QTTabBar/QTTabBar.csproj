@@ -769,22 +769,18 @@
     <Compile Include="QTTabBarClass.ListViewInputController.Mouse.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.KeyboardAcceleratorController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Band\KeyboardAcceleratorController.cs" />
     <Compile Include="QTTabBarClass.ShellUiController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ButtonBarClickController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.BandInfoController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.BandLifecycleController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.BandWindowController.cs">
+    <Compile Include="Band\IQTTabBarBandHost.cs" />
+    <Compile Include="Band\BandInfoController.cs" />
+    <Compile Include="Band\BandLifecycleController.cs" />
+    <Compile Include="Band\BandWindowController.cs" />
+    <Compile Include="QTTabBarClass.BandHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ComponentBuildController.cs">
