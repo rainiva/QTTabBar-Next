@@ -614,6 +614,7 @@
     <Compile Include="ExtendedListViewCommon.cs" />
         <Compile Include="ExtendedListViewCommon.WatermarkRenderer.cs" />
         <Compile Include="ExtendedListViewCommon.ListViewHoverController.cs" />
+        <Compile Include="ExtendedListViewCommon.ListViewMessageController.cs" />
     <Compile Include="MemoForm.cs" />
     <Compile Include="MenuItemEx.cs">
       <SubType>Component</SubType>

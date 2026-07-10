@@ -73,7 +73,6 @@ namespace QTTabBarLib {
         protected NativeWindowController ListViewController;
         protected NativeWindowController ShellViewController;
         private DropTargetPassthrough dropTargetPassthrough;
-        protected bool fTrackMouseEvent;
         protected IntPtr hwndExplorer;
         protected readonly ShellBrowserEx ShellBrowser;
         protected bool fDragging;
@@ -89,6 +88,7 @@ namespace QTTabBarLib {
             this.ShellBrowser = shellBrowser;
             _watermarkRenderer = new WatermarkRenderer(this);
             _hoverController = new ListViewHoverController(this, hwndSubDirTipMessageReflect);
+            _messageController = new ListViewMessageController(this);
             // this.hwndListView = hwndListView;
 
             ListViewController = new NativeWindowController(hwndListView);
@@ -272,241 +272,10 @@ namespace QTTabBarLib {
         public const int LVM_SETBKIMAGE = (LVM_FIRST + 68);
 
 
+
+
         protected virtual bool ListViewController_MessageCaptured(ref Message msg) {
-            // QTLogger.log("ListViewController msg\t" + Enum.GetName(typeof(MsgEnum), msg.Msg) + "\tw\t" + msg.WParam + "\tl\t" + msg.LParam);
-            if(msg.Msg == WM_AFTERPAINT) {
-                RefreshSubDirTip(true);
-                // SetBackgroundImage(true, true, 0, 0);
-                /*
-                RECT rect;
-                PInvoke.GetWindowRect(Handle, out rect);
-                Rectangle rctDw1 = new Rectangle(0, 0, 500, 1000);
-                Rectangle rctDw = rect.ToRectangle();
-                /*if ((iter->second.size.cx != wndSize.cx || iter->second.size.cy != wndSize.cy)
-                    && m_config.imgPosMode != 0)
-                {
-                    InvalidateRect(iter->second.hWnd, 0, TRUE);
-                }#1#
-
-                PInvoke.InvalidateRect(Handle, IntPtr.Zero, true);
-
-
-                //裁剪矩形 Clip rect
-                // SaveDC(hDC);
-                // IntersectClipRect(hDC, lprc->left, lprc->top, lprc->right, lprc->bottom);
-
-                // PInvoke.SaveDC
-                if (rendererDown_Normal == null)
-                {
-                    InitializeRenderer();
-                }
-                IntPtr dC = PInvoke.GetDC(ListViewController.Handle);
-                if ((dC != IntPtr.Zero))
-                {
-                    using (Graphics graphics = Graphics.FromHdc(dC))
-                    {
-                        VisualStyleRenderer renderer;
-                        // VisualStyleRenderer renderer2;
-                        renderer = rendererDown_Normal;
-                        // g.DrawImage(ResourceCache.ImageListGlobal.Images[base2.ImageKey], rect);
-                        var dToutiaoX1080IntellijIdea3Png = @"D:\下载\Release\Release\x64\Image\bgImage.png";
-                        using (FreeBitmap freeBitmap = new FreeBitmap(dToutiaoX1080IntellijIdea3Png))
-                        using (Bitmap bmp = freeBitmap.Clone())
-                        {
-                            bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                            QTLogger.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
-                            graphics.DrawImage(bmp, rctDw);
-                        }
-
-                        renderer.DrawBackground(graphics, rctDw);
-                        // renderer2.DrawBackground(graphics, rctUp);
-                    }
-                    PInvoke.ReleaseDC(ListViewController.Handle, dC);
-                    PInvoke.ValidateRect(ListViewController.Handle, IntPtr.Zero);
-                    // m.Result = IntPtr.Zero;
-                }*/
-                return true;
-            }
-            else if(msg.Msg == WM_REGISTERDRAGDROP) {
-                IntPtr ptr = Marshal.ReadIntPtr(msg.WParam);
-                if(dropTargetPassthrough != null) {
-                    // If this is the RegisterDragDrop call from the constructor,
-                    // don't mess it up!
-                    if(dropTargetPassthrough.Pointer == ptr) {
-                        return true;
-                    }
-                    dropTargetPassthrough.Dispose();
-                }
-                dropTargetPassthrough = TryMakeDTPassthrough(ptr);
-                if(dropTargetPassthrough != null) {
-                    Marshal.WriteIntPtr(msg.WParam, dropTargetPassthrough.Pointer);
-                }
-                return true;
-            }
-
-            switch(msg.Msg) {
-                /*case 7:
-                    try
-                    {
-                        if ( ShellBrowser.FolderView != null)
-                        {
-                            if ( ShellBrowser.FolderView is IVisualProperties )
-                            {
-                                
-                                IVisualProperties visualProperties = (IVisualProperties)ShellBrowser.FolderView;
-                                // int pcr1;
-                                // visualProperties.GetColor(VPCOLORFLAGS.VPCF_BACKGROUND, out pcr1);
-                                // int pcr2;
-                                // visualProperties.GetColor(VPCOLORFLAGS.VPCF_SORTCOLUMN, out pcr2);
-                                // int pcr3;
-                                // visualProperties.GetColor(VPCOLORFLAGS.VPCF_TEXT, out pcr3);
-                                // QTLogger.log("on focus changed pcr1 : " + pcr1);
-                                // QTLogger.log("on focus changed pcr2 : " + pcr2);
-                                // QTLogger.log("on focus changed pcr3 : " + pcr3);
-                                //
-                                // visualProperties.SetColor(VPCOLORFLAGS.VPCF_BACKGROUND, pcr1);
-                                // visualProperties.SetColor(VPCOLORFLAGS.VPCF_SORTCOLUMN, pcr2);
-                                // visualProperties.SetColor(VPCOLORFLAGS.VPCF_TEXT, pcr3);
-
-                                QTLogger.log("on focus set water mark: " );
-                                var dToutiaoX1080IntellijIdea3Png = @"D:\toutiao\1920x1080-intellij-idea3.png";
-                                using (FreeBitmap freeBitmap = new FreeBitmap(dToutiaoX1080IntellijIdea3Png))
-                                using (Bitmap bmp = freeBitmap.Clone())
-                                {
-                                    bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                    QTLogger.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
-                                    // LVBKIMAGE* lParam = stackalloc LVBKIMAGE[1];
-                                    // lParam->ulFlags = 805306368;
-                                    // lParam->hbm = bmp.GetHbitmap(Color.Black);
-                                    // IntPtr hbmp;
-                                    visualProperties.SetWatermark(bmp.GetHbitmap(Color.Black), VPWATERMARKFLAGS.VPWF_ALPHABLEND);
-                                    SetWaterMarkImage(bmp);
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        // if (this.ReleaseShellView && shellView != null)
-                        //     Marshal.ReleaseComObject((object) shellView);
-                    }
-
-                    // if (this.UpdateColors(true) && this.VistaLayout)
-                        // this.Invalidate();
-                    /*this.OnFocusChanged(true, msg.WParam);
-                    if (this.UpdateColors(true) && this.VistaLayout)
-                        this.Invalidate();
-                    if (this.VistaLayout)
-                    {
-                        this.compatibleView.HideFocus();
-                        break;
-                    }#1#
-                    break;*/
-
-
-                /* case WM.ERASEBKGND:
-                     RECT rect;
-                     PInvoke.GetWindowRect(Handle, out rect);
-                     Rectangle rctDw1 = new Rectangle(0, 0, 500, 1000);
-                     Rectangle rctDw = rect.ToRectangle();
-                     /*if ((iter->second.size.cx != wndSize.cx || iter->second.size.cy != wndSize.cy)
-                         && m_config.imgPosMode != 0)
-                     {
-                         InvalidateRect(iter->second.hWnd, 0, TRUE);
-                     }
-                      #1#
- 
-                     // PInvoke.InvalidateRect(Handle, IntPtr.Zero, true);
- 
- 
-                     //裁剪矩形 Clip rect
-                     // SaveDC(hDC);
-                     // IntersectClipRect(hDC, lprc->left, lprc->top, lprc->right, lprc->bottom);
- 
-                     // PInvoke.SaveDC
-                     if (rendererDown_Normal == null)
-                     {
-                         InitializeRenderer();
-                     }
-                     IntPtr dC = PInvoke.GetDC(ListViewController.Handle);
-                     if ((dC != IntPtr.Zero))
-                     {
-                         using (Graphics graphics = Graphics.FromHdc(dC))
-                         {
-                             VisualStyleRenderer renderer;
-                             // VisualStyleRenderer renderer2;
-                             renderer = rendererDown_Normal;
-                             // g.DrawImage(ResourceCache.ImageListGlobal.Images[base2.ImageKey], rect);
-                             var dToutiaoX1080IntellijIdea3Png = @"D:\下载\Release\Release\x64\Image\bgImage.png";
-                             using (FreeBitmap freeBitmap = new FreeBitmap(dToutiaoX1080IntellijIdea3Png))
-                             using (Bitmap bmp = freeBitmap.Clone())
-                             {
-                                 bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                                 QTLogger.log("SetWaterMarkImage " + dToutiaoX1080IntellijIdea3Png);
-                                 graphics.DrawImage(bmp, rctDw);
-                             }
- 
-                             renderer.DrawBackground(graphics, rctDw);
-                             // renderer2.DrawBackground(graphics, rctUp);
-                         }
-                         PInvoke.ReleaseDC(ListViewController.Handle, dC);
-                         PInvoke.ValidateRect(ListViewController.Handle, IntPtr.Zero);
-                         // m.Result = IntPtr.Zero;
-                     }
-                    break;*/
-                case WM.DESTROY:
-                    HideThumbnailTooltip(7);
-                    HideSubDirTip(7);
-                    ListViewController.DefWndProc(ref msg);
-                    OnListViewDestroyed();
-                    return true;
-
-                case WM.PAINT:
-                    // 直接在 Paint 消息内部操作不行
-                    // It's very dangerous to do automation-related things
-                    // during WM_PAINT.  So, use PostMessage to do it later.
-                    PInvoke.PostMessage(ListViewController.Handle, WM_AFTERPAINT, IntPtr.Zero, IntPtr.Zero);
-                    break;
-
-                case WM.MOUSEMOVE:
-                    ResetTrackMouseEvent();
-                    break;
-
-                case WM.LBUTTONDBLCLK:
-                    if(DoubleClick != null) {
-                        return DoubleClick(QTUtility2.PointFromLPARAM(msg.LParam));
-                    }
-                    break;
-                
-                case WM.MBUTTONUP:
-                    if(MiddleClick != null) {
-                        MiddleClick(QTUtility2.PointFromLPARAM(msg.LParam));
-                    }
-                    break;
-
-                case WM.MOUSEWHEEL: {
-                    IntPtr handle = PInvoke.WindowFromPoint(QTUtility2.PointFromLPARAM(msg.LParam));
-                    if(handle != IntPtr.Zero && handle != msg.HWnd) {
-                        Control control = Control.FromHandle(handle);
-                        if(control != null) {
-                            DropDownMenuReorderable reorderable = control as DropDownMenuReorderable;
-                            if((reorderable != null) && reorderable.CanScroll) {
-                                PInvoke.SendMessage(handle, WM.MOUSEWHEEL, msg.WParam, msg.LParam);
-                            }
-                        }
-                    }
-                    break;
-                }
-
-                case WM.MOUSELEAVE:
-                    fTrackMouseEvent = true;
-                    _hoverController.OnMouseLeave();
-                    break;
-                /*case 48648: // no walking
-                    QTLogger.log("48648");
-                    break;*/
-            }
-            return false;
+            return _messageController.HandleListViewMessage(ref msg);
         }
 
         private VisualStyleRenderer rendererDown_Hot;
@@ -642,7 +411,7 @@ namespace QTTabBarLib {
         protected virtual bool OnShellViewNotify(NMHDR nmhdr, ref Message msg) {
             if(nmhdr.hwndFrom != ListViewController.Handle) {
                 if(nmhdr.code == -12 /*NM_CUSTOMDRAW*/ && nmhdr.idFrom == IntPtr.Zero) {
-                    ResetTrackMouseEvent();
+                    _messageController.ResetTrackMouseEvent();
                 }
             }
             return false;
@@ -656,17 +425,6 @@ namespace QTTabBarLib {
 
         public void RemoteDispose() {
             PInvoke.PostMessage(Handle, WM_REMOTEDISPOSE, IntPtr.Zero, IntPtr.Zero);
-        }
-
-        private void ResetTrackMouseEvent() {
-            if(fTrackMouseEvent) {
-                fTrackMouseEvent = false;
-                TRACKMOUSEEVENT structure = new TRACKMOUSEEVENT();
-                structure.cbSize = Marshal.SizeOf(structure);
-                structure.dwFlags = 2;
-                structure.hwndTrack = Handle;
-                PInvoke.TrackMouseEvent(ref structure);
-            }
         }
 
         public override void ScrollHorizontal(int amount) {
@@ -691,19 +449,7 @@ namespace QTTabBarLib {
         }
 
         protected virtual bool ShellViewController_MessageCaptured(ref Message msg) {
-            // QTUtility2.debugMessage(msg);
-            switch(msg.Msg) {
-                case WM.MOUSEACTIVATE:
-                    int res = (int)msg.Result;
-                    bool ret = OnMouseActivate(ref res);
-                    msg.Result = (IntPtr)res;
-                    return ret;
-
-                case WM.NOTIFY:
-                    NMHDR nmhdr = (NMHDR)Marshal.PtrToStructure(msg.LParam, typeof(NMHDR));
-                    return OnShellViewNotify(nmhdr, ref msg);
-            }
-            return false;
+            return _messageController.HandleShellViewMessage(ref msg);
         }
 
         public override void ShowAndClickSubDirTip() {
