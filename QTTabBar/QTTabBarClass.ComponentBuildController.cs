@@ -53,7 +53,7 @@ namespace QTTabBarLib {
                 _owner._shellCommandController = new ShellCommandController((IShellCommandHost)_owner);
                 _owner._listViewInputController = new ListViewInputController((IListViewInputHost)_owner);
                 _owner._keyboardAcceleratorController = new KeyboardAcceleratorController((IQTTabBarBandHost)_owner);
-                _owner._shellUiController = new ShellUiController(_owner);
+                _owner._shellUiController = new ShellUiController((IShellUiHost)_owner);
                 _owner._buttonBarClickController = new ButtonBarClickController((IButtonBarCommandHost)_owner);
                 _owner._bandInfoController = new BandInfoController((IQTTabBarBandHost)_owner);
                 _owner._bandLifecycleController = new BandLifecycleController((IQTTabBarBandHost)_owner);

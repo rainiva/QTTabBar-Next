@@ -774,7 +774,9 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Band\KeyboardAcceleratorController.cs" />
-    <Compile Include="QTTabBarClass.ShellUiController.cs">
+    <Compile Include="Shell\IShellUiHost.cs" />
+    <Compile Include="Shell\ShellUiController.cs" />
+    <Compile Include="QTTabBarClass.ShellUiHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Input\IButtonBarCommandHost.cs" />

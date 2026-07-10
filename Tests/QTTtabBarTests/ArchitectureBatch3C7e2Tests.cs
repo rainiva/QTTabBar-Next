@@ -9,7 +9,7 @@ namespace QTTtabBarTests {
             "Input\\HookInputController.cs",
             "QTTabBarClass.TabManager.cs",
             "Shell\\ShellNavigationController.cs",
-            "QTTabBarClass.ShellUiController.cs",
+            "QTTabBarClass.ShellUiHost.cs",
             "QTTabBarClass.BindActionController.cs",
             "QTTabBarClass.ShutdownController.cs",
             "RebarController.cs",
