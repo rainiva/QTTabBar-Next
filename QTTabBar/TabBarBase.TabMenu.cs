@@ -8,20 +8,7 @@ namespace QTTabBarLib {
         protected ToolStripTextBox menuTextBoxTabAlias;
 
         internal int TabIndexForNewTab() {
-            var index = 1;
-            if(Config.Tabs.NewTabPosition == TabPos.Rightmost) {
-                index = tabControl1.TabPages.Count;
-            }
-            else if(Config.Tabs.NewTabPosition == TabPos.Left) {
-                index = tabControl1.SelectedIndex - 1;
-            }
-            else if(Config.Tabs.NewTabPosition == TabPos.Right) {
-                index = tabControl1.SelectedIndex + 1;
-            }
-            else {
-                index = 0;
-            }
-            return index;
+            return TabInsertionPolicy.Resolve(Config.Tabs.NewTabPosition, tabControl1.TabPages.Count, tabControl1.SelectedIndex);
         }
 
         internal void menuitemTabOrder_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {

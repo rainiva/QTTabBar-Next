@@ -9,8 +9,12 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public abstract partial class TabBarBase {
         internal void AddInsertTab(QTabItem tab) {
+            AddInsertTabAt(tab, Config.Tabs.NewTabPosition);
+        }
+
+        internal void AddInsertTabAt(QTabItem tab, TabPos position) {
             QTLogger.log("TabBarBase AddInsertTab");
-            switch(Config.Tabs.NewTabPosition) {
+            switch(position) {
                 case TabPos.Leftmost:
                     tabControl1.TabPages.Insert(0, tab);
                     break;
@@ -23,7 +27,7 @@ namespace QTTabBarLib {
                     }
                     else {
                         tabControl1.TabPages.Insert(
-                            Config.Tabs.NewTabPosition == TabPos.Right ? (index + 1) : index,
+                            position == TabPos.Right ? (index + 1) : index,
                             tab);
                     }
                     break;
@@ -36,11 +40,15 @@ namespace QTTabBarLib {
         }
 
         internal QTabItem CreateNewTab(IDLWrapper idlw) {
+            return CreateNewTabAt(idlw, Config.Tabs.NewTabPosition);
+        }
+
+        internal QTabItem CreateNewTabAt(IDLWrapper idlw, TabPos position) {
             string path = idlw.Path;
             QTabItem tab = new QTabItem(QTUtility2.MakePathDisplayText(path, false), path, tabControl1);
             tab.NavigatedTo(path, idlw.IDL, -1, false);
             tab.ToolTipText = QTUtility2.MakePathDisplayText(path, true);
-            AddInsertTab(tab);
+            AddInsertTabAt(tab, position);
             return tab;
         }
 

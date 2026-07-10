@@ -429,6 +429,7 @@
     </Compile>
     <Compile Include="StaticReg.cs" />
     <Compile Include="StaticRegAccess.cs" />
+    <Compile Include="TabInsertionPolicy.cs" />
     <Compile Include="TabBarBase.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -27,10 +27,7 @@ namespace QTTabBarLib {
         internal void RestoreTabsOnInitialize(int iIndex, string openingPath) {
             QTLogger.log("QTTabBarClass RestoreTabsOnInitialize");
             LockedTabsService.RefreshFromRegistry();
-            TabPos num = Config.Tabs.NewTabPosition;
-            Config.Tabs.NewTabPosition = TabPos.Rightmost;
-            try {
-                if(iIndex == 1) {
+            if(iIndex == 1) {
                     string[] strArray = StaticReg.LockedTabsToRestoreList.ToArray();
                     if((strArray.Length > 0) && (strArray[0].Length > 0)) {
                         foreach(string str2 in strArray.Where(str2 => str2.Length > 0
@@ -41,7 +38,7 @@ namespace QTTabBarLib {
                             else {
                                 using(IDLWrapper wrapper2 = new IDLWrapper(str2)) {
                                     if(wrapper2.Available) {
-                                        QTabItem item4 = CreateNewTab(wrapper2);
+                                        QTabItem item4 = CreateNewTabAt(wrapper2, TabPos.Rightmost);
                                         item4.TabLocked = true;
                                     }
                                 }
@@ -63,7 +60,7 @@ namespace QTTabBarLib {
                                     else {
                                         using(IDLWrapper wrapper2 = new IDLWrapper(str2)) {
                                             if(wrapper2.Available) {
-                                                QTabItem item4 = CreateNewTab(wrapper2);
+                                                QTabItem item4 = CreateNewTabAt(wrapper2, TabPos.Rightmost);
                                                 if(StaticReg.LockedTabsToRestoreList.Contains(str2)) {
                                                     item4.TabLocked = true;
                                                 }
@@ -77,9 +74,5 @@ namespace QTTabBarLib {
                     }
                 }
             }
-            finally {
-                Config.Tabs.NewTabPosition = num;
-            }
         }
     }
-}
