@@ -18,8 +18,10 @@ namespace QTTtabBarTests {
 
         [Test]
         public void FolderTreeController_Owns_FolderTreeCallbacks() {
-            var type = typeof(QTTabBarClass).GetNestedType("FolderTreeController", BindingFlags.NonPublic);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.FolderTreeController", true);
             Assert.IsNotNull(type);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("FolderTreeController",
+                BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetMethod("AsyncComplete_FolderTree", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetMethod("CallbackFolderTree", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
@@ -28,7 +30,7 @@ namespace QTTtabBarTests {
         public void QTTabBarClass_Delegates_DroppedFiles_And_FolderTree() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string dropped = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "DroppedFilesController.cs"));
-            string folderTree = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.FolderTreeController.cs"));
+            string folderTree = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "FolderTreeController.cs"));
             Assert.IsFalse(main.Contains("private void AppendUserApps("));
             Assert.IsFalse(main.Contains("private void AsyncComplete_FolderTree("));
             Assert.IsFalse(main.Contains("private void CallbackFolderTree("));
