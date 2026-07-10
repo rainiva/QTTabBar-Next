@@ -176,7 +176,7 @@ namespace QTTabBarLib {
                     }
                     else {
                         _host.Keyboard.listView.HideThumbnailTooltip(3);
-                        if(_host.Keyboard.NowTabDragging && _host.Keyboard.DraggingTab != null) {
+                        if(_host.Keyboard.HasDraggingTab) {
                             _host.Keyboard.Cursor = Cursors.Default;
                         }
 

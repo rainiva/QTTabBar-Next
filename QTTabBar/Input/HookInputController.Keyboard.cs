@@ -25,7 +25,7 @@ namespace QTTabBarLib {
                         return false;
 
                     case Keys.ControlKey:
-                        if(!fRepeat && _host.Keyboard.NowTabDragging && _host.Keyboard.DraggingTab != null && _host.Keyboard.tabControl1.GetTabMouseOn() == null) {
+                        if(!fRepeat && _host.Keyboard.HasDraggingTab && _host.Keyboard.tabControl1.GetTabMouseOn() == null) {
                             _host.Keyboard.Cursor = _host.Keyboard.GetCursor(false);
                         }
                         break;

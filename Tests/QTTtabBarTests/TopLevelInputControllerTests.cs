@@ -39,11 +39,38 @@ namespace QTTtabBarTests {
         [TestCase("IHookInputHost")]
         public void Input_Host_Has_A_Bounded_Member_Surface(string hostName) {
             Type hostType = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib." + hostName, true);
-            int memberCount = hostType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Length;
-            foreach(MethodInfo method in hostType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
+            Assert.LessOrEqual(CountDirectMembers(hostType), 15, hostName + " must remain a narrow host contract.");
+        }
+
+        [TestCase("IHookMessagePort")]
+        [TestCase("IHookKeyboardPort")]
+        [TestCase("IHookFolderTreePort")]
+        [TestCase("IHookViewPort")]
+        [TestCase("IHookMousePort")]
+        public void Hook_Role_Port_Has_A_Bounded_And_Abstract_Surface(string portName) {
+            Type portType = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib." + portName, true);
+            Assert.LessOrEqual(CountDirectMembers(portType), 15, portName + " must remain a narrow role port.");
+            foreach(PropertyInfo property in portType.GetProperties()) {
+                Assert.IsFalse(IsConcreteCompositionRootType(property.PropertyType));
+            }
+            foreach(MethodInfo method in portType.GetMethods()) {
+                Assert.IsFalse(IsConcreteCompositionRootType(method.ReturnType));
+                foreach(ParameterInfo parameter in method.GetParameters()) {
+                    Assert.IsFalse(IsConcreteCompositionRootType(parameter.ParameterType));
+                }
+            }
+        }
+
+        private static int CountDirectMembers(Type type) {
+            int memberCount = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Length;
+            foreach(MethodInfo method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 if(!method.IsSpecialName) memberCount++;
             }
-            Assert.LessOrEqual(memberCount, 15, hostName + " must remain a narrow host contract.");
+            return memberCount;
+        }
+
+        private static bool IsConcreteCompositionRootType(Type type) {
+            return type == typeof(QTTabBarClass) || (type.FullName != null && type.FullName.StartsWith("QTTabBarLib.QTTabBarClass+"));
         }
     }
 }

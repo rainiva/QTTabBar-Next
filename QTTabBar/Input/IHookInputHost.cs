@@ -21,8 +21,7 @@ namespace QTTabBarLib {
     internal interface IHookKeyboardPort {
         bool NowModalDialogShown { get; }
         AbstractListView listView { get; }
-        bool NowTabDragging { get; }
-        QTabItem DraggingTab { get; }
+        bool HasDraggingTab { get; }
         Cursor Cursor { get; set; }
         Cursor GetCursor(bool dragging);
         void HideTabSwitcher(bool switchTab);
