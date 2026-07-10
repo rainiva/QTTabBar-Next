@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: docs_design
+title: 设计文档与 Superpowers 子代理工件
+scope:
+    - docs/
+source_files: []
+depends_on: []
+related_to:
+    - path: tools_build

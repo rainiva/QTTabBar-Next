@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: qttabbar_core/tabbar_runtime/tab_management
+title: 标签页生命周期与拖放控制器
+scope:
+    - QTTabBar/QTTabBarClass.TabManager.cs
+    - QTTabBar/QTTabBarClass.DragDropController.cs
+    - QTTabBar/QTTabBarClass.DroppedFilesController.cs
+source_files: []
+depends_on: []
+related_to: []

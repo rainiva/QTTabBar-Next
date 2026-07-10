@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: i18n_resources
+title: QTTabBar 多语言资源文件集
+scope:
+    - I18N/
+source_files: []
+depends_on: []
+related_to:
+    - path: qtplugin_api

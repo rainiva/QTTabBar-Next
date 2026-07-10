@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: tools_build
+title: 构建与诊断工具集（Build & Diagnostic Tools）
+scope:
+    - Tools/
+source_files: []
+depends_on: []
+related_to:
+    - path: docs_design
+    - path: tests

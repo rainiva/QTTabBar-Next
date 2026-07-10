@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: bandobject_lib
+title: Shell DeskBand 宿主基类库
+scope:
+    - BandObjectLib/
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core/tabbar_runtime

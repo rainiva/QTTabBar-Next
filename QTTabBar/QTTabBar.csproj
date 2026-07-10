@@ -512,6 +512,9 @@
     <Compile Include="DropDownMenuReorderable.VirtualItemsController.cs">
       <DependentUpon>DropDownMenuReorderable.cs</DependentUpon>
     </Compile>
+    <Compile Include="DropDownMenuReorderable.ScrollController.cs">
+      <DependentUpon>DropDownMenuReorderable.cs</DependentUpon>
+    </Compile>
     <Compile Include="ExtendedItemsView.cs" />
     <Compile Include="ExtendedSysListView32.cs" />
     <Compile Include="FileHashComputerForm.cs">

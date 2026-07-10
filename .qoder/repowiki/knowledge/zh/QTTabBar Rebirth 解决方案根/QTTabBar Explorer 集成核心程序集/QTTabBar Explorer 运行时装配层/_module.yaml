@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: qttabbar_core/tabbar_runtime
+title: QTTabBar Explorer 运行时装配层
+scope:
+    - QTTabBar/QTTabBarClass.*
+    - QTTabBar/TabBarBase.*
+    - QTTabBar/QTabControl.cs
+    - QTTabBar/QTabItem.cs
+source_files: []
+depends_on: []
+related_to:
+    - path: bandobject_lib

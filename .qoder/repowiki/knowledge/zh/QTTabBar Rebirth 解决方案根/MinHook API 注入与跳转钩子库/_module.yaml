@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: minhook
+title: MinHook API 注入与跳转钩子库
+scope:
+    - MinHook/
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core/ipc_hook_infra

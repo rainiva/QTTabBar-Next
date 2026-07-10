@@ -79,6 +79,7 @@ namespace QTTabBarLib {
             fReorderEnabled = true;
             fEnableScroll = true;
             _virtualController = new VirtualItemsController(this);
+            _scrollController = new ScrollController(this);
         }
 
         public DropDownMenuReorderable(IContainer container, bool respondModKeys, bool enableShiftKey)
@@ -89,6 +90,7 @@ namespace QTTabBarLib {
             fReorderEnabled = true;
             fEnableScroll = true;
             _virtualController = new VirtualItemsController(this);
+            _scrollController = new ScrollController(this);
         }
 
         public DropDownMenuReorderable(IContainer container, bool respondModKeys, bool enableShiftKey, bool enableReorder)
@@ -100,6 +102,7 @@ namespace QTTabBarLib {
             fEnableScroll = true;
             fReorderEnabled = enableReorder;
             _virtualController = new VirtualItemsController(this);
+            _scrollController = new ScrollController(this);
         }
 
         public void AddItem(ToolStripItem item, string key) {
@@ -196,23 +199,6 @@ namespace QTTabBarLib {
 
         private void SelectDirectedItem(bool directed, bool forward) {
             Select(directed, forward);
-        }
-
-        private void GetScrollButtons() {
-            try {
-                if(piScrollButtonUp == null) {
-                    piScrollButtonUp = typeof(ToolStripDropDownMenu).GetProperty("UpScrollButton", BindingFlags.ExactBinding | BindingFlags.NonPublic | BindingFlags.Instance);
-                }
-                if(piScrollButtonDn == null) {
-                    piScrollButtonDn = typeof(ToolStripDropDownMenu).GetProperty("DownScrollButton", BindingFlags.ExactBinding | BindingFlags.NonPublic | BindingFlags.Instance);
-                }
-                upButton = (ToolStripControlHost)piScrollButtonUp.GetValue(this, null);
-                downButton = (ToolStripControlHost)piScrollButtonDn.GetValue(this, null);
-            }
-            catch (Exception exception)
-            {
-                QTLogger.MakeErrorLog(exception, "DropDownMeanuDropTarget GetScrollButtons");
-            }
         }
 
         private void HandlePageKeys(Keys keys) {
@@ -434,7 +420,7 @@ namespace QTTabBarLib {
                     }
                     fNowScrollButtonsRequired = (bool)piScroll.GetValue(this, null);
                     if(fNowScrollButtonsRequired && (upButton == null)) {
-                        GetScrollButtons();
+                        _scrollController.GetScrollButtons();
                     }
                 }
                 catch (Exception exception)
@@ -655,52 +641,19 @@ namespace QTTabBarLib {
         }
 
         protected void ScrollMenu(bool fUp, int count) {
-            fSuppressMouseMove_Scroll = true;
-            fSuppressMouseMoveOnce = true;
-            HideToolTip();
-            SuspendLayout();
-            int num = ScrollMenuCore(fUp, count);
-            if((num < count) && fVirtualMode) {
-                _virtualController.ScrollMenuVirtual(fUp, count - num);
-            }
-            ResumeLayout();
-            Refresh();
-            fSuppressMouseMove_Scroll = false;
+            _scrollController.ScrollMenu(fUp, count);
+        }
+
+        private void RaiseMouseScroll() {
             if(MouseScroll != null) {
                 MouseScroll(this, EventArgs.Empty);
             }
         }
 
-        private int ScrollMenuCore(bool fUp, int count) {
-            if(count >= 1) {
-                ToolStripControlHost host = fUp ? upButton : downButton;
-                if((host != null) && host.Visible) {
-                    Control control = host.Control;
-                    if((control != null) && control.Enabled) {
-                        CloseChildDropDown();
-                        if(miScroll == null) {
-                            miScroll = typeof(ToolStripDropDownMenu).GetMethod("ScrollInternal", BindingFlags.ExactBinding | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(bool) }, null);
-                        }
-                        fSuspendPainting = true;
-                        try {
-                            miScroll.Invoke(this, new object[] { fUp });
-                            for(int i = 1; i < count; i++) {
-                                if(control.Enabled) {
-                                    miScroll.Invoke(this, new object[] { fUp });
-                                }
-                                else {
-                                    return i;
-                                }
-                            }
-                            return count;
-                        }
-                        finally {
-                            fSuspendPainting = false;
-                        }
-                    }
-                }
+        private bool SuspendPaintingFlag {
+            set {
+                fSuspendPainting = value;
             }
-            return 0;
         }
 
         public void UpdateToolTipByKey(ToolStripMenuItem item) {

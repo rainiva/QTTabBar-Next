@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: qttabbar_core/tabbar_runtime/shell_integration
+title: Shell 集成控制器（导航/命令/UI）
+scope:
+    - QTTabBar/QTTabBarClass.ShellNavigationController.cs
+    - QTTabBar/QTTabBarClass.ShellUiController.cs
+    - QTTabBar/QTTabBarClass.ShellCommandController.cs
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core/ui_controls

@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="2eb8aa45-d06a-4944-97f8-d2fb531e33ab" name="coxte@RAINPC 2026-07-10 12:31:51" runUser="RAINPC\coxte" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-10T12:31:51.6870154+08:00" queuing="2026-07-10T12:31:51.6870154+08:00" start="2026-07-10T12:31:50.2730584+08:00" finish="2026-07-10T12:31:51.7080137+08:00" />
+  <TestSettings name="default" id="03771237-06ec-488f-95fd-3b6d63eda7a5">
+    <Deployment runDeploymentRoot="coxte_RAINPC_2026-07-10_12_31_51" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="4e6b7260-f34b-46a7-84d5-92e88555b322" testId="f347b89b-c660-9dfe-f282-df12076de0a9" testName="Virtual_Methods_Moved_Into_Controller" computerName="RAINPC" duration="00:00:00.0050000" startTime="2026-07-10T12:31:51.5537866+08:00" endTime="2026-07-10T12:31:51.5577868+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4e6b7260-f34b-46a7-84d5-92e88555b322">
+      <Output>
+        <ErrorInfo>
+          <Message>  VirtualItemsController must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.Virtual_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 46&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.Virtual_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 46&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f51c470f-524c-4ef7-acb4-9334992b9646" testId="860bd696-2f42-b795-d269-2d5db21887cf" testName="DropDownMenuReorderable_Delegates_Virtual_To_Controller" computerName="RAINPC" duration="00:00:00.0560000" startTime="2026-07-10T12:31:51.4964943+08:00" endTime="2026-07-10T12:31:51.5527886+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f51c470f-524c-4ef7-acb4-9334992b9646">
+      <Output>
+        <ErrorInfo>
+          <Message>  DropDownMenuReorderable should declare and use the extracted VirtualItemsController&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.DropDownMenuReorderable_Delegates_Virtual_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 61&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.DropDownMenuReorderable_Delegates_Virtual_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 61&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="38e71767-a3d9-46c0-82ac-490d6cf74a91" testId="eb4ced12-45d6-d197-48f1-a00a7d052f45" testName="VirtualItemsController_NestedType_Is_Extracted" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T12:31:51.5587873+08:00" endTime="2026-07-10T12:31:51.5587873+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="38e71767-a3d9-46c0-82ac-490d6cf74a91">
+      <Output>
+        <ErrorInfo>
+          <Message>  VirtualItemsController nested controller must be extracted from DropDownMenuReorderable&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.VirtualItemsController_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 29&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.VirtualItemsController_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 29&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="038eae86-7d5e-44b4-989e-f6a6c71dd4ae" testId="0bfa8716-ae66-68e6-a15f-cbe18069dd25" testName="VirtualItemsController_Holds_Owner_BackReference" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T12:31:51.5577868+08:00" endTime="2026-07-10T12:31:51.5587873+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="038eae86-7d5e-44b4-989e-f6a6c71dd4ae">
+      <Output>
+        <ErrorInfo>
+          <Message>  VirtualItemsController must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.VirtualItemsController_Holds_Owner_BackReference() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 36&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.VirtualItemsController_Holds_Owner_BackReference() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 36&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Virtual_Methods_Moved_Into_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="f347b89b-c660-9dfe-f282-df12076de0a9">
+      <Execution id="4e6b7260-f34b-46a7-84d5-92e88555b322" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="Virtual_Methods_Moved_Into_Controller" />
+    </UnitTest>
+    <UnitTest name="VirtualItemsController_Holds_Owner_BackReference" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="0bfa8716-ae66-68e6-a15f-cbe18069dd25">
+      <Execution id="038eae86-7d5e-44b4-989e-f6a6c71dd4ae" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="VirtualItemsController_Holds_Owner_BackReference" />
+    </UnitTest>
+    <UnitTest name="DropDownMenuReorderable_Delegates_Virtual_To_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="860bd696-2f42-b795-d269-2d5db21887cf">
+      <Execution id="f51c470f-524c-4ef7-acb4-9334992b9646" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="DropDownMenuReorderable_Delegates_Virtual_To_Controller" />
+    </UnitTest>
+    <UnitTest name="VirtualItemsController_NestedType_Is_Extracted" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="eb4ced12-45d6-d197-48f1-a00a7d052f45">
+      <Execution id="38e71767-a3d9-46c0-82ac-490d6cf74a91" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="VirtualItemsController_NestedType_Is_Extracted" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="f347b89b-c660-9dfe-f282-df12076de0a9" executionId="4e6b7260-f34b-46a7-84d5-92e88555b322" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="860bd696-2f42-b795-d269-2d5db21887cf" executionId="f51c470f-524c-4ef7-acb4-9334992b9646" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eb4ced12-45d6-d197-48f1-a00a7d052f45" executionId="38e71767-a3d9-46c0-82ac-490d6cf74a91" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0bfa8716-ae66-68e6-a15f-cbe18069dd25" executionId="038eae86-7d5e-44b4-989e-f6a6c71dd4ae" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="4" executed="4" passed="0" failed="4" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll&#xD;
+   NUnit3TestExecutor discovered 4 of 4 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

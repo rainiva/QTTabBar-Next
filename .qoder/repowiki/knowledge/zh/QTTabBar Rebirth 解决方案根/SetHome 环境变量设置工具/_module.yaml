@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: sethome_tool
+title: SetHome 环境变量设置工具
+scope:
+    - SetHome/
+source_files: []
+depends_on: []
+related_to:
+    - path: register_native

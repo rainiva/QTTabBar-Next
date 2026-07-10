@@ -1,0 +1,29 @@
+schema_version: 1
+module_path: ""
+title: QTTabBar Rebirth 解决方案根
+scope:
+    - README.md
+    - LICENSE.txt
+    - CONTRIBUTING.md
+    - SECURITY.md
+    - BUILD.txt
+    - TODOS.txt
+    - .gitignore
+    - _config.yml
+    - appveyor.yml
+    - 01build_release.bat
+    - 02build_sonar.bat
+    - 03build_installer.bat
+    - restart explorer.bat
+    - 清理.bat
+    - url.txt
+    - QTTabBar Rebirth.sln
+    - CHANGES.txt
+    - NotifyPropertyWeaverVsPackage.vsix
+    - QTTabBar.doc
+    - README_zh.md
+    - Votive2010.vsix
+    - image.png
+source_files: []
+depends_on: []
+related_to: []

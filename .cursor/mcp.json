@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "codegraph": {
+      "command": "codegraph",
+      "args": [
+        "serve",
+        "--mcp",
+        "--path",
+        "D:\\Project\\QTTabBar-Next"
+      ]
+    }
+  }
+}
