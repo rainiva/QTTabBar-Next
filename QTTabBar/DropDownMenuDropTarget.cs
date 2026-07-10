@@ -28,7 +28,7 @@ using BandObjectLib;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    internal sealed class DropDownMenuDropTarget : DropDownMenuReorderable {
+    internal sealed partial class DropDownMenuDropTarget : DropDownMenuReorderable {
         private Bitmap bmpInsertL;
         private Bitmap bmpInsertR;
         private DropTargetWrapper dropTargetWrapper;
@@ -66,6 +66,7 @@ namespace QTTabBarLib {
             iItemDragOverRegion = -1;
             fIsRootMenu = isRoot;
             this.hwndDialogParent = hwndDialogParent;
+            _clipboardController = new ClipboardFileController(this);
             HandleCreated += DropDownMenuDropTarget_HandleCreated;
         }
 
@@ -107,112 +108,6 @@ namespace QTTabBarLib {
                 }
                 miUnselect.Invoke(item, null);
                 break;
-            }
-        }
-
-        private void CopyCutFiles(bool fCut) {
-            List<string> lstPaths = new List<string>();
-            DropDownMenuDropTarget root = GetRoot(this);
-            if(root != null) {
-                GetCheckedItem(root, lstPaths, fCut, true);
-                if(lstPaths.Count == 0) {
-                    foreach(ToolStripItem item in DisplayedItems) {
-                        if(item.Selected) {
-                            QMenuItem item2 = item as QMenuItem;
-                            if((item2 != null) && !string.IsNullOrEmpty(item2.Path)) {
-                                item2.IsCut = fCut;
-                                lstPaths.Add(item2.Path);
-                            }
-                            break;
-                        }
-                    }
-                }
-                if(ShellMethods.SetClipboardFileDropPaths(lstPaths, fCut, hwndDialogParent)) {
-                    fContainsFileDropList = true;
-                }
-            }
-        }
-
-        private void CopyFileNames(bool fPath) {
-            List<string> lstPaths = new List<string>();
-            DropDownMenuDropTarget root = GetRoot(this);
-            if(root != null) {
-                GetCheckedItem(root, lstPaths, false, true);
-            }
-            if(lstPaths.Count == 0) {
-                foreach(ToolStripItem item in DisplayedItems) {
-                    if(!item.Selected) {
-                        continue;
-                    }
-                    QMenuItem item2 = item as QMenuItem;
-                    if((item2 != null) && !string.IsNullOrEmpty(item2.Path)) {
-                        string path = item2.Path;
-                        if(!fPath) {
-                            try {
-                                path = System.IO.Path.GetFileName(path);
-                            }
-                            catch (Exception exception)
-                            {
-                                QTLogger.MakeErrorLog(exception, "CopyFileNames");
-                            }
-                        }
-                        if(!string.IsNullOrEmpty(path)) {
-                            QTUtility2.SetStringClipboard(path);
-                            fContainsFileDropList = false;
-                            itemKeyInsertionMarkPrev = null;
-                            Invalidate();
-                        }
-                    }
-                    break;
-                }
-            }
-            else {
-                string str = string.Empty;
-                foreach(string str3 in lstPaths) {
-                    if(fPath) {
-                        str = str + str3 + Environment.NewLine;
-                    }
-                    else {
-                        try {
-                            str = str + System.IO.Path.GetFileName(str3) + Environment.NewLine;
-                            continue;
-                        }
-                        catch (Exception exception)
-                        {
-                            QTLogger.MakeErrorLog(exception, "CopyFileNames foreach");
-                            continue;
-                        }
-                    }
-                }
-                if(str.Length > 0) {
-                    QTUtility2.SetStringClipboard(str);
-                    fContainsFileDropList = false;
-                    itemKeyInsertionMarkPrev = null;
-                    Invalidate();
-                }
-            }
-        }
-
-        private void DeleteFiles(bool fShiftKey) {
-            List<string> lstPaths = new List<string>();
-            DropDownMenuDropTarget root = GetRoot(this);
-            if(root != null) {
-                GetCheckedItem(root, lstPaths, false, false);
-                if(lstPaths.Count == 0) {
-                    foreach(ToolStripItem item in DisplayedItems) {
-                        if(item.Selected) {
-                            QMenuItem item2 = item as QMenuItem;
-                            if((item2 != null) && !string.IsNullOrEmpty(item2.Path)) {
-                                lstPaths.Add(item2.Path);
-                            }
-                            break;
-                        }
-                    }
-                }
-                ShellMethods.DeleteFile(lstPaths, fShiftKey, hwndDialogParent);
-                if(OSDetector.IsXP) {
-                    root.Close(ToolStripDropDownCloseReason.ItemClicked);
-                }
             }
         }
 
@@ -423,46 +318,6 @@ namespace QTTabBarLib {
             }
         }
 
-        private static void GetCheckedItem(DropDownMenuDropTarget ddmdtRoot, List<string> lstPaths, bool fCut, bool fSetCut) {
-            foreach(QMenuItem item2 in ddmdtRoot.Items.OfType<QMenuItem>()) {
-                if(item2.Checked) {
-                    if(!string.IsNullOrEmpty(item2.Path)) {
-                        lstPaths.Add(item2.Path);
-                        if(fSetCut) {
-                            item2.IsCut = fCut;
-                        }
-                    }
-                    else if(fSetCut) {
-                        item2.IsCut = false;
-                    }
-                    continue;
-                }
-                if(fSetCut) {
-                    item2.IsCut = false;
-                }
-                if(item2.HasDropDownItems) {
-                    GetCheckedItem((DropDownMenuDropTarget)item2.DropDown, lstPaths, fCut, fSetCut);
-                }
-            }
-        }
-
-        private static DropDownMenuDropTarget GetRoot(DropDownMenuDropTarget ddmdt) {
-            if(ddmdt.fIsRootMenu) {
-                return ddmdt;
-            }
-            ToolStripItem ownerItem = ddmdt.OwnerItem;
-            if(ownerItem != null) {
-                ToolStrip owner = ownerItem.Owner;
-                if(owner != null) {
-                    DropDownMenuDropTarget target = owner as DropDownMenuDropTarget;
-                    if(target != null) {
-                        return GetRoot(target);
-                    }
-                }
-            }
-            return null;
-        }
-
         private bool IsKeyTargetItem(ToolStripItem item) {
             bool flag;
             SubDirTipForm.ToolStripMenuItemEx ex = item as SubDirTipForm.ToolStripMenuItemEx;
@@ -624,21 +479,6 @@ namespace QTTabBarLib {
             base.OnPreviewKeyDown(e);
         }
 
-        private void PasteFiles() {
-            string pathTarget = fKeyTargetIsThis 
-                    ? Path 
-                    : (from ToolStripItem item in DisplayedItems
-                       where item.Selected && item is QMenuItem
-                       select ((QMenuItem)item).Path).FirstOrDefault();
-            if(pathTarget == null) return;
-            ShellMethods.PasteFile(pathTarget, hwndDialogParent);
-            if(!OSDetector.IsXP) return;
-            DropDownMenuDropTarget ddmdtRoot = GetRoot(this);
-            if(ddmdtRoot != null) {
-                ddmdtRoot.Close(ToolStripDropDownCloseReason.ItemClicked);
-            }
-        }
-
         private static bool PathIsExecutable(string path, out bool fLinkTargetIsNotDropTarget) {
             fLinkTargetIsNotDropTarget = false;
             if(string.IsNullOrEmpty(path)) {
@@ -676,15 +516,15 @@ namespace QTTabBarLib {
                 }
                 switch(keys) {
                     case Keys.V:
-                        PasteFiles();
+                        _clipboardController.PasteFiles();
                         return true;
 
                     case Keys.C:
-                        CopyCutFiles(false);
+                        _clipboardController.CopyCutFiles(false);
                         return true;
 
                     case Keys.X:
-                        CopyCutFiles(true);
+                        _clipboardController.CopyCutFiles(true);
                         return true;
                 }
             }
@@ -701,7 +541,7 @@ namespace QTTabBarLib {
 
                 case Keys.Delete:
                     if(!flag && ((keyData == Keys.Delete) || (keyData == (Keys.Shift | Keys.Delete)))) {
-                        DeleteFiles(keyData != Keys.Delete);
+                        _clipboardController.DeleteFiles(keyData != Keys.Delete);
                     }
                     return true;
             }
@@ -710,7 +550,7 @@ namespace QTTabBarLib {
                 return base.ProcessCmdKey(ref m, keyData);
             }
             if(!flag) {
-                CopyFileNames(num == Config.Keys.Shortcuts[0x1b]);
+                _clipboardController.CopyFileNames(num == Config.Keys.Shortcuts[0x1b]);
             }
             return true;
         }
