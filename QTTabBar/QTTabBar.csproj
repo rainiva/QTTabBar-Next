@@ -825,6 +825,8 @@
     <Compile Include="QTTabBarClass.ShutdownController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="Shutdown\IShutdownResourceHost.cs" />
+    <Compile Include="Shutdown\IShutdownPersistenceHost.cs" />
     <Compile Include="QTTabBarClass.ComRegistrationController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
