@@ -836,6 +836,7 @@ MigrationBackup/
 !QTTabBar/QTTabBar1.ruleset
 /.idea
 /.codegraph/
+/.worktrees/
 
 # Blanket build-output ignores — CodeGraph file watcher reads .gitignore.
 # Without these, MSBuild writes to bin/ trigger constant auto-sync and can wedge the daemon.
