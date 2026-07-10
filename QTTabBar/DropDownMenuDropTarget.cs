@@ -67,48 +67,8 @@ namespace QTTabBarLib {
             fIsRootMenu = isRoot;
             this.hwndDialogParent = hwndDialogParent;
             _clipboardController = new ClipboardFileController(this);
+            _dragController = new DragDropTargetController(this);
             HandleCreated += DropDownMenuDropTarget_HandleCreated;
-        }
-
-        private void BeginScrollTimer(ToolStripItem item, Point pntClient) {
-            int y = pntClient.Y;
-            int height = item.Bounds.Height;
-            if(CanScroll && ((y < ((height * 0.5) + 11.0)) || ((Height - (height + 11)) < y))) {
-                if(timerScroll == null) {
-                    timerScroll = new Timer();
-                    timerScroll.Tick += timerScroll_Tick;
-                }
-                else if(timerScroll.Enabled) {
-                    return;
-                }
-                timerScroll.Tag = y < ((height * 0.5) + 11.0);
-                iScrollLine = 1;
-                if((y < 0x10) || ((Height - 0x10) < y)) {
-                    timerScroll.Interval = 100;
-                    if((y < 9) || ((Height - 9) < y)) {
-                        iScrollLine = 2;
-                    }
-                }
-                else {
-                    timerScroll.Interval = 250;
-                }
-                fSuppressMouseMove_Scroll = true;
-                timerScroll.Enabled = false;
-                timerScroll.Enabled = true;
-            }
-            else if(timerScroll != null) {
-                timerScroll.Enabled = false;
-            }
-        }
-
-        private void CloseAllDropDown() {
-            foreach(QMenuItem item in DisplayedItems.OfType<QMenuItem>().Where(item => item.Selected)) {
-                if(item.HasDropDownItems && item.DropDown.Visible) {
-                    item.HideDropDown();
-                }
-                miUnselect.Invoke(item, null);
-                break;
-            }
         }
 
         protected override void Dispose(bool disposing) {
@@ -133,11 +93,11 @@ namespace QTTabBarLib {
 
         private void DropDownMenuDropTarget_HandleCreated(object sender, EventArgs e) {
             dropTargetWrapper = new DropTargetWrapper(this);
-            dropTargetWrapper.DragFileEnter += dropTargetWrapper_DragFileEnter;
-            dropTargetWrapper.DragFileOver += dropTargetWrapper_DragFileOver;
-            dropTargetWrapper.DragFileLeave += dropTargetWrapper_DragFileLeave;
-            dropTargetWrapper.DragFileDrop += dropTargetWrapper_DragFileDrop;
-            dropTargetWrapper.DragDropEnd += dropTargetWrapper_DragDropEnd;
+            dropTargetWrapper.DragFileEnter += _dragController.dropTargetWrapper_DragFileEnter;
+            dropTargetWrapper.DragFileOver += _dragController.dropTargetWrapper_DragFileOver;
+            dropTargetWrapper.DragFileLeave += _dragController.dropTargetWrapper_DragFileLeave;
+            dropTargetWrapper.DragFileDrop += _dragController.dropTargetWrapper_DragFileDrop;
+            dropTargetWrapper.DragDropEnd += _dragController.dropTargetWrapper_DragDropEnd;
             try {
                 miUnselect = typeof(ToolStripItem).GetMethod("Unselect", BindingFlags.NonPublic | BindingFlags.Instance);
             }
@@ -147,191 +107,10 @@ namespace QTTabBarLib {
             }
         }
 
-        private void dropTargetWrapper_DragDropEnd(object sender, EventArgs e) {
-            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragDropEnd");
-            CancelClosingAncestors(false, false);
-            ShowItemToolTips = true;
-            Close(ToolStripDropDownCloseReason.AppFocusChange);
-        }
-
-        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
-            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileDrop");
-            fRespondModKeys = fRespondModKeysTemp;
-            fEnableShiftKey = fEnableShiftKeyTemp;
-            hwnd = IntPtr.Zero;
-            idlReal = null;
-            try {
-                if((itemHover != null) && !string.IsNullOrEmpty(strTargetPath)) {
-                    byte[] iDLData = ShellMethods.GetIDLData(strTargetPath);
-                    if((iDLData != null) && (iDLData.Length > 0)) {
-                        idlReal = iDLData;
-                        CancelClosingAncestors(true, false);
-                        ShowItemToolTips = false;
-                        return 0;
-                    }
-                }
-            }
-            finally {
-                strDraggingDrive = null;
-                strDraggingStartPath = null;
-                strTargetPath = null;
-                itemHover = null;
-            }
-            return -1;
-        }
-
-        private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState)
-        {
-            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileEnter");
-            fRespondModKeysTemp = fRespondModKeys;
-            fEnableShiftKeyTemp = fEnableShiftKey;
-            fRespondModKeys = false;
-            fEnableShiftKey = false;
-            if(MenuDragEnter != null) {
-                MenuDragEnter(this, EventArgs.Empty);
-            }
-            fDrivesContained = false;
-            switch(QTTabBarClass.HandleDragEnter(hDrop, out strDraggingDrive, out strDraggingStartPath)) {
-                case -1:
-                    return DragDropEffects.None;
-
-                case 0:
-                    return DropTargetWrapper.MakeEffect(grfKeyState, 0);
-
-                case 1:
-                    return DropTargetWrapper.MakeEffect(grfKeyState, 1);
-
-                case 2:
-                    fDrivesContained = true;
-                    return DragDropEffects.None;
-            }
-            return DragDropEffects.None;
-        }
-
-        private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
-            QTLogger.log("QTTabBarClass DropDownMenuDropTarget dropTargetWrapper_DragFileLeave");
-            fRespondModKeys = fRespondModKeysTemp;
-            fEnableShiftKey = fEnableShiftKeyTemp;
-            strDraggingDrive = null;
-            strDraggingStartPath = null;
-            strTargetPath = null;
-            itemHover = null;
-            fSuppressMouseUp = true;
-            iItemDragOverRegion = -1;
-            if(Bounds.Contains(MousePosition)) {
-                ToolStripDropDown tsdd = this;
-                while(tsdd.OwnerItem != null && tsdd.OwnerItem.GetCurrentParent() is ToolStripDropDown) {
-                    tsdd = (ToolStripDropDown)tsdd.OwnerItem.GetCurrentParent();
-                }
-                tsdd.Close(ToolStripDropDownCloseReason.AppFocusChange);
-            }
-            else {
-                Invalidate();
-            }
-        }
-
-        private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
-            QTLogger.log("QTTabBarClass DropDownMenuDropTargets dropTargetWrapper_DragFileOver " );
-            int iSourceState = -1;
-            Point point = PointToClient(new Point(e.X, e.Y));
-            ToolStripItem itemAt = GetItemAt(point);
-            bool flag = false;
-            if(itemAt != null) {
-                Rectangle bounds = itemAt.Bounds;
-                bool flag2 = (bounds.Bottom - point.Y) >= (point.Y - bounds.Top);
-                flag = fTop != flag2;
-                fTop = flag2;
-            }
-            bool flag3 = ((fTop && (iItemDragOverRegion != 0)) || (!fTop && (iItemDragOverRegion != 1))) && (itemAt == Items[Items.Count - 1]);
-            if((itemAt != itemHover) || flag3) {
-                if(itemAt != null) {
-                    iItemDragOverRegion = fTop ? 0 : 1;
-                    QMenuItem item2 = itemAt as QMenuItem;
-                    if(item2 != null) {
-                        bool flag4 = item2 is SubDirTipForm.ToolStripMenuItemEx;
-                        if((flag3 && !fTop) && ShellMethods.PathIsFolder(Path)) {
-                            fDrawDropTarget = false;
-                            strTargetPath = Path;
-                            iSourceState = MakeDragOverRetval();
-                            if((!flag4 && item2.HasDropDownItems) && !item2.DropDown.Visible) {
-                                OnMouseLeave(EventArgs.Empty);
-                                OnMouseMove(new MouseEventArgs(MouseButtons, 0, point.X, point.Y, 0));
-                            }
-                        }
-                        else if(flag4) {
-                            bool flag5;
-                            if(PathIsExecutable(item2.Path, out flag5)) {
-                                fDrawDropTarget = true;
-                                if(flag5) {
-                                    iSourceState = -1;
-                                    CloseAllDropDown();
-                                }
-                                else {
-                                    strTargetPath = item2.Path;
-                                    item2.Select();
-                                    iSourceState = 2;
-                                }
-                            }
-                            else {
-                                fDrawDropTarget = false;
-                                if(ShellMethods.PathIsFolder(Path)) {
-                                    strTargetPath = Path;
-                                    iSourceState = MakeDragOverRetval();
-                                }
-                                CloseAllDropDown();
-                            }
-                        }
-                        else if(ShellMethods.PathIsFolder(item2.TargetPath)) {
-                            fDrawDropTarget = true;
-                            strTargetPath = item2.TargetPath;
-                            iSourceState = MakeDragOverRetval();
-                            OnMouseLeave(EventArgs.Empty);
-                            OnMouseMove(new MouseEventArgs(MouseButtons, 0, point.X, point.Y, 0));
-                        }
-                    }
-                }
-                flag = true;
-            }
-            else {
-                iSourceState = iDDRetval;
-            }
-            if(itemAt != null) {
-                BeginScrollTimer(itemAt, point);
-            }
-            itemHover = itemAt;
-            iDDRetval = iSourceState;
-            if(flag) {
-                Invalidate();
-            }
-            if(iSourceState == -1) {
-                strTargetPath = null;
-                e.Effect = DragDropEffects.None;
-            }
-            else if(fDrivesContained) {
-                e.Effect = DragDropEffects.Link;
-            }
-            else if(iSourceState == 2) {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else {
-                e.Effect = DropTargetWrapper.MakeEffect(e.KeyState, iSourceState);
-            }
-        }
-
         private bool IsKeyTargetItem(ToolStripItem item) {
             bool flag;
             SubDirTipForm.ToolStripMenuItemEx ex = item as SubDirTipForm.ToolStripMenuItemEx;
             return ((ex == null) || (PathIsExecutable(ex.Path, out flag) && !flag));
-        }
-
-        private int MakeDragOverRetval() {
-            if(strTargetPath.PathEquals(strDraggingStartPath)) {
-                return 3;
-            }
-            if((strDraggingDrive != null) && string.Equals(strDraggingDrive, strTargetPath.Substring(0, 3), StringComparison.OrdinalIgnoreCase)) {
-                return 0;
-            }
-            return 1;
         }
 
         protected override void OnClosed(ToolStripDropDownClosedEventArgs e) {
@@ -563,12 +342,40 @@ namespace QTTabBarLib {
             fSuppressMouseUp = true;
         }
 
-        private void timerScroll_Tick(object sender, EventArgs e) {
-            timerScroll.Enabled = false;
-            fSuppressMouseMove_Scroll = false;
-            if(!IsDisposed && Visible) {
-                ScrollMenu((bool)timerScroll.Tag, iScrollLine);
+        private void ProxyCancelClosingAncestors(bool fCancel, bool fClose) {
+            CancelClosingAncestors(fCancel, fClose);
+        }
+
+        private void ProxyScrollMenu(bool fUp, int count) {
+            ScrollMenu(fUp, count);
+        }
+
+        private void ProxyOnMouseLeave() {
+            OnMouseLeave(EventArgs.Empty);
+        }
+
+        private void ProxyOnMouseMove(MouseEventArgs e) {
+            OnMouseMove(e);
+        }
+
+        private void RaiseMenuDragEnter() {
+            if(MenuDragEnter != null) {
+                MenuDragEnter(this, EventArgs.Empty);
             }
+        }
+
+        private bool SuppressMouseMoveScrollFlag {
+            set { fSuppressMouseMove_Scroll = value; }
+        }
+
+        private bool RespondModKeysFlag {
+            get { return fRespondModKeys; }
+            set { fRespondModKeys = value; }
+        }
+
+        private bool EnableShiftKeyFlag {
+            get { return fEnableShiftKey; }
+            set { fEnableShiftKey = value; }
         }
     }
 }

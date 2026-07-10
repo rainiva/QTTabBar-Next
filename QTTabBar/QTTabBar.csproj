@@ -508,6 +508,9 @@
     <Compile Include="DropDownMenuDropTarget.ClipboardFileController.cs">
       <DependentUpon>DropDownMenuDropTarget.cs</DependentUpon>
     </Compile>
+    <Compile Include="DropDownMenuDropTarget.DragDropTargetController.cs">
+      <DependentUpon>DropDownMenuDropTarget.cs</DependentUpon>
+    </Compile>
     <Compile Include="EmbeddedAssemblyLoader.cs" />
     <Compile Include="DropDownMenuReorderable.cs">
       <SubType>Component</SubType>
