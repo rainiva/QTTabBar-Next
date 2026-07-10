@@ -50,10 +50,10 @@ using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
     public partial class QTTabBarClass {
-        internal partial class MenuController {
+        internal partial class MenuOperations {
             private readonly QTTabBarClass _owner;
 
-            public MenuController(QTTabBarClass owner) {
+            public MenuOperations(QTTabBarClass owner) {
                 _owner = owner;
             }
         }

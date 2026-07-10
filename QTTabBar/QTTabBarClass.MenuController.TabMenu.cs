@@ -50,7 +50,7 @@ using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
     public partial class QTTabBarClass {
-        internal partial class MenuController {
+        internal partial class MenuOperations {
             public void contextMenuTab_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
                 if(_owner.ContextMenuedTab != null) {
                     if(e.ClickedItem == _owner.tsmiClose) {

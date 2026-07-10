@@ -54,7 +54,8 @@ namespace QTTtabBarTests {
 
         [Test]
         public void MenuController_Owns_CreateBranchMenu_And_CreateNavBtnMenuItems() {
-            Type menuController = typeof(QTTabBarClass).GetNestedType("MenuController", BindingFlags.NonPublic);
+            Type menuController = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.MenuController", true);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("MenuController", BindingFlags.NonPublic));
             Assert.IsNotNull(menuController);
             Assert.IsNotNull(menuController.GetMethod("CreateBranchMenu", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(menuController.GetMethod("CreateNavBtnMenuItems", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));

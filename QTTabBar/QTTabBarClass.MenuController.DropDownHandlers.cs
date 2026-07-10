@@ -50,7 +50,7 @@ using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
     public partial class QTTabBarClass {
-        internal partial class MenuController {
+        internal partial class MenuOperations {
             public List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
                 QTabItem item = fCurrent ? _owner.CurrentTab : _owner.ContextMenuedTab;
                 List<ToolStripItem> list = new List<ToolStripItem>();
