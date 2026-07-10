@@ -865,6 +865,9 @@
     <Compile Include="ThumbnailTooltipForm.EncodingDetector.cs">
       <DependentUpon>ThumbnailTooltipForm.cs</DependentUpon>
     </Compile>
+<Compile Include="ThumbnailTooltipForm.TextFileLoader.cs">
+      <DependentUpon>ThumbnailTooltipForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ToolStripClasses.cs">
       <SubType>Component</SubType>
     </Compile>

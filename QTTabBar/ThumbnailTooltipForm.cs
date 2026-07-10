@@ -166,7 +166,7 @@ namespace QTTabBarLib {
                     }
                     else {
                         bool flag5 = sizeActual == empty;
-                        text = text + FormatSize(info.Length);
+                        text = text + TextFileLoader.FormatSize(info.Length);
                         if(!thumbnail) {
                             object obj2 = text;
                             text = string.Concat(new object[] { obj2, "    ( ", empty.Width, " x ", empty.Height, " )", flag5 ? string.Empty : "*" });
@@ -232,7 +232,7 @@ namespace QTTabBarLib {
                         if (textFileInfo.Length > 0L)
                         {
                             // content = LoadTextFile2(path, out fLoadedAll);
-                            content = LoadTextFile3(path, out fLoadedAll);
+                            content = TextFileLoader.LoadTextFile3(path, out fLoadedAll);
                         }
                         else {
                             isEmptyText = true;
@@ -303,16 +303,6 @@ namespace QTTabBarLib {
             return (ext.Length != 0 && Config.Tips.TextExt.Contains(ext.ToLower()));
         }
 
-        private static string FormatSize(long size) {
-            string str = size + " bytes";
-            if(size >= 0x400L) {
-                str = Math.Round(((size) / 1024.0), 1) + " KB";
-            }
-            if(size >= 0x100000L) {
-                str = Math.Round(((size) / 1048576.0), 1) + " MB";
-            }
-            return str;
-        }
 
         private static string GetGDIPSupportedImages() {
             if(supportedImages == null) {
@@ -386,141 +376,9 @@ namespace QTTabBarLib {
 
        
 
-        private static string LoadTextFile(string path, int count, out bool fLoadedAll)
-        {
-            using (StreamReader sr = new StreamReader(path, EncodingDetector.GetType(path)))
-            {
-                char[] chars = new char[count];
-                int readCnt = sr.Read(chars, 0, count);
-                string text = new string(chars, 0 , readCnt );
-                fLoadedAll = false;
-                // QTUtility2.Close(sr);
-                return text;
-            }
-        }
-
-        private static string LoadTextFile(string path, out bool fLoadedAll)
-        {
-            using (StreamReader sr = new StreamReader(path, EncodingDetector.GetType(path)))
-            {
-                string textall = sr.ReadToEnd();
-                fLoadedAll = true;
-                // QTUtility2.Close(sr);
-                return textall;
-            }
-        }
-
-        private static string LoadTextFile3(string path, out bool fLoadedAll)
-        {
-            byte[] buffer = null;
-            int count = MAX_TEXT_LENGTH;
-            string str = string.Empty;
-            fLoadedAll = false;
-            Encoding detechted = null;
-            try
-            {
-                // using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                /*using (var reader = new StreamReader(path, Encoding.Default, true))
-                {
-                    if (reader.Peek() >= 0) // you need this!
-                        reader.Read();
-
-                    detechted = reader.CurrentEncoding;
-                }*/
-                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read , count, FileOptions.Asynchronous))
-                {
-                    if (stream.Length < count)
-                    {
-                        fLoadedAll = true;
-                        count = (int)stream.Length;
-                    }
-                    buffer = new byte[count];
-                    stream.Read(buffer, 0, count);
-                    // detechted = detechBytes(buffer, true);
-                    // detechted = detechBytes2(buffer, true);
-                }
-            }
-            catch (IOException exception)
-            {
-                ioException = exception;
-                return "  *Access Error!";
-            }
-            if (buffer.Length <= 0)
-            {
-                return str;
-            }
-
-            detechted = EncodingDetector.TryGetEncoding(buffer);
-            if (detechted != null)
-            {
-                QTLogger.log(" try get encoding " + detechted.EncodingName + " " + detechted.CodePage);
-                return detechted.GetString(buffer);
-            }
-
-            // detechted = DetectInputCodepage(buffer);
-            detechted = EncodingDetector.DetectEncoding(buffer);
-            if (detechted != null)
-            {
-                // QTLogger.log(" try get DetectInputCodepage " + detechted.EncodingName + " " + detechted.CodePage);
-                QTLogger.log(" try get DetectEncoding " + detechted.EncodingName + " " + detechted.CodePage);
-                return detechted.GetString(buffer);
-            }
-            return Encoding.Default.GetString(buffer);
-        }
 
 
 
-        private static string LoadTextFile2(string path, out bool fLoadedAll) {
-            byte[] buffer;
-            int count = MAX_TEXT_LENGTH;
-            string str = string.Empty;
-            fLoadedAll = false;
-            try {
-                using(FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read)) {
-                    if(stream.Length < count) {
-                        fLoadedAll = true;
-                        count = (int)stream.Length;
-                    }
-                    buffer = new byte[count];
-                    stream.Read(buffer, 0, count);
-                    // QTUtility2.Close(stream);
-                }
-            }
-            catch(IOException exception) {
-                ioException = exception;
-                return "  *Access Error!";
-            }
-            if(buffer.Length <= 0) {
-                return str;
-            }
-            Encoding encoding = null;
-            if(PluginManager.IEncodingDetector != null) {
-                try {
-                    encoding = PluginManager.IEncodingDetector.GetEncoding(ref buffer);
-                }
-                catch(Exception exception2) {
-                    PluginManager.HandlePluginException(exception2, IntPtr.Zero, "Unknown IEncodingDetector", "Getting Encoding object.");
-                    QTLogger.MakeErrorLog(exception2);
-                }
-            }
-            if(encoding == null) {
-                encoding = TxtEnc.GetEncoding(ref buffer);
-
-                QTLogger.log("TxtEnc :" + encoding.EncodingName + " " + encoding.CodePage);
-
-                if((encoding == null) ||
-                   (((
-                         (Encoding.Default.CodePage != 0x3a4) &&
-                         (encoding.CodePage != 0xfde8)) && 
-                     ((encoding.CodePage != 0xfde9) && 
-                      (encoding.CodePage != 0x4b0))) 
-                    && (encoding.CodePage != 0x2ee0))) {
-                    encoding = Encoding.Default;
-                }
-            }
-            QTLogger.log("Final :" + encoding.EncodingName + " " + encoding.CodePage);
-            return encoding.GetString(buffer);
-        }
 
         // Batch10 GC10a: implementation moved into the nested ThumbnailImageLoader.
         // A thin facade is kept so existing callers/tests (ResourceReleaseTests)
