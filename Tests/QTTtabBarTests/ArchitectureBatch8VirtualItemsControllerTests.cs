@@ -49,7 +49,7 @@ namespace QTTtabBarTests {
             foreach(var m in ctrl.GetMethods(any)) {
                 methodNames.Add(m.Name);
             }
-            foreach(string name in new[] { "HandleArrowKeyVirtual", "ScrollEndVirtual", "ScrollMenuVirtual", "DisposeVirtual" }) {
+            foreach(string name in new[] { "HandleArrowKeyVirtual", "ScrollEndVirtual", "ScrollMenuVirtual", "DisposeVirtual", "AddItemsRangeVirtual" }) {
                 Assert.IsTrue(methodNames.Contains(name),
                     name + " should be moved into VirtualItemsController");
             }
@@ -68,6 +68,8 @@ namespace QTTtabBarTests {
                 "the ScrollMenuVirtual body should no longer live directly in DropDownMenuReorderable.cs");
             Assert.IsFalse(content.Contains("private void DisposeVirtual("),
                 "the DisposeVirtual body should no longer live directly in DropDownMenuReorderable.cs");
+            Assert.IsTrue(content.Contains("_virtualController.AddItemsRangeVirtual"),
+                "AddItemsRangeVirtual must delegate the virtual-item lifecycle setup to the controller");
         }
 
         private static string FindRepoRoot() {

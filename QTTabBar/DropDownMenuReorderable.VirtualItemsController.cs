@@ -162,6 +162,30 @@ namespace QTTabBarLib {
                     }
                 }
             }
+
+            internal void AddItemsRangeVirtual(List<QMenuItem> lstItems) {
+                if(lstItems.Count < 0x80) {
+                    _owner.fVirtualMode = false;
+                    _owner.Items.AddRange(lstItems.ToArray());
+                }
+                else {
+                    _owner.fVirtualMode = true;
+                    if(_owner.stcVirtualItems_Top == null) {
+                        _owner.stcVirtualItems_Top = new Stack<ToolStripItem>();
+                        _owner.stcVirtualItems_Bottom = new Stack<ToolStripItem>();
+                    }
+                    ToolStripMenuItem[] toolStripItems = new ToolStripMenuItem[0x40];
+                    for(int i = lstItems.Count - 1; i > -1; i--) {
+                        if(i < 0x40) {
+                            toolStripItems[i] = lstItems[i];
+                        }
+                        else {
+                            _owner.stcVirtualItems_Bottom.Push(lstItems[i]);
+                        }
+                    }
+                    _owner.Items.AddRange(toolStripItems);
+                }
+            }
         }
     }
 }

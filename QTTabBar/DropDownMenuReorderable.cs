@@ -122,27 +122,7 @@ namespace QTTabBarLib {
         }
 
         public void AddItemsRangeVirtual(List<QMenuItem> lstItems) {
-            if(lstItems.Count < 0x80) {
-                fVirtualMode = false;
-                Items.AddRange(lstItems.ToArray());
-            }
-            else {
-                fVirtualMode = true;
-                if(stcVirtualItems_Top == null) {
-                    stcVirtualItems_Top = new Stack<ToolStripItem>();
-                    stcVirtualItems_Bottom = new Stack<ToolStripItem>();
-                }
-                ToolStripMenuItem[] toolStripItems = new ToolStripMenuItem[0x40];
-                for(int i = lstItems.Count - 1; i > -1; i--) {
-                    if(i < 0x40) {
-                        toolStripItems[i] = lstItems[i];
-                    }
-                    else {
-                        stcVirtualItems_Bottom.Push(lstItems[i]);
-                    }
-                }
-                Items.AddRange(toolStripItems);
-            }
+            _virtualController.AddItemsRangeVirtual(lstItems);
         }
 
         protected void CancelClosingAncestors(bool fCancel, bool fClose) {
