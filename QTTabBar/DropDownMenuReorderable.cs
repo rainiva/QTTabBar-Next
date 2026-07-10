@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    internal class DropDownMenuReorderable : DropDownMenuBase {
+    internal partial class DropDownMenuReorderable : DropDownMenuBase {
         private const int COUNT_SCROLL = 3;
         private ToolStripControlHost downButton;
         private ToolStripItem draggingItem;
@@ -78,6 +78,7 @@ namespace QTTabBarLib {
             lstProhibitedKeys = new List<string>();
             fReorderEnabled = true;
             fEnableScroll = true;
+            _virtualController = new VirtualItemsController(this);
         }
 
         public DropDownMenuReorderable(IContainer container, bool respondModKeys, bool enableShiftKey)
@@ -87,6 +88,7 @@ namespace QTTabBarLib {
             lstProhibitedKeys = new List<string>();
             fReorderEnabled = true;
             fEnableScroll = true;
+            _virtualController = new VirtualItemsController(this);
         }
 
         public DropDownMenuReorderable(IContainer container, bool respondModKeys, bool enableShiftKey, bool enableReorder)
@@ -97,6 +99,7 @@ namespace QTTabBarLib {
             fReorderEnabled = true;
             fEnableScroll = true;
             fReorderEnabled = enableReorder;
+            _virtualController = new VirtualItemsController(this);
         }
 
         public void AddItem(ToolStripItem item, string key) {
@@ -187,21 +190,12 @@ namespace QTTabBarLib {
         }
 
         protected override void Dispose(bool disposing) {
-            DisposeVirtual(true);
+            _virtualController.DisposeVirtual(true);
             base.Dispose(disposing);
         }
 
-        private void DisposeVirtual(bool disposing) {
-            if(stcVirtualItems_Top != null) {
-                while(stcVirtualItems_Top.Count > 0) {
-                    stcVirtualItems_Top.Pop().Dispose();
-                }
-            }
-            if(stcVirtualItems_Bottom != null) {
-                while(stcVirtualItems_Bottom.Count > 0) {
-                    stcVirtualItems_Bottom.Pop().Dispose();
-                }
-            }
+        private void SelectDirectedItem(bool directed, bool forward) {
+            Select(directed, forward);
         }
 
         private void GetScrollButtons() {
@@ -219,65 +213,6 @@ namespace QTTabBarLib {
             {
                 QTLogger.MakeErrorLog(exception, "DropDownMeanuDropTarget GetScrollButtons");
             }
-        }
-
-        private bool HandleArrowKeyVirtual(bool fUp) {
-            int num = -1;
-            for(int i = 0; i < Items.Count; i++) {
-                if(Items[i].Selected) {
-                    num = i;
-                }
-            }
-            if(num != -1) {
-                bool flag = (fUp && (stcVirtualItems_Top.Count == 0)) || (!fUp && (stcVirtualItems_Bottom.Count == 0));
-                bool flag2 = (fUp && (num == 0)) || (!fUp && (num == (Items.Count - 1)));
-                bool flag3 = ((fUp && (-1 < num)) && (num < 2)) || ((!fUp && (-1 < num)) && (num > (Items.Count - 3)));
-                if(!fUp) {
-                    ToolStripItem nextItem = null;
-                    if(flag2) {
-                        if(flag) {
-                            ScrollEndVirtual(!fUp);
-                            Select(true, !fUp);
-                            return true;
-                        }
-                        fBlockItemAddRemove = true;
-                        SuspendLayout();
-                        ToolStripItem item2 = Items[0];
-                        Items.RemoveAt(0);
-                        stcVirtualItems_Top.Push(item2);
-                        nextItem = stcVirtualItems_Bottom.Pop();
-                        Items.Add(nextItem);
-                        ResumeLayout();
-                        fBlockItemAddRemove = false;
-                    }
-                    if(nextItem == null) {
-                        nextItem = GetNextItem(Items[num], ArrowDirection.Down);
-                    }
-                    ChangeSelection(nextItem);
-                    return true;
-                }
-                if(flag3) {
-                    if(flag) {
-                        if(flag2) {
-                            ScrollEndVirtual(!fUp);
-                            Select(true, !fUp);
-                            return true;
-                        }
-                    }
-                    else {
-                        fBlockItemAddRemove = true;
-                        SuspendLayout();
-                        ToolStripItem item = Items[Items.Count - 1];
-                        Items.RemoveAt(Items.Count - 1);
-                        stcVirtualItems_Bottom.Push(item);
-                        ToolStripItem item4 = stcVirtualItems_Top.Pop();
-                        Items.Insert(0, item4);
-                        ResumeLayout();
-                        fBlockItemAddRemove = false;
-                    }
-                }
-            }
-            return false;
         }
 
         private void HandlePageKeys(Keys keys) {
@@ -375,7 +310,7 @@ namespace QTTabBarLib {
 
         public void ItemsClearVirtual() {
             Items.Clear();
-            DisposeVirtual(false);
+            _virtualController.DisposeVirtual(false);
         }
 
         protected override void OnClosing(ToolStripDropDownClosingEventArgs e) {
@@ -619,7 +554,7 @@ namespace QTTabBarLib {
                 case Keys.End:
                 case Keys.Home:
                     if(fVirtualMode) {
-                        ScrollEndVirtual(e.KeyCode == Keys.Home);
+                        _virtualController.ScrollEndVirtual(e.KeyCode == Keys.Home);
                     }
                     goto Label_014F;
 
@@ -673,7 +608,7 @@ namespace QTTabBarLib {
                         if(MouseScroll != null) {
                             MouseScroll(this, EventArgs.Empty);
                         }
-                        if(fVirtualMode && HandleArrowKeyVirtual(wParam == Keys.Up)) {
+                        if(fVirtualMode && _virtualController.HandleArrowKeyVirtual(wParam == Keys.Up)) {
                             return true;
                         }
                         break;
@@ -719,36 +654,6 @@ namespace QTTabBarLib {
             return false;
         }
 
-        private void ScrollEndVirtual(bool fUp) {
-            fBlockItemAddRemove = true;
-            SuspendLayout();
-            if(fUp) {
-                while(stcVirtualItems_Top.Count > 0) {
-                    Items.Insert(0, stcVirtualItems_Top.Pop());
-                }
-                while(Items.Count > 0x40) {
-                    ToolStripItem item = Items[Items.Count - 1];
-                    Items.RemoveAt(Items.Count - 1);
-                    stcVirtualItems_Bottom.Push(item);
-                }
-            }
-            else {
-                List<ToolStripItem> list = new List<ToolStripItem>();
-                while(stcVirtualItems_Bottom.Count > 0) {
-                    list.Add(stcVirtualItems_Bottom.Pop());
-                }
-                Items.AddRange(list.ToArray());
-                while(Items.Count > 0x40) {
-                    ToolStripItem item2 = Items[0];
-                    Items.RemoveAt(0);
-                    stcVirtualItems_Top.Push(item2);
-                }
-            }
-            ResumeLayout();
-            Refresh();
-            fBlockItemAddRemove = false;
-        }
-
         protected void ScrollMenu(bool fUp, int count) {
             fSuppressMouseMove_Scroll = true;
             fSuppressMouseMoveOnce = true;
@@ -756,7 +661,7 @@ namespace QTTabBarLib {
             SuspendLayout();
             int num = ScrollMenuCore(fUp, count);
             if((num < count) && fVirtualMode) {
-                ScrollMenuVirtual(fUp, count - num);
+                _virtualController.ScrollMenuVirtual(fUp, count - num);
             }
             ResumeLayout();
             Refresh();
@@ -796,37 +701,6 @@ namespace QTTabBarLib {
                 }
             }
             return 0;
-        }
-
-        private bool ScrollMenuVirtual(bool fUp, int count) {
-            if((fUp && (stcVirtualItems_Top.Count == 0)) || (!fUp && (stcVirtualItems_Bottom.Count == 0))) {
-                return false;
-            }
-            fBlockItemAddRemove = true;
-            CloseChildDropDown();
-            for(int i = 0; i < count; i++) {
-                if(fUp) {
-                    ToolStripItem item = Items[Items.Count - 1];
-                    Items.RemoveAt(Items.Count - 1);
-                    stcVirtualItems_Bottom.Push(item);
-                    ToolStripItem item2 = stcVirtualItems_Top.Pop();
-                    Items.Insert(0, item2);
-                    if(stcVirtualItems_Top.Count != 0) {
-                        continue;
-                    }
-                    break;
-                }
-                ToolStripItem item3 = Items[0];
-                Items.RemoveAt(0);
-                stcVirtualItems_Top.Push(item3);
-                ToolStripItem item4 = stcVirtualItems_Bottom.Pop();
-                Items.Add(item4);
-                if(stcVirtualItems_Bottom.Count == 0) {
-                    break;
-                }
-            }
-            fBlockItemAddRemove = false;
-            return true;
         }
 
         public void UpdateToolTipByKey(ToolStripMenuItem item) {
