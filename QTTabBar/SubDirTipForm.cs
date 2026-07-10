@@ -72,6 +72,7 @@ namespace QTTabBarLib {
         public SubDirTipForm(IntPtr hwndMessageReflect, bool fEnableShiftKeyOnDDMR, AbstractListView lvw) {
             listView = lvw;
             _menuGenerator = new ShellMenuGenerator(this);
+            _thumbnailController = new ThumbnailController(this);
             this.hwndMessageReflect = hwndMessageReflect;
             hwndDialogParent = listView.Handle;
             fDesktop = !fEnableShiftKeyOnDDMR;
@@ -229,11 +230,11 @@ namespace QTTabBarLib {
                             break;
                         }
                         reorderable.SuppressMouseMoveOnce = true;
-                        if(!ShowThumbnailTooltip(tsmi, true) && (tsmi.ThumbnailIndex != iToolTipIndex)) {
+                        if(!_thumbnailController.ShowThumbnailTooltip(tsmi, true) && (tsmi.ThumbnailIndex != iToolTipIndex)) {
                             if(timerToolTipByKey == null) {
                                 timerToolTipByKey = new Timer(components);
                                 timerToolTipByKey.Interval = SystemInformation.MouseHoverTime;
-                                timerToolTipByKey.Tick += timerToolTipByKey_Tick;
+                                timerToolTipByKey.Tick += _thumbnailController.timerToolTipByKey_Tick;
                             }
                             timerToolTipByKey.Tag = tsmi;
                             timerToolTipByKey.Enabled = false;
@@ -390,19 +391,12 @@ namespace QTTabBarLib {
             PInvoke.ShowWindow(Handle, 0);
         }
 
-        private void HideThumbnailTooltip() {
-            if(((thumbnailTip != null) && thumbnailTip.IsShowing) && thumbnailTip.HideToolTip()) {
-                iThumbnailIndex = -1;
-            }
+        private void HideThumbnailTooltip(bool fKey) {
+            _thumbnailController.HideThumbnailTooltip(fKey);
         }
 
-        private void HideThumbnailTooltip(bool fKey) {
-            if(thumbnailTip != null) {
-                if(fKey) {
-                    thumbnailTip.IsShownByKey = false;
-                }
-                HideThumbnailTooltip();
-            }
+        private void HideThumbnailTooltip() {
+            _thumbnailController.HideThumbnailTooltip();
         }
 
         private void InitializeComponent() {
@@ -606,62 +600,6 @@ namespace QTTabBarLib {
             }
         }
 
-        private bool ShowThumbnailTooltip(ToolStripMenuItemEx tsmi, bool fKey) {
-            if((menuIsShowing && (draggingPath == null)) && !fSuppressThumbnail) {
-                if((!Config.Tips.SubDirTipsPreview ^ (ModifierKeys == Keys.Shift)) && ThumbnailTooltipForm.ExtIsSupported(Path.GetExtension(tsmi.ThumbnailPath).ToLower())) {
-                    if(iThumbnailIndex == tsmi.ThumbnailIndex) {
-                        return false;
-                    }
-                    if(thumbnailTip == null) {
-                        thumbnailTip = new ThumbnailTooltipForm();
-                    }
-                    if(thumbnailTip.IsShownByKey && !fKey) {
-                        thumbnailTip.IsShownByKey = false;
-                        return false;
-                    }
-                    thumbnailTip.IsShownByKey = fKey;
-                    iThumbnailIndex = tsmi.ThumbnailIndex;
-                    if(thumbnailTip.ShowToolTip(tsmi.ThumbnailPath, tsmi.Owner.RectangleToScreen(tsmi.Bounds))) {
-                        tsmi.ToolTipText = null;
-                        return true;
-                    }
-                }
-                if(tsmi.ToolTipText == null) {
-                    string originalTitle = tsmi.OriginalTitle;
-                    string shellInfoTipText = ShellMethods.GetShellInfoTipText(tsmi.Path, false);
-                    if(shellInfoTipText != null) {
-                        if(originalTitle == null) {
-                            originalTitle = shellInfoTipText;
-                        }
-                        else {
-                            originalTitle = originalTitle + "\r\n" + shellInfoTipText;
-                        }
-                    }
-                    tsmi.ToolTipText = originalTitle;
-                }
-                HideThumbnailTooltip(fKey);
-            }
-            return false;
-        }
-
-        private void timerToolTipByKey_Tick(object sender, EventArgs e) {
-            try {
-                timerToolTipByKey.Enabled = false;
-                ToolStripMenuItemEx tag = timerToolTipByKey.Tag as ToolStripMenuItemEx;
-                if(((tag != null) && !tag.IsDisposed) && menuIsShowing) {
-                    DropDownMenuReorderable owner = tag.Owner as DropDownMenuReorderable;
-                    if(((owner != null) && owner.Visible) && (!owner.IsDisposed && !owner.Disposing)) {
-                        owner.UpdateToolTipByKey(tag);
-                        iToolTipIndex = tag.ThumbnailIndex;
-                    }
-                }
-                timerToolTipByKey.Tag = null;
-            }
-            catch(Exception exception) {
-                QTLogger.MakeErrorLog(exception);
-            }
-        }
-
         private void tsmi_DropDownOpening(object sender, EventArgs e) {
             QMenuItem item = (QMenuItem)sender;
             item.DropDown.SuspendLayout();
@@ -688,7 +626,7 @@ namespace QTTabBarLib {
         }
 
         private void tsmi_Files_MouseMove(object sender, MouseEventArgs e) {
-            ShowThumbnailTooltip((ToolStripMenuItemEx)sender, false);
+            _thumbnailController.ShowThumbnailTooltip((ToolStripMenuItemEx)sender, false);
         }
 
         private void tsmi_Folder_MouseMove(object sender, MouseEventArgs e) {
