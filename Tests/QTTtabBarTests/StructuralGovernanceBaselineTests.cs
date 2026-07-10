@@ -11,7 +11,7 @@ namespace QTTtabBarTests {
         [Test]
         public void Current_Debt_Baseline_Is_Not_Exceeded() {
             // Baseline established 2026-07-10. Do not raise these numbers.
-            Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7283,
+            Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7160,
                 "QTTabBarClass family lines must not exceed baseline");
             Assert.LessOrEqual(SourceMetrics.NestedControllerCount("QTTabBarClass"), 25,
                 "QTTabBarClass nested controller count must not exceed baseline");

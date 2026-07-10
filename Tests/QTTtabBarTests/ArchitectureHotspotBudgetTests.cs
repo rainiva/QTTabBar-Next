@@ -11,7 +11,7 @@ namespace QTTtabBarTests {
         public void NoGrowth_Budget_Is_Not_Exceeded() {
             // Immediate no-growth gate. Values are the current debt measured
             // when the baseline was established; they must not rise.
-            Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7283,
+            Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7160,
                 "QTTabBarClass family lines must not grow");
             Assert.LessOrEqual(SourceMetrics.NestedControllerCount("QTTabBarClass"), 25,
                 "QTTabBarClass nested controller count must not grow");
