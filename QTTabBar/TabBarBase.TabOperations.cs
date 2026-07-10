@@ -14,29 +14,9 @@ namespace QTTabBarLib {
 
         internal void AddInsertTabAt(QTabItem tab, TabPos position) {
             QTLogger.log("TabBarBase AddInsertTab");
-            switch(position) {
-                case TabPos.Leftmost:
-                    tabControl1.TabPages.Insert(0, tab);
-                    break;
-
-                case TabPos.Right:
-                case TabPos.Left: {
-                    int index = tabControl1.TabPages.IndexOf(CurrentTab);
-                    if(index == -1) {
-                        tabControl1.TabPages.Add(tab);
-                    }
-                    else {
-                        tabControl1.TabPages.Insert(
-                            position == TabPos.Right ? (index + 1) : index,
-                            tab);
-                    }
-                    break;
-                }
-
-                default:
-                    tabControl1.TabPages.Add(tab);
-                    break;
-            }
+            int selectedIndex = tabControl1.TabPages.IndexOf(CurrentTab);
+            int insertionIndex = TabInsertionPolicy.Resolve(position, tabControl1.TabCount, selectedIndex);
+            tabControl1.TabPages.Insert(insertionIndex, tab);
         }
 
         internal QTabItem CreateNewTab(IDLWrapper idlw) {
