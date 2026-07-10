@@ -61,7 +61,7 @@ namespace QTTabBarLib {
                 _owner._tabTooltipController = new TabTooltipController(_owner);
                 _owner._windowManagementController = new WindowManagementController(_owner);
                 _owner._bandWindowController = new BandWindowController((IQTTabBarBandHost)_owner);
-                _owner._droppedFilesController = new DroppedFilesController(_owner);
+                _owner._droppedFilesController = new DroppedFilesController((IDroppedFilesHost)_owner);
                 _owner._folderTreeController = new FolderTreeController(_owner);
                 _owner._viewModeController = new ViewModeController(_owner);
                 _owner._pluginMenuController = new PluginMenuController(_owner);

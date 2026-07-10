@@ -7,6 +7,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class TopLevelInputControllerTests {
         [TestCase("DragDropController", "IDragDropHost")]
+        [TestCase("DroppedFilesController", "IDroppedFilesHost")]
         public void Input_Controller_Is_Top_Level_And_Only_Depends_On_Its_Narrow_Host(
                 string controllerName, string hostName) {
             Assembly assembly = typeof(QTTabBarClass).Assembly;

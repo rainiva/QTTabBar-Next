@@ -735,6 +735,8 @@
     </Compile>
     <Compile Include="Input\IDragDropHost.cs" />
     <Compile Include="Input\DragDropController.cs" />
+    <Compile Include="Input\IDroppedFilesHost.cs" />
+    <Compile Include="Input\DroppedFilesController.cs" />
     <Compile Include="QTTabBarClass.DragDropHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
@@ -788,7 +790,7 @@
     <Compile Include="QTTabBarClass.ComponentBuildController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.DroppedFilesController.cs">
+    <Compile Include="QTTabBarClass.DroppedFilesHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.FolderTreeController.cs">
