@@ -859,6 +859,9 @@
     <Compile Include="ThumbnailTooltipForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ThumbnailTooltipForm.ThumbnailImageLoader.cs">
+      <DependentUpon>ThumbnailTooltipForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ToolStripClasses.cs">
       <SubType>Component</SubType>
     </Compile>
