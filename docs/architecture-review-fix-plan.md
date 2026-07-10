@@ -1211,8 +1211,8 @@ public static void Initialize() {
 | W7 | ✅ 已修复 | `ConcurrentDictionary<string, byte[]>` 替换 |
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 已改为表达式体属性按需读取（`QTUtility.cs` 第 85-88 行），无引用拷贝赋值 |
-| W10 | ✅ 已修复 | WriteConfig + PersistConfigChanges 统一入口，版本追踪完善 |
-| C6 | ✅ 已修复 | 26+ controller/partial 文件；**ExplorerController** 拆 3 partial；**TabManager** 357 行（≤500）；**HookInputController** 4 partial（232/126/75/234 行）；**MenuController** 4 partial（58/214/328/216 行）；**QTabControl** 4 partial（490/786/275/587 行）；**QTButtonBar** 4 partial（330/508/666/471 行）；**ConfigMetadataCache** 独立；**ConfigManager** 独立；实测 **665/665** 测试全绿 |
+| W10 | REOPENED | 历史证据：WriteConfig + PersistConfigChanges 已物理拆分；但单真源与模块边界尚未按结构治理计划验收，重开 |
+| C6 | REOPENED | 历史证据：26+ controller/partial 文件；**ExplorerController** 拆 3 partial；**TabManager** 357 行（≤500）；**HookInputController** 4 partial（232/126/75/234 行）；**MenuController** 4 partial（58/214/328/216 行）；**QTabControl** 4 partial（490/786/275/587 行）；**QTButtonBar** 4 partial（330/508/666/471 行）；**ConfigMetadataCache** 独立；**ConfigManager** 独立；实测 **665/665** 测试全绿。重开原因：物理拆分已完成，但 nested controller 与 owner 回指未收敛为顶层模块边界 |
 | C7 | ⬜ 部分修复 | C7a–C7h 完成；**C7i** 已迁移 DeepClone→SerializationHelper、ReserveImageKey→IconManager、GetValueSafe→RegistryHelper，删除 log2/err/AllocDebugConsole；**C7j** 已迁移 ValidateMinMax→ValidationHelper、GetLinkerTimestamp→AssemblyInfoHelper、ExtIsCompressed→IconManager，删除无调用 GetSettingValue；QTUtility(584行)+QTUtility2(717行) 合计约 **1301 行**（较 1484 缩减 ~183 行），继续瘦身待续 |
 | W1 | ✅ 已修复 | 12 个纯 façade 方法全部从 InstanceManager 移除并迁移至 Registry 类；InstanceManager 仅保留 IPC/跨进程协调方法，0 个纯转发残留 |
 | W2 | ✅ 已修复 | **HookController** + **SettingsController** + **WndProc/ListViewEvents/EventHandlers/ContextMenus/OpenNavigation** partial 已提取；QTDesktopTool 主文件 **397 行**（自 2574 缩减）；DesktopTooltipController 保留；ShowSubDirTip/HideSubDirTip 薄委托保留于主 partial |
