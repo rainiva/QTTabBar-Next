@@ -814,7 +814,9 @@
     <Compile Include="QTTabBarClass.ComRegistrationController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.ShellNavigationController.cs">
+    <Compile Include="Shell\IShellNavigationHost.cs" />
+    <Compile Include="Shell\ShellNavigationController.cs" />
+    <Compile Include="QTTabBarClass.ShellNavigationHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.TabTooltipController.cs">

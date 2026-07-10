@@ -57,7 +57,7 @@ namespace QTTabBarLib {
                 _owner._buttonBarClickController = new ButtonBarClickController(_owner);
                 _owner._bandInfoController = new BandInfoController((IQTTabBarBandHost)_owner);
                 _owner._bandLifecycleController = new BandLifecycleController((IQTTabBarBandHost)_owner);
-                _owner._shellNavigationController = new ShellNavigationController(_owner);
+                _owner._shellNavigationController = new ShellNavigationController((IShellNavigationHost)_owner);
                 _owner._tabTooltipController = new TabTooltipController(_owner);
                 _owner._windowManagementController = new WindowManagementController(_owner);
                 _owner._bandWindowController = new BandWindowController((IQTTabBarBandHost)_owner);

@@ -8,10 +8,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6pTests {
         private static Type BandLifecycleType =>
-            typeof(QTTabBarClass).GetNestedType("BandLifecycleController", BindingFlags.NonPublic);
-
-        private static Type ShellNavigationType =>
-            typeof(QTTabBarClass).GetNestedType("ShellNavigationController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.BandLifecycleController");
 
         private static Type InstanceBootstrapType =>
             typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.InstanceBootstrapController");
@@ -25,9 +22,14 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ShellNavigationController_Owns_UpOneLevel() {
-            Assert.IsNotNull(ShellNavigationType);
-            Assert.IsNotNull(ShellNavigationType.GetMethod("UpOneLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        public void ShellNavigationController_Uses_Narrow_Host() {
+            Assembly assembly = typeof(QTTabBarClass).Assembly;
+            Type controller = assembly.GetType("QTTabBarLib.ShellNavigationController", true);
+            Type host = assembly.GetType("QTTabBarLib.IShellNavigationHost", true);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ShellNavigationController", BindingFlags.Public | BindingFlags.NonPublic));
+            Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { host }, null));
+            Assert.IsNotNull(controller.GetMethod("UpOneLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
 
         [Test]
@@ -40,8 +42,8 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_BandLifecycle_Navigation_And_Bootstrap() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string bandLifecycle = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.BandLifecycleController.cs"));
-            string shellNav = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellNavigationController.cs"));
+            string bandLifecycle = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Band", "BandLifecycleController.cs"));
+            string shellNav = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellNavigationController.cs"));
             string bootstrap = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceBootstrapController.cs"));
             Assert.IsTrue(main.Contains("_bandLifecycleController.ShowDW("));
             Assert.IsTrue(main.Contains("_bandLifecycleController.UIActivateIO("));
