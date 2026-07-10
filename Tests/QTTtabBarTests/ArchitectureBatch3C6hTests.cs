@@ -9,8 +9,12 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C6hTests {
         [Test]
         public void ShellCommandController_Type_Exists() {
-            Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.QTTabBarClass+ShellCommandController");
-            Assert.IsNotNull(type, "ShellCommandController nested class should exist");
+            Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ShellCommandController");
+            Type host = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.IShellCommandHost");
+            Assert.IsNotNull(type, "ShellCommandController should be a top-level boundary");
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ShellCommandController", BindingFlags.Public | BindingFlags.NonPublic));
+            Assert.IsNotNull(type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { host }, null));
             Assert.IsNotNull(type.GetMethod("CreateNewFile", BindingFlags.Instance | BindingFlags.Public));
             Assert.IsNotNull(type.GetMethod("OpenCmd", BindingFlags.Instance | BindingFlags.Public));
             Assert.IsNotNull(type.GetMethod("Wait4Select", BindingFlags.Instance | BindingFlags.Public));
@@ -19,7 +23,7 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ShellCommands_To_Controller() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellCommandController.cs"));
+            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellCommandController.cs"));
             Assert.IsTrue(main.Contains("_shellCommandController"));
             Assert.IsTrue(main.Contains("_shellCommandController.CreateNewFile("));
             Assert.IsTrue(main.Contains("_shellCommandController.OpenCmd("));
@@ -30,7 +34,7 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_No_Longer_Implements_createNewFile_Body() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellCommandController.cs"));
+            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellCommandController.cs"));
             Assert.IsFalse(main.Contains("QTUtility.DefaultNewFileName()"),
                 "createNewFile implementation should move out of QTTabBarClass.cs main partial");
             Assert.IsTrue(controller.Contains("QTUtility.DefaultNewFileName()"),

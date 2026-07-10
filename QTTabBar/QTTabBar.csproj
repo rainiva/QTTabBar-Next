@@ -761,7 +761,9 @@
     <Compile Include="QTTabBarClass.BindActionController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.ShellCommandController.cs">
+    <Compile Include="Shell\IShellCommandHost.cs" />
+    <Compile Include="Shell\ShellCommandController.cs" />
+    <Compile Include="QTTabBarClass.ShellCommandHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Input\IListViewInputHost.cs" />

@@ -50,7 +50,7 @@ namespace QTTabBarLib {
                 _owner._hookInputController = new HookInputController((IHookInputHost)_owner);
                 _owner._fileToolsController = new FileToolsController((IFileToolsHost)_owner);
                 _owner._bindActionController = new BindActionController(_owner);
-                _owner._shellCommandController = new ShellCommandController(_owner);
+                _owner._shellCommandController = new ShellCommandController((IShellCommandHost)_owner);
                 _owner._listViewInputController = new ListViewInputController((IListViewInputHost)_owner);
                 _owner._keyboardAcceleratorController = new KeyboardAcceleratorController((IQTTabBarBandHost)_owner);
                 _owner._shellUiController = new ShellUiController(_owner);
