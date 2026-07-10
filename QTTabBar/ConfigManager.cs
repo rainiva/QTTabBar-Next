@@ -13,6 +13,8 @@ namespace QTTabBarLib {
         public static volatile Config LoadedConfig;
         private static string[] _lastPluginEnabledSnapshot;
 
+        internal static IConfigWriter Writer { get; set; } = new RegistryConfigWriter();
+
         internal static void ResetForInitRetry() {
             LoadedConfig = null;
         }
@@ -25,6 +27,35 @@ namespace QTTabBarLib {
             QTLogger.log("初始化配置信息成功");
             ReadConfig();
             QTLogger.log("注册表读取配置信息成功");
+        }
+
+        public static Config CreateSnapshot() {
+            return LoadedConfig == null ? new Config() : SerializationHelper.DeepClone(LoadedConfig);
+        }
+
+        internal static void ReplaceLoadedConfigForTests(Config config) {
+            LoadedConfig = config ?? throw new ArgumentNullException(nameof(config));
+        }
+
+        internal static void CommitSnapshot(
+                Config candidate,
+                ConfigCommitScope scope = ConfigCommitScope.All,
+                bool broadcast = true) {
+            if(candidate == null) throw new ArgumentNullException(nameof(candidate));
+            Config published = SerializationHelper.DeepClone(candidate);
+            Writer.Write(published, scope == ConfigCommitScope.DesktopOnly);
+            LoadedConfig = published;
+            UpdateConfig(broadcast);
+        }
+
+        internal static void MutateAndCommit(
+                Action<Config> mutation,
+                ConfigCommitScope scope = ConfigCommitScope.All,
+                bool broadcast = true) {
+            if(mutation == null) throw new ArgumentNullException(nameof(mutation));
+            Config candidate = CreateSnapshot();
+            mutation(candidate);
+            CommitSnapshot(candidate, scope, broadcast);
         }
 
         internal static void LoadTextResources() {
@@ -117,47 +148,10 @@ namespace QTTabBarLib {
             UpdateConfig(broadcast);
         }
 
+        [Obsolete("Use CommitSnapshot or MutateAndCommit")]
         public static void WriteConfig(bool DesktopOnly = false) {
-            const string RegPath = RegConst.Root + RegConst.Config;
-            QTLogger.log("WriteConfig " + RegPath);
-            foreach(var category in ConfigMetadataCache.Categories) {
-                if(DesktopOnly && category.CategoryProperty.Name != "desktop") {
-                    continue;
-                }
-                object categoryObject = category.CategoryProperty.GetValue(LoadedConfig, null);
-                foreach(var setting in category.Settings) {
-                    using (var key=Registry.CurrentUser.CreateSubKey(category.KeyPath)) {
-                        Type t = setting.Type;
-                        object value = setting.Property.GetValue(categoryObject, null);
-
-                        if (t==typeof(bool)) {
-                            value=(bool)value ? 1 : 0;
-                        } else if (t == typeof(byte)) {
-                            value = (int)(byte)value;
-                        } else if (t != typeof(int) && t != typeof(string) && !t.IsEnum) {
-                            if (t==typeof(Font)) {
-                                value = XmlSerializableFont.FromFont((Font)value);
-                                t = typeof(XmlSerializableFont);
-                            }
-                            var ser = new DataContractJsonSerializer(t);
-                            using (var stream=new MemoryStream()) {
-                                try {
-                                    ser.WriteObject(stream,value);
-                                } catch (Exception e) {
-                                    QTLogger.MakeErrorLog(e);
-                                }
-                                stream.Position = 0;
-                                StreamReader streamReader = new StreamReader(stream);
-                                value = streamReader.ReadToEnd();
-
-                                QTUtility2.Close(streamReader);
-                                QTUtility2.Close(stream);
-                            }
-                        }
-                        key.SetValue(setting.Name,value);
-                    }
-                }
-            }
+            QTLogger.log("WriteConfig " + RegConst.Root + RegConst.Config);
+            Writer.Write(LoadedConfig, DesktopOnly);
             if(!DesktopOnly) {
                 _lastPluginEnabledSnapshot = (string[])(Config.Plugin.Enabled ?? Array.Empty<string>()).Clone();
             }

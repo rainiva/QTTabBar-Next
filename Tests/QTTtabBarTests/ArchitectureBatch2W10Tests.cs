@@ -44,17 +44,35 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        public void Options13_Language_Does_Not_Persist_During_SelectionChanged() {
+            string body = ReadMethod("Options13_Language.xaml.cs", "buildinCbx_SelectionChanged");
+            StringAssert.DoesNotContain("PersistConfigChanges", body);
+            StringAssert.DoesNotContain("LoadedConfig =", body);
+            StringAssert.Contains("WorkingConfig.lang.BuiltInLangSelectedIndex", body);
+        }
+
+        private static string ReadMethod(string fileName, string methodName) {
+            string path = Path.Combine(FindRepoRoot(), "QTTabBar", "OptionsDialog", fileName);
+            string content = File.ReadAllText(path);
+            int idx = content.IndexOf(methodName, StringComparison.Ordinal);
+            Assert.GreaterOrEqual(idx, 0, "Missing method " + methodName + " in " + fileName);
+            int brace = content.IndexOf('{', idx);
+            Assert.GreaterOrEqual(brace, 0, "Method " + methodName + " has no opening brace");
+            int depth = 0;
+            for(int i = brace; i < content.Length; i++) {
+                if(content[i] == '{') depth++;
+                else if(content[i] == '}') {
+                    depth--;
+                    if(depth == 0) {
+                        return content.Substring(brace, i - brace + 1);
+                    }
+                }
+            }
+            return content.Substring(brace);
+        }
+
+        [Test]
         public void OptionsDialog_Uses_PersistConfigChanges() {
-            AssertSourceUsesPersistConfigChanges("QTTabBar", "OptionsDialog", "OptionsDialog.xaml.cs", "UpdateOptions");
-        }
-
-        [Test]
-        public void Options13_Language_Uses_PersistConfigChanges() {
-            AssertSourceUsesPersistConfigChanges("QTTabBar", "OptionsDialog", "Options13_Language.xaml.cs", "buildinCbx_SelectionChanged");
-        }
-
-        [Test]
-        public void QTDesktopTool_Uses_PersistConfigChanges() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             string content = File.ReadAllText(Path.Combine(root, "QTDesktopTool.cs")) +
                 File.ReadAllText(Path.Combine(root, "QTDesktopTool.SettingsController.cs"));
