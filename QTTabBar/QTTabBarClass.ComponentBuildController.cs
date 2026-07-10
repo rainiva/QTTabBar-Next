@@ -44,7 +44,7 @@ namespace QTTabBarLib {
                 _owner.tabControl1.Dock = DockStyle.Fill;
                 _owner.tabControl1.ContextMenuStrip = _owner.contextMenuTab;
                 _owner.tabControl1.RefreshOptions(true);
-                _owner._tabManager = new TabManager(_owner);
+                _owner._tabManager = new TabManager((ITabOperationsHost)_owner);
                 _owner._menuController = new MenuController((IMenuInteractionHost)_owner, (IMenuLifecycleHost)_owner);
                 _owner._dragDropController = new DragDropController((IDragDropHost)_owner);
                 _owner._hookInputController = new HookInputController((IHookInputHost)_owner);

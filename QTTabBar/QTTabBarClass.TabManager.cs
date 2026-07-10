@@ -55,10 +55,10 @@ namespace QTTabBarLib {
         /// As a nested internal class, accesses outer/base members through _owner.
         /// Structure-only move: behavior must stay identical.
         /// </summary>
-        internal class TabManager {
+        internal class TabOperations {
             private readonly QTTabBarClass _owner;
 
-            public TabManager(QTTabBarClass owner) {
+            public TabOperations(QTTabBarClass owner) {
                 _owner = owner;
             }
 
