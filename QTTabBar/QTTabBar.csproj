@@ -766,13 +766,11 @@
     <Compile Include="QTTabBarClass.ShellCommandController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.ListViewInputController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ListViewInputController.Keyboard.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ListViewInputController.Mouse.cs">
+    <Compile Include="Input\IListViewInputHost.cs" />
+    <Compile Include="Input\ListViewInputController.cs" />
+    <Compile Include="Input\ListViewInputController.Keyboard.cs" />
+    <Compile Include="Input\ListViewInputController.Mouse.cs" />
+    <Compile Include="QTTabBarClass.ListViewInputHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Band\KeyboardAcceleratorController.cs" />

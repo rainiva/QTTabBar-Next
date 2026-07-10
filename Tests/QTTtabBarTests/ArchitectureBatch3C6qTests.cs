@@ -8,27 +8,31 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6qTests {
         private static Type BandWindowType =>
-            typeof(QTTabBarClass).GetNestedType("BandWindowController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.BandWindowController");
 
         [Test]
         public void BandWindowController_Owns_WndProc_And_PaintBackground() {
             Assert.IsNotNull(BandWindowType);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("BandWindowController",
+                BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(BandWindowType.GetMethod("ProcessWndProc", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(BandWindowType.GetMethod("PaintBackground", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
 
         [Test]
         public void ListViewInputController_Owns_ListViewMonitorHandler() {
-            var type = typeof(QTTabBarClass).GetNestedType("ListViewInputController", BindingFlags.NonPublic);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ListViewInputController");
             Assert.IsNotNull(type);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ListViewInputController",
+                BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetMethod("OnListViewMonitorChanged", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
 
         [Test]
         public void QTTabBarClass_Delegates_BandWindow_And_ListViewMonitor() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string bandWindow = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.BandWindowController.cs"));
-            string listView = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ListViewInputController.cs"));
+            string bandWindow = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Band", "BandWindowController.cs"));
+            string listView = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.cs"));
             Assert.IsTrue(main.Contains("_bandWindowController.ProcessWndProc("));
             Assert.IsTrue(main.Contains("_bandWindowController.PaintBackground("));
             Assert.IsFalse(main.Contains("private void ListViewMonitor_ListViewChanged("));

@@ -46,14 +46,14 @@ namespace QTTtabBarTests {
         [Test]
         public void ListViewInputController_Is_Split_Into_Partials() {
             Assert.IsTrue(File.Exists(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.ListViewInputController.Keyboard.cs")));
+                "Input", "ListViewInputController.Keyboard.cs")));
             Assert.IsTrue(File.Exists(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.ListViewInputController.Mouse.cs")));
-            string main = ReadFile("QTTabBarClass.ListViewInputController.cs");
+                "Input", "ListViewInputController.Mouse.cs")));
+            string main = ReadFile(Path.Combine("Input", "ListViewInputController.cs"));
             Assert.IsTrue(main.Contains("partial class ListViewInputController"));
-            Assert.LessOrEqual(CountLines("QTTabBarClass.ListViewInputController.cs"), 250);
-            Assert.IsTrue(ReadFile("QTTabBarClass.ListViewInputController.Keyboard.cs").Contains("HandleItemActivate"));
-            Assert.IsTrue(ReadFile("QTTabBarClass.ListViewInputController.Mouse.cs").Contains("OnMiddleClick"));
+            Assert.LessOrEqual(CountLines(Path.Combine("Input", "ListViewInputController.cs")), 250);
+            Assert.IsTrue(ReadFile(Path.Combine("Input", "ListViewInputController.Keyboard.cs")).Contains("HandleItemActivate"));
+            Assert.IsTrue(ReadFile(Path.Combine("Input", "ListViewInputController.Mouse.cs")).Contains("OnMiddleClick"));
         }
 
         [Test]
