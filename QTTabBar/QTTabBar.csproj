@@ -753,7 +753,9 @@
     <Compile Include="QTTabBarClass.HookInputHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.FileToolsController.cs">
+    <Compile Include="Shell\IFileToolsHost.cs" />
+    <Compile Include="Shell\FileToolsController.cs" />
+    <Compile Include="QTTabBarClass.FileToolsHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.BindActionController.cs">

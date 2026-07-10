@@ -85,7 +85,7 @@ namespace QTTabBarLib {
                         ConfigManager.PersistWindowAlpha(windowAlpha);
                         IDLWrapper.SaveCache(key);
                     }
-                    QTTabBarClass.FileToolsController.DisposeMd5Form();
+                    FileToolsController.DisposeMd5Form();
                     _owner.Cursor = Cursors.Default;
                     if((_owner.ShutdownCurTabDrag != null) && (_owner.ShutdownCurTabDrag != Cursors.Default)) {
                         PInvoke.DestroyIcon(_owner.ShutdownCurTabDrag.Handle);

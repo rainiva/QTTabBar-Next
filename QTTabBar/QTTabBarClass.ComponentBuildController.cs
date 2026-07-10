@@ -48,7 +48,7 @@ namespace QTTabBarLib {
                 _owner._menuController = new MenuController(_owner);
                 _owner._dragDropController = new DragDropController((IDragDropHost)_owner);
                 _owner._hookInputController = new HookInputController((IHookInputHost)_owner);
-                _owner._fileToolsController = new FileToolsController(_owner);
+                _owner._fileToolsController = new FileToolsController((IFileToolsHost)_owner);
                 _owner._bindActionController = new BindActionController(_owner);
                 _owner._shellCommandController = new ShellCommandController(_owner);
                 _owner._listViewInputController = new ListViewInputController((IListViewInputHost)_owner);

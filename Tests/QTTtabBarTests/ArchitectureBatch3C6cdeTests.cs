@@ -8,8 +8,14 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6cdeTests {
         [Test]
-        public void QTTabBarClass_Has_FileToolsController() {
-            AssertNestedController("FileToolsController");
+        public void FileToolsController_Uses_Narrow_Host() {
+            Assembly assembly = typeof(QTTabBarClass).Assembly;
+            Type controller = assembly.GetType("QTTabBarLib.FileToolsController", true);
+            Type host = assembly.GetType("QTTabBarLib.IFileToolsHost", true);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("FileToolsController",
+                BindingFlags.Public | BindingFlags.NonPublic));
+            Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { host }, null));
         }
 
         [Test]
