@@ -36,7 +36,7 @@ using IShellView = QTTabBarLib.Interop.IShellView;
 using Timer = System.Windows.Forms.Timer;
 
 namespace QTTabBarLib {
-    internal abstract class ExtendedListViewCommon : AbstractListView {
+    internal abstract partial class ExtendedListViewCommon : AbstractListView {
 
         #region Delegates
         internal delegate bool DoubleClickHandler(Point pt);
@@ -89,10 +89,14 @@ namespace QTTabBarLib {
         // private IntPtr hwndListView;
         private static string BG_IMG = Environment.GetEnvironmentVariable("ProgramData") + @"\QTTabBar\Image\bgImage.png";
 
+        // Batch6 GC6a: watermark / background rendering delegated to this controller.
+        private readonly WatermarkRenderer _watermarkRenderer;
+
 
         internal ExtendedListViewCommon(ShellBrowserEx shellBrowser, IntPtr hwndShellView, IntPtr hwndListView, IntPtr hwndSubDirTipMessageReflect) {
             this.ShellBrowser = shellBrowser;
             this.hwndSubDirTipMessageReflect = hwndSubDirTipMessageReflect;
+            _watermarkRenderer = new WatermarkRenderer(this);
             // this.hwndListView = hwndListView;
 
             ListViewController = new NativeWindowController(hwndListView);
@@ -127,59 +131,6 @@ namespace QTTabBarLib {
             RefreshViewWatermark(true);
         }
 
-        private unsafe void SetWaterMarkImage(Bitmap bmp)
-        {
-            if (bmp != null)
-            {
-                LVBKIMAGE* lParam = stackalloc LVBKIMAGE[1];
-                lParam->ulFlags = 805306368;
-                lParam->hBmp = bmp.GetHbitmap(Color.Black);
-                if (!(IntPtr.Zero == PInvoke.SendMessage(this.Handle, 4234, (void*)null, (void*)lParam)) || !(lParam->hBmp != IntPtr.Zero))
-                    return;
-                PInvoke.DeleteObject(lParam->hBmp);
-            }
-            else
-            {
-                LVBKIMAGE* lParam = stackalloc LVBKIMAGE[1];
-                lParam->ulFlags = 268435456;
-                PInvoke.SendMessage(this.Handle, 4234, (void*)null, (void*)lParam);
-            }
-        }
-
-        public bool SetBackgroundImage2(bool isWatermark, bool isTiled, int xOffset, int yOffset)
-        {
-            LVBKIMAGE lvbkimage = new LVBKIMAGE();
-            // IntPtr handle = ShellViewController.Handle;
-            IntPtr handle = ListViewController.Handle;
-            /*var findWindowEx = PInvoke.FindWindowEx(ListViewController.Handle, IntPtr.Zero, "DirectUIHWND", null);
-            if (handle != findWindowEx)
-            {
-                handle = findWindowEx;
-            }*/
-            // We have to clear any pre-existing background image, otherwise the attempt to set the image will fail.
-            // We don't know which type may already have been set, so we just clear both the watermark and the image.
-            lvbkimage.ulFlags = LVBKIF_TYPE_WATERMARK;
-            IntPtr result = PInvoke.SendMessageLVBKIMAGE(handle, LVM_SETBKIMAGE, 0, ref lvbkimage);
-            lvbkimage.ulFlags = LVBKIF_SOURCE_HBITMAP;
-            result = PInvoke.SendMessageLVBKIMAGE(handle, LVM_SETBKIMAGE, 0, ref lvbkimage);
-
-            if(File.Exists(BG_IMG)) {
-                using(FreeBitmap freeBitmap = new FreeBitmap(BG_IMG))
-                using(Bitmap bm = freeBitmap.Clone()) {
-                    lvbkimage.hBmp = bm.GetHbitmap();
-                    lvbkimage.ulFlags = isWatermark ? LVBKIF_TYPE_WATERMARK : (isTiled ? LVBKIF_SOURCE_HBITMAP | LVBKIF_STYLE_TILE : LVBKIF_SOURCE_HBITMAP);
-                    lvbkimage.xOffset = xOffset;
-                    lvbkimage.yOffset = yOffset;
-                    IntPtr setResult = PInvoke.SendMessage(handle, 4234, IntPtr.Zero, ref lvbkimage);
-                    if(setResult == IntPtr.Zero && lvbkimage.hBmp != IntPtr.Zero) {
-                        PInvoke.DeleteObject(lvbkimage.hBmp);
-                    }
-                    return setResult != IntPtr.Zero;
-                }
-            }
-            return (result != IntPtr.Zero);
-        }
-
         public override IntPtr Handle {
             get { return ListViewController.Handle; }
         }
@@ -192,42 +143,8 @@ namespace QTTabBarLib {
             get { return ViewPerceivedTypeResolver.Resolve(ShellBrowser); }
         }
 
-        public override void RefreshViewWatermark(bool fClear)
-        {
-            if(!VistaLayout) {
-                return;
-            }
-            if(Config.Tweaks.ViewWatermarking) {
-                Bitmap bmp = null;
-                switch(ViewPerceivedType) {
-                    case PerceivedType.Unknown:
-                        bmp = ExplorerManager.GetWatermarkImage(BmpCacheKey.Watermark_General);
-                        break;
-                    case PerceivedType.Image:
-                        bmp = ExplorerManager.GetWatermarkImage(BmpCacheKey.Watermark_Picture);
-                        break;
-                    case PerceivedType.Audio:
-                        bmp = ExplorerManager.GetWatermarkImage(BmpCacheKey.Watermark_Music);
-                        break;
-                    case PerceivedType.Video:
-                        bmp = ExplorerManager.GetWatermarkImage(BmpCacheKey.Watermark_Movie);
-                        break;
-                    case PerceivedType.Document:
-                        bmp = ExplorerManager.GetWatermarkImage(BmpCacheKey.Watermark_Document);
-                        break;
-                }
-                if(bmp != null) {
-                    using(Bitmap clone = (Bitmap)bmp.Clone()) {
-                        SetWaterMarkImage(clone);
-                    }
-                }
-            }
-            else {
-                if(!fClear) {
-                    return;
-                }
-                SetWaterMarkImage((Bitmap)null);
-            }
+        public override void RefreshViewWatermark(bool fClear) {
+            _watermarkRenderer.RefreshViewWatermark(fClear);
         }
 
 
@@ -397,88 +314,6 @@ namespace QTTabBarLib {
         public const int LVM_FIRST = 0x1000;
         public const int LVM_SETBKIMAGE = (LVM_FIRST + 68);
 
-
-        public  bool SetBackgroundImage(bool isWatermark, bool isTiled, int xOffset, int yOffset)
-        {
-            LVBKIMAGE lvbkimage = new LVBKIMAGE();
-            // IntPtr handle = ShellViewController.Handle;
-            IntPtr handle = ListViewController.Handle; // DirectUIHWND  SHELLDLL_DefView
-            // find parent ShellTabWindowClass  DUIViewWndClassName DirectUIHWND
-
-            // [log] PID:15516 TID:1 2022/9/22 9:17:17  parent name SHELLDLL_DefView
-            //     [log] PID:15516 TID:1 2022/9/22 9:17:17  parent name ShellTabWindowClass
-            //     [log] PID:15516 TID:1 2022/9/22 9:17:17  parent name CabinetWClass
-            var name = PInvoke.GetClassName(handle);
-            QTLogger.log("name " + name);
-            var parent = PInvoke.GetParent(handle);
-            name = PInvoke.GetClassName(parent);
-            QTLogger.log(" parent name " + name);
-            parent = PInvoke.GetParent(parent);
-            name = PInvoke.GetClassName(parent);
-            QTLogger.log(" parent name " + name);
-
-            // var findWindowEx = PInvoke.FindWindowEx(parent, IntPtr.Zero, "DUIViewWndClassName", null);
-            IntPtr findWindowEx = WindowUtils.FindChildWindow(parent, hwnd => PInvoke.GetClassName(hwnd) == "DirectUIHWND");
-            if (IntPtr.Zero != findWindowEx)
-            {
-                QTLogger.log(" found DirectUIHWND ");
-                handle = findWindowEx;
-            }
-            // parent = PInvoke.GetParent(parent);
-            // name = PInvoke.GetClassName(parent);
-            // QTLogger.log(" parent name " + name);
-            /*handle = findParent("ShellTabWindowClass");
-            if (handle == IntPtr.Zero)
-            {   
-                QTLogger.log("SetBackgroundImage not found class" );
-                return false;
-            }*/
-            // We have to clear any pre-existing background image, otherwise the attempt to set the image will fail.
-            // We don't know which type may already have been set, so we just clear both the watermark and the image.
-            lvbkimage.ulFlags = LVBKIF_TYPE_WATERMARK;
-            IntPtr result = PInvoke.SendMessageLVBKIMAGE(handle, LVM_SETBKIMAGE, 0, ref lvbkimage);
-            lvbkimage.ulFlags = LVBKIF_SOURCE_HBITMAP;
-            result = PInvoke.SendMessageLVBKIMAGE(handle, LVM_SETBKIMAGE, 0, ref lvbkimage);
-
-
-            if (File.Exists(BG_IMG))
-            {
-                using (FreeBitmap freeBitmap = new FreeBitmap(BG_IMG))
-                using (Bitmap bm = freeBitmap.Clone())
-                {
-                    lvbkimage.hBmp = bm.GetHbitmap(Color.Black);
-                }
-            }
-            else
-            {
-                lvbkimage.hBmp = IntPtr.Zero;
-            }
-            lvbkimage.ulFlags = isWatermark ? LVBKIF_TYPE_WATERMARK : (isTiled ? LVBKIF_SOURCE_HBITMAP | LVBKIF_STYLE_TILE : LVBKIF_SOURCE_HBITMAP);
-            lvbkimage.xOffset = xOffset;
-            lvbkimage.yOffset = yOffset;
-            IntPtr setResult = PInvoke.SendMessageLVBKIMAGE(handle, LVM_SETBKIMAGE, 0, ref lvbkimage);
-            if(setResult == IntPtr.Zero && lvbkimage.hBmp != IntPtr.Zero) {
-                PInvoke.DeleteObject(lvbkimage.hBmp);
-            }
-            QTLogger.log("SetWaterMarkImage " + BG_IMG);
-            return (setResult != IntPtr.Zero);
-        }
-
-        private IntPtr findParent(string className)
-        {
-            int count = 0;
-            do
-            {
-                var intPtr = PInvoke.GetParent(Handle);
-                var name = PInvoke.GetClassName(intPtr);
-                if (name.Equals(className))
-                {
-                    return intPtr;
-                }
-                count++;
-            } while ( count <= 10);
-            return IntPtr.Zero;
-        }
 
         protected virtual bool ListViewController_MessageCaptured(ref Message msg) {
             // QTLogger.log("ListViewController msg\t" + Enum.GetName(typeof(MsgEnum), msg.Msg) + "\tw\t" + msg.WParam + "\tl\t" + msg.LParam);

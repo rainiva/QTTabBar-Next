@@ -612,6 +612,7 @@
     <Compile Include="LockedTabsService.cs" />
     <Compile Include="IpcNavigationExecutor.cs" />
     <Compile Include="ExtendedListViewCommon.cs" />
+        <Compile Include="ExtendedListViewCommon.WatermarkRenderer.cs" />
     <Compile Include="MemoForm.cs" />
     <Compile Include="MenuItemEx.cs">
       <SubType>Component</SubType>
