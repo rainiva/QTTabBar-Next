@@ -10,10 +10,10 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     public partial class QTTabBarClass {
-        internal class TabTooltipController {
+        private class SubDirTipOperations {
             private readonly QTTabBarClass _owner;
 
-            public TabTooltipController(QTTabBarClass owner) {
+            public SubDirTipOperations(QTTabBarClass owner) {
                 _owner = owner;
             }
 

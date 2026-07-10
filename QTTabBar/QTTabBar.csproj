@@ -830,6 +830,11 @@
     <Compile Include="QTTabBarClass.TabTooltipController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="Input\ISubDirTipHost.cs" />
+    <Compile Include="Input\TabTooltipController.cs" />
+    <Compile Include="QTTabBarClass.SubDirTipHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="Window\IWindowManagementHost.cs" />
     <Compile Include="Window\WindowManagementController.cs" />
     <Compile Include="QTTabBarClass.WindowManagementHost.cs">

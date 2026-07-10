@@ -24,8 +24,14 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTTabBarClass_Has_TabTooltipController() {
-            AssertNestedController("TabTooltipController");
+        public void TabTooltipController_Uses_Narrow_Host() {
+            Assembly assembly = typeof(QTTabBarClass).Assembly;
+            Type controller = assembly.GetType("QTTabBarLib.TabTooltipController", true);
+            Type host = assembly.GetType("QTTabBarLib.ISubDirTipHost", true);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("TabTooltipController",
+                BindingFlags.Public | BindingFlags.NonPublic));
+            Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { host }, null));
         }
 
         [Test]
