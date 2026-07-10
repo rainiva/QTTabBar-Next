@@ -73,23 +73,19 @@ namespace QTTabBarLib {
             {
                 if (null != TextFileTypes && TextFileTypes.Count > 0) {
                     WorkingConfig.tips.TextExt = TextFileTypes.Select(entry => entry.DotExtension).DefaultIfEmpty().ToList();
-                    Config.Tips.TextExt = TextFileTypes.Select(entry => entry.DotExtension).DefaultIfEmpty().ToList();
                 }
                 else if (null == TextFileTypes || TextFileTypes.Count ==  0 ) {
                     WorkingConfig.tips.TextExt = new List<string> { };
-                    Config.Tips.TextExt = new List<string> { };
                 }
                 
 
                 if (null != MediaFileTypes && MediaFileTypes.Count > 0)
                 {
                     WorkingConfig.tips.ImageExt = MediaFileTypes.Select(entry => entry.DotExtension).DefaultIfEmpty().ToList();
-                    Config.Tips.ImageExt = MediaFileTypes.Select(entry => entry.DotExtension).DefaultIfEmpty().ToList();
                 }
                 else if (null == MediaFileTypes || MediaFileTypes.Count == 0)
                 {
                     WorkingConfig.tips.ImageExt = new List<string> { };
-                    Config.Tips.ImageExt = new List<string> { };
                 }
             }
             catch (Exception exception)

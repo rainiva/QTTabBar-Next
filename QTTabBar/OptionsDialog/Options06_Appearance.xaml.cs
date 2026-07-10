@@ -46,7 +46,6 @@ namespace QTTabBarLib {
             WorkingConfig.skin = new Config._Skin();
             // 修复颜色重置导致暗黑模式混乱问题
             WorkingConfig.skin.SkinAutoColorChangeClose = false;
-            Config.Skin.SkinAutoColorChangeClose = false;
             QTLogger.log("reset SwitchNighMode");
             ThemeRefreshService.ApplyPreviewTheme(WorkingConfig.skin);
             DataContext = WorkingConfig.skin;
