@@ -830,7 +830,9 @@
     <Compile Include="QTTabBarClass.TabTooltipController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.WindowManagementController.cs">
+    <Compile Include="Window\IWindowManagementHost.cs" />
+    <Compile Include="Window\WindowManagementController.cs" />
+    <Compile Include="QTTabBarClass.WindowManagementHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTUtility.cs" />

@@ -55,8 +55,14 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTTabBarClass_Has_WindowManagementController() {
-            AssertNestedController("WindowManagementController");
+        public void WindowManagementController_Uses_Narrow_Host() {
+            Assembly assembly = typeof(QTTabBarClass).Assembly;
+            Type controller = assembly.GetType("QTTabBarLib.WindowManagementController", true);
+            Type host = assembly.GetType("QTTabBarLib.IWindowManagementHost", true);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("WindowManagementController",
+                BindingFlags.Public | BindingFlags.NonPublic));
+            Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { host }, null));
         }
 
         [Test]
