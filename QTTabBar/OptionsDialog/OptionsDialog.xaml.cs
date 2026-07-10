@@ -74,33 +74,6 @@ namespace QTTabBarLib {
 
         #region ---------- Static Methods ----------
 
-        internal static void ShowStandalonePreview() {
-            if(Thread.CurrentThread.GetApartmentState() != ApartmentState.STA) {
-                var thread = new Thread(ShowStandalonePreviewInternal) { IsBackground = false };
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-                thread.Join();
-                return;
-            }
-            ShowStandalonePreviewInternal();
-        }
-
-        static void ShowStandalonePreviewInternal() {
-            if(Application.Current == null) {
-                new Application { ShutdownMode = ShutdownMode.OnMainWindowClose };
-            }
-            // Ensure AssemblyResolve is registered before any Options page XAML loads TreeListView.
-            GC.KeepAlive(typeof(QTUtility));
-            if(ConfigManager.LoadedConfig == null) {
-                // Drive initialization through QTUtility's static ctor (single driver),
-                // not the orchestrator directly, to avoid re-entrant double-run.
-                QTUtility.Initialize();
-            }
-            ConfigManager.UpdateConfig(false);
-            var dialog = new OptionsDialog();
-            dialog.ShowDialog();
-        }
-
         public static void Open() {
             InstanceManager.ExecuteOnServerProcessOpenOptions();
         }
@@ -160,6 +133,7 @@ namespace QTTabBarLib {
         }
 
         private static void ThreadEntry() {
+            QTUtility.Initialize();
             instance = new OptionsDialog();
             lock(instanceThread) {
                 Monitor.Pulse(instanceThread);

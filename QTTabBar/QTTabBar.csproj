@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -232,7 +232,6 @@
     <Compile Include="ExplorerManager.cs" />
     <Compile Include="FluentThemeManager.cs" />
     <Compile Include="FluentThemeTokens.cs" />
-    <Compile Include="FluentOptionsPoCLauncher.cs" />
     <Compile Include="FileRename\FileRenameDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -409,12 +408,6 @@
     </Compile>
     <Compile Include="OptionsDialog\OptionsDialog.xaml.cs">
       <DependentUpon>OptionsDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OptionsDialog\OptionsFluentPoCTweaksPage.xaml.cs">
-      <DependentUpon>OptionsFluentPoCTweaksPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OptionsDialog\OptionsFluentPoCWindow.xaml.cs">
-      <DependentUpon>OptionsFluentPoCWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="RebarController.cs" />
     <Compile Include="MiscClasses.cs" />
@@ -1027,14 +1020,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OptionsDialog\OptionsDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="OptionsDialog\OptionsFluentPoCTweaksPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="OptionsDialog\OptionsFluentPoCWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
