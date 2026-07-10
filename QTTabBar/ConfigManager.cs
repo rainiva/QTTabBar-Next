@@ -18,6 +18,7 @@ namespace QTTabBarLib {
         private static string[] _lastPluginEnabledSnapshot;
 
         private static IConfigWriter _writer = new RegistryConfigWriter();
+        private static readonly object CommitSync = new object();
 
         internal static void ResetForInitRetry() {
             LoadedConfig = null;
@@ -46,6 +47,12 @@ namespace QTTabBarLib {
                 ConfigCommitScope scope = ConfigCommitScope.All,
                 bool broadcast = true) {
             if(candidate == null) throw new ArgumentNullException(nameof(candidate));
+            lock(CommitSync) {
+                CommitSnapshotCore(candidate, scope, broadcast);
+            }
+        }
+
+        private static void CommitSnapshotCore(Config candidate, ConfigCommitScope scope, bool broadcast) {
             Config published = SerializationHelper.DeepClone(candidate);
             _writer.Write(published, scope == ConfigCommitScope.DesktopOnly);
             LoadedConfig = published;
@@ -57,9 +64,11 @@ namespace QTTabBarLib {
                 ConfigCommitScope scope = ConfigCommitScope.All,
                 bool broadcast = true) {
             if(mutation == null) throw new ArgumentNullException(nameof(mutation));
-            Config candidate = CreateSnapshot();
-            mutation(candidate);
-            CommitSnapshot(candidate, scope, broadcast);
+            lock(CommitSync) {
+                Config candidate = CreateSnapshot();
+                mutation(candidate);
+                CommitSnapshotCore(candidate, scope, broadcast);
+            }
         }
 
         internal static void LoadTextResources() {
