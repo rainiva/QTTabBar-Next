@@ -247,8 +247,8 @@ namespace QTTabBarLib {
             if(!ScreenCoords) {
                 PInvoke.ClientToScreen(Handle, ref pt);
             }
-            if(subDirTip != null && subDirTip.IsShowing && subDirTip.Bounds.Contains(pt)) {
-                return subDirIndex;
+            if(TryGetSubDirTipHit(pt, out int subDirHit)) {
+                return subDirHit;
             }
             if(PInvoke.WindowFromPoint(pt) != Handle) {
                 return -1;
@@ -285,7 +285,7 @@ namespace QTTabBarLib {
         }
 
         private bool IsHotTrackingEnabled() {
-            if(thumbnailTooltip != null && (thumbnailTooltip.IsShowing || fThumbnailPending)) {
+            if(IsThumbnailActive()) {
                 return true;
             }
             if(!fDragging && Config.Tips.ShowSubDirTips &&

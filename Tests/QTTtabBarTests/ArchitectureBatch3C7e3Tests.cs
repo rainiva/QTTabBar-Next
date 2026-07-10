@@ -52,6 +52,10 @@ namespace QTTtabBarTests {
                                   File.ReadAllText(Path.Combine(root, "PluginServer.Commands.cs")) +
                                   File.ReadAllText(Path.Combine(root, "PluginServer.TabAccess.cs")) +
                                   File.ReadAllText(Path.Combine(root, "PluginServer.Lifetime.cs"))
+                            : relative == "ExtendedListViewCommon.cs"
+                                ? File.ReadAllText(Path.Combine(root, "ExtendedListViewCommon.cs")) +
+                                  File.ReadAllText(Path.Combine(root, "ExtendedListViewCommon.WatermarkRenderer.cs")) +
+                                  File.ReadAllText(Path.Combine(root, "ExtendedListViewCommon.ListViewHoverController.cs"))
                             : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("OSDetector."),
                     relative + " should call OSDetector directly after C7e3");
