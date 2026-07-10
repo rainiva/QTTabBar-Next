@@ -1,0 +1,24 @@
+name: Structural Governance CI
+
+on:
+  push:
+    branches: [main, win11-probe-session]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build QTTtabBarTests (MSBuild)
+        run: msbuild "Tests\QTTtabBarTests\QTTtabBarTests.csproj" /p:Configuration=Release /m
+
+      - name: Run tests
+        run: dotnet test "Tests\QTTtabBarTests\QTTtabBarTests.csproj" --no-build --verbosity minimal

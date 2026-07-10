@@ -62,6 +62,32 @@ namespace QTTtabBarTests {
                 return File.ReadAllText(Path.Combine(RepoRoot(), relativePath));
             }
 
+            public static int FileLines(string relativePath) {
+                return File.ReadAllLines(Path.Combine(RepoRoot(), relativePath)).Length;
+            }
+
+            public static int PartialDeclarationCount(string familyName) {
+                string root = RepoRoot();
+                string dir = Path.Combine(root, "QTTabBar");
+                int count = 0;
+                foreach (string file in Directory.GetFiles(dir, familyName + "*.cs", SearchOption.TopDirectoryOnly)) {
+                    string text = File.ReadAllText(file);
+                    count += RegexMatchesCount(text, @"partial\s+class\s+" + familyName);
+                }
+                return count;
+            }
+
+            private static int RegexMatchesCount(string text, string pattern) {
+                int count = 0;
+                var regex = new System.Text.RegularExpressions.Regex(pattern);
+                var match = regex.Match(text);
+                while (match.Success) {
+                    count++;
+                    match = match.NextMatch();
+                }
+                return count;
+            }
+
             private static string RepoRoot() {
                 DirectoryInfo dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
                 while (dir != null) {
