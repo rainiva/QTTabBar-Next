@@ -57,7 +57,7 @@ namespace QTTtabBarTests {
                     "Orchestrator must mark _initialized after successful retry");
             }
             finally {
-                ConfigManager.LoadedConfig = (Config)previousLoaded;
+                ConfigManager.ReplaceLoadedConfigForTests((Config)previousLoaded);
             }
         }
 
@@ -80,7 +80,7 @@ namespace QTTtabBarTests {
                     "Initialize after reset must reload config");
             }
             finally {
-                ConfigManager.LoadedConfig = saved;
+                ConfigManager.ReplaceLoadedConfigForTests(saved);
             }
         }
 

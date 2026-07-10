@@ -43,7 +43,7 @@ namespace QTTtabBarTests {
         [Test]
         public void ApplyLoadedSkinFromSystemTheme_Syncs_IsDark_And_Skin() {
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             Config.Skin.SkinAutoColorChangeClose = false;
             Type themeType = typeof(QTUtility).Assembly.GetType("QTTabBarLib.ThemeRefreshService");

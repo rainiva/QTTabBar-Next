@@ -10,10 +10,14 @@ using Microsoft.Win32;
 
 namespace QTTabBarLib {
     public static partial class ConfigManager {
-        public static volatile Config LoadedConfig;
+        private static volatile Config _loadedConfig;
+        public static Config LoadedConfig {
+            get { return _loadedConfig; }
+            private set { _loadedConfig = value; }
+        }
         private static string[] _lastPluginEnabledSnapshot;
 
-        internal static IConfigWriter Writer { get; set; } = new RegistryConfigWriter();
+        private static IConfigWriter _writer = new RegistryConfigWriter();
 
         internal static void ResetForInitRetry() {
             LoadedConfig = null;
@@ -37,13 +41,13 @@ namespace QTTabBarLib {
             LoadedConfig = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        internal static void CommitSnapshot(
+        public static void CommitSnapshot(
                 Config candidate,
                 ConfigCommitScope scope = ConfigCommitScope.All,
                 bool broadcast = true) {
             if(candidate == null) throw new ArgumentNullException(nameof(candidate));
             Config published = SerializationHelper.DeepClone(candidate);
-            Writer.Write(published, scope == ConfigCommitScope.DesktopOnly);
+            _writer.Write(published, scope == ConfigCommitScope.DesktopOnly);
             LoadedConfig = published;
             UpdateConfig(broadcast);
         }
@@ -138,23 +142,6 @@ namespace QTTabBarLib {
             PersistPartialWindowSetting(key => {
                 key.SetValue("WindowAlpha", (int)alpha);
             });
-        }
-
-        /// <summary>
-        /// Persists WorkingConfig to registry then runs UpdateConfig. Full save path for Options OK/Apply.
-        /// </summary>
-        public static void PersistConfigChanges(bool desktopOnly = false, bool broadcast = true) {
-            WriteConfig(desktopOnly);
-            UpdateConfig(broadcast);
-        }
-
-        [Obsolete("Use CommitSnapshot or MutateAndCommit")]
-        public static void WriteConfig(bool DesktopOnly = false) {
-            QTLogger.log("WriteConfig " + RegConst.Root + RegConst.Config);
-            Writer.Write(LoadedConfig, DesktopOnly);
-            if(!DesktopOnly) {
-                _lastPluginEnabledSnapshot = (string[])(Config.Plugin.Enabled ?? Array.Empty<string>()).Clone();
-            }
         }
 
         private static void UpdateNoCapturePaths(IEnumerable<string> paths) {

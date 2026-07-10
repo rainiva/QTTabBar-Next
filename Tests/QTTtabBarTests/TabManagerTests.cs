@@ -492,7 +492,7 @@ namespace QTTtabBarTests {
         [SetUp]
         public void TabIndex_SetUp() {
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             _savedNewTabPosition = Config.Tabs.NewTabPosition;
         }

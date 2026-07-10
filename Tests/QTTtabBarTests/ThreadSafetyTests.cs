@@ -167,11 +167,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ConfigManager_LoadedConfig_Is_Accessible() {
-            // Volatile can't be tested directly, but verify the field exists
-            // and can be read from multiple threads without corruption
-            var field = typeof(ConfigManager).GetField("LoadedConfig",
+            // Volatile semantics are now on the private backing field; the public surface is a property.
+            var prop = typeof(ConfigManager).GetProperty("LoadedConfig",
                 BindingFlags.Public | BindingFlags.Static);
-            Assert.IsNotNull(field, "LoadedConfig field should exist");
+            Assert.IsNotNull(prop, "LoadedConfig property should exist");
+            Assert.IsNotNull(prop.GetSetMethod(true), "LoadedConfig should have a setter");
         }
 
         #endregion

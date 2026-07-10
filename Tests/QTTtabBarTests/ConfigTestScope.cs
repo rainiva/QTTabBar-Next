@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using QTTabBarLib;
 
 namespace QTTtabBarTests {
@@ -15,12 +16,15 @@ namespace QTTtabBarTests {
     }
 
     internal class ConfigTestScope : IDisposable {
+        private static readonly FieldInfo WriterField = typeof(ConfigManager).GetField(
+            "_writer", BindingFlags.NonPublic | BindingFlags.Static);
+
         private readonly IConfigWriter _previousWriter;
 
         private ConfigTestScope(IConfigWriter writer) {
             Writer = writer;
-            _previousWriter = ConfigManager.Writer;
-            ConfigManager.Writer = writer;
+            _previousWriter = (IConfigWriter)WriterField.GetValue(null);
+            WriterField.SetValue(null, writer);
         }
 
         public IConfigWriter Writer { get; }
@@ -34,7 +38,7 @@ namespace QTTtabBarTests {
         }
 
         public void Dispose() {
-            ConfigManager.Writer = _previousWriter;
+            WriterField.SetValue(null, _previousWriter);
         }
     }
 }

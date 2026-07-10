@@ -48,7 +48,7 @@ namespace QTTtabBarTests {
         [Test]
         public void UpdateConfig_Syncs_Config_To_SessionState_WindowAlpha() {
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             Config.Window.WindowAlpha = 0x7A;
             ConfigManager.UpdateConfig(false);

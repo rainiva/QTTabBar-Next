@@ -61,7 +61,7 @@ namespace QTTtabBarTests {
         [Test]
         public void ApplyPreviewTheme_Uses_ThemeRefreshService_IsDark() {
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             Type themeType = typeof(QTUtility).Assembly.GetType("QTTabBarLib.ThemeRefreshService");
             MethodInfo refresh = themeType.GetMethod(

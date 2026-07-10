@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Json;
 using Microsoft.Win32;
 
 namespace QTTabBarLib {
-    internal enum ConfigCommitScope {
+    public enum ConfigCommitScope {
         All,
         DesktopOnly
     }

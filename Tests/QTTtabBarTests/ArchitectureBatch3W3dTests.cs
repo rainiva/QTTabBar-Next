@@ -62,7 +62,7 @@ namespace QTTtabBarTests {
         [SetUp]
         public void SetUp() {
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             if(ResourceCache.TextResourcesDic == null) {
                 ConfigManager.LoadTextResources();

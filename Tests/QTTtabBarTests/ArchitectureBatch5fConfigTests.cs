@@ -35,25 +35,23 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void WriteConfig_Does_Not_Increment_ConfigVersion() {
-            string content = ReadConfigManager();
-            string body = ExtractMethodBody(content, "void WriteConfig(");
-            Assert.IsFalse(body.Contains("ConfigVersionTracker.Increment"),
-                "WriteConfig must not bump version; PersistConfigChanges relies on UpdateConfig broadcast");
+        public void RegistryConfigWriter_Does_Not_Increment_ConfigVersion() {
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "RegistryConfigWriter.cs"));
+            Assert.IsFalse(content.Contains("ConfigVersionTracker.Increment"),
+                "RegistryConfigWriter must not bump version; version increments belong to UpdateConfig");
         }
 
         [Test]
-        public void PersistConfigChanges_Single_Increment_Via_UpdateConfig_Broadcast() {
+        public void CommitSnapshot_Single_Increment_Via_UpdateConfig_Broadcast() {
             string content = ReadConfigManager();
-            string persistBody = ExtractMethodBody(content, "void PersistConfigChanges(");
-            Assert.IsTrue(persistBody.Contains("WriteConfig("));
-            Assert.IsTrue(persistBody.Contains("UpdateConfig("));
+            string commitBody = ExtractMethodBody(content, "void CommitSnapshot(");
+            Assert.IsTrue(commitBody.Contains("UpdateConfig("),
+                "CommitSnapshot should apply side effects and broadcast via UpdateConfig");
+            Assert.IsTrue(commitBody.Contains("_writer.Write("),
+                "CommitSnapshot should delegate registry write to IConfigWriter");
 
-            string writeBody = ExtractMethodBody(content, "void WriteConfig(");
             string updateBody = ExtractMethodBody(content, "void UpdateConfig(");
-            int writeIncrements = Regex.Matches(writeBody, "ConfigVersionTracker\\.Increment\\(\\)").Count;
             int updateIncrements = Regex.Matches(updateBody, "ConfigVersionTracker\\.Increment\\(\\)").Count;
-            Assert.AreEqual(0, writeIncrements, "WriteConfig should not increment");
             Assert.AreEqual(1, updateIncrements, "UpdateConfig should be the single increment point on broadcast");
         }
 

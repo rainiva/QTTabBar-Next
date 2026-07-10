@@ -25,7 +25,7 @@ namespace QTTtabBarTests {
             // ValidateTextResources(ref) reaches Config.Lang; ensure a default
             // config exists when nothing initialized it (no registry / broadcast).
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             // IconManager.GetImageKey / AddImageToGlobal touch the global ImageList.
             if(ResourceCache.ImageListGlobal == null) {

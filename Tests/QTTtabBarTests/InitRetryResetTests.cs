@@ -19,7 +19,7 @@ namespace QTTtabBarTests {
 
         [TearDown]
         public void TearDown() {
-            ConfigManager.LoadedConfig = (Config)_previousLoadedConfig;
+            ConfigManager.ReplaceLoadedConfigForTests((Config)_previousLoadedConfig);
             ResourceCache.TextResourcesDic = _previousTextResources;
             if(ResourceCache.TextResourcesDic == null && ConfigManager.LoadedConfig != null) {
                 ConfigManager.LoadTextResources();

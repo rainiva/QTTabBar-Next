@@ -38,26 +38,27 @@ namespace QTTabBarLib {
         }
 
         private void SaveSetting() {
-            Config.Desktop.FirstItem = lstItemOrder[0];
-            Config.Desktop.SecondItem = lstItemOrder[1];
-            Config.Desktop.ThirdItem = lstItemOrder[2];
-            Config.Desktop.FourthItem = lstItemOrder[3];
-            Config.Desktop.GroupExpanded = ExpandState[0];
-            Config.Desktop.RecentTabExpanded = ExpandState[1];
-            Config.Desktop.ApplicationExpanded = ExpandState[2];
-            Config.Desktop.RecentFileExpanded = ExpandState[3];
-            Config.Desktop.TaskBarDblClickEnabled = tsmiTaskBar.Checked;
-            Config.Desktop.DesktopDblClickEnabled = tsmiDesktop.Checked;
-            Config.Desktop.LockMenu = tsmiLockItems.Checked;
-            Config.Desktop.TitleBackground = tsmiVSTitle.Checked;
-            Config.Desktop.IncludeGroup = tsmiOnGroup.Checked;
-            Config.Desktop.IncludeRecentTab = tsmiOnHistory.Checked;
-            Config.Desktop.IncludeApplication = tsmiOnUserApps.Checked;
-            Config.Desktop.IncludeRecentFile = tsmiOnRecentFile.Checked;
-            Config.Desktop.OneClickMenu = tsmiOneClick.Checked;
-            Config.Desktop.EnableAppShortcuts = tsmiAppKeys.Checked;
-            Config.Desktop.Width = Width;
-            ConfigManager.PersistConfigChanges(true);
+            ConfigManager.MutateAndCommit(config => {
+                config.desktop.FirstItem = lstItemOrder[0];
+                config.desktop.SecondItem = lstItemOrder[1];
+                config.desktop.ThirdItem = lstItemOrder[2];
+                config.desktop.FourthItem = lstItemOrder[3];
+                config.desktop.GroupExpanded = ExpandState[0];
+                config.desktop.RecentTabExpanded = ExpandState[1];
+                config.desktop.ApplicationExpanded = ExpandState[2];
+                config.desktop.RecentFileExpanded = ExpandState[3];
+                config.desktop.TaskBarDblClickEnabled = tsmiTaskBar.Checked;
+                config.desktop.DesktopDblClickEnabled = tsmiDesktop.Checked;
+                config.desktop.LockMenu = tsmiLockItems.Checked;
+                config.desktop.TitleBackground = tsmiVSTitle.Checked;
+                config.desktop.IncludeGroup = tsmiOnGroup.Checked;
+                config.desktop.IncludeRecentTab = tsmiOnHistory.Checked;
+                config.desktop.IncludeApplication = tsmiOnUserApps.Checked;
+                config.desktop.IncludeRecentFile = tsmiOnRecentFile.Checked;
+                config.desktop.OneClickMenu = tsmiOneClick.Checked;
+                config.desktop.EnableAppShortcuts = tsmiAppKeys.Checked;
+                config.desktop.Width = Width;
+            }, ConfigCommitScope.DesktopOnly);
         }
 
         private void contextMenuForSetting_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {

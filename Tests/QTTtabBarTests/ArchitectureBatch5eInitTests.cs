@@ -95,11 +95,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ConfigManager_Initialize_Does_Not_Reset_Already_Loaded_Config() {
-            var loadedConfigField = typeof(ConfigManager).GetField(
+            var loadedConfigProp = typeof(ConfigManager).GetProperty(
                 "LoadedConfig",
-                BindingFlags.Public | BindingFlags.Static);
-            Assert.IsNotNull(loadedConfigField);
-            object previous = loadedConfigField.GetValue(null);
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(loadedConfigProp);
+            object previous = loadedConfigProp.GetValue(null);
             try {
                 Config original = ConfigManager.LoadedConfig;
                 if(original == null) {
@@ -112,7 +112,7 @@ namespace QTTtabBarTests {
                     "Second Initialize must not replace LoadedConfig instance");
             }
             finally {
-                loadedConfigField.SetValue(null, previous);
+                loadedConfigProp.SetValue(null, previous);
             }
         }
     }

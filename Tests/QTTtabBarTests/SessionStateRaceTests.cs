@@ -119,7 +119,7 @@ namespace QTTtabBarTests {
             // Config.Lang must be reachable for ValidateTextResources; use a plain
             // default config (no registry / no broadcast) when nothing initialized it.
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
 
             Dictionary<string, string[]> saved = ResourceCache.TextResourcesDic;

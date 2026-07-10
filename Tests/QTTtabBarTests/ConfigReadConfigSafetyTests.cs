@@ -78,10 +78,10 @@ namespace QTTtabBarTests {
         [Test]
         public void ReadConfig_AfterSuccessfulSwap_Syncs_SessionState_WindowAlpha() {
             if(ConfigManager.LoadedConfig == null) {
-                ConfigManager.LoadedConfig = new Config();
+                ConfigManager.ReplaceLoadedConfigForTests(new Config());
             }
             Config previous = ConfigManager.LoadedConfig;
-            ConfigManager.LoadedConfig = new Config();
+            ConfigManager.ReplaceLoadedConfigForTests(new Config());
             ConfigManager.LoadedConfig.window.BreakTabBar = true;
             try {
                 ConfigManager.ReadConfig();
@@ -90,7 +90,7 @@ namespace QTTtabBarTests {
             }
             finally {
                 if(ConfigManager.LoadedConfig == null) {
-                    ConfigManager.LoadedConfig = previous ?? new Config();
+                    ConfigManager.ReplaceLoadedConfigForTests(previous ?? new Config());
                 }
             }
         }
