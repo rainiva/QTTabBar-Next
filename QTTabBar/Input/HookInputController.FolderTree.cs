@@ -10,7 +10,6 @@ using BandObjectLib;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class HookInputController {
             private void CallbackMultiPath(object obj) {
                 object[] objArray = (object[])obj;
@@ -19,14 +18,14 @@ namespace QTTabBarLib {
                 switch(num) {
                     case 0:
                         foreach(string str in collection) {
-                            _owner.OpenNewTab(str, true);
+                            _host.FolderTree.OpenNewTab(str, true);
                         }
                         break;
 
                     case 1: {
                             bool flag = true;
                             foreach(string str2 in collection) {
-                                _owner.OpenNewTab(str2, !flag);
+                            _host.FolderTree.OpenNewTab(str2, !flag);
                                 flag = false;
                             }
                             break;
@@ -34,13 +33,13 @@ namespace QTTabBarLib {
                     default:
                         StaticReg.CreateWindowPaths.Assign(collection);
                         using(IDLWrapper wrapper = new IDLWrapper(collection[0])) {
-                            _owner.OpenNewWindow(wrapper);
+                            _host.FolderTree.OpenNewWindow(wrapper);
                         }
                         break;
                 }
                 if(num == 1) {
-                    InstanceManager.RemoveFromTrayIcon(_owner.Handle);
-                    WindowUtils.BringExplorerToFront(_owner.ExplorerHandle);
+                    InstanceManager.RemoveFromTrayIcon(_host.FolderTree.Handle);
+                    WindowUtils.BringExplorerToFront(_host.FolderTree.ExplorerHandle);
                 }
             }
 
@@ -59,7 +58,7 @@ namespace QTTabBarLib {
 
             unsafe private void Handle_MButtonUp_Tree(MSG msg) {
                 QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree msg");
-                if(!_owner.Explorer.Busy && msg.hwnd != null) {
+                if(!_host.FolderTree.IsExplorerBusy && msg.hwnd != null) {
                     QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree hwnd  " + msg.hwnd);
                     TVHITTESTINFO structure = new TVHITTESTINFO { pt = QTUtility2.PointFromLPARAM(msg.lParam) };
                     IntPtr wParam = PInvoke.SendMessage(msg.hwnd, 0x1111, IntPtr.Zero, ref structure);
@@ -128,34 +127,34 @@ namespace QTTabBarLib {
 
                         if(pidl != null && pidl != IntPtr.Zero) {
                             QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree pidl " + pidl);
-                            MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Middle, ModifierKeys);
+                            MouseChord chord = QTUtility.MakeMouseChord(MouseChord.Middle, _host.Mouse.ModifierKeys);
                             BindAction action;
 
-                            Keys modKeys = ModifierKeys;
+                            Keys modKeys = _host.Mouse.ModifierKeys;
                             bool fBlockSelecting = modKeys == Keys.Shift;
                             bool fCtrl = modKeys == Keys.Control;
                             using(IDLWrapper wrapper = new IDLWrapper(pidl)) {
                                 if(!wrapper.Available) return;
                                 if(wrapper.IsFolder && wrapper.IsReadyIfDrive) {
-                                    _owner.NavigatedByCode = true;
-                                    _owner.fNowTravelByTree = false;
+                                    _host.FolderTree.NavigatedByCode = true;
+                                    _host.FolderTree.fNowTravelByTree = false;
 
                                     if(Config.Mouse.ItemActions.TryGetValue(chord, out action)) {
                                         if(action == BindAction.ItemOpenInNewTab) {
-                                            _owner.OpenNewTab(wrapper, false);
+                                            _host.FolderTree.OpenNewTab(wrapper, false);
                                             QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTab");
                                         }
                                         else if(action == BindAction.ItemOpenInNewTabNoSel) {
-                                            _owner.OpenNewTab(wrapper, true);
+                                            _host.FolderTree.OpenNewTab(wrapper, true);
                                             QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTabNoSel");
                                         }
                                     }
                                     else {
                                         if(fCtrl) {
-                                            _owner.OpenNewTab(wrapper, true);
+                                            _host.FolderTree.OpenNewTab(wrapper, true);
                                         }
                                         else {
-                                            _owner.OpenNewTab(wrapper, false);
+                                            _host.FolderTree.OpenNewTab(wrapper, false);
                                         }
                                     }
                                     QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree IsFolder IsReadyIfDrive " + wrapper.Path);
@@ -167,24 +166,24 @@ namespace QTTabBarLib {
                                     }
                                     using(IDLWrapper idlwTarget = new IDLWrapper(ShellMethods.GetLinkTargetIDL(wrapper.Path))) {
                                         if(idlwTarget.IsFolder && idlwTarget.IsReadyIfDrive) {
-                                            _owner.NavigatedByCode = true;
-                                            _owner.fNowTravelByTree = false;
+                                            _host.FolderTree.NavigatedByCode = true;
+                                            _host.FolderTree.fNowTravelByTree = false;
                                             if(Config.Mouse.ItemActions.TryGetValue(chord, out action)) {
                                                 if(action == BindAction.ItemOpenInNewTab) {
-                                                    _owner.OpenNewTab(wrapper, false);
+                                                    _host.FolderTree.OpenNewTab(wrapper, false);
                                                     QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTab");
                                                 }
                                                 else if(action == BindAction.ItemOpenInNewTabNoSel) {
-                                                    _owner.OpenNewTab(wrapper, true);
+                                                    _host.FolderTree.OpenNewTab(wrapper, true);
                                                     QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree BindAction.ItemOpenInNewTabNoSel");
                                                 }
                                             }
                                             else {
                                                 if(fCtrl) {
-                                                    _owner.OpenNewTab(wrapper, true);
+                                                    _host.FolderTree.OpenNewTab(wrapper, true);
                                                 }
                                                 else {
-                                                    _owner.OpenNewTab(wrapper, false);
+                                                    _host.FolderTree.OpenNewTab(wrapper, false);
                                                 }
                                             }
                                             QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree IsLink GetLinkTargetIDL" + wrapper.Path);
@@ -202,14 +201,14 @@ namespace QTTabBarLib {
             private bool Handle_MButtonUp_Tree(IntPtr hwnd, IntPtr lParam) {
                 QTLogger.log("QTTabBarClass Handle_MButtonUp_Tree");
                 IntPtr ptr;
-                if(_owner.ShellBrowser.IsFolderTreeVisible(out ptr) && hwnd == ptr) {
+                if(_host.FolderTree.ShellBrowser.IsFolderTreeVisible(out ptr) && hwnd == ptr) {
                     TVHITTESTINFO structure = new TVHITTESTINFO { pt = QTUtility2.PointFromLPARAM(lParam) };
                     QTLogger.log("QTTabBarClass structure " + structure);
                     IntPtr wParam = PInvoke.SendMessage(ptr, 0x1111, IntPtr.Zero, ref structure);
                     if(wParam != IntPtr.Zero) {
                         int num = (int)PInvoke.SendMessage(ptr, 0x1127, wParam, (IntPtr)2);
                         if((num & 2) == 0) {
-                            _owner.NavigatedByCode = _owner.fNowTravelByTree = true;
+                            _host.FolderTree.NavigatedByCode = _host.FolderTree.fNowTravelByTree = true;
                             PInvoke.SendMessage(ptr, 0x110b, (IntPtr)9, wParam);
                             return true;
                         }
@@ -219,7 +218,7 @@ namespace QTTabBarLib {
             }
             private void HandleLBUTTON_Tree(MSG msg, bool fMouseDown) {
                 IntPtr ptr;
-                if(_owner.ShellBrowser.IsFolderTreeVisible(out ptr) && msg.hwnd == ptr) {
+                if(_host.FolderTree.ShellBrowser.IsFolderTreeVisible(out ptr) && msg.hwnd == ptr) {
                     TVHITTESTINFO structure = new TVHITTESTINFO { pt = QTUtility2.PointFromLPARAM(msg.lParam) };
                     IntPtr wParam = PInvoke.SendMessage(ptr, 0x1111, IntPtr.Zero, ref structure);
                     if(wParam != IntPtr.Zero) {
@@ -233,12 +232,11 @@ namespace QTTabBarLib {
                         if(flag) {
                             int num = (int)PInvoke.SendMessage(ptr, 0x1127, wParam, (IntPtr)2);
                             if((num & 2) == 0) {
-                                _owner.NavigatedByCode = _owner.fNowTravelByTree = true;
+                                _host.FolderTree.NavigatedByCode = _host.FolderTree.fNowTravelByTree = true;
                             }
                         }
                     }
                 }
             }
         }
-    }
 }

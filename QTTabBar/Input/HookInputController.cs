@@ -10,9 +10,8 @@ using BandObjectLib;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class HookInputController {
-            private readonly QTTabBarClass _owner;
+            private readonly IHookInputHost _host;
             private IntPtr hHook_Key;
             private IntPtr hHook_Mouse;
             private IntPtr hHook_Msg;
@@ -20,8 +19,8 @@ namespace QTTabBarLib {
             private HookProc hookProc_Key;
             private HookProc hookProc_Mouse;
 
-            public HookInputController(QTTabBarClass owner) {
-                _owner = owner;
+            public HookInputController(IHookInputHost host) {
+                _host = host;
             }
 
             public void EnableApiHook() {
@@ -64,18 +63,18 @@ namespace QTTabBarLib {
                     try {
                         if(OSDetector.IsXP) {
                             if(msg.message == WM.CLOSE) {
-                                if(_owner.iSequential_WM_CLOSE > 0) {
+                                if(_host.Messages.iSequential_WM_CLOSE > 0) {
                                     Marshal.StructureToPtr(new MSG(), lParam, false);
                                     return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                                 }
-                                _owner.iSequential_WM_CLOSE++;
+                                _host.Messages.iSequential_WM_CLOSE++;
                             }
                             else {
-                                _owner.iSequential_WM_CLOSE = 0;
+                                _host.Messages.iSequential_WM_CLOSE = 0;
                             }
                         }
 
-                        if(msg.message == _owner.WM_NEWTREECONTROL) {
+                        if(msg.message == _host.Messages.WM_NEWTREECONTROL) {
                             QTLogger.log("CallbackGetMsgProc WM_NEWTREECONTROL");
                             object obj = Marshal.GetObjectForIUnknown(msg.wParam);
                             try {
@@ -84,17 +83,17 @@ namespace QTTabBarLib {
                                     if(window != null) {
                                         IntPtr hwnd;
                                         window.GetWindow(out hwnd);
-                                        if(hwnd != IntPtr.Zero && PInvoke.IsChild(_owner.ExplorerHandle, hwnd)) {
+                                        if(hwnd != IntPtr.Zero && PInvoke.IsChild(_host.Messages.ExplorerHandle, hwnd)) {
                                             hwnd = WindowUtils.FindChildWindow(hwnd,
                                                     child => PInvoke.GetClassName(child) == "SysTreeView32");
                                             if(hwnd != IntPtr.Zero) {
                                                 INameSpaceTreeControl control = obj as INameSpaceTreeControl;
                                                 if(control != null) {
-                                                    if(_owner.treeViewWrapper != null) {
-                                                        _owner.treeViewWrapper.Dispose();
+                                                    if(_host.Messages.treeViewWrapper != null) {
+                                                        _host.Messages.treeViewWrapper.Dispose();
                                                     }
-                                                    _owner.treeViewWrapper = new TreeViewWrapper(hwnd, control);
-                                                    _owner.treeViewWrapper.TreeViewClicked += (wrapper, modifierKeys, middle) => _owner._menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
+                                                    _host.Messages.treeViewWrapper = new TreeViewWrapper(hwnd, control);
+                                                    _host.Messages.treeViewWrapper.TreeViewClicked += (wrapper, modifierKeys, middle) => _host.Messages.HandleFolderLinkClick(wrapper, modifierKeys, middle);
                                                     QTLogger.log("CallbackGetMsgProc regedit TreeViewClicked");
                                                     obj = null;
                                                 }
@@ -111,34 +110,34 @@ namespace QTTabBarLib {
                             }
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
-                        else if(msg.message == _owner.WM_LISTREFRESHED) {
+                        else if(msg.message == _host.Messages.WM_LISTREFRESHED) {
                             ListViewInputController.HandleF5();
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
-                        else if(msg.message == _owner.WM_SELECTFILE) {
+                        else if(msg.message == _host.Messages.WM_SELECTFILE) {
                             QTLogger.log(" select file 1 " + " wparam " + wParam + " lparam " + lParam);
                             return PInvoke.CallNextHookEx(hHook_Msg, nCode, wParam, lParam);
                         }
 
                         switch(msg.message) {
                             case WM.MBUTTONUP:
-                                if(!_owner.Explorer.Busy) {
+                                if(!_host.Messages.Explorer.Busy) {
                                     QTLogger.log("CallbackGetMsgProc MBUTTONUP NoMidClickTree");
                                     Handle_MButtonUp_Tree(msg);
                                 }
                                 break;
                             case WM.SYSCOLORCHANGE:
-                                _owner.HandleSysColorChangeHookMessage();
+                                _host.Messages.HandleSysColorChangeHookMessage();
                                 break;
 
                             case WM.CLOSE:
-                                if(_owner.TryHandleHookCloseMessage(msg, out bool suppressClose) && suppressClose) {
+                                if(_host.Messages.TryHandleHookCloseMessage(msg, out bool suppressClose) && suppressClose) {
                                     Marshal.StructureToPtr(new MSG(), lParam, false);
                                 }
                                 break;
 
                             case WM.COMMAND:
-                                if(_owner.TryHandleHookCommandMessage(msg, out bool suppressCommand) && suppressCommand) {
+                                if(_host.Messages.TryHandleHookCommandMessage(msg, out bool suppressCommand) && suppressCommand) {
                                     Marshal.StructureToPtr(new MSG(), lParam, false);
                                 }
                                 break;
@@ -154,7 +153,7 @@ namespace QTTabBarLib {
             private IntPtr CallbackKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam) {
                 const uint KB_TRANSITION_FLAG = 0x80000000;
                 const uint KB_PREVIOUS_STATE_FLAG = 0x40000000;
-                if(nCode < 0 || _owner.NowModalDialogShown) {
+                if(nCode < 0 || _host.Keyboard.NowModalDialogShown) {
                     return PInvoke.CallNextHookEx(hHook_Key, nCode, wParam, lParam);
                 }
 
@@ -166,7 +165,7 @@ namespace QTTabBarLib {
 
                     if(key == Keys.ShiftKey) {
                         if(isKeyPress || !isRepeat) {
-                            _owner.listView.HandleShiftKey();
+                            _host.Keyboard.listView.HandleShiftKey();
                         }
                     }
 
@@ -176,27 +175,27 @@ namespace QTTabBarLib {
                         }
                     }
                     else {
-                        _owner.listView.HideThumbnailTooltip(3);
-                        if(_owner.NowTabDragging && _owner.DraggingTab != null) {
-                            _owner.Cursor = Cursors.Default;
+                        _host.Keyboard.listView.HideThumbnailTooltip(3);
+                        if(_host.Keyboard.NowTabDragging && _host.Keyboard.DraggingTab != null) {
+                            _host.Keyboard.Cursor = Cursors.Default;
                         }
 
                         switch(key) {
                             case Keys.ControlKey:
                                 if(Config.Keys.UseTabSwitcher) {
-                                    _owner.HideTabSwitcher(true);
+                                    _host.Keyboard.HideTabSwitcher(true);
                                 }
                                 break;
 
                             case Keys.Menu:
                                 if(Config.Tabs.ShowCloseButtons && Config.Tabs.CloseBtnsWithAlt) {
-                                    _owner.tabControl1.ShowCloseButton(false);
+                                    _host.Keyboard.tabControl1.ShowCloseButton(false);
                                 }
                                 break;
 
                             case Keys.Tab:
-                                if(Config.Keys.UseTabSwitcher && _owner.tabSwitcher != null && _owner.tabSwitcher.IsShown) {
-                                    _owner.tabControl1.SetPseudoHotIndex(_owner.tabSwitcher.SelectedIndex);
+                                if(Config.Keys.UseTabSwitcher && _host.Keyboard.tabSwitcher != null && _host.Keyboard.tabSwitcher.IsShown) {
+                                    _host.Keyboard.tabControl1.SetPseudoHotIndex(_host.Keyboard.tabSwitcher.SelectedIndex);
                                 }
                                 break;
                         }
@@ -211,7 +210,7 @@ namespace QTTabBarLib {
 
             private IntPtr CallbackMouseProc(int nCode, IntPtr wParam, IntPtr lParam) {
                 try {
-                    if(nCode >= 0 && !_owner.NowModalDialogShown) {
+                    if(nCode >= 0 && !_host.Keyboard.NowModalDialogShown) {
                         IntPtr ptr = (IntPtr)1;
                         switch(((int)wParam)) {
                             case WM.MOUSEWHEEL:
@@ -222,8 +221,8 @@ namespace QTTabBarLib {
 
                             case WM.XBUTTONDOWN:
                             case WM.XBUTTONUP:
-                                MouseButtons mouseButtons = MouseButtons;
-                                Keys modifierKeys = ModifierKeys;
+                                MouseButtons mouseButtons = _host.Mouse.MouseButtons;
+                                Keys modifierKeys = _host.Mouse.ModifierKeys;
                                 MouseChord chord = mouseButtons == MouseButtons.XButton1
                                         ? MouseChord.X1
                                         : mouseButtons == MouseButtons.XButton2 ? MouseChord.X2 : MouseChord.None;
@@ -233,9 +232,9 @@ namespace QTTabBarLib {
                                 if(!Config.Mouse.GlobalMouseActions.TryGetValue(chord, out action)) {
                                     break;
                                 }
-                                if(((int)wParam) == WM.XBUTTONUP && !_owner.Explorer.Busy) {
+                                if(((int)wParam) == WM.XBUTTONUP && !_host.Messages.Explorer.Busy) {
                                     QTLogger.log("QTTabBarClass WM.XBUTTONUP " + action);
-                                    _owner.DoBindAction(action);
+                                    _host.Keyboard.DoBindAction(action);
                                 }
                                 return ptr;
                         }
@@ -248,8 +247,7 @@ namespace QTTabBarLib {
             }
 
             internal bool HandleCLOSE(IntPtr lParam) {
-                return ((TabBarBase)_owner).HandleCLOSE(lParam);
+                return _host.View.HandleClose(lParam);
             }
         }
-    }
 }

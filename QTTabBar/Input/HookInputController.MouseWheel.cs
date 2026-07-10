@@ -10,10 +10,9 @@ using BandObjectLib;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass {
         internal partial class HookInputController {
             private bool HandleMOUSEWHEEL(IntPtr lParam) {
-                if(!_owner.IsHandleCreated) {
+                if(!_host.View.IsHandleCreated) {
                     return false;
                 }
                 MOUSEHOOKSTRUCTEX mousehookstructex = (MOUSEHOOKSTRUCTEX)Marshal.PtrToStructure(lParam, typeof(MOUSEHOOKSTRUCTEX));
@@ -30,49 +29,48 @@ namespace QTTabBarLib {
                         }
                         return true;
                     }
-                    flag = (control == _owner.tabControl1) || (handle == _owner.Handle);
-                    if(!flag && ButtonBarRegistry.TryGetButtonBarHandle(_owner.ExplorerHandle, out ptr2)) {
-                        flag = (handle == ptr2) || (handle == _owner.listView.Handle);
+                    flag = (control == _host.Keyboard.tabControl1) || (handle == _host.View.Handle);
+                    if(!flag && ButtonBarRegistry.TryGetButtonBarHandle(_host.FolderTree.ExplorerHandle, out ptr2)) {
+                        flag = (handle == ptr2) || (handle == _host.Keyboard.listView.Handle);
                     }
                 }
                 if(!flag) {
-                    Keys modifierKeys = ModifierKeys;
+                    Keys modifierKeys = _host.Mouse.ModifierKeys;
                     if((OSDetector.IsXP && modifierKeys == Keys.Control) ||
                             (Config.Tweaks.HorizontalScroll && modifierKeys == Keys.Shift)) {
-                        if(_owner.listView.MouseIsOverListView()) {
+                        if(_host.Keyboard.listView.MouseIsOverListView()) {
                             switch(modifierKeys) {
                                 case Keys.Shift:
-                                    _owner.listView.ScrollHorizontal(y);
+                                    _host.Keyboard.listView.ScrollHorizontal(y);
                                     return true;
 
                                 case Keys.Control:
-                                    _owner._viewModeController.ChangeViewMode(y > 0);
+                                    _host.View.ChangeViewMode(y > 0);
                                     return true;
                             }
                         }
                     }
                     return false;
                 }
-                if(((_owner.tabControl1.TabCount < 2) || (_owner.ExplorerHandle != PInvoke.GetForegroundWindow())) || _owner.Explorer.Busy) {
+                if(((_host.Keyboard.tabControl1.TabCount < 2) || (_host.FolderTree.ExplorerHandle != PInvoke.GetForegroundWindow())) || _host.Messages.Explorer.Busy) {
                     return false;
                 }
-                int selectedIndex = _owner.tabControl1.SelectedIndex;
+                int selectedIndex = _host.Keyboard.tabControl1.SelectedIndex;
                 if(y < 0) {
-                    if(selectedIndex == (_owner.tabControl1.TabCount - 1)) {
-                        _owner.tabControl1.SelectTab(0);
+                    if(selectedIndex == (_host.Keyboard.tabControl1.TabCount - 1)) {
+                        _host.Keyboard.tabControl1.SelectTab(0);
                     }
                     else {
-                        _owner.tabControl1.SelectTab(selectedIndex + 1);
+                        _host.Keyboard.tabControl1.SelectTab(selectedIndex + 1);
                     }
                 }
                 else if(selectedIndex < 1) {
-                    _owner.tabControl1.SelectTab(_owner.tabControl1.TabCount - 1);
+                    _host.Keyboard.tabControl1.SelectTab(_host.Keyboard.tabControl1.TabCount - 1);
                 }
                 else {
-                    _owner.tabControl1.SelectTab(selectedIndex - 1);
+                    _host.Keyboard.tabControl1.SelectTab(selectedIndex - 1);
                 }
                 return true;
             }
         }
-    }
 }

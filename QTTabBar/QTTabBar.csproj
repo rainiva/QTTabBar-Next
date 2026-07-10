@@ -745,16 +745,12 @@
     <Compile Include="QTTabBarClass.IpcNavigation.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.HookInputController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.HookInputController.Keyboard.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.HookInputController.MouseWheel.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.HookInputController.FolderTree.cs">
+    <Compile Include="Input\IHookInputHost.cs" />
+    <Compile Include="Input\HookInputController.cs" />
+    <Compile Include="Input\HookInputController.Keyboard.cs" />
+    <Compile Include="Input\HookInputController.MouseWheel.cs" />
+    <Compile Include="Input\HookInputController.FolderTree.cs" />
+    <Compile Include="QTTabBarClass.HookInputHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.FileToolsController.cs">

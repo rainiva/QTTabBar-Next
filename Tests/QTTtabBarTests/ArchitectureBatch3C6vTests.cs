@@ -17,7 +17,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void HookInputController_Owns_EnableApiHook() {
-            var type = typeof(QTTabBarClass).GetNestedType("HookInputController", BindingFlags.NonPublic);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.HookInputController", true);
             Assert.IsNotNull(type);
             Assert.IsNotNull(type.GetMethod("EnableApiHook", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
@@ -26,7 +26,7 @@ namespace QTTtabBarTests {
         public void QTTabBarClass_Delegates_ComRegistration_And_Removed_DeadCode() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string comReg = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComRegistrationController.cs"));
-            string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.HookInputController.cs"));
+            string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "HookInputController.cs"));
             Assert.IsTrue(main.Contains("ComRegistrationController.Register("));
             Assert.IsTrue(main.Contains("ComRegistrationController.Unregister("));
             Assert.IsFalse(main.Contains("ComRegistrationManager.RegisterBand("));

@@ -10,6 +10,7 @@ namespace QTTtabBarTests {
         [TestCase("DroppedFilesController", "IDroppedFilesHost")]
         [TestCase("FolderTreeController", "IFolderTreeHost")]
         [TestCase("ListViewInputController", "IListViewInputHost")]
+        [TestCase("HookInputController", "IHookInputHost")]
         public void Input_Controller_Is_Top_Level_And_Only_Depends_On_Its_Narrow_Host(
                 string controllerName, string hostName) {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
@@ -35,10 +36,11 @@ namespace QTTtabBarTests {
         [TestCase("IDroppedFilesHost")]
         [TestCase("IFolderTreeHost")]
         [TestCase("IListViewInputHost")]
+        [TestCase("IHookInputHost")]
         public void Input_Host_Has_A_Bounded_Member_Surface(string hostName) {
             Type hostType = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib." + hostName, true);
-            int memberCount = hostType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Length;
-            foreach(MethodInfo method in hostType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+            int memberCount = hostType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Length;
+            foreach(MethodInfo method in hostType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
                 if(!method.IsSpecialName) memberCount++;
             }
             Assert.LessOrEqual(memberCount, 15, hostName + " must remain a narrow host contract.");

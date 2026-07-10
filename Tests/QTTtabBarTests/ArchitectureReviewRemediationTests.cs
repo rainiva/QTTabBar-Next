@@ -102,7 +102,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void HookInputController_EnableApiHook_Retries_When_Hooks_Not_Loaded() {
-            string content = ReadQtTabBarFile("QTTabBarClass.HookInputController.cs");
+            string content = ReadQtTabBarFile(Path.Combine("Input", "HookInputController.cs"));
             int methodIndex = content.IndexOf("void EnableApiHook()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);
