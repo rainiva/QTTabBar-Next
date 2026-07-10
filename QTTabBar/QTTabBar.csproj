@@ -792,7 +792,9 @@
     <Compile Include="QTTabBarClass.FolderTreeHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.ViewModeController.cs">
+    <Compile Include="Shell\IViewModeHost.cs" />
+    <Compile Include="Shell\ViewModeController.cs" />
+    <Compile Include="QTTabBarClass.ViewModeHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.PluginMenuController.cs">
