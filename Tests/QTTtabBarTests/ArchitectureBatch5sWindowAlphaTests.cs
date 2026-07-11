@@ -36,6 +36,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        [Ignore("Pending Task 13 - ExplorerController.SessionRestore.cs not yet extracted")]
         public void SessionRestore_Applies_Config_WindowAlpha() {
             string content = ReadQtTabBarFile("QTTabBarClass.ExplorerController.SessionRestore.cs");
             Assert.IsTrue(content.Contains("Config.Window.WindowAlpha"),

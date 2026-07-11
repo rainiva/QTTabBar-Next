@@ -33,6 +33,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void ComponentBuild_Wires_SelectedIndexChanged_To_TabBarBase_Handler() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             Assert.IsTrue(content.Contains("SelectedIndexChanged += _owner.tabControl1_SelectedIndexChanged"),

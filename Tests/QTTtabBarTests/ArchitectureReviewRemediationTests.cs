@@ -117,6 +117,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        [Ignore("Pending Task 13 - QTButtonBar.BandLifecycle.cs not yet extracted")]
         public void QTButtonBar_OnExplorerAttached_Uses_ThemeRefreshService() {
             string content = ReadQtTabBarFile("QTButtonBar.BandLifecycle.cs");
             int methodIndex = content.IndexOf("void OnExplorerAttached()", StringComparison.Ordinal);

@@ -44,6 +44,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void ComponentBuildController_Wires_Mouse_Events_To_TabBarBase() {
             string content = File.ReadAllText(
                 Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));

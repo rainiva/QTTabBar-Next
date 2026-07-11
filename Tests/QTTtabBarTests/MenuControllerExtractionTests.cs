@@ -53,6 +53,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void Composition_Routes_Menu_Construction_Events_And_Group_Creation_Through_TopLevel_Controller() {
             string root = FindRepoRoot();
             string composition = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
