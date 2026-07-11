@@ -44,13 +44,13 @@ namespace QTTabBarLib {
                     if((!flag || (_owner.ContextMenuedTab == _owner.CurrentTab)) && _owner.CurrentTab.TabLocked)
                     {
                         QTLogger.log("Clone Tab Button1");
-                        _owner.CloneTabButton(_owner.CurrentTab, targetPath, true, _owner.TabIndex());
+                        _owner.CloneTabButton(_owner.CurrentTab, targetPath, true, _owner.TabIndexForNewTab());
                         return;
                     }
                     if(flag && (_owner.ContextMenuedTab != _owner.CurrentTab)) {
                         if(_owner.ContextMenuedTab != null) {
                             if(_owner.ContextMenuedTab.TabLocked) {
-                                var index = _owner.TabIndex();
+                                var index = _owner.TabIndexForNewTab();
                                 _owner.CloneTabButton(
                                     _owner.ContextMenuedTab,
                                     targetPath,

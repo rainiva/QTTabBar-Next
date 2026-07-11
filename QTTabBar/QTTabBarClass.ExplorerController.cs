@@ -50,24 +50,170 @@ using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 namespace QTTabBarLib {
         /// <summary>
         /// Explorer interaction & navigation controller (Task 28 / Batch 13 extracted from QTTabBarClass).
-        /// As a nested internal class, accesses outer/base members through _owner.
-        /// Structure-only move: behavior must stay identical.
+        /// Uses role-specific host contracts for Explorer interaction and navigation.
         /// </summary>
-        internal partial class ExplorerControllerModule {
-            private readonly QTTabBarClass _owner;
+        internal partial class ExplorerController {
+            private readonly IExplorerSessionRestoreHost _sessionRestoreHost;
+            private readonly IExplorerWindowCaptureHost _windowCaptureHost;
+            private readonly IExplorerTravelLogHost _travelLogHost;
+            private readonly IExplorerWindowMessageHost _windowMessageHost;
+            private readonly IExplorerMessageRoutingHost _messageRoutingHost;
+            private readonly IExplorerNavigationHost _navigationHost;
+            private readonly IExplorerAttachmentHost _attachmentHost;
+            private readonly IExplorerNavigationButtonHost _navigationButtonHost;
+            private readonly IExplorerHookInstallationHost _hookInstallationHost;
+            private readonly IExplorerTravelToolbarHost _travelToolbarHost;
+            private readonly IExplorerNavigationLifecycleHost _navigationLifecycleHost;
+            private readonly IExplorerComEventHost _comEventHost;
+            private readonly IExplorerLockedTabNavigationHost _lockedTabNavigationHost;
+            private readonly IExplorerSpecialTravelLogHost _specialTravelLogHost;
+            private readonly IExplorerNavigationCleanupHost _navigationCleanupHost;
+            private readonly IExplorerPostNavigationHost _postNavigationHost;
+            private readonly IExplorerShutdownNavigationHost _shutdownNavigationHost;
+            private readonly IExplorerLegacyNavigationHost _legacyNavigationHost;
+            private readonly IExplorerTooltipHost _tooltipHost;
+            private readonly IExplorerSelectionRestoreHost _selectionRestoreHost;
+            private readonly IExplorerNavigationStateHost _navigationStateHost;
+            private readonly IExplorerNavigationCompleteHost _navigationCompleteHost;
 
-            public ExplorerControllerModule(QTTabBarClass owner) {
-                _owner = owner;
+            internal ExplorerController(IExplorerIntegrationHost integrationHost) : this((QTTabBarClass)integrationHost) { }
+
+            internal ExplorerController(QTTabBarClass owner) {
+                _sessionRestoreHost = owner;
+                _windowCaptureHost = owner;
+                _travelLogHost = owner;
+                _windowMessageHost = owner;
+                _messageRoutingHost = owner;
+                _navigationHost = owner;
+                _attachmentHost = owner;
+                _navigationButtonHost = owner;
+                _hookInstallationHost = owner;
+                _travelToolbarHost = owner;
+                _navigationLifecycleHost = owner;
+                _comEventHost = owner;
+                _lockedTabNavigationHost = owner;
+                _specialTravelLogHost = owner;
+                _navigationCleanupHost = owner;
+                _postNavigationHost = owner;
+                _shutdownNavigationHost = owner;
+                _legacyNavigationHost = owner;
+                _tooltipHost = owner;
+                _selectionRestoreHost = owner;
+                _navigationStateHost = owner;
+                _navigationCompleteHost = owner;
             }
 
-            private SessionRestoreController _sessionRestore;
-            private CommandDispatchController _commandDispatch;
+            private ExplorerSessionRestoreController _sessionRestore;
+            private ExplorerCommandDispatcher _commandDispatch;
+            private ExplorerTravelLogController _travelLogController;
+            private ExplorerWindowMessageController _windowMessageController;
+            private ExplorerMessageRoutingController _messageRoutingController;
+            private ExplorerNavigationController _navigationController;
+            private ExplorerAttachmentController _attachmentController;
+            private ExplorerNavigationButtonController _navigationButtonController;
+            private ExplorerHookInstallationController _hookInstallationController;
+            private ExplorerTravelToolbarController _travelToolbarController;
+            private ExplorerNavigationLifecycleController _navigationLifecycleController;
+            private ExplorerComEventController _comEventController;
+            private ExplorerLockedTabNavigationController _lockedTabNavigationController;
+            private ExplorerSpecialTravelLogController _specialTravelLogController;
+            private ExplorerNavigationCleanupController _navigationCleanupController;
+            private ExplorerPostNavigationController _postNavigationController;
+            private ExplorerShutdownNavigationController _shutdownNavigationController;
+            private ExplorerLegacyNavigationController _legacyNavigationController;
+            private ExplorerTooltipController _tooltipController;
+            private ExplorerSelectionRestoreController _selectionRestoreController;
+            private ExplorerNavigationStateController _navigationStateController;
 
-            internal SessionRestoreController SessionRestore =>
-                _sessionRestore ?? (_sessionRestore = new SessionRestoreController(_owner, this));
+            internal ExplorerSessionRestoreController SessionRestore =>
+                _sessionRestore ?? (_sessionRestore = new ExplorerSessionRestoreController(
+                    _sessionRestoreHost,
+                    InstallHooks,
+                    NavigateAfterInstallation));
 
-            internal CommandDispatchController CommandDispatch =>
-                _commandDispatch ?? (_commandDispatch = new CommandDispatchController(_owner, this));
+            internal ExplorerCommandDispatcher CommandDispatch =>
+                _commandDispatch ?? (_commandDispatch = new ExplorerCommandDispatcher(_windowCaptureHost));
+
+            private ExplorerTravelLogController TravelLogController =>
+                _travelLogController ?? (_travelLogController = new ExplorerTravelLogController(_travelLogHost));
+
+            private ExplorerWindowMessageController WindowMessageController =>
+                _windowMessageController ?? (_windowMessageController = new ExplorerWindowMessageController(
+                    _windowMessageHost,
+                    NavigateCurrentTab,
+                    BeforeNavigate,
+                    RouteExplorerWindowMessage));
+
+            private ExplorerMessageRoutingController MessageRoutingController =>
+                _messageRoutingController ?? (_messageRoutingController = new ExplorerMessageRoutingController(_messageRoutingHost));
+
+            private ExplorerNavigationController NavigationController =>
+                _navigationController ?? (_navigationController = new ExplorerNavigationController(
+                    _navigationHost,
+                    CancelFailedNavigation));
+
+            private ExplorerAttachmentController AttachmentController =>
+                _attachmentController ?? (_attachmentController = new ExplorerAttachmentController(
+                    _attachmentHost,
+                    Explorer_BeforeNavigate2,
+                    Explorer_NavigateComplete2));
+
+            private ExplorerNavigationButtonController NavigationButtonController =>
+                _navigationButtonController ?? (_navigationButtonController = new ExplorerNavigationButtonController(
+                    _navigationButtonHost,
+                    NavigationButtons_Click));
+
+            private ExplorerHookInstallationController HookInstallationController =>
+                _hookInstallationController ?? (_hookInstallationController = new ExplorerHookInstallationController(
+                    _hookInstallationHost,
+                    explorerController_MessageCaptured,
+                    TravelToolbarMessageCaptured));
+
+            private ExplorerTravelToolbarController TravelToolbarController =>
+                _travelToolbarController ?? (_travelToolbarController = new ExplorerTravelToolbarController(
+                    _travelToolbarHost));
+
+            private ExplorerNavigationLifecycleController NavigationLifecycleController =>
+                _navigationLifecycleController ?? (_navigationLifecycleController = new ExplorerNavigationLifecycleController(
+                    _navigationLifecycleHost));
+
+            private ExplorerComEventController ComEventController =>
+                _comEventController ?? (_comEventController = new ExplorerComEventController(
+                    _comEventHost,
+                    DoFirstNavigation));
+
+            private ExplorerLockedTabNavigationController LockedTabNavigationController =>
+                _lockedTabNavigationController ?? (_lockedTabNavigationController = new ExplorerLockedTabNavigationController(
+                    _lockedTabNavigationHost));
+
+            private ExplorerSpecialTravelLogController SpecialTravelLogController =>
+                _specialTravelLogController ?? (_specialTravelLogController = new ExplorerSpecialTravelLogController(
+                    _specialTravelLogHost));
+
+            private ExplorerNavigationCleanupController NavigationCleanupController =>
+                _navigationCleanupController ?? (_navigationCleanupController = new ExplorerNavigationCleanupController(_navigationCleanupHost));
+
+            private ExplorerPostNavigationController PostNavigationController =>
+                _postNavigationController ?? (_postNavigationController = new ExplorerPostNavigationController(_postNavigationHost));
+
+            private ExplorerShutdownNavigationController ShutdownNavigationController =>
+                _shutdownNavigationController ?? (_shutdownNavigationController = new ExplorerShutdownNavigationController(_shutdownNavigationHost));
+
+            private ExplorerLegacyNavigationController LegacyNavigationController =>
+                _legacyNavigationController ?? (_legacyNavigationController = new ExplorerLegacyNavigationController(_legacyNavigationHost));
+
+            private ExplorerTooltipController TooltipController =>
+                _tooltipController ?? (_tooltipController = new ExplorerTooltipController(_tooltipHost));
+
+            private ExplorerSelectionRestoreController SelectionRestoreController =>
+                _selectionRestoreController ?? (_selectionRestoreController = new ExplorerSelectionRestoreController(_selectionRestoreHost));
+
+            private ExplorerNavigationStateController NavigationStateController =>
+                _navigationStateController ?? (_navigationStateController = new ExplorerNavigationStateController(_navigationStateHost));
+
+            private void NavigateAfterInstallation(object locationUrl) {
+                Explorer_NavigateComplete2(null, ref locationUrl);
+            }
 
             #region BeforeNavigate / navigation core
 
@@ -75,41 +221,11 @@ namespace QTTabBarLib {
             // Return true to suppress the navigation.  Target IDL should not be relied
             // upon; it's not guaranteed to be accurate.
             public bool BeforeNavigate(IDLWrapper target, bool autonav) {
-                if(!_owner.ExIsShown) return false;
-                _owner.ExHideSubDirTip_Tab_Menu();
-                _owner.ExNowTabDragging = false;
-                _owner.ExfAutoNavigating = autonav;
-                if(!_owner.ExNavigatedByCode) {
-                    _owner.ExSaveSelectedItems(_owner.ExCurrentTab);
-                }
-                if(_owner.ExNowInTravelLog) {
-                    if(_owner.ExCurrentTravelLogIndex > 0) {
-                        _owner.ExCurrentTravelLogIndex--;
-                        if(!_owner.ExIsSpecialFolderNeedsToTravel(target.Path)) {
-                            NavigateBackToTheFuture();
-                        }
-                    }
-                    else {
-                        _owner.ExNowInTravelLog = false;
-                    }
-                }
-                _owner.ExlastAttemptedBrowseObjectIDL = target.IDL;
-                return false;
+                return NavigationLifecycleController.BeforeNavigate(target, autonav);
             }
 
             public void CancelFailedNavigation(string failedPath, bool fRollBackForward, int countRollback) {
-                _owner.ExShowMessageNavCanceled(failedPath, false);
-                if(fRollBackForward) {
-                    for(int i = 0; i < countRollback; i++) {
-                        _owner.ExCurrentTab.GoForward();
-                    }
-                }
-                else {
-                    for(int j = 0; j < countRollback; j++) {
-                        _owner.ExCurrentTab.GoBackward();
-                    }
-                }
-                _owner.ExNavigatedByCode = false;
+                NavigationLifecycleController.CancelFailedNavigation(failedPath, fRollBackForward, countRollback);
             }
 
             #endregion
@@ -131,202 +247,49 @@ namespace QTTabBarLib {
                         + " Headers :" + Headers
                         + " Cancel :" + Cancel
                     );
-                if(!_owner.ExIsShown) {
-                    DoFirstNavigation(true, (string)URL);
-                }
+                ComEventController.BeforeNavigate((string)URL);
             }
 
             public void Explorer_NavigateComplete2(object pDisp, ref object URL) {
                 string path = (string)URL;
-                _owner.ExlastCompletedBrowseObjectIDL = _owner.ExlastAttemptedBrowseObjectIDL;
+                _navigationCompleteHost.CompleteBrowseObjectNavigation();
                 QTLogger.log("QTTabBarClass ShellBrowser.OnNavigateComplete reset field FolderView");
-                _owner.ExShellBrowser.OnNavigateComplete();
 
-                if(!_owner.ExIsShown) {
+                if(!_navigationCompleteHost.IsShown()) {
                     QTLogger.log("QTTabBarClass Explorer_NavigateComplete2  !IsShown");
                     DoFirstNavigation(false, path);
                 }
 
-                if(_owner.ExfNowQuitting)
-                {
+                if(ShutdownNavigationController.HandleNavigationComplete()) {
                     QTLogger.log("fNowQuitting Close Explorer Explorer.Quit2");
-                    _owner.ExfHideExplorer = true;
-
-                    if (_owner.ExMCmdType == 3)
-                    {
-                        _owner.ExExplorer.Quit();
-                        WindowUtils.HideExplorer(_owner.ExExplorerHandle);
-                    }
                 }
                 else {
                     int hash = -1;
-                    bool flag = _owner.ExIsSpecialFolderNeedsToTravel(path);
+                    bool flag = _navigationCompleteHost.IsSpecialTravelPath(path);
                     bool flag2 = QTUtility2.IsShellPathButNotFileSystem(path);
-                    bool flag3 = QTUtility2.IsShellPathButNotFileSystem(_owner.ExCurrentTab.CurrentPath);
 
-                    if(!flag2 && !flag3 && !_owner.ExNavigatedByCode && _owner.ExCurrentTab.TabLocked) {
-                        QTLogger.log("QTTabBarClass Explorer_NavigateComplete2  !flag2 && !flag3 && !NavigatedByCode && CurrentTab.TabLocked");
-                        int pos = _owner.ExtabControl1.SelectedIndex;
-                        _owner.ExtabControl1.SetRedraw(false);
-                        QTabItem item = _owner.ExCloneTabButton(_owner.ExCurrentTab, null, false, pos);
-                        item.TabLocked = true;
-                        _owner.ExCurrentTab.TabLocked = false;
-                        pos++;
-                        int max = _owner.ExtabControl1.TabPages.Count - 1;
-
-                        switch(Config.Tabs.NewTabPosition) {
-                            case TabPos.Rightmost:
-                                if(pos != max) {
-                                    _owner.ExtabControl1.TabPages.Relocate(pos, max);
-                                }
-                                break;
-                            case TabPos.Leftmost:
-                                _owner.ExtabControl1.TabPages.Relocate(pos, 0);
-                                break;
-                            case TabPos.Left:
-                                _owner.ExtabControl1.TabPages.Relocate(pos, pos - 1);
-                                break;
-                        }
-                        _owner.ExtabControl1.SetRedraw(true);
-
-                        _owner.ExLstActivatedTabs.Remove(_owner.ExCurrentTab);
-                        _owner.ExLstActivatedTabs.Add(item);
-                        _owner.ExLstActivatedTabs.Add(_owner.ExCurrentTab);
-                        if(_owner.ExLstActivatedTabs.Count > 15) {
-                            _owner.ExLstActivatedTabs.RemoveAt(0);
-                        }
-                    }
-                    if(!_owner.ExNavigatedByCode && flag) {
+                    LockedTabNavigationController.CloneForExternalNavigation(path);
+                    hash = SpecialTravelLogController.RecordWhenNeeded(flag);
+                    if(hash != -1) {
                         QTLogger.log("QTTabBarClass Explorer_NavigateComplete2  !NavigatedByCode && flag");
-                        hash = DateTime.Now.GetHashCode();
-                        _owner.ExLogEntryDic[hash] = GetCurrentLogEntry();
                     }
                     ClearTravelLogs();
                     try {
-                        _owner.ExtabControl1.SetRedraw(false);
-                        if(_owner.ExfNowTravelByTree) {
-                            using(IDLWrapper wrapper = _owner.ExGetCurrentPIDL()) {
-                                QTLogger.log("QTTabBarClass Explorer_NavigateComplete2  fNowTravelByTree CreateNewTab");
-                                QTabItem tabPage = _owner.ExCreateNewTab(wrapper);
-                                _owner.ExtabControl1.SelectTabDirectly(tabPage);
-                                _owner.ExCurrentTab = tabPage;
-                            }
-                        }
-                        if(_owner.ExtabControl1.AutoSubText && !_owner.ExfNavigatedByTabSelection) {
-                            _owner.ExCurrentTab.Comment = string.Empty;
-                        }
-                        _owner.ExCurrentAddress = path;
-                        _owner.ExCurrentTab.Text = _owner.ExExplorer.LocationName;
-                        _owner.ExCurrentTab.CurrentIDL = null;
-                        _owner.ExCurrentTab.ShellToolTip = null;
-                        byte[] idl;
-                        using(IDLWrapper wrapper2 = _owner.ExGetCurrentPIDL()) {
-                            _owner.ExCurrentTab.CurrentIDL = idl = wrapper2.IDL;
-                            if(flag) {
-                                if((!_owner.ExNavigatedByCode && (idl != null)) && (idl.Length > 0)) {
-                                    path = path + "*?*?*" + hash;
-                                    lock(SessionState.SyncRoot) SessionState.ITEMIDLIST_Dic_Session[path] = idl;
-                                    _owner.ExCurrentTab.CurrentPath = _owner.ExCurrentAddress = path;
-                                }
-                            }
-                            else if((flag2 && wrapper2.Available) && !_owner.ExCurrentTab.CurrentPath.Contains("???")) {
-                                string str2;
-                                int num2;
-                                if(IDLWrapper.GetIDLHash(wrapper2.PIDL, out num2, out str2)) {
-                                    hash = num2;
-                                    _owner.ExCurrentTab.CurrentPath = _owner.ExCurrentAddress = path = str2;
-                                }
-                                else if((idl != null) && (idl.Length > 0)) {
-                                    hash = num2;
-                                    path = path + "???" + hash;
-                                    IDLWrapper.AddCache(path, idl);
-                                    _owner.ExCurrentTab.CurrentPath = _owner.ExCurrentAddress = path;
-                                }
-                            }
-                            if(!_owner.ExNavigatedByCode) {
-                                QTLogger.log("QTTabBarClass Explorer_NavigateComplete2  !NavigatedByCode");
-                                _owner.ExCurrentTab.NavigatedTo(_owner.ExCurrentAddress, idl, hash, _owner.ExfAutoNavigating);
-                            }
-                        }
-                        _owner.ExSyncTravelState();
-                        if (OSDetector.IsXP)
-                        {
-                            if (_owner.ExCurrentAddress.StartsWith(OSDetector.PATH_SEARCHFOLDER))
-                            {
-                                QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 ShowSearchBar(true)");
-                                _owner.ExShowSearchBar(true);
-                            }
-                            else if (QTUtility.fExplorerPrevented)
-                            {
-                                QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 ShowFolderTree(true)");
-                                _owner.ExShowFolderTree(true);
-                                QTUtility.fExplorerPrevented = false;
-                            }
-                        }
-                        if(_owner.ExCurrentAddress.StartsWith("::")) {
-                            _owner.ExCurrentTab.ToolTipText = _owner.ExCurrentTab.Text;
-                            lock(SessionState.SyncRoot) ResourceCache.DisplayNameCacheDic[_owner.ExCurrentAddress] = _owner.ExCurrentTab.Text;
-                        }
-                        else if(flag2) {
-                            _owner.ExCurrentTab.ToolTipText = (string)URL;
-                        }
-                        else if(((_owner.ExCurrentAddress.Length == 3)
-                                 || _owner.ExCurrentAddress.StartsWith(@"\\"))
-                                 || (_owner.ExCurrentAddress.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                                 || _owner.ExCurrentAddress.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase))) {
-                            _owner.ExCurrentTab.ToolTipText = _owner.ExCurrentTab.CurrentPath;
-                            lock(SessionState.SyncRoot) ResourceCache.DisplayNameCacheDic[_owner.ExCurrentAddress] = _owner.ExCurrentTab.Text;
-                        }
-                        else {
-                            _owner.ExCurrentTab.ToolTipText = _owner.ExCurrentTab.CurrentPath;
-                        }
-                        if(_owner.ExNavigatedByCode && !_owner.ExNowTabCreated) {
-                            string str3;
-                            Address[] selectedItemsAt = _owner.ExCurrentTab.GetSelectedItemsAt(_owner.ExCurrentAddress, out str3);
-                            if(selectedItemsAt != null) {
-                                QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 ShellBrowser.TrySetSelection " + str3);
-                                _owner.ExShellBrowser.TrySetSelection(selectedItemsAt, str3, true);
-                            }
-                        }
-                        if(QTUtility.RestoreFolderTree_Hide) {
-                            QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 QTUtility.RestoreFolderTree_Hide");
-                            new WaitTimeoutCallback(QTTabBarClass.WaitTimeout).BeginInvoke(150, _owner.Ex_folderTreeController.AsyncComplete_FolderTree, false);
-                        }
-                        if(_owner.ExfNowRestoring) {
-                            _owner.ExfNowRestoring = false;
-                            if(StaticReg.LockedTabsToRestoreList.Contains(path)) {
-                                _owner.ExCurrentTab.TabLocked = true;
-                            }
-                        }
-                        if( (!OSDetector.IsXP
-                             || _owner.ExFirstNavigationCompleted) &&
-                            (!PInvoke.IsWindowVisible(_owner.ExExplorerHandle)
-                             || PInvoke.IsIconic(_owner.ExExplorerHandle))) {
-                            QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 WindowUtils.BringExplorerToFront");
-                            WindowUtils.BringExplorerToFront(_owner.ExExplorerHandle);
-                        }
-                        if(_owner.ExpluginServer != null) {
-                            QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 pluginServer.OnNavigationComplete");
-                            _owner.ExpluginServer.OnNavigationComplete(_owner.ExtabControl1.SelectedIndex, idl, (string)URL);
-                        }
-                        if(_owner.ExbuttonNavHistoryMenu.DropDown.Visible) {
-                            QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 buttonNavHistoryMenu.DropDown.Visible");
-                            _owner.ExbuttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppFocusChange);
-                        }
+                        _navigationCompleteHost.DisableTabRedraw();
+                        ExplorerNavigationState state = NavigationStateController.Synchronize(path, flag, flag2, hash);
+                        path = state.Path;
+                        byte[] idl = state.Idl;
+                        LegacyNavigationController.CompleteNavigation();
+                        TooltipController.Refresh((string)URL, flag2);
+                        SelectionRestoreController.RestoreAfterNavigation();
+                        PostNavigationController.Complete(path, idl, (string)URL);
                     }
                     catch(Exception exception) {
                         QTLogger.MakeErrorLog(exception);
                     }
                     finally {
-                        QTUtility.RestoreFolderTree_Hide =
-                                _owner.ExNavigatedByCode =
-                                _owner.ExfNavigatedByTabSelection =
-                                _owner.ExNowTabCreated =
-                                _owner.ExfNowTravelByTree = false;
                         QTLogger.log("QTTabBarClass Explorer_NavigateComplete2 tabControl1.SetRedraw(true)");
-                        _owner.ExtabControl1.SetRedraw(true);
-                        _owner.ExFirstNavigationCompleted = true;
-                        _owner.ExListView.RefreshViewWatermark(false);
+                        NavigationCleanupController.Complete();
                     }
                 }
             }

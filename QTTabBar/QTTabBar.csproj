@@ -718,7 +718,98 @@
     <Compile Include="QTTabBarClass.TabOperationsHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-<Compile Include="QTTabBarClass.ExplorerController.cs">
+    <Compile Include="QTTabBarClass.ExplorerController.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Navigation\IExplorerIntegrationHost.cs" />
+    <Compile Include="Navigation\ExplorerCommandDispatcher.cs" />
+    <Compile Include="Navigation\ExplorerTravelLogController.cs" />
+    <Compile Include="Navigation\ExplorerSessionRestoreController.cs" />
+    <Compile Include="Navigation\ExplorerWindowMessageController.cs" />
+    <Compile Include="Navigation\ExplorerMessageRoutingController.cs" />
+    <Compile Include="Navigation\ExplorerNavigationController.cs" />
+    <Compile Include="Navigation\ExplorerAttachmentController.cs" />
+    <Compile Include="Navigation\ExplorerNavigationButtonController.cs" />
+    <Compile Include="Navigation\ExplorerHookInstallationController.cs" />
+    <Compile Include="Navigation\ExplorerTravelToolbarController.cs" />
+    <Compile Include="Navigation\ExplorerNavigationLifecycleController.cs" />
+    <Compile Include="Navigation\ExplorerComEventController.cs" />
+    <Compile Include="Navigation\ExplorerLockedTabNavigationController.cs" />
+    <Compile Include="Navigation\ExplorerSpecialTravelLogController.cs" />
+    <Compile Include="Navigation\ExplorerNavigationCleanupController.cs" />
+    <Compile Include="Navigation\ExplorerPostNavigationController.cs" />
+    <Compile Include="Navigation\ExplorerShutdownNavigationController.cs" />
+    <Compile Include="Navigation\ExplorerLegacyNavigationController.cs" />
+    <Compile Include="Navigation\ExplorerTooltipController.cs" />
+    <Compile Include="Navigation\ExplorerSelectionRestoreController.cs" />
+    <Compile Include="Navigation\ExplorerNavigationStateController.cs" />
+    <Compile Include="QTTabBarClass.ExplorerCaptureHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerTravelLogHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerSessionRestoreHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerWindowMessageHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerMessageRoutingHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerNavigationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerAttachmentHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerNavigationButtonHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerHookInstallationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerTravelToolbarHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerNavigationLifecycleHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerComEventHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerLockedTabNavigationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerSpecialTravelLogHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerNavigationCleanupHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerPostNavigationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerShutdownNavigationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerLegacyNavigationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerTooltipHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerNavigationStateHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerNavigationCompleteHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerIntegrationHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.ExplorerSelectionRestoreHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ExplorerController.WindowMessages.cs">
@@ -731,9 +822,6 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ExplorerController.CommandDispatch.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerController.SessionRestore.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ExplorerController.TravelLog.cs">
@@ -800,7 +888,9 @@
     <Compile Include="QTTabBarClass.BandHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.ComponentBuildController.cs">
+    <Compile Include="ITabBarCompositionHost.cs" />
+    <Compile Include="TabBarComposition.cs" />
+    <Compile Include="QTTabBarClass.CompositionHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.DroppedFilesHost.cs">

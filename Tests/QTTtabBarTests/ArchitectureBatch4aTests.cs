@@ -8,13 +8,13 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch4aTests {
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
 
         private static Type CommandDispatchType =>
-            ExplorerModuleType.GetNestedType("CommandDispatchController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerCommandDispatcher");
 
         private static Type SessionRestoreType =>
-            ExplorerModuleType.GetNestedType("SessionRestoreController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerSessionRestoreController");
 
         private static string FindRepoRoot() {
             var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
@@ -35,14 +35,15 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void CommandDispatchController_Type_Exists_Nested_In_ExplorerModule() {
-            Assert.IsNotNull(ExplorerModuleType, "ExplorerControllerModule should exist");
-            Assert.IsNotNull(CommandDispatchType, "CommandDispatchController should be nested in ExplorerControllerModule");
+        public void CommandDispatchController_Type_Is_TopLevel() {
+            Assert.IsNotNull(CommandDispatchType, "ExplorerCommandDispatcher should exist");
+            Assert.IsFalse(CommandDispatchType.IsNested, "ExplorerCommandDispatcher should be top-level");
         }
 
         [Test]
-        public void SessionRestoreController_Type_Exists_Nested_In_ExplorerModule() {
-            Assert.IsNotNull(SessionRestoreType, "SessionRestoreController should be nested in ExplorerControllerModule");
+        public void SessionRestoreController_Type_Is_TopLevel() {
+            Assert.IsNotNull(SessionRestoreType, "ExplorerSessionRestoreController should exist");
+            Assert.IsFalse(SessionRestoreType.IsNested, "ExplorerSessionRestoreController should be top-level");
         }
 
         [Test]
@@ -51,11 +52,11 @@ namespace QTTtabBarTests {
                 "TryHandleNewWindowCapture",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             string cmdDispatch = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.ExplorerController.CommandDispatch.cs"));
+                "Navigation", "ExplorerCommandDispatcher.cs"));
             Assert.IsTrue(cmdDispatch.Contains("GetCommandLine("),
-                "Command line WMI helper should live in CommandDispatchController");
+                "Command line WMI helper should live in ExplorerCommandDispatcher");
             Assert.IsTrue(cmdDispatch.Contains("BeginInvokeMain"),
-                "CommandDispatchController should own BeginInvokeMain capture dispatch");
+                "ExplorerCommandDispatcher should own BeginInvokeMain capture dispatch");
         }
 
         [Test]

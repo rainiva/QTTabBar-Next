@@ -63,7 +63,7 @@ namespace QTTabBarLib {
         
         private MenuController _menuController;
         private TabManager _tabManager;
-        private ExplorerControllerModule _explorerControllerModule;
+        private ExplorerController _explorerControllerModule;
         private DragDropController _dragDropController;
         private HookInputController _hookInputController;
         private FileToolsController _fileToolsController;
@@ -79,7 +79,7 @@ namespace QTTabBarLib {
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
         private BandWindowController _bandWindowController;
-        private ComponentBuildController _componentBuildController;
+        private TabBarComposition _tabBarComposition;
         private DroppedFilesController _droppedFilesController;
         private FolderTreeController _folderTreeController;
         private ViewModeController _viewModeController;
@@ -246,9 +246,6 @@ namespace QTTabBarLib {
             QTUtility2.ENABLE_LOGGER = Config.Misc.EnableLog;
         }
 
-        private void AddInsertTab(QTabItem tab) {
-            base.AddInsertTab(tab);
-        }
         private void AddStartUpTabs(string openingGRP, string openingPath) {
             _tabManager.AddStartUpTabs(openingGRP, openingPath);
         }
@@ -285,9 +282,6 @@ namespace QTTabBarLib {
         private QTabItem CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index) {
             return _tabManager.CloneTabButton(tab, optionURL, fSelect, index);
         }
-        private List<string> CloseAllTabsExcept(QTabItem leaveThisOne, bool leaveLocked = true) {
-            return base.CloseAllTabsExcept(leaveThisOne, leaveLocked);
-        }
         /**
          *�����رմ����¼� by indiff
          */
@@ -296,11 +290,6 @@ namespace QTTabBarLib {
         internal void CloseDWBase(uint dwReserved) {
             base.CloseDW(dwReserved);
         }
-
-        private void CloseLeftRight(bool fLeft, int index) {
-            base.CloseLeftRight(fLeft, index);
-        }
-
 
       
 
@@ -343,17 +332,11 @@ namespace QTTabBarLib {
 
 
         // ���ӵ���ǩ�鹦��
-        private void Add2Group(QTabItem contextMenuedTab) {
-            ((TabBarBase)this).Add2Group(contextMenuedTab);
-        }
         internal List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
             return _menuController.CreateNavBtnMenuItems(fCurrent);
         }
         
         // �����µ�tabҳ
-        private QTabItem CreateNewTab(IDLWrapper idlw) {
-            return base.CreateNewTab(idlw);
-        }
         // ���� tab ͼƬ
         internal static Bitmap[] CreateTabImage() {
             if(File.Exists(Config.Skin.TabImageFile)) {
@@ -490,8 +473,6 @@ namespace QTTabBarLib {
                     : IntPtr.Zero;
         }
 
-        private bool HandleCLOSE(IntPtr lParam) => _hookInputController.HandleCLOSE(lParam);
-
         internal static int HandleDragEnter(IntPtr hDrop, out string strDraggingDrive, out string strDraggingStartPath) {
             return DragDropController.HandleDragEnter(hDrop, out strDraggingDrive, out strDraggingStartPath);
         }
@@ -500,13 +481,10 @@ namespace QTTabBarLib {
             _dragDropController.HandleFileDrop(hDrop);
         }
 
-        private void HideTabSwitcher(bool fSwitch) {
-            ((TabBarBase)this).HideTabSwitcher(fSwitch);
-        }
         private void InitializeComponent() {
             components = new Container();
-            _componentBuildController = new ComponentBuildController(this);
-            _componentBuildController.Build();
+            _tabBarComposition = new TabBarComposition((ITabBarCompositionHost)this);
+            _tabBarComposition.Build();
         }
 
         private void InitializeInstallation() {
@@ -573,12 +551,6 @@ namespace QTTabBarLib {
         public void OpenGroup(string groupName, bool fForceNewWindow, bool fDisableOverrides = false) {
             _tabManager.OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
         }
-        private bool OpenNewTab(string path, bool blockSelecting = false, bool fForceNew = false) {
-            return base.OpenNewTab(path, blockSelecting, fForceNew);
-        }
-        internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
-            return base.OpenNewTab(idlwGiven, blockSelecting, fForceNew);
-        }
         internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
             _tabManager.OpenNewTabOrWindow(idlw, fNeedsPulse);
         }
@@ -598,20 +570,9 @@ namespace QTTabBarLib {
         [ComRegisterFunction]
         private static void Register(Type t) => ComRegistrationController.Register(t);
 
-        private void ReorderTab(int index, bool fDescending) {
-            ((TabBarBase)this).ReorderTab(index, fDescending);
-        }
         internal void ReplaceByGroup(string groupName) {
             _tabManager.ReplaceByGroup(groupName);
         }
-        private void RestoreLastClosed() {
-            ((TabBarBase)this).RestoreLastClosed();
-        }
-        // 恢复标签
-        private void RestoreTabsOnInitialize(int iIndex, string openingPath) {
-            ((TabBarBase)this).RestoreTabsOnInitialize(iIndex, openingPath);
-        }
-
        
 
         protected override bool ShouldHaveBreak() {
@@ -641,9 +602,6 @@ namespace QTTabBarLib {
             return listView;
         }
         
-        private bool ShowTabSwitcher(bool fShift, bool fRepeat) {
-            return ((TabBarBase)this).ShowTabSwitcher(fShift, fRepeat);
-        }
         /**
          * ��ʾ������Ϣ
          *  shift ��ʾ��ϸ��Ϣ
@@ -652,10 +610,6 @@ namespace QTTabBarLib {
             _tabTooltipController.SubDirTip_MenuItemClicked(sender, e);
         }
 
-        // �޸�Ԥ��Ŀ¼��ת����ȷ�ı�ǩλ��
-        private int TabIndex() {
-            return TabIndexForNewTab();
-        }
         private void subDirTip_MenuItemRightClicked(object sender, ItemRightClickedEventArgs e) {
             _tabTooltipController.SubDirTip_MenuItemRightClicked(sender, e);
         }
@@ -710,9 +664,6 @@ namespace QTTabBarLib {
 
        
 
-        private void tsmiBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            ((TabBarBase)this).tsmiBranchRoot_DropDownItemClicked(sender, e);
-        }
         public override void UIActivateIO(int fActivate, ref MSG Msg) => _bandLifecycleController.UIActivateIO(fActivate, ref Msg);
 
         [ComUnregisterFunction]
