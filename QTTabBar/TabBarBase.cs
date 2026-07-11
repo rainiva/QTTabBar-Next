@@ -145,7 +145,7 @@ namespace QTTabBarLib
 
         #region --- Shared Methods (deduplicated from QTTabBarClass / QTSecondViewBar) ---
 
-        protected static bool TryCallButtonBar(Action<QTButtonBar> action)
+        internal static bool TryCallButtonBar(Action<QTButtonBar> action)
         {
             QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
             if (bbar == null) return false;

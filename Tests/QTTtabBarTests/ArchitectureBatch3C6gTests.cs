@@ -8,8 +8,9 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C6gTests {
         [Test]
         public void BindActionController_Type_Exists_With_DoBindAction() {
-            Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.QTTabBarClass+BindActionController");
-            Assert.IsNotNull(type, "BindActionController nested class should exist");
+            Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.BindActionController");
+            Assert.IsNotNull(type, "BindActionController should exist as a top-level class");
+            Assert.IsFalse(type.IsNested, "BindActionController should not be nested");
             Assert.IsNotNull(type.GetMethod(
                 "DoBindAction",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));

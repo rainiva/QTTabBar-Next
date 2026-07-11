@@ -39,7 +39,7 @@ namespace QTTabBarLib {
             _dragDropController = new DragDropController((IDragDropHost)this);
             _hookInputController = new HookInputController((IHookInputHost)this);
             _fileToolsController = new FileToolsController((IFileToolsHost)this);
-            _bindActionController = new BindActionController(this);
+            _bindActionController = new BindActionController((IBindActionHost)this, (IBindActionUiHost)this);
             _shellCommandController = new ShellCommandController((IShellCommandHost)this);
             _listViewInputController = new ListViewInputController((IListViewInputHost)this);
             _keyboardAcceleratorController = new KeyboardAcceleratorController((IQTTabBarBandHost)this);
