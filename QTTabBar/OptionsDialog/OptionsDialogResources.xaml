@@ -28,14 +28,14 @@
     </ResourceDictionary.MergedDictionaries>
 
     <BooleanToVisibilityConverter                                                      x:Key="BooleanToVisibilityConverter" />
-    <qt:Converter       Type="{x:Type qt:OptionsDialog+BoolInverterConverter        }" x:Key="BoolInverterConverter"        />
-    <qt:Converter       Type="{x:Type qt:OptionsDialog+BitmapToImageSourceConverter }" x:Key="BitmapToImageSourceConverter" />
-    <qt:Converter       Type="{x:Type qt:OptionsDialog+StringEqualityConverter      }" x:Key="StringEqualityConverter"      />
-    <qt:Converter       Type="{x:Type qt:OptionsDialog+ObjectToClassNameConverter   }" x:Key="ObjectToClassNameConverter"   />
-    <qt:Converter       Type="{x:Type qt:OptionsDialog+ColorToBrushConverter        }" x:Key="ColorToBrushConverter"        />
-    <qt:Converter       Type="{x:Type qt:OptionsDialog+FontStringConverter          }" x:Key="FontStringConverter"          />
-    <qt:MultiConverter  Type="{x:Type qt:OptionsDialog+LogicalAndMultiConverter     }" x:Key="LogicalAndMultiConverter"     />
-    <qt:MultiConverter  Type="{x:Type qt:OptionsDialog+BoolJoinMultiConverter       }" x:Key="BoolJoinMultiConverter"       />
+    <qt:Converter       Type="{x:Type qt:BoolInverterConverter        }" x:Key="BoolInverterConverter"        />
+    <qt:Converter       Type="{x:Type qt:BitmapToImageSourceConverter }" x:Key="BitmapToImageSourceConverter" />
+    <qt:Converter       Type="{x:Type qt:StringEqualityConverter      }" x:Key="StringEqualityConverter"      />
+    <qt:Converter       Type="{x:Type qt:ObjectToClassNameConverter   }" x:Key="ObjectToClassNameConverter"   />
+    <qt:Converter       Type="{x:Type qt:ColorToBrushConverter        }" x:Key="ColorToBrushConverter"        />
+    <qt:Converter       Type="{x:Type qt:FontStringConverter          }" x:Key="FontStringConverter"          />
+    <qt:MultiConverter  Type="{x:Type qt:LogicalAndMultiConverter     }" x:Key="LogicalAndMultiConverter"     />
+    <qt:MultiConverter  Type="{x:Type qt:BoolJoinMultiConverter       }" x:Key="BoolJoinMultiConverter"       />
 
     <Style x:Key="SectionHeaderStyle" TargetType="Label">
         <Setter Property="Background" Value="Transparent"/>

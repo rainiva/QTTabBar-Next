@@ -409,6 +409,11 @@
     <Compile Include="OptionsDialog\OptionsDialog.xaml.cs">
       <DependentUpon>OptionsDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OptionsDialog\OptionsDialog.HotkeyProcessing.cs">
+      <DependentUpon>OptionsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Converters.cs" />
+    <Compile Include="OptionsDialog\OptionsDialogTab.cs" />
     <Compile Include="RebarController.cs" />
     <Compile Include="MiscClasses.cs" />
     <Compile Include="Config.cs" />
