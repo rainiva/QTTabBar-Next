@@ -903,13 +903,14 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 | `QTButtonBar.cs` 主文件 | ≤ 450 行 | 442 行 | ✅ |
 | `QTButtonBar` partial | 0 | 0 | ✅ |
 | `OptionsDialog.xaml.cs` | ≤ 500 行 | 280 行 | ✅ |
-| 嵌套类型 | 0 | 9 | ⚠ `[Explicit]` 保留 |
+| 嵌套类型 | 0 | 0 | ✅ 全部提取 |
 
 - ✅ Batch 2-6 已完成：BindActionController 顶层化、PluginServer 顶层化、`_owner.` 全部消除、55→4 partial 合并、主文件 774→395 行
-- ✅ 全量 1000 测试通过（978 pass / 0 fail / 22 skip），TRX 日志 `TestResults/test-results-batch7.trx`
+- ✅ Task 13 嵌套类型提取：5 个源码嵌套类型（ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget）提取为顶层类型；4 个编译器 lambda 闭包通过命名方法重构消除
+- ✅ 全量 1001 测试通过（979 pass / 0 fail / 22 skip），TRX 日志 `TestResults/test-results-nested2.trx`
 - ✅ Debug + Release 构建均 0 错误
-- ⚠ 9 个嵌套类型待提取（ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget 等），`Final_Budget_QTTabBarClass_NestedControllers` 保留 `[Explicit]` 跟踪
-- **状态：CLOSED_WITH_EVIDENCE**（嵌套类型提取作为后续独立任务跟踪）
+- ✅ `Final_Budget_QTTabBarClass_NestedControllers` 测试已启用并通过（0 = 0）
+- **状态：CLOSED_WITH_EVIDENCE**（全部指标达标）
 
 ---
 
@@ -1240,7 +1241,7 @@ public static void Initialize() {
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 已改为表达式体属性按需读取（`QTUtility.cs` 第 85-88 行），无引用拷贝赋值 |
 | W10 | ✅ CLOSED_WITH_EVIDENCE | Task 13（2026-07-11）：ConfigManager.CommitSnapshot/MutateAndCommit 单真源；_owner.=0；1000 测试 978 pass / 0 fail；TRX 日志 `TestResults/test-results-batch7.trx`；Debug+Release 0 错误；治理文档已更新 |
-| C6 | ✅ CLOSED_WITH_EVIDENCE | Task 13（2026-07-11）：主文件 395 行（≤500）；_owner.=0；partial 4（≤4）；QTButtonBar 442 行（≤450）；OptionsDialog 280 行（≤500）；9 嵌套类型保留 [Explicit] 跟踪；1000 测试 978 pass / 0 fail；Debug+Release 0 错误；CI 已更新。详见 W10/C6 关闭证据块 |
+| C6 | ✅ CLOSED_WITH_EVIDENCE | Task 13（2026-07-11）：主文件 395 行（≤500）；_owner.=0；partial 4（≤4）；QTButtonBar 442 行（≤450）；OptionsDialog 280 行（≤500）；嵌套类型 0=0（5 源码类型提取 + 4 闭包消除）；1001 测试 979 pass / 0 fail；Debug+Release 0 错误；CI 已更新。详见 W10/C6 关闭证据块 |
 | C7 | ⬜ 部分修复 | C7a–C7h 完成；**C7i** 已迁移 DeepClone→SerializationHelper、ReserveImageKey→IconManager、GetValueSafe→RegistryHelper，删除 log2/err/AllocDebugConsole；**C7j** 已迁移 ValidateMinMax→ValidationHelper、GetLinkerTimestamp→AssemblyInfoHelper、ExtIsCompressed→IconManager，删除无调用 GetSettingValue；QTUtility(584行)+QTUtility2(717行) 合计约 **1301 行**（较 1484 缩减 ~183 行），继续瘦身待续 |
 | W1 | ✅ 已修复 | 12 个纯 façade 方法全部从 InstanceManager 移除并迁移至 Registry 类；InstanceManager 仅保留 IPC/跨进程协调方法，0 个纯转发残留 |
 | W2 | ✅ 已修复 | **HookController** + **SettingsController** + **WndProc/ListViewEvents/EventHandlers/ContextMenus/OpenNavigation** partial 已提取；QTDesktopTool 主文件 **397 行**（自 2574 缩减）；DesktopTooltipController 保留；ShowSubDirTip/HideSubDirTip 薄委托保留于主 partial |

@@ -9,8 +9,8 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C6vTests {
         [Test]
         public void ComRegistrationController_Owns_Register_And_Unregister() {
-            var type = typeof(QTTabBarClass).GetNestedType("ComRegistrationController", BindingFlags.NonPublic);
-            Assert.IsNotNull(type);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ComRegistrationController", false);
+            Assert.IsNotNull(type, "ComRegistrationController should exist as a top-level type (extracted from QTTabBarClass)");
             Assert.IsNotNull(type.GetMethod("Register", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetMethod("Unregister", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic));
         }

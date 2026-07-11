@@ -237,7 +237,11 @@ void IExplorerMessageRoutingHost.ActivateExplorerInstance() {
         }
 
         void IExplorerMessageRoutingHost.CloseTabsForDisconnectedDrive(string rootPath) {
-            CloseTabs(tabControl1.TabPages.Where(item => item.CurrentPath.PathStartsWith(rootPath)).ToList(), true);
+            List<QTabItem> tabsToClose = new List<QTabItem>();
+            foreach(QTabItem item in tabControl1.TabPages) {
+                if(item.CurrentPath.PathStartsWith(rootPath)) tabsToClose.Add(item);
+            }
+            CloseTabs(tabsToClose, true);
             if(tabControl1.TabCount == 0) WindowUtils.CloseExplorer(ExplorerHandle, 2);
         }
 
@@ -400,14 +404,10 @@ QTabItem IExplorerSessionRestoreHost.CurrentTab => CurrentTab;
             QTLogger.log("QTTabBarClass PluginServer ");
             pluginServer = new PluginServer((IPluginServerHost)this, (IPluginServerTabHost)this);
             QTLogger.log("QTTabBarClass TryCallButtonBar ");
-            if(!TryCallButtonBar(buttonBar => buttonBar.CreateItems())) {
-                Timer timer = new Timer { Interval = 2000 };
-                timer.Tick += (sender, args) => {
-                    QTLogger.log("QTTabBarClass timer.Tick TryCallButtonBar ");
-                    TryCallButtonBar(buttonBar => buttonBar.CreateItems());
-                    timer.Stop();
-                };
-                timer.Start();
+            if(!TryCallButtonBar(CreateItemsOnButtonBar)) {
+                _createItemsRetryTimer = new Timer { Interval = 2000 };
+                _createItemsRetryTimer.Tick += OnCreateItemsRetryTimerTick;
+                _createItemsRetryTimer.Start();
             }
             if(Config.Window.WindowAlpha < 0xff) {
                 QTLogger.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
@@ -420,15 +420,13 @@ QTabItem IExplorerSessionRestoreHost.CurrentTab => CurrentTab;
             listViewManager = new ListViewMonitor(ShellBrowser, ExplorerHandle, Handle);
             listViewManager.ListViewChanged += _listViewInputController.OnListViewMonitorChanged;
             listViewManager.Initialize();
-            IntPtr breadcrumbHandle = WindowUtils.FindChildWindow(ExplorerHandle,
-                window => PInvoke.GetClassName(window) == "Breadcrumb Parent");
+            IntPtr breadcrumbHandle = WindowUtils.FindChildWindow(ExplorerHandle, IsBreadcrumbParentWindow);
             if(breadcrumbHandle != IntPtr.Zero) {
                 breadcrumbHandle = PInvoke.FindWindowEx(breadcrumbHandle, IntPtr.Zero, "ToolbarWindow32", null);
                 if(breadcrumbHandle != IntPtr.Zero) {
                     breadcrumbBar = new BreadcrumbBar(breadcrumbHandle);
                     QTLogger.log("QTTabBarClass BreadcrumbBar set FolderLinkClicked ");
-                    breadcrumbBar.ItemClicked += (wrapper, modifierKeys, middle) =>
-                        _menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
+                    breadcrumbBar.ItemClicked += OnBreadcrumbBarItemClicked;
                 }
             }
         }
@@ -499,7 +497,7 @@ int IExplorerWindowMessageHost.SequentialCloseCount { get => iSequential_WM_CLOS
         }
 
         private IntPtr GetTravelToolBarWindow32() {
-            IntPtr hwndTravelBand = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "TravelBand");
+            IntPtr hwndTravelBand = WindowUtils.FindChildWindow(ExplorerHandle, IsTravelBand);
             return hwndTravelBand != IntPtr.Zero 
                     ? PInvoke.FindWindowEx(hwndTravelBand, IntPtr.Zero, "ToolbarWindow32", null) 
                     : IntPtr.Zero;
@@ -542,8 +540,24 @@ int IExplorerWindowMessageHost.SequentialCloseCount { get => iSequential_WM_CLOS
 
         // ��ʾĿ¼��
         private void ShowFolderTree(bool fShow) => _shellUiController.ShowFolderTree(fShow);
-        
+
         private void ShowSearchBar(bool fShow) => _shellUiController.ShowSearchBar(fShow);
+
+        // --- Named methods to eliminate compiler-generated closures (Task 13) ---
+        private Timer _createItemsRetryTimer;
+        private static bool CreateItemsOnButtonBar(QTButtonBar bbar) { return bbar.CreateItems(); }
+        private void OnCreateItemsRetryTimerTick(object sender, EventArgs args) {
+            QTLogger.log("QTTabBarClass timer.Tick TryCallButtonBar ");
+            TryCallButtonBar(CreateItemsOnButtonBar);
+            _createItemsRetryTimer.Stop();
+        }
+        private static bool IsBreadcrumbParentWindow(IntPtr window) {
+            return PInvoke.GetClassName(window) == "Breadcrumb Parent";
+        }
+        private static bool IsTravelBand(IntPtr hwnd) { return PInvoke.GetClassName(hwnd) == "TravelBand"; }
+        private bool OnBreadcrumbBarItemClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
+            return _menuController.FolderLinkClicked(wrapper, modifierKeys, middle);
+        }
 
     }
 }

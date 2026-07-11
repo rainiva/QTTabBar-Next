@@ -12,4 +12,13 @@ namespace QTTabBarLib {
         void BeginMerge(MergeTabPayload[] payloads);
         void CloseAfterMerge();
     }
+
+    /// <summary>
+    /// Host interface for WindowMergeTarget. Exposes only the members
+    /// that WindowMergeTarget actually accesses.
+    /// </summary>
+    internal interface IWindowMergeTargetHost {
+        QTabControl tabControl1 { get; }
+        IntPtr ExplorerHandle { get; }
+    }
 }

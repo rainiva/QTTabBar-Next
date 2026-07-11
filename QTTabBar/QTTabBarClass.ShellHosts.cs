@@ -1,4 +1,4 @@
-// Auto-merged by merge-partials.py (Batch 5)
+﻿// Auto-merged by merge-partials.py (Batch 5)
 
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,7 +34,7 @@ using Timer = System.Windows.Forms.Timer;
 using ToolTip = System.Windows.Forms.ToolTip;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass : IBindActionHost, IBindActionUiHost, IButtonBarCommandHost, IDragDropHost, IDroppedFilesHost, IFileToolsHost, IFolderTreeHost, IHookFolderTreePort, IHookInputHost, IHookKeyboardPort, IHookMessagePort, IHookMousePort, IHookViewPort, IListViewInputHost, IMenuInteractionHost, IMenuLifecycleHost, IMenuOperationsHost, IPluginMenuHost, IPluginServerHost, IPluginServerTabHost, IQTTabBarBandHost, IShellCommandHost, IShellNavigationHost, IShellUiHost, ISubDirTipHost, ISubDirTipOperationsHost, ITabOperationsHost, ITabOperationsOwnerHost, IViewModeHost, IWindowManagementHost {
+    public partial class QTTabBarClass : IBindActionHost, IBindActionUiHost, IButtonBarCommandHost, IDragDropHost, IDroppedFilesHost, IFileToolsHost, IFolderTreeHost, IHookFolderTreePort, IHookInputHost, IHookKeyboardPort, IHookMessagePort, IHookMousePort, IHookViewPort, IListViewInputHost, IMenuInteractionHost, IMenuLifecycleHost, IMenuOperationsHost, IPluginMenuHost, IPluginServerHost, IPluginServerTabHost, IQTTabBarBandHost, IShellCommandHost, IShellNavigationHost, IShellUiHost, ISubDirTipHost, ISubDirTipOperationsHost, ITabOperationsHost, ITabOperationsOwnerHost, IViewModeHost, IWindowManagementHost, IWindowMergeTargetHost {
 
         // --- From QTTabBarClass.HookInputHost.cs ---
         IHookMessagePort IHookInputHost.Messages => this;
@@ -372,641 +372,9 @@ IContainer IListViewInputHost.Components => components;
             listView.SubDirTip_MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
         }
 
-        // --- From QTTabBarClass.MenuController.cs ---
-internal partial class MenuOperations {
-            private readonly IMenuOperationsHost _host;
 
-            public MenuOperations(IMenuOperationsHost host) {
-                _host = host;
-            }
-        }
 
-        // --- From QTTabBarClass.MenuController.DropDownHandlers.cs ---
-internal partial class MenuOperations {
-            public List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
-                QTabItem item = fCurrent ? _host.CurrentTab : _host.ContextMenuedTab;
-                List<ToolStripItem> list = new List<ToolStripItem>();
-                List<LogData> branches = item.Branches;
-                if(branches.Count > 0) {
-                    ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x18]);
-                    item2.Tag = item;
-                    item2.DropDown = new DropDownMenuBase(container, true, true);
-                    item2.DropDown.ImageList = ResourceCache.ImageListGlobal;
-                    item2.DropDownItemClicked += itemClickedEvent;
-                    int index = -1;
-                    foreach(LogData data in branches) {
-                        index++;
-                        if(_host.IsSpecialFolderNeedsToTravel(data.Path)) {
-                            if(_host.LogEntryDic.ContainsKey(data.Hash)) {
-                                goto Label_00B3;
-                            }
-                            continue;
-                        }
-                        if(!QTUtility2.PathExists(data.Path)) {
-                            continue;
-                        }
-                    Label_00B3:
-                        item2.DropDownItems.Add(MenuUtility.CreateMenuItem(new MenuItemArguments(data.Path, false, index, MenuGenre.Branch)));
-                    }
-                    if(item2.DropDownItems.Count > 0) {
-                        list.Add(new ToolStripSeparator());
-                        list.Add(item2);
-                    }
-                }
-                return list;
-            }
 
-            public List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
-                QTabItem item = fCurrent ? _host.CurrentTab : _host.ContextMenuedTab;
-                List<QMenuItem> list = new List<QMenuItem>();
-                string[] historyBack = item.GetHistoryBack();
-                string[] historyForward = item.GetHistoryForward();
-                if((historyBack.Length + historyForward.Length) > 1) {
-                    for(int i = historyBack.Length - 1; i >= 0; i--) {
-                        QMenuItem item2 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyBack[i], true, i, MenuGenre.Navigation));
-                        if(_host.IsSpecialFolderNeedsToTravel(historyBack[i])) {
-                            item2.Enabled = _host.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
-                        }
-                        else if(!QTUtility2.PathExists(historyBack[i])) {
-                            item2.Enabled = false;
-                        }
-                        if(item2.Enabled && (i == 0)) {
-                            item2.BackColor = QTUtility2.MakeModColor(SystemColors.Highlight);
-                        }
-                        list.Add(item2);
-                    }
-                    for(int j = 0; j < historyForward.Length; j++) {
-                        QMenuItem item3 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyForward[j], false, j, MenuGenre.Navigation));
-                        if(_host.IsSpecialFolderNeedsToTravel(historyForward[j])) {
-                            item3.Enabled = _host.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
-                        }
-                        else if(!QTUtility2.PathExists(historyForward[j])) {
-                            item3.Enabled = false;
-                        }
-                        list.Add(item3);
-                    }
-                }
-                return list;
-            }
-
-            public void MenuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                string groupName = e.ClickedItem.Text;
-                string currentPath = _host.ContextMenuedTab.CurrentPath;
-                bool addSame = ModifierKeys == Keys.Control;
-                Group g = GroupsManager.GetGroup(groupName);
-                if(g == null) return;
-                if(addSame || !g.Paths.Any(p => p.PathEquals(currentPath))) {
-                    g.Paths.Add(currentPath);
-                    GroupsManager.SaveGroups();
-                }
-            }
-
-            public void MenuitemExecuted_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                try {
-                    string toolTipText = e.ClickedItem.ToolTipText;
-                    ProcessStartInfo startInfo = new ProcessStartInfo(toolTipText);
-                    startInfo.WorkingDirectory = Path.GetDirectoryName(toolTipText);
-                    startInfo.ErrorDialog = true;
-                    startInfo.ErrorDialogParentHandle = _host.ExplorerHandle;
-                    Process.Start(startInfo);
-                    StaticReg.ExecutedPathsList.Add(toolTipText);
-                }
-                catch {
-                    SoundFeedbackService.SoundPlay();
-                }
-            }
-
-            public void MenuitemExecuted_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
-                using(IDLWrapper wrapper = new IDLWrapper(e.ClickedItem.ToolTipText)) {
-                    e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
-                }
-                if(e.HRESULT == 0xffff) {
-                    StaticReg.ExecutedPathsList.Remove(e.ClickedItem.ToolTipText);
-                    e.ClickedItem.Dispose();
-                }
-            }
-
-            public void MenuitemGroups_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                Keys modifierKeys = ModifierKeys;
-                string groupName = e.ClickedItem.Text;
-                if(modifierKeys == (Keys.Control | Keys.Shift)) {
-                    Group g = GroupsManager.GetGroup(groupName);
-                    g.Startup = !g.Startup;
-                    GroupsManager.SaveGroups();
-                }
-                else {
-                    _host.OpenGroup(groupName, modifierKeys == Keys.Control, false);
-                }
-            }
-
-            public void MenuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-                GroupsManager.HandleReorder(_host.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
-                QTTabBarClass.SyncTaskBarMenu();
-            }
-
-            public void MenuitemHistory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-                if((_host.ContextMenuedTab != null) && (clickedItem != null)) {
-                    MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
-                    switch(ModifierKeys) {
-                        case Keys.Shift:
-                            _host.CloneTabButton(_host.ContextMenuedTab, null, true, -1);
-                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
-                            return;
-
-                        case Keys.Control: {
-                                using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
-                                    _host.OpenNewWindow(wrapper);
-                                    return;
-                                }
-                            }
-                        default:
-                            _host.tabControl1.SelectTab(_host.ContextMenuedTab);
-                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
-                            return;
-                    }
-                }
-            }
-
-            public void DdmrUndoClose_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
-                QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-                if(clickedItem != null) {
-                    using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                        e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
-                    }
-                    if(e.HRESULT == 0xffff) {
-                        StaticReg.ClosedTabHistoryList.Remove(clickedItem.Path);
-                        e.ClickedItem.Dispose();
-                    }
-                }
-            }
-
-            public void DdrmrGroups_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
-                _host.ReplaceByGroup(e.ClickedItem.Text);
-            }
-
-            public bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
-                QTLogger.log("QTTabBarClass FolderLinkClicked");
-                MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
-                BindAction action;
-                if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
-                    _host.DoBindAction(action, false, null, wrapper);
-                    return true;
-                }
-                QTLogger.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");
-                return false;
-            }
-        }
-
-        // --- From QTTabBarClass.MenuController.SysMenu.cs ---
-internal partial class MenuOperations {
-            public void contextMenuSys_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                if(e.ClickedItem == _host.tsmiOption) {
-                    OptionsDialog.Open();
-                }
-                else if(e.ClickedItem == _host.tsmiCloseAllButCurrent) {
-                    if(_host.tabControl1.TabCount != 1) {
-                        _host.CloseAllTabsExcept(_host.CurrentTab);
-                    }
-                }
-                else if(e.ClickedItem == _host.tsmiBrowseFolder) {
-                    _host.ChooseNewDirectory();
-                }
-                else if(e.ClickedItem == _host.tsmiCloseWindow) {
-                    {
-                        LockedTabsService.PersistFromTabs(_host.tabControl1.TabPages);
-                    }
-                    WindowUtils.CloseExplorer(_host.ExplorerHandle, 1);
-                }
-                else {
-                    if(e.ClickedItem == _host.tsmiLastActiv) {
-                        try {
-                            _host.tabControl1.SelectTab(_host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2]);
-                            return;
-                        }
-                        catch (Exception ex)
-                        {
-                            QTLogger.MakeErrorLog(ex, "tabControl1.SelectTab");
-                            return;
-                        }
-                    }
-                    if(e.ClickedItem == _host.tsmiLockToolbar) {
-                        _host.rebarController.Locked = !_host.tsmiLockToolbar.Checked;
-                    }
-                    else if(e.ClickedItem == _host.tsmiMergeWindows) {
-                        _host.MergeAllWindows();
-                    }
-                }
-            }
-
-            // 右键（系统）菜单打开时触发
-            public void contextMenuSys_Opening(object sender, CancelEventArgs e) {
-                InitializeSysMenu(false);
-                // 延迟加载菜单内容
-                _host.contextMenuSys.SuspendLayout();
-                _host.tsmiGroups.DropDown.SuspendLayout();
-                _host.tsmiUndoClose.DropDown.SuspendLayout();
-
-                MenuUtility.CreateGroupItems(_host.tsmiGroups);
-                MenuUtility.CreateUndoClosedItems(_host.tsmiUndoClose);
-                if((_host.lstActivatedTabs.Count > 1) && _host.tabControl1.TabPages.Contains(_host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2])) {
-                    _host.tsmiLastActiv.ToolTipText = _host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2].CurrentPath;
-                    _host.tsmiLastActiv.Enabled = true;
-                }
-                else {
-                    _host.tsmiLastActiv.ToolTipText = string.Empty;
-                    _host.tsmiLastActiv.Enabled = false;
-                }
-                while(_host.tsmiExecuted.DropDownItems.Count > 0) {
-                    _host.tsmiExecuted.DropDownItems[0].Dispose();
-                }
-                List<ToolStripItem> list = MenuUtility.CreateRecentFilesItems();
-                if(list.Count > 0) {
-                    _host.tsmiExecuted.DropDown.SuspendLayout();
-                    _host.tsmiExecuted.DropDownItems.AddRange(list.ToArray());
-                    _host.tsmiExecuted.DropDown.ResumeLayout();
-                }
-                _host.tsmiExecuted.Enabled = _host.tsmiExecuted.DropDownItems.Count > 0;
-                _host.tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
-                _host.tsmiLockToolbar.Checked = _host.rebarController.Locked;
-                if((_host.lstPluginMenuItems_Sys != null) && (_host.lstPluginMenuItems_Sys.Count > 0)) {
-                    foreach(ToolStripItem item in _host.lstPluginMenuItems_Sys) {
-                        item.Dispose();
-                    }
-                    _host.lstPluginMenuItems_Sys = null;
-                }
-                if((_host.pluginServer != null) && (_host.pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
-                    _host.lstPluginMenuItems_Sys = new List<ToolStripItem>();
-                    int index = _host.contextMenuSys.Items.IndexOf(_host.tsmiOption);
-                    ToolStripSeparator separator = new ToolStripSeparator();
-                    _host.contextMenuSys.Items.Insert(index, separator);
-                    foreach(string str in _host.pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
-                        ToolStripMenuItem item2 = new ToolStripMenuItem(_host.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
-                        item2.Name = str;
-                        item2.Tag = MenuType.Bar;
-                        item2.Click += _host._pluginMenuController.PluginItemsClick;
-                        _host.contextMenuSys.Items.Insert(index, item2);
-                        _host.lstPluginMenuItems_Sys.Add(item2);
-                    }
-                    _host.lstPluginMenuItems_Sys.Add(separator);
-                }
-                _host.tsmiUndoClose.DropDown.ResumeLayout();
-                _host.tsmiGroups.DropDown.ResumeLayout();
-                _host.contextMenuSys.ResumeLayout();
-            }
-
-            public void InitializeSysMenu(bool fText) {
-                bool flag = false;
-                if(_host.tsmiGroups == null) {
-                    flag = true;
-                    _host.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
-                    _host.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
-                    _host.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
-                    _host.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
-                    _host.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
-                    _host.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
-                    _host.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
-                    _host.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
-                    _host.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
-                    _host.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
-                    _host.tssep_Sys1 = new ToolStripSeparator();
-                    _host.tssep_Sys2 = new ToolStripSeparator();
-                    if(_host.contextMenuSys != null) {
-                        _host.contextMenuSys.SuspendLayout();
-                        _host.contextMenuSys.Items[0].Dispose();
-                        _host.contextMenuSys.Items.AddRange(new ToolStripItem[]
-                        {
-                            _host.tsmiGroups, _host.tsmiUndoClose, _host.tsmiLastActiv, _host.tsmiExecuted,
-                            _host.tssep_Sys1, _host.tsmiBrowseFolder, _host.tsmiCloseAllButCurrent, _host.tsmiCloseWindow,
-                            _host.tsmiMergeWindows, _host.tsmiLockToolbar, _host.tssep_Sys2, _host.tsmiOption
-                        });
-                    }
-
-                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_host.components, true, false);
-                    reorderable.ReorderFinished += MenuitemGroups_ReorderFinished;
-                    reorderable.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
-                    reorderable.ItemMiddleClicked += DdrmrGroups_ItemMiddleClicked;
-                    reorderable.ImageList = ResourceCache.ImageListGlobal;
-                    _host.tsmiGroups.DropDown = reorderable;
-                    _host.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
-                    DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_host.components);
-                    reorderable2.ReorderEnabled = false;
-                    reorderable2.MessageParent = _host.Handle;
-                    reorderable2.ImageList = ResourceCache.ImageListGlobal;
-                    reorderable2.ItemRightClicked += DdmrUndoClose_ItemRightClicked;
-                    _host.tsmiUndoClose.DropDown = reorderable2;
-                    _host.tsmiUndoClose.DropDownItemClicked += _host.menuitemUndoClose_DropDownItemClicked;
-                    DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_host.components);
-                    reorderable3.MessageParent = _host.Handle;
-                    reorderable3.ItemRightClicked += MenuitemExecuted_ItemRightClicked;
-                    reorderable3.ItemClicked += MenuitemExecuted_DropDownItemClicked;
-                    reorderable3.ImageList = ResourceCache.ImageListGlobal;
-                    _host.tsmiExecuted.DropDown = reorderable3;
-                    _host.tssep_Sys1.Enabled = false;
-                    _host.tssep_Sys2.Enabled = false;
-                    if(_host.contextMenuSys != null) {
-                        _host.contextMenuSys.ResumeLayout(false);
-                    }
-                }
-                if(!flag && fText) {
-                    _host.tsmiGroups.Text = ResourceCache.ResMain[12];
-                    _host.tsmiUndoClose.Text = ResourceCache.ResMain[13];
-                    _host.tsmiLastActiv.Text = ResourceCache.ResMain[14];
-                    _host.tsmiExecuted.Text = ResourceCache.ResMain[15];
-                    _host.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
-                    _host.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
-                    _host.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
-                    _host.tsmiOption.Text = ResourceCache.ResMain[0x13];
-                    _host.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
-                    _host.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
-                }
-            }
-
-        }
-
-        // --- From QTTabBarClass.MenuController.TabMenu.cs ---
-internal partial class MenuOperations {
-            public void contextMenuTab_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                if(_host.ContextMenuedTab != null) {
-                    if(e.ClickedItem == _host.tsmiClose) {
-                        if(_host.tabControl1.TabCount == 1) {
-                            {
-                                LockedTabsService.PersistFromTabs(_host.tabControl1.TabPages);
-                            }
-                            WindowUtils.CloseExplorer(_host.ExplorerHandle, 1);
-                        }
-                        else {
-                            _host.CloseTab(_host.ContextMenuedTab);
-                        }
-                    }
-                    else if(e.ClickedItem == _host.tsmiCloseAllButThis) {
-                        _host.CloseAllTabsExcept(_host.ContextMenuedTab);
-                    }
-                    else if(e.ClickedItem == _host.tsmiCloseLeft) {
-                        int index = _host.tabControl1.TabPages.IndexOf(_host.ContextMenuedTab);
-                        if(index > 0) {
-                            _host.CloseLeftRight(true, index);
-                        }
-                    }
-                    else if(e.ClickedItem == _host.tsmiCloseRight) {
-                        int num2 = _host.tabControl1.TabPages.IndexOf(_host.ContextMenuedTab);
-                        if(num2 >= 0) {
-                            _host.CloseLeftRight(false, num2);
-                        }
-                    }
-                    else if(e.ClickedItem == _host.tsmiCreateGroup) {
-                        CreateGroup(_host.ContextMenuedTab);
-                    }
-                    else if(e.ClickedItem == _host.tsmiLockThis) {
-                        LockedTabsService.ToggleTab(
-                            _host.ContextMenuedTab,
-                            _host.tabControl1.TabPages.Cast<QTabItem>());
-                    }
-                    else if(e.ClickedItem == _host.tsmiCloneThis) {
-                        _host.CloneTabButton(_host.ContextMenuedTab, null, true, -1);
-                    }
-                    else if(e.ClickedItem == _host.tsmiCreateWindow) {
-                        using(IDLWrapper wrapper = new IDLWrapper(_host.ContextMenuedTab.CurrentIDL)) {
-                            _host.OpenNewWindow(wrapper);
-                        }
-                        if(/*!Config.KeepOnSeparate != */ ((Control.ModifierKeys & Keys.Shift) != Keys.None)) {
-                            _host.CloseTab(_host.ContextMenuedTab);
-                        }
-                    }
-                    else if(e.ClickedItem == _host.tsmiCopy) {
-                        string currentPath = _host.ContextMenuedTab.CurrentPath;
-                        if(currentPath.IndexOf("???") != -1) {
-                            currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
-                        }
-                        else if(currentPath.IndexOf("*?*?*") != -1) {
-                            currentPath = currentPath.Substring(0, currentPath.IndexOf("*?*?*"));
-                        }
-                        QTUtility2.SetStringClipboard(currentPath);
-                    }
-                    else if(e.ClickedItem == _host.tsmiProp) {
-                        ShellMethods.ShowProperties(_host.ContextMenuedTab.CurrentIDL);
-                    }
-                    else if (e.ClickedItem == _host.tsmiOpenCmd) { // add by qwop.
-                        _host.OpenCmd( null );
-                    } else if (e.ClickedItem == _host.enableApiHook)
-                    {
-                        _host.EnableApiHook();
-                    }
-                }
-            }
-
-            public void contextMenuTab_Opening(object sender, CancelEventArgs e) {
-                try {
-                    InitializeTabMenu(false);
-                    int index = _host.tabControl1.TabPages.IndexOf(_host.ContextMenuedTab);
-                    if((index == -1) || (_host.ContextMenuedTab == null)) {
-                        e.Cancel = true;
-                    }
-                    else {
-                        _host.tabControl1.SetContextMenuState(true);
-                        _host.contextMenuTab.SuspendLayout();
-                        if(_host.tabControl1.TabCount == 1) {
-                            _host.tsmiTabOrder.Enabled = _host.tsmiCloseAllButThis.Enabled = _host.tsmiCloseLeft.Enabled = _host.tsmiCloseRight.Enabled = false;
-                        }
-                        else {
-                            if(index == 0) {
-                                _host.tsmiCloseLeft.Enabled = false;
-                                _host.tsmiCloseRight.Enabled = true;
-                            }
-                            else if(index == (_host.tabControl1.TabCount - 1)) {
-                                _host.tsmiCloseLeft.Enabled = true;
-                                _host.tsmiCloseRight.Enabled = false;
-                            }
-                            else {
-                                _host.tsmiCloseLeft.Enabled = _host.tsmiCloseRight.Enabled = true;
-                            }
-                            _host.tsmiTabOrder.Enabled = _host.tsmiCloseAllButThis.Enabled = true;
-                        }
-                        _host.tsmiClose.Enabled = !_host.ContextMenuedTab.TabLocked;
-                        _host.tsmiLockThis.Text = _host.ContextMenuedTab.TabLocked ? ResourceCache.ResMain[20] : ResourceCache.ResMain[6];
-                        if(GroupsManager.GroupCount > 0) {
-                            _host.tsmiAddToGroup.DropDown.SuspendLayout();
-                            _host.tsmiAddToGroup.Enabled = true;
-                            while(_host.tsmiAddToGroup.DropDownItems.Count > 0) {
-                                _host.tsmiAddToGroup.DropDownItems[0].Dispose();
-                            }
-                            foreach(Group g in GroupsManager.Groups.Where(g => g.Paths.Count > 0)) {
-                                _host.tsmiAddToGroup.DropDownItems.Add(new ToolStripMenuItem(g.Name) {
-                                    ImageKey = IconManager.GetImageKey(g.Paths[0], null)
-                                });
-                            }
-                            _host.tsmiAddToGroup.DropDown.ResumeLayout();
-                        }
-                        else {
-                            _host.tsmiAddToGroup.Enabled = false;
-                        }
-                        _host.tsmiHistory.DropDown.SuspendLayout();
-                        while(_host.tsmiHistory.DropDownItems.Count > 0) {
-                            _host.tsmiHistory.DropDownItems[0].Dispose();
-                        }
-                        if((_host.ContextMenuedTab.HistoryCount_Back + _host.ContextMenuedTab.HistoryCount_Forward) > 1) {
-                            _host.tsmiHistory.DropDownItems.AddRange(_host.CreateNavBtnMenuItems(false).ToArray());
-                            _host.tsmiHistory.DropDownItems.AddRange(_host.CreateBranchMenu(false, _host.components, _host.tsmiBranchRoot_DropDownItemClicked).ToArray());
-                            _host.tsmiHistory.Enabled = true;
-                        }
-                        else {
-                            _host.tsmiHistory.Enabled = false;
-                        }
-                        _host.tsmiHistory.DropDown.ResumeLayout();
-                        _host.contextMenuTab.Items.Remove(_host.menuTextBoxTabAlias);
-                        if(!Config.Tabs.RenameAmbTabs) {
-                            _host.contextMenuTab.Items.Insert(12, _host.menuTextBoxTabAlias);
-                            if(_host.ContextMenuedTab.Comment.Length > 0) {
-                                _host.menuTextBoxTabAlias.Text = _host.ContextMenuedTab.Comment;
-                                _host.menuTextBoxTabAlias.ForeColor = SystemColors.WindowText;
-                            }
-                            else {
-                                _host.menuTextBoxTabAlias.Text = ResourceCache.ResMain[0x1b];
-                                _host.menuTextBoxTabAlias.ForeColor = SystemColors.GrayText;
-                            }
-                            _host.menuTextBoxTabAlias.Enabled = !_host.tabControl1.AutoSubText;
-                        }
-                        if(_host.tsmiTabOrder.DropDownItems.Count == 0) {
-                            ((ToolStripDropDownMenu)_host.tsmiTabOrder.DropDown).ShowImageMargin = false;
-                            ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x1d]);
-                            ToolStripMenuItem item3 = new ToolStripMenuItem(ResourceCache.ResMain[30]);
-                            ToolStripMenuItem item4 = new ToolStripMenuItem(ResourceCache.ResMain[0x1f]);
-                            ToolStripSeparator separator = new ToolStripSeparator();
-                            ToolStripMenuItem item5 = new ToolStripMenuItem(ResourceCache.ResMain[0x22]);
-                            item2.Name = "Name";
-                            item3.Name = "Drive";
-                            item4.Name = "Active";
-                            separator.Enabled = false;
-                            item5.Name = "Rev";
-                            _host.tsmiTabOrder.DropDownItems.Add(item2);
-                            _host.tsmiTabOrder.DropDownItems.Add(item3);
-                            _host.tsmiTabOrder.DropDownItems.Add(item4);
-                            _host.tsmiTabOrder.DropDownItems.Add(separator);
-                            _host.tsmiTabOrder.DropDownItems.Add(item5);
-                            _host.tsmiTabOrder.DropDownItemClicked += _host.menuitemTabOrder_DropDownItemClicked;
-                        }
-                        if((_host.lstPluginMenuItems_Tab != null) && (_host.lstPluginMenuItems_Tab.Count > 0)) {
-                            foreach(ToolStripItem item6 in _host.lstPluginMenuItems_Tab) {
-                                item6.Dispose();
-                            }
-                            _host.lstPluginMenuItems_Tab = null;
-                        }
-                        if((_host.pluginServer != null) && (_host.pluginServer.dicFullNamesMenuRegistered_Tab.Count > 0)) {
-                            _host.lstPluginMenuItems_Tab = new List<ToolStripItem>();
-                            int num2 = _host.contextMenuTab.Items.IndexOf(_host.tsmiProp);
-                            ToolStripSeparator separator2 = new ToolStripSeparator();
-                            _host.contextMenuTab.Items.Insert(num2, separator2);
-                            foreach(string str3 in _host.pluginServer.dicFullNamesMenuRegistered_Tab.Keys) {
-                                ToolStripMenuItem item7 = new ToolStripMenuItem(_host.pluginServer.dicFullNamesMenuRegistered_Tab[str3]);
-                                item7.Name = str3;
-                                item7.Tag = MenuType.Tab;
-                                item7.Click += _host._pluginMenuController.PluginItemsClick;
-                                _host.contextMenuTab.Items.Insert(num2, item7);
-                                _host.lstPluginMenuItems_Tab.Add(item7);
-                            }
-                            _host.lstPluginMenuItems_Tab.Add(separator2);
-                        }
-                        _host.contextMenuTab.ResumeLayout();
-                    }
-                }
-                catch (Exception ex) { QTLogger.MakeErrorLog(ex); }
-            }
-
-            // 创建标签分组
-            public void CreateGroup(QTabItem contextMenuedTab) {
-                _host.NowModalDialogShown = true;
-                using(CreateNewGroupForm form = new CreateNewGroupForm(contextMenuedTab.CurrentPath, _host.tabControl1.TabPages)) {
-                    // Application.EnableVisualStyles();
-                    //  Application.SetCompatibleTextRenderingDefault(false);
-                    // Application.Run(form);
-                   form.TopMost = true;
-                   form.ShowDialog();
-                }
-                _host.NowModalDialogShown = false;
-            }
-
-            public void InitializeTabMenu(bool fText) {
-                try {
-                    bool flag = false;
-                    if(_host.tsmiClose == null) {
-                        flag = true;
-                        _host.tsmiClose = new ToolStripMenuItem(ResourceCache.ResMain[0]);
-                        _host.tsmiCloseRight = new ToolStripMenuItem(ResourceCache.ResMain[1]);
-                        _host.tsmiCloseLeft = new ToolStripMenuItem(ResourceCache.ResMain[2]);
-                        _host.tsmiCloseAllButThis = new ToolStripMenuItem(ResourceCache.ResMain[3]);
-                        _host.tsmiAddToGroup = new ToolStripMenuItem(ResourceCache.ResMain[4]);
-                        _host.tsmiCreateGroup = new ToolStripMenuItem(ResourceCache.ResMain[5] + "...");
-                        _host.tsmiLockThis = new ToolStripMenuItem(ResourceCache.ResMain[6]);
-                        _host.tsmiCloneThis = new ToolStripMenuItem(ResourceCache.ResMain[7]);
-                        _host.tsmiCreateWindow = new ToolStripMenuItem(ResourceCache.ResMain[8]);
-                        _host.tsmiCopy = new ToolStripMenuItem(ResourceCache.ResMain[9]);
-                        _host.tsmiProp = new ToolStripMenuItem(ResourceCache.ResMain[10]);
-                        _host.tsmiHistory = new ToolStripMenuItem(ResourceCache.ResMain[11]);
-                        _host.tsmiTabOrder = new ToolStripMenuItem(ResourceCache.ResMain[0x1c]);
-
-                        int len = ResourceCache.ResMain.Length;
-                        _host.tsmiOpenCmd = new ToolStripMenuItem(ResourceCache.ResMain[len - 1]);
-                        _host.enableApiHook = new ToolStripMenuItem("Enable Image Hook");
-
-                        _host.menuTextBoxTabAlias = new ToolStripTextBox();
-                        _host.tssep_Tab1 = new ToolStripSeparator();
-                        _host.tssep_Tab2 = new ToolStripSeparator();
-                        _host.tssep_Tab3 = new ToolStripSeparator();
-                        _host.contextMenuTab.SuspendLayout();
-                        _host.contextMenuTab.Items[0].Dispose();
-                        _host.contextMenuTab.Items.AddRange(new ToolStripItem[] {
-                            _host.tsmiClose, _host.tsmiCloseRight, _host.tsmiCloseLeft, _host.tsmiCloseAllButThis,
-                            _host.tssep_Tab1, _host.tsmiAddToGroup, _host.tsmiCreateGroup, _host.tssep_Tab2, _host.tsmiLockThis,
-                            _host.tsmiCloneThis, _host.tsmiCreateWindow, _host.tsmiCopy, _host.tsmiTabOrder, _host.tssep_Tab3, _host.tsmiProp,
-                            _host.tsmiHistory,
-                            _host.tsmiOpenCmd,
-                        });
-
-                        _host.tsmiAddToGroup.DragDrop += (sender, e) => {
-                            _host.NowTabDragging = true;
-                            var dataObject = e.Data;
-                            QTLogger.log("e.Data: " + dataObject);
-                            _host.NowTabDragging = false;
-                        };
-
-                        _host.tsmiAddToGroup.DropDownItemClicked += MenuitemAddToGroup_DropDownItemClicked;
-                        (_host.tsmiAddToGroup.DropDown).ImageList = ResourceCache.ImageListGlobal;
-                        _host.tsmiHistory.DropDown = new DropDownMenuBase(_host.components, true, true, true);
-                        _host.tsmiHistory.DropDownItemClicked += MenuitemHistory_DropDownItemClicked;
-                        (_host.tsmiHistory.DropDown).ImageList = ResourceCache.ImageListGlobal;
-                        _host.menuTextBoxTabAlias.Text = _host.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
-                        _host.menuTextBoxTabAlias.GotFocus += _host.menuTextBoxTabAlias_GotFocus;
-                        _host.menuTextBoxTabAlias.LostFocus += _host.menuTextBoxTabAlias_LostFocus;
-                        _host.menuTextBoxTabAlias.KeyPress += _host.menuTextBoxTabAlias_KeyPress;
-                        _host.tsmiTabOrder.DropDown = new ContextMenuStripEx(_host.components, false);
-                        _host.tssep_Tab1.Enabled = false;
-                        _host.tssep_Tab2.Enabled = false;
-                        _host.tssep_Tab3.Enabled = false;
-                        _host.contextMenuTab.ResumeLayout(false);
-                    }
-                    if(!flag && fText) {
-                        _host.tsmiClose.Text = ResourceCache.ResMain[0];
-                        _host.tsmiCloseRight.Text = ResourceCache.ResMain[1];
-                        _host.tsmiCloseLeft.Text = ResourceCache.ResMain[2];
-                        _host.tsmiCloseAllButThis.Text = ResourceCache.ResMain[3];
-                        _host.tsmiAddToGroup.Text = ResourceCache.ResMain[4];
-                        _host.tsmiCreateGroup.Text = ResourceCache.ResMain[5] + "...";
-                        _host.tsmiLockThis.Text = ResourceCache.ResMain[6];
-                        _host.tsmiCloneThis.Text = ResourceCache.ResMain[7];
-                        _host.tsmiCreateWindow.Text = ResourceCache.ResMain[8];
-                        _host.tsmiCopy.Text = ResourceCache.ResMain[9];
-                        _host.tsmiProp.Text = ResourceCache.ResMain[10];
-                        _host.tsmiHistory.Text = ResourceCache.ResMain[11];
-                        _host.tsmiTabOrder.Text = ResourceCache.ResMain[0x1c];
-                        _host.menuTextBoxTabAlias.Text = _host.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
-                    }
-                }
-                catch(Exception e) {
-                    QTLogger.MakeErrorLog(e);
-                }
-            }
-
-        }
 
         // --- From QTTabBarClass.MenuControllerHost.cs ---
 private MenuOperations _menuOperations;
@@ -1405,7 +773,7 @@ void IShellUiHost.RefreshOptions() {
             ShellBrowser.SetUsingListView(Config.Tweaks.ForceSysListView);
             tabControl1.ResumeLayout();
             ResumeLayout(true);
-            TryCallButtonBar(bbar => { return bbar.CreateItems(); });
+            TryCallButtonBar(CreateItemsOnButtonBar);
             AbstractListView lv = GetListView();
             if(lv != null) lv.RefreshViewWatermark(true);
         }
@@ -1472,12 +840,842 @@ private SubDirTipOperations _subDirTipOperations;
         QTabItem ISubDirTipOperationsHost.CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index) { return CloneTabButton(tab, optionURL, fSelect, index); }
         int ISubDirTipOperationsHost.TabIndexForNewTab() { return TabIndexForNewTab(); }
 
-        // --- From QTTabBarClass.TabManager.cs ---
-/// <summary>
-        /// Tab management controller (Task 27 / Batch 12 extracted from QTTabBarClass).
-        /// As a nested internal class, accesses outer/base members through _host.
-        /// Structure-only move: behavior must stay identical.
+
+        // --- From QTTabBarClass.TabOperationsHost.cs ---
+private TabOperations _tabOperations;
+        private TabOperations TabOperationHandler => _tabOperations ?? (_tabOperations = new TabOperations((ITabOperationsOwnerHost)this));
+
+        // --- ITabOperationsHost (external API) ---
+        void ITabOperationsHost.AddStartUpTabs(string group, string path) => TabOperationHandler.AddStartUpTabs(group, path);
+        void ITabOperationsHost.ChooseNewDirectory() => TabOperationHandler.ChooseNewDirectory();
+        void ITabOperationsHost.OpenNewTabOrWindow(IDLWrapper target, bool pulse) => TabOperationHandler.OpenNewTabOrWindow(target, pulse);
+        void ITabOperationsHost.OpenNewWindow(IDLWrapper target) => TabOperationHandler.OpenNewWindow(target);
+        void ITabOperationsHost.OpenGroup(string group, bool force, bool disable) => TabOperationHandler.OpenGroup(group, force, disable);
+        void ITabOperationsHost.OpenDroppedFolder(IList<string> paths) => TabOperationHandler.OpenDroppedFolder(paths);
+        void ITabOperationsHost.CloneCurrentTab(bool select) => TabOperationHandler.CloneCurrentTab(select);
+        void ITabOperationsHost.CloneTabButton(QTabItem tab, LogData log) => TabOperationHandler.CloneTabButton(tab, log);
+        QTabItem ITabOperationsHost.CloneTabButton(QTabItem tab, string url, bool select, int index) => TabOperationHandler.CloneTabButton(tab, url, select, index);
+        void ITabOperationsHost.CloseLeftRight(bool left, int index) => TabOperationHandler.CloseLeftRight(left, index);
+        void ITabOperationsHost.ReplaceByGroup(string group) => TabOperationHandler.ReplaceByGroup(group);
+
+        // --- ITabOperationsOwnerHost (internal back-reference host) ---
+        QTabControl ITabOperationsOwnerHost.tabControl1 { get { return tabControl1; } }
+        bool ITabOperationsOwnerHost.fIsFirstLoad { get { return fIsFirstLoad; } }
+        bool ITabOperationsOwnerHost.NowTopMost { get { return NowTopMost; } }
+        string ITabOperationsOwnerHost.CurrentAddress { get { return CurrentAddress; } }
+        IntPtr ITabOperationsOwnerHost.ExplorerHandle { get { return ExplorerHandle; } }
+        ShellBrowserEx ITabOperationsOwnerHost.ShellBrowser { get { return ShellBrowser; } }
+        FolderTreeController ITabOperationsOwnerHost._folderTreeController { get { return _folderTreeController; } }
+        QTabItem ITabOperationsOwnerHost.CurrentTab { get { return CurrentTab; } }
+        bool ITabOperationsOwnerHost.NowModalDialogShown { get { return NowModalDialogShown; } set { NowModalDialogShown = value; } }
+        bool ITabOperationsOwnerHost.NowTabsAddingRemoving { get { return NowTabsAddingRemoving; } set { NowTabsAddingRemoving = value; } }
+        bool ITabOperationsOwnerHost.NowOpenedByGroupOpener { get { return NowOpenedByGroupOpener; } set { NowOpenedByGroupOpener = value; } }
+        bool ITabOperationsOwnerHost.fNeedsNewWindowPulse { get { return fNeedsNewWindowPulse; } set { fNeedsNewWindowPulse = value; } }
+        bool ITabOperationsOwnerHost.NowTabCreated { get { return NowTabCreated; } set { NowTabCreated = value; } }
+        bool ITabOperationsOwnerHost.NowTabCloned { get { return NowTabCloned; } set { NowTabCloned = value; } }
+        void ITabOperationsOwnerHost.ToggleTopMost() { ToggleTopMost(); }
+        void ITabOperationsOwnerHost.ShowFolderTree(bool fShow) { ShowFolderTree(fShow); }
+        void ITabOperationsOwnerHost.AppendUserApps(IList<string> listDroppedPaths) { AppendUserApps(listDroppedPaths); }
+        QTabItem ITabOperationsOwnerHost.CloneTabButtonCore(QTabItem tab, string optionURL, bool fSelect, int index) { return CloneTabButtonCore(tab, optionURL, fSelect, index); }
+        void ITabOperationsOwnerHost.CloseLeftRight(bool fLeft, int index) { CloseLeftRight(fLeft, index); }
+        void ITabOperationsOwnerHost.RestoreTabsOnInitialize(int iIndex, string openingPath) { RestoreTabsOnInitialize(iIndex, openingPath); }
+        void ITabOperationsOwnerHost.OpenNewTab(string path) { OpenNewTab(path); }
+        void ITabOperationsOwnerHost.OpenNewTab(IDLWrapper idlw, bool blockSelecting) { OpenNewTab(idlw, blockSelecting); }
+        QTabItem ITabOperationsOwnerHost.CreateNewTab(IDLWrapper idlw) { return CreateNewTab(idlw); }
+        void ITabOperationsOwnerHost.AddInsertTab(QTabItem tab) { AddInsertTab(tab); }
+
+
+        // --- From QTTabBarClass.ViewModeHost.cs ---
+ShellBrowserEx IViewModeHost.ShellBrowser {
+            get { return ShellBrowser; }
+        }
+
+        // --- From QTTabBarClass.WindowManagementHost.cs ---
+QTabControl IWindowMergeTargetHost.tabControl1 => tabControl1;
+        IntPtr IWindowMergeTargetHost.ExplorerHandle => ExplorerHandle;
+
+        void IWindowManagementHost.BroadcastMerge(Action<IWindowMergeTarget> merge) {
+            InstanceManager.PushTabBarInstance(this);
+            _pendingMergeAction = merge;
+            TabInstanceRegistry.LocalTabBroadcast(BroadcastMergeToTabBar, System.Threading.Thread.CurrentThread);
+        }
+
+        void IWindowManagementHost.MinimizeToTray() {
+            InstanceManager.AddToTrayIcon(Handle, ExplorerHandle, CurrentAddress,
+                tabControl1.TabPages.Select(GetTabText).ToArray(),
+                tabControl1.TabPages.Select(GetTabPath).ToArray());
+        }
+
+        void IWindowManagementHost.RestoreWindow() {
+            bool iconic = PInvoke.IsIconic(ExplorerHandle);
+            InstanceManager.RemoveFromTrayIcon(Handle);
+            WindowUtils.BringExplorerToFront(ExplorerHandle);
+            if(iconic) {
+                foreach(QTabItem item in tabControl1.TabPages) item.RefreshRectangle();
+                tabControl1.Refresh();
+            }
+        }
+
+
+        private void createNewFile() => _shellCommandController.CreateNewFile();
+
+        private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
+
+        private void Wait4Select() => _shellCommandController.Wait4Select();
+
+        private void ListView_ItemCountChanged(int count) => _listViewInputController.OnItemCountChanged(count);
+
+        private bool ListView_SelectionActivated(Keys modKeys) => _listViewInputController.OnSelectionActivated(modKeys);
+
+        private void ListView_SelectionChanged() => _listViewInputController.OnSelectionChanged();
+
+        private bool ListView_MiddleClick(Point pt) => _listViewInputController.OnMiddleClick(pt);
+
+        private bool ListView_MouseActivate(ref int result) => _listViewInputController.OnMouseActivate(ref result);
+
+        private bool ListView_DoubleClick(Point pt) => _listViewInputController.OnDoubleClick(pt);
+
+        private void ListView_EndLabelEdit(LVITEM item) => _listViewInputController.OnEndLabelEdit(item);
+
+        private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
+
+        internal static bool CheckProcessID(IntPtr hwnd1, IntPtr hwnd2) {
+            uint num;
+            uint num2;
+            PInvoke.GetWindowThreadProcessId(hwnd1, out num);
+            PInvoke.GetWindowThreadProcessId(hwnd2, out num2);
+            return ((num == num2) && (num != 0));
+        }
+
+        private static Cursor CreateCursor(Bitmap bmpColor) {
+            Cursor cursor;
+            using(bmpColor) {
+                using(Bitmap bitmap = new Bitmap(0x20, 0x20)) {
+                    ICONINFO piconinfo = new ICONINFO();
+                    piconinfo.fIcon = false;
+                    piconinfo.hbmColor = bmpColor.GetHbitmap();
+                    piconinfo.hbmMask = bitmap.GetHbitmap();
+                    try {
+                        cursor = new Cursor(PInvoke.CreateIconIndirect(ref piconinfo));
+                    }
+                    catch {
+                        cursor = Cursors.Default;
+                    }
+                }
+            }
+            return cursor;
+        }
+
+        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
+            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
+        }
+
+        private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState) {
+            return _dragDropController.DragFileEnter(hDrop, pnt, grfKeyState);
+        }
+
+        private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
+            _dragDropController.DragFileLeave(sender, e);
+        }
+
+        private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
+            _dragDropController.DragFileOver(sender, e);
+        }
+
+
+        // Explorer_NavigateComplete2 lives in ExplorerControllerModule; façade removed (dead code)
+
+        // ��Ϣ����
+        private Cursor GetCursor(bool fDragging) {
+            return GetTabDragCursor(fDragging);
+        }
+        /**
+         * new �Ƿ��������أ�
+         */
+
+
+        private IntPtr GetSearchBand_Edit() {
+            IntPtr hwndSearchBand = WindowUtils.FindChildWindow(ExplorerHandle, IsUniversalSearchBand);
+            if(hwndSearchBand != IntPtr.Zero) {
+                hwndSearchBand = WindowUtils.FindChildWindow(hwndSearchBand, IsSearchEdit);
+            }
+            return hwndSearchBand;
+        }
+
+        private void HandleFileDrop(IntPtr hDrop) {
+            _dragDropController.HandleFileDrop(hDrop);
+        }
+
+        // I don't like this.  It seems wrong to have this here instead of in the button bar class.
+        internal void ProcessButtonBarClick(int buttonID) => _buttonBarClickController.ProcessButtonBarClick(buttonID);
+
+        /// <summary>
+        /// ˢ����������
         /// </summary>
+        internal void RefreshOptions() => _shellUiController.RefreshOptions();
+
+        internal static void SyncTaskBarMenu() {
+        }
+
+        /**
+         * bug ��ֻ��һ����ǩ��ʱ�򣬵����ǩ�հ״�ʶ��Ϊ��ǩ
+         */
+        // ����ڱ�ǩ�ϲ���
+
+        // ���ô����ö�����
+        private void ToggleTopMost() => _shellUiController.ToggleTopMost();
+        private void UpOneLevel() => _shellNavigationController.UpOneLevel();
+
+        // --- Named methods to eliminate compiler-generated closures (Task 13) ---
+        private Action<IWindowMergeTarget> _pendingMergeAction;
+        private void BroadcastMergeToTabBar(QTTabBarClass tabbar) {
+            _pendingMergeAction(new WindowMergeTarget(tabbar));
+        }
+        private static string GetTabText(QTabItem t) { return t.Text; }
+        private static string GetTabPath(QTabItem t) { return t.CurrentPath; }
+        private static bool IsUniversalSearchBand(IntPtr hwnd) { return PInvoke.GetClassName(hwnd) == "UniversalSearchBand"; }
+        private static bool IsSearchEdit(IntPtr hwnd) { return PInvoke.GetClassName(hwnd) == "Edit" && ((int)PInvoke.GetWindowLongPtr(hwnd, -16) & 0x10000000) != 0; }
+
+    }
+
+    // --- Extracted from QTTabBarClass (Task 13 nested type extraction) ---
+
+internal partial class MenuOperations {
+            private readonly IMenuOperationsHost _host;
+
+            public MenuOperations(IMenuOperationsHost host) {
+                _host = host;
+            }
+        }
+
+
+internal partial class MenuOperations {
+            public List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
+                QTabItem item = fCurrent ? _host.CurrentTab : _host.ContextMenuedTab;
+                List<ToolStripItem> list = new List<ToolStripItem>();
+                List<LogData> branches = item.Branches;
+                if(branches.Count > 0) {
+                    ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x18]);
+                    item2.Tag = item;
+                    item2.DropDown = new DropDownMenuBase(container, true, true);
+                    item2.DropDown.ImageList = ResourceCache.ImageListGlobal;
+                    item2.DropDownItemClicked += itemClickedEvent;
+                    int index = -1;
+                    foreach(LogData data in branches) {
+                        index++;
+                        if(_host.IsSpecialFolderNeedsToTravel(data.Path)) {
+                            if(_host.LogEntryDic.ContainsKey(data.Hash)) {
+                                goto Label_00B3;
+                            }
+                            continue;
+                        }
+                        if(!QTUtility2.PathExists(data.Path)) {
+                            continue;
+                        }
+                    Label_00B3:
+                        item2.DropDownItems.Add(MenuUtility.CreateMenuItem(new MenuItemArguments(data.Path, false, index, MenuGenre.Branch)));
+                    }
+                    if(item2.DropDownItems.Count > 0) {
+                        list.Add(new ToolStripSeparator());
+                        list.Add(item2);
+                    }
+                }
+                return list;
+            }
+
+            public List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
+                QTabItem item = fCurrent ? _host.CurrentTab : _host.ContextMenuedTab;
+                List<QMenuItem> list = new List<QMenuItem>();
+                string[] historyBack = item.GetHistoryBack();
+                string[] historyForward = item.GetHistoryForward();
+                if((historyBack.Length + historyForward.Length) > 1) {
+                    for(int i = historyBack.Length - 1; i >= 0; i--) {
+                        QMenuItem item2 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyBack[i], true, i, MenuGenre.Navigation));
+                        if(_host.IsSpecialFolderNeedsToTravel(historyBack[i])) {
+                            item2.Enabled = _host.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
+                        }
+                        else if(!QTUtility2.PathExists(historyBack[i])) {
+                            item2.Enabled = false;
+                        }
+                        if(item2.Enabled && (i == 0)) {
+                            item2.BackColor = QTUtility2.MakeModColor(SystemColors.Highlight);
+                        }
+                        list.Add(item2);
+                    }
+                    for(int j = 0; j < historyForward.Length; j++) {
+                        QMenuItem item3 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyForward[j], false, j, MenuGenre.Navigation));
+                        if(_host.IsSpecialFolderNeedsToTravel(historyForward[j])) {
+                            item3.Enabled = _host.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
+                        }
+                        else if(!QTUtility2.PathExists(historyForward[j])) {
+                            item3.Enabled = false;
+                        }
+                        list.Add(item3);
+                    }
+                }
+                return list;
+            }
+
+            public void MenuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                string groupName = e.ClickedItem.Text;
+                string currentPath = _host.ContextMenuedTab.CurrentPath;
+                bool addSame = Control.ModifierKeys == Keys.Control;
+                Group g = GroupsManager.GetGroup(groupName);
+                if(g == null) return;
+                if(addSame || !g.Paths.Any(p => p.PathEquals(currentPath))) {
+                    g.Paths.Add(currentPath);
+                    GroupsManager.SaveGroups();
+                }
+            }
+
+            public void MenuitemExecuted_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                try {
+                    string toolTipText = e.ClickedItem.ToolTipText;
+                    ProcessStartInfo startInfo = new ProcessStartInfo(toolTipText);
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(toolTipText);
+                    startInfo.ErrorDialog = true;
+                    startInfo.ErrorDialogParentHandle = _host.ExplorerHandle;
+                    Process.Start(startInfo);
+                    StaticReg.ExecutedPathsList.Add(toolTipText);
+                }
+                catch {
+                    SoundFeedbackService.SoundPlay();
+                }
+            }
+
+            public void MenuitemExecuted_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
+                using(IDLWrapper wrapper = new IDLWrapper(e.ClickedItem.ToolTipText)) {
+                    e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                }
+                if(e.HRESULT == 0xffff) {
+                    StaticReg.ExecutedPathsList.Remove(e.ClickedItem.ToolTipText);
+                    e.ClickedItem.Dispose();
+                }
+            }
+
+            public void MenuitemGroups_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                Keys modifierKeys = Control.ModifierKeys;
+                string groupName = e.ClickedItem.Text;
+                if(modifierKeys == (Keys.Control | Keys.Shift)) {
+                    Group g = GroupsManager.GetGroup(groupName);
+                    g.Startup = !g.Startup;
+                    GroupsManager.SaveGroups();
+                }
+                else {
+                    _host.OpenGroup(groupName, modifierKeys == Keys.Control, false);
+                }
+            }
+
+            public void MenuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
+                GroupsManager.HandleReorder(_host.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
+                QTTabBarClass.SyncTaskBarMenu();
+            }
+
+            public void MenuitemHistory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                QMenuItem clickedItem = e.ClickedItem as QMenuItem;
+                if((_host.ContextMenuedTab != null) && (clickedItem != null)) {
+                    MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
+                    switch(Control.ModifierKeys) {
+                        case Keys.Shift:
+                            _host.CloneTabButton(_host.ContextMenuedTab, null, true, -1);
+                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            return;
+
+                        case Keys.Control: {
+                                using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
+                                    _host.OpenNewWindow(wrapper);
+                                    return;
+                                }
+                            }
+                        default:
+                            _host.tabControl1.SelectTab(_host.ContextMenuedTab);
+                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            return;
+                    }
+                }
+            }
+
+            public void DdmrUndoClose_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
+                QMenuItem clickedItem = e.ClickedItem as QMenuItem;
+                if(clickedItem != null) {
+                    using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
+                        e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                    }
+                    if(e.HRESULT == 0xffff) {
+                        StaticReg.ClosedTabHistoryList.Remove(clickedItem.Path);
+                        e.ClickedItem.Dispose();
+                    }
+                }
+            }
+
+            public void DdrmrGroups_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
+                _host.ReplaceByGroup(e.ClickedItem.Text);
+            }
+
+            public bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
+                QTLogger.log("QTTabBarClass FolderLinkClicked");
+                MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
+                BindAction action;
+                if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
+                    _host.DoBindAction(action, false, null, wrapper);
+                    return true;
+                }
+                QTLogger.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");
+                return false;
+            }
+        }
+
+
+internal partial class MenuOperations {
+            public void contextMenuSys_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                if(e.ClickedItem == _host.tsmiOption) {
+                    OptionsDialog.Open();
+                }
+                else if(e.ClickedItem == _host.tsmiCloseAllButCurrent) {
+                    if(_host.tabControl1.TabCount != 1) {
+                        _host.CloseAllTabsExcept(_host.CurrentTab);
+                    }
+                }
+                else if(e.ClickedItem == _host.tsmiBrowseFolder) {
+                    _host.ChooseNewDirectory();
+                }
+                else if(e.ClickedItem == _host.tsmiCloseWindow) {
+                    {
+                        LockedTabsService.PersistFromTabs(_host.tabControl1.TabPages);
+                    }
+                    WindowUtils.CloseExplorer(_host.ExplorerHandle, 1);
+                }
+                else {
+                    if(e.ClickedItem == _host.tsmiLastActiv) {
+                        try {
+                            _host.tabControl1.SelectTab(_host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2]);
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            QTLogger.MakeErrorLog(ex, "tabControl1.SelectTab");
+                            return;
+                        }
+                    }
+                    if(e.ClickedItem == _host.tsmiLockToolbar) {
+                        _host.rebarController.Locked = !_host.tsmiLockToolbar.Checked;
+                    }
+                    else if(e.ClickedItem == _host.tsmiMergeWindows) {
+                        _host.MergeAllWindows();
+                    }
+                }
+            }
+
+            // 右键（系统）菜单打开时触发
+            public void contextMenuSys_Opening(object sender, CancelEventArgs e) {
+                InitializeSysMenu(false);
+                // 延迟加载菜单内容
+                _host.contextMenuSys.SuspendLayout();
+                _host.tsmiGroups.DropDown.SuspendLayout();
+                _host.tsmiUndoClose.DropDown.SuspendLayout();
+
+                MenuUtility.CreateGroupItems(_host.tsmiGroups);
+                MenuUtility.CreateUndoClosedItems(_host.tsmiUndoClose);
+                if((_host.lstActivatedTabs.Count > 1) && _host.tabControl1.TabPages.Contains(_host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2])) {
+                    _host.tsmiLastActiv.ToolTipText = _host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2].CurrentPath;
+                    _host.tsmiLastActiv.Enabled = true;
+                }
+                else {
+                    _host.tsmiLastActiv.ToolTipText = string.Empty;
+                    _host.tsmiLastActiv.Enabled = false;
+                }
+                while(_host.tsmiExecuted.DropDownItems.Count > 0) {
+                    _host.tsmiExecuted.DropDownItems[0].Dispose();
+                }
+                List<ToolStripItem> list = MenuUtility.CreateRecentFilesItems();
+                if(list.Count > 0) {
+                    _host.tsmiExecuted.DropDown.SuspendLayout();
+                    _host.tsmiExecuted.DropDownItems.AddRange(list.ToArray());
+                    _host.tsmiExecuted.DropDown.ResumeLayout();
+                }
+                _host.tsmiExecuted.Enabled = _host.tsmiExecuted.DropDownItems.Count > 0;
+                _host.tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
+                _host.tsmiLockToolbar.Checked = _host.rebarController.Locked;
+                if((_host.lstPluginMenuItems_Sys != null) && (_host.lstPluginMenuItems_Sys.Count > 0)) {
+                    foreach(ToolStripItem item in _host.lstPluginMenuItems_Sys) {
+                        item.Dispose();
+                    }
+                    _host.lstPluginMenuItems_Sys = null;
+                }
+                if((_host.pluginServer != null) && (_host.pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
+                    _host.lstPluginMenuItems_Sys = new List<ToolStripItem>();
+                    int index = _host.contextMenuSys.Items.IndexOf(_host.tsmiOption);
+                    ToolStripSeparator separator = new ToolStripSeparator();
+                    _host.contextMenuSys.Items.Insert(index, separator);
+                    foreach(string str in _host.pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
+                        ToolStripMenuItem item2 = new ToolStripMenuItem(_host.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
+                        item2.Name = str;
+                        item2.Tag = MenuType.Bar;
+                        item2.Click += _host._pluginMenuController.PluginItemsClick;
+                        _host.contextMenuSys.Items.Insert(index, item2);
+                        _host.lstPluginMenuItems_Sys.Add(item2);
+                    }
+                    _host.lstPluginMenuItems_Sys.Add(separator);
+                }
+                _host.tsmiUndoClose.DropDown.ResumeLayout();
+                _host.tsmiGroups.DropDown.ResumeLayout();
+                _host.contextMenuSys.ResumeLayout();
+            }
+
+            public void InitializeSysMenu(bool fText) {
+                bool flag = false;
+                if(_host.tsmiGroups == null) {
+                    flag = true;
+                    _host.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
+                    _host.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
+                    _host.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
+                    _host.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
+                    _host.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
+                    _host.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
+                    _host.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
+                    _host.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
+                    _host.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
+                    _host.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
+                    _host.tssep_Sys1 = new ToolStripSeparator();
+                    _host.tssep_Sys2 = new ToolStripSeparator();
+                    if(_host.contextMenuSys != null) {
+                        _host.contextMenuSys.SuspendLayout();
+                        _host.contextMenuSys.Items[0].Dispose();
+                        _host.contextMenuSys.Items.AddRange(new ToolStripItem[]
+                        {
+                            _host.tsmiGroups, _host.tsmiUndoClose, _host.tsmiLastActiv, _host.tsmiExecuted,
+                            _host.tssep_Sys1, _host.tsmiBrowseFolder, _host.tsmiCloseAllButCurrent, _host.tsmiCloseWindow,
+                            _host.tsmiMergeWindows, _host.tsmiLockToolbar, _host.tssep_Sys2, _host.tsmiOption
+                        });
+                    }
+
+                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_host.components, true, false);
+                    reorderable.ReorderFinished += MenuitemGroups_ReorderFinished;
+                    reorderable.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
+                    reorderable.ItemMiddleClicked += DdrmrGroups_ItemMiddleClicked;
+                    reorderable.ImageList = ResourceCache.ImageListGlobal;
+                    _host.tsmiGroups.DropDown = reorderable;
+                    _host.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
+                    DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_host.components);
+                    reorderable2.ReorderEnabled = false;
+                    reorderable2.MessageParent = _host.Handle;
+                    reorderable2.ImageList = ResourceCache.ImageListGlobal;
+                    reorderable2.ItemRightClicked += DdmrUndoClose_ItemRightClicked;
+                    _host.tsmiUndoClose.DropDown = reorderable2;
+                    _host.tsmiUndoClose.DropDownItemClicked += _host.menuitemUndoClose_DropDownItemClicked;
+                    DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_host.components);
+                    reorderable3.MessageParent = _host.Handle;
+                    reorderable3.ItemRightClicked += MenuitemExecuted_ItemRightClicked;
+                    reorderable3.ItemClicked += MenuitemExecuted_DropDownItemClicked;
+                    reorderable3.ImageList = ResourceCache.ImageListGlobal;
+                    _host.tsmiExecuted.DropDown = reorderable3;
+                    _host.tssep_Sys1.Enabled = false;
+                    _host.tssep_Sys2.Enabled = false;
+                    if(_host.contextMenuSys != null) {
+                        _host.contextMenuSys.ResumeLayout(false);
+                    }
+                }
+                if(!flag && fText) {
+                    _host.tsmiGroups.Text = ResourceCache.ResMain[12];
+                    _host.tsmiUndoClose.Text = ResourceCache.ResMain[13];
+                    _host.tsmiLastActiv.Text = ResourceCache.ResMain[14];
+                    _host.tsmiExecuted.Text = ResourceCache.ResMain[15];
+                    _host.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
+                    _host.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
+                    _host.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
+                    _host.tsmiOption.Text = ResourceCache.ResMain[0x13];
+                    _host.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
+                    _host.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
+                }
+            }
+
+        }
+
+
+internal partial class MenuOperations {
+            public void contextMenuTab_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+                if(_host.ContextMenuedTab != null) {
+                    if(e.ClickedItem == _host.tsmiClose) {
+                        if(_host.tabControl1.TabCount == 1) {
+                            {
+                                LockedTabsService.PersistFromTabs(_host.tabControl1.TabPages);
+                            }
+                            WindowUtils.CloseExplorer(_host.ExplorerHandle, 1);
+                        }
+                        else {
+                            _host.CloseTab(_host.ContextMenuedTab);
+                        }
+                    }
+                    else if(e.ClickedItem == _host.tsmiCloseAllButThis) {
+                        _host.CloseAllTabsExcept(_host.ContextMenuedTab);
+                    }
+                    else if(e.ClickedItem == _host.tsmiCloseLeft) {
+                        int index = _host.tabControl1.TabPages.IndexOf(_host.ContextMenuedTab);
+                        if(index > 0) {
+                            _host.CloseLeftRight(true, index);
+                        }
+                    }
+                    else if(e.ClickedItem == _host.tsmiCloseRight) {
+                        int num2 = _host.tabControl1.TabPages.IndexOf(_host.ContextMenuedTab);
+                        if(num2 >= 0) {
+                            _host.CloseLeftRight(false, num2);
+                        }
+                    }
+                    else if(e.ClickedItem == _host.tsmiCreateGroup) {
+                        CreateGroup(_host.ContextMenuedTab);
+                    }
+                    else if(e.ClickedItem == _host.tsmiLockThis) {
+                        LockedTabsService.ToggleTab(
+                            _host.ContextMenuedTab,
+                            _host.tabControl1.TabPages.Cast<QTabItem>());
+                    }
+                    else if(e.ClickedItem == _host.tsmiCloneThis) {
+                        _host.CloneTabButton(_host.ContextMenuedTab, null, true, -1);
+                    }
+                    else if(e.ClickedItem == _host.tsmiCreateWindow) {
+                        using(IDLWrapper wrapper = new IDLWrapper(_host.ContextMenuedTab.CurrentIDL)) {
+                            _host.OpenNewWindow(wrapper);
+                        }
+                        if(/*!Config.KeepOnSeparate != */ ((Control.ModifierKeys & Keys.Shift) != Keys.None)) {
+                            _host.CloseTab(_host.ContextMenuedTab);
+                        }
+                    }
+                    else if(e.ClickedItem == _host.tsmiCopy) {
+                        string currentPath = _host.ContextMenuedTab.CurrentPath;
+                        if(currentPath.IndexOf("???") != -1) {
+                            currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
+                        }
+                        else if(currentPath.IndexOf("*?*?*") != -1) {
+                            currentPath = currentPath.Substring(0, currentPath.IndexOf("*?*?*"));
+                        }
+                        QTUtility2.SetStringClipboard(currentPath);
+                    }
+                    else if(e.ClickedItem == _host.tsmiProp) {
+                        ShellMethods.ShowProperties(_host.ContextMenuedTab.CurrentIDL);
+                    }
+                    else if (e.ClickedItem == _host.tsmiOpenCmd) { // add by qwop.
+                        _host.OpenCmd( null );
+                    } else if (e.ClickedItem == _host.enableApiHook)
+                    {
+                        _host.EnableApiHook();
+                    }
+                }
+            }
+
+            public void contextMenuTab_Opening(object sender, CancelEventArgs e) {
+                try {
+                    InitializeTabMenu(false);
+                    int index = _host.tabControl1.TabPages.IndexOf(_host.ContextMenuedTab);
+                    if((index == -1) || (_host.ContextMenuedTab == null)) {
+                        e.Cancel = true;
+                    }
+                    else {
+                        _host.tabControl1.SetContextMenuState(true);
+                        _host.contextMenuTab.SuspendLayout();
+                        if(_host.tabControl1.TabCount == 1) {
+                            _host.tsmiTabOrder.Enabled = _host.tsmiCloseAllButThis.Enabled = _host.tsmiCloseLeft.Enabled = _host.tsmiCloseRight.Enabled = false;
+                        }
+                        else {
+                            if(index == 0) {
+                                _host.tsmiCloseLeft.Enabled = false;
+                                _host.tsmiCloseRight.Enabled = true;
+                            }
+                            else if(index == (_host.tabControl1.TabCount - 1)) {
+                                _host.tsmiCloseLeft.Enabled = true;
+                                _host.tsmiCloseRight.Enabled = false;
+                            }
+                            else {
+                                _host.tsmiCloseLeft.Enabled = _host.tsmiCloseRight.Enabled = true;
+                            }
+                            _host.tsmiTabOrder.Enabled = _host.tsmiCloseAllButThis.Enabled = true;
+                        }
+                        _host.tsmiClose.Enabled = !_host.ContextMenuedTab.TabLocked;
+                        _host.tsmiLockThis.Text = _host.ContextMenuedTab.TabLocked ? ResourceCache.ResMain[20] : ResourceCache.ResMain[6];
+                        if(GroupsManager.GroupCount > 0) {
+                            _host.tsmiAddToGroup.DropDown.SuspendLayout();
+                            _host.tsmiAddToGroup.Enabled = true;
+                            while(_host.tsmiAddToGroup.DropDownItems.Count > 0) {
+                                _host.tsmiAddToGroup.DropDownItems[0].Dispose();
+                            }
+                            foreach(Group g in GroupsManager.Groups.Where(g => g.Paths.Count > 0)) {
+                                _host.tsmiAddToGroup.DropDownItems.Add(new ToolStripMenuItem(g.Name) {
+                                    ImageKey = IconManager.GetImageKey(g.Paths[0], null)
+                                });
+                            }
+                            _host.tsmiAddToGroup.DropDown.ResumeLayout();
+                        }
+                        else {
+                            _host.tsmiAddToGroup.Enabled = false;
+                        }
+                        _host.tsmiHistory.DropDown.SuspendLayout();
+                        while(_host.tsmiHistory.DropDownItems.Count > 0) {
+                            _host.tsmiHistory.DropDownItems[0].Dispose();
+                        }
+                        if((_host.ContextMenuedTab.HistoryCount_Back + _host.ContextMenuedTab.HistoryCount_Forward) > 1) {
+                            _host.tsmiHistory.DropDownItems.AddRange(_host.CreateNavBtnMenuItems(false).ToArray());
+                            _host.tsmiHistory.DropDownItems.AddRange(_host.CreateBranchMenu(false, _host.components, _host.tsmiBranchRoot_DropDownItemClicked).ToArray());
+                            _host.tsmiHistory.Enabled = true;
+                        }
+                        else {
+                            _host.tsmiHistory.Enabled = false;
+                        }
+                        _host.tsmiHistory.DropDown.ResumeLayout();
+                        _host.contextMenuTab.Items.Remove(_host.menuTextBoxTabAlias);
+                        if(!Config.Tabs.RenameAmbTabs) {
+                            _host.contextMenuTab.Items.Insert(12, _host.menuTextBoxTabAlias);
+                            if(_host.ContextMenuedTab.Comment.Length > 0) {
+                                _host.menuTextBoxTabAlias.Text = _host.ContextMenuedTab.Comment;
+                                _host.menuTextBoxTabAlias.ForeColor = SystemColors.WindowText;
+                            }
+                            else {
+                                _host.menuTextBoxTabAlias.Text = ResourceCache.ResMain[0x1b];
+                                _host.menuTextBoxTabAlias.ForeColor = SystemColors.GrayText;
+                            }
+                            _host.menuTextBoxTabAlias.Enabled = !_host.tabControl1.AutoSubText;
+                        }
+                        if(_host.tsmiTabOrder.DropDownItems.Count == 0) {
+                            ((ToolStripDropDownMenu)_host.tsmiTabOrder.DropDown).ShowImageMargin = false;
+                            ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x1d]);
+                            ToolStripMenuItem item3 = new ToolStripMenuItem(ResourceCache.ResMain[30]);
+                            ToolStripMenuItem item4 = new ToolStripMenuItem(ResourceCache.ResMain[0x1f]);
+                            ToolStripSeparator separator = new ToolStripSeparator();
+                            ToolStripMenuItem item5 = new ToolStripMenuItem(ResourceCache.ResMain[0x22]);
+                            item2.Name = "Name";
+                            item3.Name = "Drive";
+                            item4.Name = "Active";
+                            separator.Enabled = false;
+                            item5.Name = "Rev";
+                            _host.tsmiTabOrder.DropDownItems.Add(item2);
+                            _host.tsmiTabOrder.DropDownItems.Add(item3);
+                            _host.tsmiTabOrder.DropDownItems.Add(item4);
+                            _host.tsmiTabOrder.DropDownItems.Add(separator);
+                            _host.tsmiTabOrder.DropDownItems.Add(item5);
+                            _host.tsmiTabOrder.DropDownItemClicked += _host.menuitemTabOrder_DropDownItemClicked;
+                        }
+                        if((_host.lstPluginMenuItems_Tab != null) && (_host.lstPluginMenuItems_Tab.Count > 0)) {
+                            foreach(ToolStripItem item6 in _host.lstPluginMenuItems_Tab) {
+                                item6.Dispose();
+                            }
+                            _host.lstPluginMenuItems_Tab = null;
+                        }
+                        if((_host.pluginServer != null) && (_host.pluginServer.dicFullNamesMenuRegistered_Tab.Count > 0)) {
+                            _host.lstPluginMenuItems_Tab = new List<ToolStripItem>();
+                            int num2 = _host.contextMenuTab.Items.IndexOf(_host.tsmiProp);
+                            ToolStripSeparator separator2 = new ToolStripSeparator();
+                            _host.contextMenuTab.Items.Insert(num2, separator2);
+                            foreach(string str3 in _host.pluginServer.dicFullNamesMenuRegistered_Tab.Keys) {
+                                ToolStripMenuItem item7 = new ToolStripMenuItem(_host.pluginServer.dicFullNamesMenuRegistered_Tab[str3]);
+                                item7.Name = str3;
+                                item7.Tag = MenuType.Tab;
+                                item7.Click += _host._pluginMenuController.PluginItemsClick;
+                                _host.contextMenuTab.Items.Insert(num2, item7);
+                                _host.lstPluginMenuItems_Tab.Add(item7);
+                            }
+                            _host.lstPluginMenuItems_Tab.Add(separator2);
+                        }
+                        _host.contextMenuTab.ResumeLayout();
+                    }
+                }
+                catch (Exception ex) { QTLogger.MakeErrorLog(ex); }
+            }
+
+            // 创建标签分组
+            public void CreateGroup(QTabItem contextMenuedTab) {
+                _host.NowModalDialogShown = true;
+                using(CreateNewGroupForm form = new CreateNewGroupForm(contextMenuedTab.CurrentPath, _host.tabControl1.TabPages)) {
+                    // Application.EnableVisualStyles();
+                    //  Application.SetCompatibleTextRenderingDefault(false);
+                    // Application.Run(form);
+                   form.TopMost = true;
+                   form.ShowDialog();
+                }
+                _host.NowModalDialogShown = false;
+            }
+
+            public void InitializeTabMenu(bool fText) {
+                try {
+                    bool flag = false;
+                    if(_host.tsmiClose == null) {
+                        flag = true;
+                        _host.tsmiClose = new ToolStripMenuItem(ResourceCache.ResMain[0]);
+                        _host.tsmiCloseRight = new ToolStripMenuItem(ResourceCache.ResMain[1]);
+                        _host.tsmiCloseLeft = new ToolStripMenuItem(ResourceCache.ResMain[2]);
+                        _host.tsmiCloseAllButThis = new ToolStripMenuItem(ResourceCache.ResMain[3]);
+                        _host.tsmiAddToGroup = new ToolStripMenuItem(ResourceCache.ResMain[4]);
+                        _host.tsmiCreateGroup = new ToolStripMenuItem(ResourceCache.ResMain[5] + "...");
+                        _host.tsmiLockThis = new ToolStripMenuItem(ResourceCache.ResMain[6]);
+                        _host.tsmiCloneThis = new ToolStripMenuItem(ResourceCache.ResMain[7]);
+                        _host.tsmiCreateWindow = new ToolStripMenuItem(ResourceCache.ResMain[8]);
+                        _host.tsmiCopy = new ToolStripMenuItem(ResourceCache.ResMain[9]);
+                        _host.tsmiProp = new ToolStripMenuItem(ResourceCache.ResMain[10]);
+                        _host.tsmiHistory = new ToolStripMenuItem(ResourceCache.ResMain[11]);
+                        _host.tsmiTabOrder = new ToolStripMenuItem(ResourceCache.ResMain[0x1c]);
+
+                        int len = ResourceCache.ResMain.Length;
+                        _host.tsmiOpenCmd = new ToolStripMenuItem(ResourceCache.ResMain[len - 1]);
+                        _host.enableApiHook = new ToolStripMenuItem("Enable Image Hook");
+
+                        _host.menuTextBoxTabAlias = new ToolStripTextBox();
+                        _host.tssep_Tab1 = new ToolStripSeparator();
+                        _host.tssep_Tab2 = new ToolStripSeparator();
+                        _host.tssep_Tab3 = new ToolStripSeparator();
+                        _host.contextMenuTab.SuspendLayout();
+                        _host.contextMenuTab.Items[0].Dispose();
+                        _host.contextMenuTab.Items.AddRange(new ToolStripItem[] {
+                            _host.tsmiClose, _host.tsmiCloseRight, _host.tsmiCloseLeft, _host.tsmiCloseAllButThis,
+                            _host.tssep_Tab1, _host.tsmiAddToGroup, _host.tsmiCreateGroup, _host.tssep_Tab2, _host.tsmiLockThis,
+                            _host.tsmiCloneThis, _host.tsmiCreateWindow, _host.tsmiCopy, _host.tsmiTabOrder, _host.tssep_Tab3, _host.tsmiProp,
+                            _host.tsmiHistory,
+                            _host.tsmiOpenCmd,
+                        });
+
+                        _host.tsmiAddToGroup.DragDrop += (sender, e) => {
+                            _host.NowTabDragging = true;
+                            var dataObject = e.Data;
+                            QTLogger.log("e.Data: " + dataObject);
+                            _host.NowTabDragging = false;
+                        };
+
+                        _host.tsmiAddToGroup.DropDownItemClicked += MenuitemAddToGroup_DropDownItemClicked;
+                        (_host.tsmiAddToGroup.DropDown).ImageList = ResourceCache.ImageListGlobal;
+                        _host.tsmiHistory.DropDown = new DropDownMenuBase(_host.components, true, true, true);
+                        _host.tsmiHistory.DropDownItemClicked += MenuitemHistory_DropDownItemClicked;
+                        (_host.tsmiHistory.DropDown).ImageList = ResourceCache.ImageListGlobal;
+                        _host.menuTextBoxTabAlias.Text = _host.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
+                        _host.menuTextBoxTabAlias.GotFocus += _host.menuTextBoxTabAlias_GotFocus;
+                        _host.menuTextBoxTabAlias.LostFocus += _host.menuTextBoxTabAlias_LostFocus;
+                        _host.menuTextBoxTabAlias.KeyPress += _host.menuTextBoxTabAlias_KeyPress;
+                        _host.tsmiTabOrder.DropDown = new ContextMenuStripEx(_host.components, false);
+                        _host.tssep_Tab1.Enabled = false;
+                        _host.tssep_Tab2.Enabled = false;
+                        _host.tssep_Tab3.Enabled = false;
+                        _host.contextMenuTab.ResumeLayout(false);
+                    }
+                    if(!flag && fText) {
+                        _host.tsmiClose.Text = ResourceCache.ResMain[0];
+                        _host.tsmiCloseRight.Text = ResourceCache.ResMain[1];
+                        _host.tsmiCloseLeft.Text = ResourceCache.ResMain[2];
+                        _host.tsmiCloseAllButThis.Text = ResourceCache.ResMain[3];
+                        _host.tsmiAddToGroup.Text = ResourceCache.ResMain[4];
+                        _host.tsmiCreateGroup.Text = ResourceCache.ResMain[5] + "...";
+                        _host.tsmiLockThis.Text = ResourceCache.ResMain[6];
+                        _host.tsmiCloneThis.Text = ResourceCache.ResMain[7];
+                        _host.tsmiCreateWindow.Text = ResourceCache.ResMain[8];
+                        _host.tsmiCopy.Text = ResourceCache.ResMain[9];
+                        _host.tsmiProp.Text = ResourceCache.ResMain[10];
+                        _host.tsmiHistory.Text = ResourceCache.ResMain[11];
+                        _host.tsmiTabOrder.Text = ResourceCache.ResMain[0x1c];
+                        _host.menuTextBoxTabAlias.Text = _host.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
+                    }
+                }
+                catch(Exception e) {
+                    QTLogger.MakeErrorLog(e);
+                }
+            }
+
+        }
+
+
         internal class TabOperations {
             private readonly ITabOperationsOwnerHost _host;
 
@@ -1574,11 +1772,11 @@ private SubDirTipOperations _subDirTipOperations;
                     SBSP wFlags = SBSP.NEWBROWSER;
                     if(fSameAsCurrent) {
                         if(isFolderTreeVisible) {
-                            if(CheckProcessID(_host.ExplorerHandle, WindowUtils.GetShellTrayWnd()) || WindowUtils.IsExplorerProcessSeparated()) {
+                            if(QTTabBarClass.CheckProcessID(_host.ExplorerHandle, WindowUtils.GetShellTrayWnd()) || WindowUtils.IsExplorerProcessSeparated()) {
                                 PInvoke.SetRedraw(_host.ExplorerHandle, false);
                                 _host.ShowFolderTree(false);
                                 wFlags |= SBSP.EXPLOREMODE;
-                                new WaitTimeoutCallback(WaitTimeout).BeginInvoke(200, _host._folderTreeController.AsyncComplete_FolderTree, true);
+                                new WaitTimeoutCallback(QTTabBarClass.WaitTimeout).BeginInvoke(200, _host._folderTreeController.AsyncComplete_FolderTree, true);
                             }
                             else {
                                 QTUtility.fRestoreFolderTree = true;
@@ -1696,7 +1894,7 @@ private SubDirTipOperations _subDirTipOperations;
                     } finally {
                         _host.tabControl1.SetRedraw(true);
                     }
-                    TryCallButtonBar(bbar => bbar.RefreshButtons());
+                    QTTabBarClass.TryCallButtonBar(bbar => bbar.RefreshButtons());
                     if (flag5) QTabItem.CheckSubTexts(_host.tabControl1);
                     _host.NowTabsAddingRemoving = false;
                 }
@@ -1811,51 +2009,8 @@ private SubDirTipOperations _subDirTipOperations;
             }
         }
 
-        // --- From QTTabBarClass.TabOperationsHost.cs ---
-private TabOperations _tabOperations;
-        private TabOperations TabOperationHandler => _tabOperations ?? (_tabOperations = new TabOperations((ITabOperationsOwnerHost)this));
 
-        // --- ITabOperationsHost (external API) ---
-        void ITabOperationsHost.AddStartUpTabs(string group, string path) => TabOperationHandler.AddStartUpTabs(group, path);
-        void ITabOperationsHost.ChooseNewDirectory() => TabOperationHandler.ChooseNewDirectory();
-        void ITabOperationsHost.OpenNewTabOrWindow(IDLWrapper target, bool pulse) => TabOperationHandler.OpenNewTabOrWindow(target, pulse);
-        void ITabOperationsHost.OpenNewWindow(IDLWrapper target) => TabOperationHandler.OpenNewWindow(target);
-        void ITabOperationsHost.OpenGroup(string group, bool force, bool disable) => TabOperationHandler.OpenGroup(group, force, disable);
-        void ITabOperationsHost.OpenDroppedFolder(IList<string> paths) => TabOperationHandler.OpenDroppedFolder(paths);
-        void ITabOperationsHost.CloneCurrentTab(bool select) => TabOperationHandler.CloneCurrentTab(select);
-        void ITabOperationsHost.CloneTabButton(QTabItem tab, LogData log) => TabOperationHandler.CloneTabButton(tab, log);
-        QTabItem ITabOperationsHost.CloneTabButton(QTabItem tab, string url, bool select, int index) => TabOperationHandler.CloneTabButton(tab, url, select, index);
-        void ITabOperationsHost.CloseLeftRight(bool left, int index) => TabOperationHandler.CloseLeftRight(left, index);
-        void ITabOperationsHost.ReplaceByGroup(string group) => TabOperationHandler.ReplaceByGroup(group);
-
-        // --- ITabOperationsOwnerHost (internal back-reference host) ---
-        QTabControl ITabOperationsOwnerHost.tabControl1 { get { return tabControl1; } }
-        bool ITabOperationsOwnerHost.fIsFirstLoad { get { return fIsFirstLoad; } }
-        bool ITabOperationsOwnerHost.NowTopMost { get { return NowTopMost; } }
-        string ITabOperationsOwnerHost.CurrentAddress { get { return CurrentAddress; } }
-        IntPtr ITabOperationsOwnerHost.ExplorerHandle { get { return ExplorerHandle; } }
-        ShellBrowserEx ITabOperationsOwnerHost.ShellBrowser { get { return ShellBrowser; } }
-        FolderTreeController ITabOperationsOwnerHost._folderTreeController { get { return _folderTreeController; } }
-        QTabItem ITabOperationsOwnerHost.CurrentTab { get { return CurrentTab; } }
-        bool ITabOperationsOwnerHost.NowModalDialogShown { get { return NowModalDialogShown; } set { NowModalDialogShown = value; } }
-        bool ITabOperationsOwnerHost.NowTabsAddingRemoving { get { return NowTabsAddingRemoving; } set { NowTabsAddingRemoving = value; } }
-        bool ITabOperationsOwnerHost.NowOpenedByGroupOpener { get { return NowOpenedByGroupOpener; } set { NowOpenedByGroupOpener = value; } }
-        bool ITabOperationsOwnerHost.fNeedsNewWindowPulse { get { return fNeedsNewWindowPulse; } set { fNeedsNewWindowPulse = value; } }
-        bool ITabOperationsOwnerHost.NowTabCreated { get { return NowTabCreated; } set { NowTabCreated = value; } }
-        bool ITabOperationsOwnerHost.NowTabCloned { get { return NowTabCloned; } set { NowTabCloned = value; } }
-        void ITabOperationsOwnerHost.ToggleTopMost() { ToggleTopMost(); }
-        void ITabOperationsOwnerHost.ShowFolderTree(bool fShow) { ShowFolderTree(fShow); }
-        void ITabOperationsOwnerHost.AppendUserApps(IList<string> listDroppedPaths) { AppendUserApps(listDroppedPaths); }
-        QTabItem ITabOperationsOwnerHost.CloneTabButtonCore(QTabItem tab, string optionURL, bool fSelect, int index) { return CloneTabButtonCore(tab, optionURL, fSelect, index); }
-        void ITabOperationsOwnerHost.CloseLeftRight(bool fLeft, int index) { CloseLeftRight(fLeft, index); }
-        void ITabOperationsOwnerHost.RestoreTabsOnInitialize(int iIndex, string openingPath) { RestoreTabsOnInitialize(iIndex, openingPath); }
-        void ITabOperationsOwnerHost.OpenNewTab(string path) { OpenNewTab(path); }
-        void ITabOperationsOwnerHost.OpenNewTab(IDLWrapper idlw, bool blockSelecting) { OpenNewTab(idlw, blockSelecting); }
-        QTabItem ITabOperationsOwnerHost.CreateNewTab(IDLWrapper idlw) { return CreateNewTab(idlw); }
-        void ITabOperationsOwnerHost.AddInsertTab(QTabItem tab) { AddInsertTab(tab); }
-
-        // --- From QTTabBarClass.TabTooltipController.cs ---
-private class SubDirTipOperations {
+internal class SubDirTipOperations {
             private readonly ISubDirTipOperationsHost _host;
 
             public SubDirTipOperations(ISubDirTipOperationsHost host) {
@@ -1872,7 +2027,7 @@ private class SubDirTipOperations {
                         return;
                     }
                     string targetPath = clickedItem.TargetPath;
-                    Keys modifierKeys = ModifierKeys;
+                    Keys modifierKeys = Control.ModifierKeys;
                     bool flag = (_host.subDirTip_Tab != null) && (sender == _host.subDirTip_Tab);
                     if((modifierKeys & Keys.Control) == Keys.Control) {
                         using(IDLWrapper wrapper2 = new IDLWrapper(targetPath)) {
@@ -1939,14 +2094,14 @@ private class SubDirTipOperations {
                 QMenuItem clickedItem = e.ClickedItem as QMenuItem;
                 if(clickedItem != null) {
                     using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                        e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle, false);
+                        e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((SubDirTipForm)sender).Handle, false);
                     }
                 }
             }
 
             public void SubDirTip_MultipleMenuItemsClicked(object sender, EventArgs e) {
                 List<string> executedDirectories = ((SubDirTipForm)sender).ExecutedDirectories;
-                if((ModifierKeys & Keys.Control) == Keys.Control) {
+                if((Control.ModifierKeys & Keys.Control) == Keys.Control) {
                     QTUtility2.InitializeTemporaryPaths();
                     StaticReg.CreateWindowPaths.AddRange(executedDirectories);
                     using(IDLWrapper wrapper = new IDLWrapper(executedDirectories[0])) {
@@ -1968,157 +2123,20 @@ private class SubDirTipOperations {
                         return wrapper.IDL;
                     }
                 }).ToList();
-                e.HRESULT = _host.shellContextMenu.Open(executedIDLs, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle);
+                e.HRESULT = _host.shellContextMenu.Open(executedIDLs, e.IsKey ? e.Point : Control.MousePosition, ((SubDirTipForm)sender).Handle);
             }
         }
 
-        // --- From QTTabBarClass.ViewModeHost.cs ---
-ShellBrowserEx IViewModeHost.ShellBrowser {
-            get { return ShellBrowser; }
-        }
 
-        // --- From QTTabBarClass.WindowManagementHost.cs ---
-void IWindowManagementHost.BroadcastMerge(Action<IWindowMergeTarget> merge) {
-            InstanceManager.PushTabBarInstance(this);
-            TabInstanceRegistry.LocalTabBroadcast(tabbar => merge(new WindowMergeTarget(tabbar)), System.Threading.Thread.CurrentThread);
-        }
-
-        void IWindowManagementHost.MinimizeToTray() {
-            InstanceManager.AddToTrayIcon(Handle, ExplorerHandle, CurrentAddress,
-                tabControl1.TabPages.Select(t => t.Text).ToArray(),
-                tabControl1.TabPages.Select(t => t.CurrentPath).ToArray());
-        }
-
-        void IWindowManagementHost.RestoreWindow() {
-            bool iconic = PInvoke.IsIconic(ExplorerHandle);
-            InstanceManager.RemoveFromTrayIcon(Handle);
-            WindowUtils.BringExplorerToFront(ExplorerHandle);
-            if(iconic) {
-                foreach(QTabItem item in tabControl1.TabPages) item.RefreshRectangle();
-                tabControl1.Refresh();
-            }
-        }
-
-        private sealed class WindowMergeTarget : IWindowMergeTarget {
-            private readonly QTTabBarClass _tabBar;
-            public WindowMergeTarget(QTTabBarClass tabBar) { _tabBar = tabBar; }
+        internal sealed class WindowMergeTarget : IWindowMergeTarget {
+            private readonly IWindowMergeTargetHost _host;
+            public WindowMergeTarget(IWindowMergeTargetHost host) { _host = host; }
             public MergeTabPayload[] BuildMergePayloads() {
-                return _tabBar.tabControl1.TabPages.Select(tab => MergeTabPayload.FromTab(tab.Clone(true)))
+                return _host.tabControl1.TabPages.Select(tab => MergeTabPayload.FromTab(tab.Clone(true)))
                     .Where(payload => payload != null).ToArray();
             }
             public void BeginMerge(MergeTabPayload[] payloads) { InstanceManager.BeginInvokeMainMergeTabs(payloads); }
-            public void CloseAfterMerge() { WindowUtils.CloseExplorer(_tabBar.ExplorerHandle, 2, true); }
+            public void CloseAfterMerge() { WindowUtils.CloseExplorer(_host.ExplorerHandle, 2, true); }
         }
 
-        private void createNewFile() => _shellCommandController.CreateNewFile();
-
-        private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
-
-        private void Wait4Select() => _shellCommandController.Wait4Select();
-
-        private void ListView_ItemCountChanged(int count) => _listViewInputController.OnItemCountChanged(count);
-
-        private bool ListView_SelectionActivated(Keys modKeys) => _listViewInputController.OnSelectionActivated(modKeys);
-
-        private void ListView_SelectionChanged() => _listViewInputController.OnSelectionChanged();
-
-        private bool ListView_MiddleClick(Point pt) => _listViewInputController.OnMiddleClick(pt);
-
-        private bool ListView_MouseActivate(ref int result) => _listViewInputController.OnMouseActivate(ref result);
-
-        private bool ListView_DoubleClick(Point pt) => _listViewInputController.OnDoubleClick(pt);
-
-        private void ListView_EndLabelEdit(LVITEM item) => _listViewInputController.OnEndLabelEdit(item);
-
-        private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
-
-        private static bool CheckProcessID(IntPtr hwnd1, IntPtr hwnd2) {
-            uint num;
-            uint num2;
-            PInvoke.GetWindowThreadProcessId(hwnd1, out num);
-            PInvoke.GetWindowThreadProcessId(hwnd2, out num2);
-            return ((num == num2) && (num != 0));
-        }
-
-        private static Cursor CreateCursor(Bitmap bmpColor) {
-            Cursor cursor;
-            using(bmpColor) {
-                using(Bitmap bitmap = new Bitmap(0x20, 0x20)) {
-                    ICONINFO piconinfo = new ICONINFO();
-                    piconinfo.fIcon = false;
-                    piconinfo.hbmColor = bmpColor.GetHbitmap();
-                    piconinfo.hbmMask = bitmap.GetHbitmap();
-                    try {
-                        cursor = new Cursor(PInvoke.CreateIconIndirect(ref piconinfo));
-                    }
-                    catch {
-                        cursor = Cursors.Default;
-                    }
-                }
-            }
-            return cursor;
-        }
-
-        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
-            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
-        }
-
-        private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState) {
-            return _dragDropController.DragFileEnter(hDrop, pnt, grfKeyState);
-        }
-
-        private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
-            _dragDropController.DragFileLeave(sender, e);
-        }
-
-        private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
-            _dragDropController.DragFileOver(sender, e);
-        }
-
-
-        // Explorer_NavigateComplete2 lives in ExplorerControllerModule; façade removed (dead code)
-
-        // ��Ϣ����
-        private Cursor GetCursor(bool fDragging) {
-            return GetTabDragCursor(fDragging);
-        }
-        /**
-         * new �Ƿ��������أ�
-         */
-
-
-        private IntPtr GetSearchBand_Edit() {
-            IntPtr hwndSearchBand = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "UniversalSearchBand");
-            if(hwndSearchBand != IntPtr.Zero) {
-                hwndSearchBand = WindowUtils.FindChildWindow(hwndSearchBand, hwnd =>
-                        PInvoke.GetClassName(hwnd) == "Edit" && ((int)PInvoke.GetWindowLongPtr(hwnd, -16) & 0x10000000) != 0);
-            }
-            return hwndSearchBand;
-        }
-
-        private void HandleFileDrop(IntPtr hDrop) {
-            _dragDropController.HandleFileDrop(hDrop);
-        }
-
-        // I don't like this.  It seems wrong to have this here instead of in the button bar class.
-        internal void ProcessButtonBarClick(int buttonID) => _buttonBarClickController.ProcessButtonBarClick(buttonID);
-
-        /// <summary>
-        /// ˢ����������
-        /// </summary>
-        internal void RefreshOptions() => _shellUiController.RefreshOptions();
-
-        internal static void SyncTaskBarMenu() {
-        }
-
-        /**
-         * bug ��ֻ��һ����ǩ��ʱ�򣬵����ǩ�հ״�ʶ��Ϊ��ǩ
-         */
-        // ����ڱ�ǩ�ϲ���
-
-        // ���ô����ö�����
-        private void ToggleTopMost() => _shellUiController.ToggleTopMost();
-        private void UpOneLevel() => _shellNavigationController.UpOneLevel();
-
-    }
 }

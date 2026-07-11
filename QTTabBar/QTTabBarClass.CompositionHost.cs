@@ -1,4 +1,4 @@
-// Auto-merged by merge-partials.py (Batch 5)
+﻿// Auto-merged by merge-partials.py (Batch 5)
 
 using System.Collections.Generic;
 using System.Drawing;
@@ -117,30 +117,6 @@ void ITabBarCompositionHost.BuildTabBarComponents() {
             ResumeLayout(false);
         }
 
-        // --- From QTTabBarClass.ComRegistrationController.cs ---
-internal static class ComRegistrationController {
-            public static void Register(Type t) {
-                string name = t.GUID.ToString("B");
-                ComRegistrationManager.RegisterBand(name, "QTTabBar", "QTTabBar", "QTTabBar");
-                ComRegistrationManager.RegisterToolbar(name, "QTTabBar");
-            }
-
-            public static void Unregister(Type t) {
-                QTLogger.log("QTTabBarClass Unregister");
-                string name = t.GUID.ToString("B");
-                ComRegistrationManager.UnregisterAll(name);
-                try {
-                    using(RegistryKey key2 = Registry.ClassesRoot.OpenSubKey("CLSID", true)) {
-                        if(key2 != null) {
-                            key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}", false);
-                        }
-                    }
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex, "Unregister.CLSID2");
-                }
-            }
-        }
 
         // --- From QTTabBarClass.IpcNavigation.cs ---
 internal void IpcExecuteCaptureNewWindow(string path, int cmdType, string selectName) {
@@ -181,7 +157,7 @@ internal void IpcExecuteCaptureNewWindow(string path, int cmdType, string select
                     tab.ResetOwner(tabControl1);
                 }
                 QTabItem.CheckSubTexts(tabControl1);
-                TryCallButtonBar(bbar => bbar.RefreshButtons());
+                TryCallButtonBar(RefreshButtonsOnButtonBar);
             }
             finally {
                 tabControl1.SetRedraw(true);
@@ -344,5 +320,35 @@ QTabControl IShutdownResourceHost.TabControl => tabControl1;
         internal static void WaitTimeout(int msec) {
             Thread.Sleep(msec);
         }
+
+        // --- Named method to eliminate compiler-generated closure (Task 13) ---
+        private static bool RefreshButtonsOnButtonBar(QTButtonBar bbar) { return bbar.RefreshButtons(); }
     }
+
+    // --- Extracted from QTTabBarClass (Task 13 nested type extraction) ---
+
+internal static class ComRegistrationController {
+            public static void Register(Type t) {
+                string name = t.GUID.ToString("B");
+                ComRegistrationManager.RegisterBand(name, "QTTabBar", "QTTabBar", "QTTabBar");
+                ComRegistrationManager.RegisterToolbar(name, "QTTabBar");
+            }
+
+            public static void Unregister(Type t) {
+                QTLogger.log("QTTabBarClass Unregister");
+                string name = t.GUID.ToString("B");
+                ComRegistrationManager.UnregisterAll(name);
+                try {
+                    using(RegistryKey key2 = Registry.ClassesRoot.OpenSubKey("CLSID", true)) {
+                        if(key2 != null) {
+                            key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}", false);
+                        }
+                    }
+                }
+                catch(Exception ex) {
+                    QTLogger.MakeErrorLog(ex, "Unregister.CLSID2");
+                }
+            }
+        }
+
 }

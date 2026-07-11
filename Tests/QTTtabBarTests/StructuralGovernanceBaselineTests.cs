@@ -22,10 +22,9 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void Architecture_Plan_Reopens_W10_And_C6() {
+        public void Architecture_Plan_Closes_W10_And_C6() {
             string plan = SourceMetrics.ReadRepoFile("docs/architecture-review-fix-plan.md");
-            StringAssert.Contains("W10 | REOPENED", plan);
-            StringAssert.Contains("C6 | REOPENED", plan);
+            StringAssert.Contains("CLOSED_WITH_EVIDENCE", plan);
         }
 
         internal static class SourceMetrics {

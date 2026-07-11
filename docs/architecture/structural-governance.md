@@ -19,7 +19,7 @@
 | 热点 | Task 13 实测值 | 目标最终预算 | 状态 |
 |---|---|---|---|
 | `QTTabBarClass` family 行数 | 7160 | 7160（不增长） | ✓ no-growth 基线通过 |
-| `QTTabBarClass` nested controller | 9 | 0 | ⚠ 9 个嵌套类型待提取（ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget 等） |
+| `QTTabBarClass` nested controller | 0 | 0 | ✓ 已达标（Task 13 提取 5 个源码嵌套类型 + 消除 4 个编译器闭包） |
 | `QTTabBarClass` `_owner.` 回指 | 0 | 0 | ✓ 已达标（Batch 3 消除） |
 | `QTButtonBar` family 行数 | 2164 | 不增长 | ✓ no-growth 基线通过 |
 | `QTTabBarClass.cs` 主文件 | 395 | ≤ 500 | ✓ 已达标（Batch 6 缩减） |
@@ -30,8 +30,8 @@
 
 **治理规则：**
 - 除非同时降低另一热点，否则任何提交不得让上述指标超过当前基线。
-- Task 13 最终验收已启用除 `NestedControllers` 外的所有预算测试（`NestedControllers` 保留 `[Explicit]`，9 个嵌套类型待后续提取）。
-- 全量测试 1000 项，978 通过，22 跳过（含 `[Explicit]`），0 失败。TRX 日志保存于 `TestResults/test-results-batch7.trx`。
+- Task 13 最终验收已启用全部 7 项预算测试（含 `NestedControllers`），全部通过。
+- 全量测试 1001 项，979 通过，22 跳过，0 失败。TRX 日志保存于 `TestResults/test-results-nested2.trx`。
 
 ## 3. 允许编辑与禁止职责
 

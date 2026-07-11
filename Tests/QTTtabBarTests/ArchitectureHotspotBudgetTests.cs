@@ -27,7 +27,6 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Explicit("9 nested types remain: ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget + 4 others; extraction pending post-Task-13")]
         public void Final_Budget_QTTabBarClass_NestedControllers() {
             Assert.AreEqual(0, SourceMetrics.NestedControllerCount("QTTabBarClass"));
         }
