@@ -5,11 +5,11 @@ using System.Windows.Forms;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass : IMenuInteractionHost, IMenuLifecycleHost {
+    public partial class QTTabBarClass : IMenuInteractionHost, IMenuLifecycleHost, IMenuOperationsHost {
         private MenuOperations _menuOperations;
 
         private MenuOperations MenuOperationHandler {
-            get { return _menuOperations ?? (_menuOperations = new MenuOperations(this)); }
+            get { return _menuOperations ?? (_menuOperations = new MenuOperations((IMenuOperationsHost)this)); }
         }
 
         List<ToolStripItem> IMenuInteractionHost.CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) => MenuOperationHandler.CreateBranchMenu(fCurrent, container, itemClickedEvent);

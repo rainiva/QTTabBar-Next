@@ -52,7 +52,7 @@ namespace QTTabBarLib {
     public partial class QTTabBarClass {
         internal partial class MenuOperations {
             public List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
-                QTabItem item = fCurrent ? _owner.CurrentTab : _owner.ContextMenuedTab;
+                QTabItem item = fCurrent ? _host.CurrentTab : _host.ContextMenuedTab;
                 List<ToolStripItem> list = new List<ToolStripItem>();
                 List<LogData> branches = item.Branches;
                 if(branches.Count > 0) {
@@ -64,8 +64,8 @@ namespace QTTabBarLib {
                     int index = -1;
                     foreach(LogData data in branches) {
                         index++;
-                        if(_owner.IsSpecialFolderNeedsToTravel(data.Path)) {
-                            if(_owner.LogEntryDic.ContainsKey(data.Hash)) {
+                        if(_host.IsSpecialFolderNeedsToTravel(data.Path)) {
+                            if(_host.LogEntryDic.ContainsKey(data.Hash)) {
                                 goto Label_00B3;
                             }
                             continue;
@@ -85,15 +85,15 @@ namespace QTTabBarLib {
             }
 
             public List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
-                QTabItem item = fCurrent ? _owner.CurrentTab : _owner.ContextMenuedTab;
+                QTabItem item = fCurrent ? _host.CurrentTab : _host.ContextMenuedTab;
                 List<QMenuItem> list = new List<QMenuItem>();
                 string[] historyBack = item.GetHistoryBack();
                 string[] historyForward = item.GetHistoryForward();
                 if((historyBack.Length + historyForward.Length) > 1) {
                     for(int i = historyBack.Length - 1; i >= 0; i--) {
                         QMenuItem item2 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyBack[i], true, i, MenuGenre.Navigation));
-                        if(_owner.IsSpecialFolderNeedsToTravel(historyBack[i])) {
-                            item2.Enabled = _owner.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
+                        if(_host.IsSpecialFolderNeedsToTravel(historyBack[i])) {
+                            item2.Enabled = _host.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
                         }
                         else if(!QTUtility2.PathExists(historyBack[i])) {
                             item2.Enabled = false;
@@ -105,8 +105,8 @@ namespace QTTabBarLib {
                     }
                     for(int j = 0; j < historyForward.Length; j++) {
                         QMenuItem item3 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyForward[j], false, j, MenuGenre.Navigation));
-                        if(_owner.IsSpecialFolderNeedsToTravel(historyForward[j])) {
-                            item3.Enabled = _owner.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
+                        if(_host.IsSpecialFolderNeedsToTravel(historyForward[j])) {
+                            item3.Enabled = _host.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
                         }
                         else if(!QTUtility2.PathExists(historyForward[j])) {
                             item3.Enabled = false;
@@ -119,7 +119,7 @@ namespace QTTabBarLib {
 
             public void MenuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
                 string groupName = e.ClickedItem.Text;
-                string currentPath = _owner.ContextMenuedTab.CurrentPath;
+                string currentPath = _host.ContextMenuedTab.CurrentPath;
                 bool addSame = ModifierKeys == Keys.Control;
                 Group g = GroupsManager.GetGroup(groupName);
                 if(g == null) return;
@@ -135,7 +135,7 @@ namespace QTTabBarLib {
                     ProcessStartInfo startInfo = new ProcessStartInfo(toolTipText);
                     startInfo.WorkingDirectory = Path.GetDirectoryName(toolTipText);
                     startInfo.ErrorDialog = true;
-                    startInfo.ErrorDialogParentHandle = _owner.ExplorerHandle;
+                    startInfo.ErrorDialogParentHandle = _host.ExplorerHandle;
                     Process.Start(startInfo);
                     StaticReg.ExecutedPathsList.Add(toolTipText);
                 }
@@ -146,7 +146,7 @@ namespace QTTabBarLib {
 
             public void MenuitemExecuted_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
                 using(IDLWrapper wrapper = new IDLWrapper(e.ClickedItem.ToolTipText)) {
-                    e.HRESULT = _owner.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                    e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
                 }
                 if(e.HRESULT == 0xffff) {
                     StaticReg.ExecutedPathsList.Remove(e.ClickedItem.ToolTipText);
@@ -163,34 +163,34 @@ namespace QTTabBarLib {
                     GroupsManager.SaveGroups();
                 }
                 else {
-                    _owner.OpenGroup(groupName, modifierKeys == Keys.Control);
+                    _host.OpenGroup(groupName, modifierKeys == Keys.Control, false);
                 }
             }
 
             public void MenuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-                GroupsManager.HandleReorder(_owner.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
+                GroupsManager.HandleReorder(_host.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
                 QTTabBarClass.SyncTaskBarMenu();
             }
 
             public void MenuitemHistory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
                 QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-                if((_owner.ContextMenuedTab != null) && (clickedItem != null)) {
+                if((_host.ContextMenuedTab != null) && (clickedItem != null)) {
                     MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
                     switch(ModifierKeys) {
                         case Keys.Shift:
-                            _owner.CloneTabButton(_owner.ContextMenuedTab, null, true, -1);
-                            _owner.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            _host.CloneTabButton(_host.ContextMenuedTab, null, true, -1);
+                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
                             return;
 
                         case Keys.Control: {
                                 using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
-                                    _owner.OpenNewWindow(wrapper);
+                                    _host.OpenNewWindow(wrapper);
                                     return;
                                 }
                             }
                         default:
-                            _owner.tabControl1.SelectTab(_owner.ContextMenuedTab);
-                            _owner.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            _host.tabControl1.SelectTab(_host.ContextMenuedTab);
+                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
                             return;
                     }
                 }
@@ -200,7 +200,7 @@ namespace QTTabBarLib {
                 QMenuItem clickedItem = e.ClickedItem as QMenuItem;
                 if(clickedItem != null) {
                     using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                        e.HRESULT = _owner.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                        e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
                     }
                     if(e.HRESULT == 0xffff) {
                         StaticReg.ClosedTabHistoryList.Remove(clickedItem.Path);
@@ -210,7 +210,7 @@ namespace QTTabBarLib {
             }
 
             public void DdrmrGroups_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
-                _owner.ReplaceByGroup(e.ClickedItem.Text);
+                _host.ReplaceByGroup(e.ClickedItem.Text);
             }
 
             public bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
@@ -218,7 +218,7 @@ namespace QTTabBarLib {
                 MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
                 BindAction action;
                 if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
-                    _owner.DoBindAction(action, false, null, wrapper);
+                    _host.DoBindAction(action, false, null, wrapper);
                     return true;
                 }
                 QTLogger.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");

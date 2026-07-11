@@ -711,8 +711,12 @@
     </Compile>
     <Compile Include="Menu\IMenuInteractionHost.cs" />
     <Compile Include="Menu\IMenuLifecycleHost.cs" />
+    <Compile Include="Menu\IMenuOperationsHost.cs" />
     <Compile Include="Menu\MenuController.cs" />
     <Compile Include="QTTabBarClass.MenuControllerHost.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QTTabBarClass.MenuOperationsHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
 <Compile Include="QTTabBarClass.TabManager.cs">

@@ -52,27 +52,27 @@ namespace QTTabBarLib {
     public partial class QTTabBarClass {
         internal partial class MenuOperations {
             public void contextMenuSys_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                if(e.ClickedItem == _owner.tsmiOption) {
+                if(e.ClickedItem == _host.tsmiOption) {
                     OptionsDialog.Open();
                 }
-                else if(e.ClickedItem == _owner.tsmiCloseAllButCurrent) {
-                    if(_owner.tabControl1.TabCount != 1) {
-                        _owner.CloseAllTabsExcept(_owner.CurrentTab);
+                else if(e.ClickedItem == _host.tsmiCloseAllButCurrent) {
+                    if(_host.tabControl1.TabCount != 1) {
+                        _host.CloseAllTabsExcept(_host.CurrentTab);
                     }
                 }
-                else if(e.ClickedItem == _owner.tsmiBrowseFolder) {
-                    _owner.ChooseNewDirectory();
+                else if(e.ClickedItem == _host.tsmiBrowseFolder) {
+                    _host.ChooseNewDirectory();
                 }
-                else if(e.ClickedItem == _owner.tsmiCloseWindow) {
+                else if(e.ClickedItem == _host.tsmiCloseWindow) {
                     {
-                        LockedTabsService.PersistFromTabs(_owner.tabControl1.TabPages);
+                        LockedTabsService.PersistFromTabs(_host.tabControl1.TabPages);
                     }
-                    WindowUtils.CloseExplorer(_owner.ExplorerHandle, 1);
+                    WindowUtils.CloseExplorer(_host.ExplorerHandle, 1);
                 }
                 else {
-                    if(e.ClickedItem == _owner.tsmiLastActiv) {
+                    if(e.ClickedItem == _host.tsmiLastActiv) {
                         try {
-                            _owner.tabControl1.SelectTab(_owner.lstActivatedTabs[_owner.lstActivatedTabs.Count - 2]);
+                            _host.tabControl1.SelectTab(_host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2]);
                             return;
                         }
                         catch (Exception ex)
@@ -81,11 +81,11 @@ namespace QTTabBarLib {
                             return;
                         }
                     }
-                    if(e.ClickedItem == _owner.tsmiLockToolbar) {
-                        _owner.rebarController.Locked = !_owner.tsmiLockToolbar.Checked;
+                    if(e.ClickedItem == _host.tsmiLockToolbar) {
+                        _host.rebarController.Locked = !_host.tsmiLockToolbar.Checked;
                     }
-                    else if(e.ClickedItem == _owner.tsmiMergeWindows) {
-                        _owner.MergeAllWindows();
+                    else if(e.ClickedItem == _host.tsmiMergeWindows) {
+                        _host.MergeAllWindows();
                     }
                 }
             }
@@ -94,122 +94,122 @@ namespace QTTabBarLib {
             public void contextMenuSys_Opening(object sender, CancelEventArgs e) {
                 InitializeSysMenu(false);
                 // 延迟加载菜单内容
-                _owner.contextMenuSys.SuspendLayout();
-                _owner.tsmiGroups.DropDown.SuspendLayout();
-                _owner.tsmiUndoClose.DropDown.SuspendLayout();
+                _host.contextMenuSys.SuspendLayout();
+                _host.tsmiGroups.DropDown.SuspendLayout();
+                _host.tsmiUndoClose.DropDown.SuspendLayout();
 
-                MenuUtility.CreateGroupItems(_owner.tsmiGroups);
-                MenuUtility.CreateUndoClosedItems(_owner.tsmiUndoClose);
-                if((_owner.lstActivatedTabs.Count > 1) && _owner.tabControl1.TabPages.Contains(_owner.lstActivatedTabs[_owner.lstActivatedTabs.Count - 2])) {
-                    _owner.tsmiLastActiv.ToolTipText = _owner.lstActivatedTabs[_owner.lstActivatedTabs.Count - 2].CurrentPath;
-                    _owner.tsmiLastActiv.Enabled = true;
+                MenuUtility.CreateGroupItems(_host.tsmiGroups);
+                MenuUtility.CreateUndoClosedItems(_host.tsmiUndoClose);
+                if((_host.lstActivatedTabs.Count > 1) && _host.tabControl1.TabPages.Contains(_host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2])) {
+                    _host.tsmiLastActiv.ToolTipText = _host.lstActivatedTabs[_host.lstActivatedTabs.Count - 2].CurrentPath;
+                    _host.tsmiLastActiv.Enabled = true;
                 }
                 else {
-                    _owner.tsmiLastActiv.ToolTipText = string.Empty;
-                    _owner.tsmiLastActiv.Enabled = false;
+                    _host.tsmiLastActiv.ToolTipText = string.Empty;
+                    _host.tsmiLastActiv.Enabled = false;
                 }
-                while(_owner.tsmiExecuted.DropDownItems.Count > 0) {
-                    _owner.tsmiExecuted.DropDownItems[0].Dispose();
+                while(_host.tsmiExecuted.DropDownItems.Count > 0) {
+                    _host.tsmiExecuted.DropDownItems[0].Dispose();
                 }
                 List<ToolStripItem> list = MenuUtility.CreateRecentFilesItems();
                 if(list.Count > 0) {
-                    _owner.tsmiExecuted.DropDown.SuspendLayout();
-                    _owner.tsmiExecuted.DropDownItems.AddRange(list.ToArray());
-                    _owner.tsmiExecuted.DropDown.ResumeLayout();
+                    _host.tsmiExecuted.DropDown.SuspendLayout();
+                    _host.tsmiExecuted.DropDownItems.AddRange(list.ToArray());
+                    _host.tsmiExecuted.DropDown.ResumeLayout();
                 }
-                _owner.tsmiExecuted.Enabled = _owner.tsmiExecuted.DropDownItems.Count > 0;
-                _owner.tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
-                _owner.tsmiLockToolbar.Checked = _owner.rebarController.Locked;
-                if((_owner.lstPluginMenuItems_Sys != null) && (_owner.lstPluginMenuItems_Sys.Count > 0)) {
-                    foreach(ToolStripItem item in _owner.lstPluginMenuItems_Sys) {
+                _host.tsmiExecuted.Enabled = _host.tsmiExecuted.DropDownItems.Count > 0;
+                _host.tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
+                _host.tsmiLockToolbar.Checked = _host.rebarController.Locked;
+                if((_host.lstPluginMenuItems_Sys != null) && (_host.lstPluginMenuItems_Sys.Count > 0)) {
+                    foreach(ToolStripItem item in _host.lstPluginMenuItems_Sys) {
                         item.Dispose();
                     }
-                    _owner.lstPluginMenuItems_Sys = null;
+                    _host.lstPluginMenuItems_Sys = null;
                 }
-                if((_owner.pluginServer != null) && (_owner.pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
-                    _owner.lstPluginMenuItems_Sys = new List<ToolStripItem>();
-                    int index = _owner.contextMenuSys.Items.IndexOf(_owner.tsmiOption);
+                if((_host.pluginServer != null) && (_host.pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
+                    _host.lstPluginMenuItems_Sys = new List<ToolStripItem>();
+                    int index = _host.contextMenuSys.Items.IndexOf(_host.tsmiOption);
                     ToolStripSeparator separator = new ToolStripSeparator();
-                    _owner.contextMenuSys.Items.Insert(index, separator);
-                    foreach(string str in _owner.pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
-                        ToolStripMenuItem item2 = new ToolStripMenuItem(_owner.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
+                    _host.contextMenuSys.Items.Insert(index, separator);
+                    foreach(string str in _host.pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
+                        ToolStripMenuItem item2 = new ToolStripMenuItem(_host.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
                         item2.Name = str;
                         item2.Tag = MenuType.Bar;
-                        item2.Click += _owner._pluginMenuController.PluginItemsClick;
-                        _owner.contextMenuSys.Items.Insert(index, item2);
-                        _owner.lstPluginMenuItems_Sys.Add(item2);
+                        item2.Click += _host._pluginMenuController.PluginItemsClick;
+                        _host.contextMenuSys.Items.Insert(index, item2);
+                        _host.lstPluginMenuItems_Sys.Add(item2);
                     }
-                    _owner.lstPluginMenuItems_Sys.Add(separator);
+                    _host.lstPluginMenuItems_Sys.Add(separator);
                 }
-                _owner.tsmiUndoClose.DropDown.ResumeLayout();
-                _owner.tsmiGroups.DropDown.ResumeLayout();
-                _owner.contextMenuSys.ResumeLayout();
+                _host.tsmiUndoClose.DropDown.ResumeLayout();
+                _host.tsmiGroups.DropDown.ResumeLayout();
+                _host.contextMenuSys.ResumeLayout();
             }
 
             public void InitializeSysMenu(bool fText) {
                 bool flag = false;
-                if(_owner.tsmiGroups == null) {
+                if(_host.tsmiGroups == null) {
                     flag = true;
-                    _owner.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
-                    _owner.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
-                    _owner.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
-                    _owner.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
-                    _owner.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
-                    _owner.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
-                    _owner.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
-                    _owner.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
-                    _owner.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
-                    _owner.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
-                    _owner.tssep_Sys1 = new ToolStripSeparator();
-                    _owner.tssep_Sys2 = new ToolStripSeparator();
-                    if(_owner.contextMenuSys != null) {
-                        _owner.contextMenuSys.SuspendLayout();
-                        _owner.contextMenuSys.Items[0].Dispose();
-                        _owner.contextMenuSys.Items.AddRange(new ToolStripItem[]
+                    _host.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
+                    _host.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
+                    _host.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
+                    _host.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
+                    _host.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
+                    _host.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
+                    _host.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
+                    _host.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
+                    _host.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
+                    _host.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
+                    _host.tssep_Sys1 = new ToolStripSeparator();
+                    _host.tssep_Sys2 = new ToolStripSeparator();
+                    if(_host.contextMenuSys != null) {
+                        _host.contextMenuSys.SuspendLayout();
+                        _host.contextMenuSys.Items[0].Dispose();
+                        _host.contextMenuSys.Items.AddRange(new ToolStripItem[]
                         {
-                            _owner.tsmiGroups, _owner.tsmiUndoClose, _owner.tsmiLastActiv, _owner.tsmiExecuted,
-                            _owner.tssep_Sys1, _owner.tsmiBrowseFolder, _owner.tsmiCloseAllButCurrent, _owner.tsmiCloseWindow,
-                            _owner.tsmiMergeWindows, _owner.tsmiLockToolbar, _owner.tssep_Sys2, _owner.tsmiOption
+                            _host.tsmiGroups, _host.tsmiUndoClose, _host.tsmiLastActiv, _host.tsmiExecuted,
+                            _host.tssep_Sys1, _host.tsmiBrowseFolder, _host.tsmiCloseAllButCurrent, _host.tsmiCloseWindow,
+                            _host.tsmiMergeWindows, _host.tsmiLockToolbar, _host.tssep_Sys2, _host.tsmiOption
                         });
                     }
 
-                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_owner.components, true, false);
+                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_host.components, true, false);
                     reorderable.ReorderFinished += MenuitemGroups_ReorderFinished;
                     reorderable.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
                     reorderable.ItemMiddleClicked += DdrmrGroups_ItemMiddleClicked;
                     reorderable.ImageList = ResourceCache.ImageListGlobal;
-                    _owner.tsmiGroups.DropDown = reorderable;
-                    _owner.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
-                    DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_owner.components);
+                    _host.tsmiGroups.DropDown = reorderable;
+                    _host.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
+                    DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_host.components);
                     reorderable2.ReorderEnabled = false;
-                    reorderable2.MessageParent = _owner.Handle;
+                    reorderable2.MessageParent = _host.Handle;
                     reorderable2.ImageList = ResourceCache.ImageListGlobal;
                     reorderable2.ItemRightClicked += DdmrUndoClose_ItemRightClicked;
-                    _owner.tsmiUndoClose.DropDown = reorderable2;
-                    _owner.tsmiUndoClose.DropDownItemClicked += _owner.menuitemUndoClose_DropDownItemClicked;
-                    DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_owner.components);
-                    reorderable3.MessageParent = _owner.Handle;
+                    _host.tsmiUndoClose.DropDown = reorderable2;
+                    _host.tsmiUndoClose.DropDownItemClicked += _host.menuitemUndoClose_DropDownItemClicked;
+                    DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_host.components);
+                    reorderable3.MessageParent = _host.Handle;
                     reorderable3.ItemRightClicked += MenuitemExecuted_ItemRightClicked;
                     reorderable3.ItemClicked += MenuitemExecuted_DropDownItemClicked;
                     reorderable3.ImageList = ResourceCache.ImageListGlobal;
-                    _owner.tsmiExecuted.DropDown = reorderable3;
-                    _owner.tssep_Sys1.Enabled = false;
-                    _owner.tssep_Sys2.Enabled = false;
-                    if(_owner.contextMenuSys != null) {
-                        _owner.contextMenuSys.ResumeLayout(false);
+                    _host.tsmiExecuted.DropDown = reorderable3;
+                    _host.tssep_Sys1.Enabled = false;
+                    _host.tssep_Sys2.Enabled = false;
+                    if(_host.contextMenuSys != null) {
+                        _host.contextMenuSys.ResumeLayout(false);
                     }
                 }
                 if(!flag && fText) {
-                    _owner.tsmiGroups.Text = ResourceCache.ResMain[12];
-                    _owner.tsmiUndoClose.Text = ResourceCache.ResMain[13];
-                    _owner.tsmiLastActiv.Text = ResourceCache.ResMain[14];
-                    _owner.tsmiExecuted.Text = ResourceCache.ResMain[15];
-                    _owner.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
-                    _owner.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
-                    _owner.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
-                    _owner.tsmiOption.Text = ResourceCache.ResMain[0x13];
-                    _owner.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
-                    _owner.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
+                    _host.tsmiGroups.Text = ResourceCache.ResMain[12];
+                    _host.tsmiUndoClose.Text = ResourceCache.ResMain[13];
+                    _host.tsmiLastActiv.Text = ResourceCache.ResMain[14];
+                    _host.tsmiExecuted.Text = ResourceCache.ResMain[15];
+                    _host.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
+                    _host.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
+                    _host.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
+                    _host.tsmiOption.Text = ResourceCache.ResMain[0x13];
+                    _host.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
+                    _host.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
                 }
             }
 
