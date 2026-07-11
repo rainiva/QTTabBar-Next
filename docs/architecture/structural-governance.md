@@ -16,19 +16,22 @@
 
 ## 2. 热点 no-growth 预算
 
-| 热点 | 当前基线 | 目标最终预算 | 说明 |
+| 热点 | Task 13 实测值 | 目标最终预算 | 状态 |
 |---|---|---|---|
-| `QTTabBarClass` family 行数 | 7283 | 7160（Wave F 前不增长） | 所有 `QTTabBarClass*.cs` 文件总行数 |
-| `QTTabBarClass` nested controller | 25 | 0（Wave F） | 应尽快迁为顶层类型 |
-| `QTTabBarClass` `_owner.` 回指 | 1397 | 0（Wave F） | 迁为顶层后通过 host interface 通信 |
-| `QTButtonBar` family 行数 | 2164 | 不增长 | 所有 `QTButtonBar*.cs` 文件总行数 |
-| `QTTabBarClass.cs` 主文件 | 待测 | ≤ 500（Wave F） | 最终目标，当前为 `[Explicit]` 测试 |
-| `QTButtonBar.cs` 主文件 | 待测 | ≤ 450（Wave F） | 最终目标，当前为 `[Explicit]` 测试 |
-| `OptionsDialog.xaml.cs` | 待测 | ≤ 500（Wave F） | 最终目标，当前为 `[Explicit]` 测试 |
+| `QTTabBarClass` family 行数 | 7160 | 7160（不增长） | ✓ no-growth 基线通过 |
+| `QTTabBarClass` nested controller | 9 | 0 | ⚠ 9 个嵌套类型待提取（ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget 等） |
+| `QTTabBarClass` `_owner.` 回指 | 0 | 0 | ✓ 已达标（Batch 3 消除） |
+| `QTButtonBar` family 行数 | 2164 | 不增长 | ✓ no-growth 基线通过 |
+| `QTTabBarClass.cs` 主文件 | 395 | ≤ 500 | ✓ 已达标（Batch 6 缩减） |
+| `QTTabBarClass` partial 声明 | 4 | ≤ 4 | ✓ 已达标（Batch 5 合并） |
+| `QTButtonBar.cs` 主文件 | 442 | ≤ 450 | ✓ 已达标 |
+| `QTButtonBar` partial 声明 | 0 | 0 | ✓ 已达标 |
+| `OptionsDialog.xaml.cs` | 280 | ≤ 500 | ✓ 已达标（Batch 1 拆分） |
 
 **治理规则：**
 - 除非同时降低另一热点，否则任何提交不得让上述指标超过当前基线。
-- 最终预算测试默认标记为 `[Explicit("enabled in Task 13 final gate")]`，直到 Wave F 最终验收时启用。
+- Task 13 最终验收已启用除 `NestedControllers` 外的所有预算测试（`NestedControllers` 保留 `[Explicit]`，9 个嵌套类型待后续提取）。
+- 全量测试 1000 项，978 通过，22 跳过（含 `[Explicit]`），0 失败。TRX 日志保存于 `TestResults/test-results-batch7.trx`。
 
 ## 3. 允许编辑与禁止职责
 

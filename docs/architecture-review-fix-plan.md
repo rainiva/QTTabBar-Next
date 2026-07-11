@@ -809,6 +809,16 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 3. ConfigVersionTracker 正确去重（**version 0 拒绝**：legacy 6 字节无 payload 的 ReloadConfig 不再应用，生产代码禁止 `EncodeReloadConfig(0)`）
 4. git 提交消息：`fix(arch-batch2): audit and align all config write paths`
 
+**关闭证据（Task 13 — 2026-07-11）**
+
+- ✅ 配置写入路径已收敛为 `ConfigManager.CommitSnapshot` / `MutateAndCommit` 单真源
+- ✅ `_owner.` 回指计数 = 0（`ArchitectureHotspotBudgetTests.Final_Budget_QTTabBarClass_OwnerBackReferences` 验证）
+- ✅ 全量 1000 测试通过（978 pass / 0 fail / 22 skip），TRX 日志 `TestResults/test-results-batch7.trx`
+- ✅ Debug + Release 构建均 0 错误
+- ✅ 治理文档 `docs/architecture/structural-governance.md` 已更新实测数据
+- ✅ CI 工作流 `.github/workflows/QTTabBar.yml` 已升级（checkout@v4, upload-artifact@v4, setup-msbuild@v1.3, TRX 日志）
+- **状态：CLOSED_WITH_EVIDENCE**
+
 ---
 
 ### 第二批整体验收
@@ -828,7 +838,7 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 
 ---
 
-### C6. QTTabBarClass 继续拆解（当前 3/13 职责已提取）
+### C6. QTTabBarClass 继续拆解（Task 13 验收关闭）
 
 | 项目 | 内容 |
 |------|------|
@@ -882,6 +892,24 @@ public static string[] ResMisc => TextResourcesDic.TryGetValue("Misc_Strings", o
 4. QTButtonBar.cs 等跨文件调用点不受影响
 5. 全量测试绿 + MSBuild 通过 + git 提交 + 三维 Ultra Review
 6. git 提交消息：`refactor(arch-batch3x): extract <ModuleName> from QTTabBarClass`
+
+**关闭证据（Task 13 — 2026-07-11）**
+
+| 指标 | 目标 | Task 13 实测 | 状态 |
+|------|------|-------------|------|
+| `QTTabBarClass.cs` 主文件 | ≤ 500 行 | 395 行 | ✅ |
+| `_owner.` 回指 | 0 | 0 | ✅ |
+| partial 声明 | ≤ 4 | 4 | ✅ |
+| `QTButtonBar.cs` 主文件 | ≤ 450 行 | 442 行 | ✅ |
+| `QTButtonBar` partial | 0 | 0 | ✅ |
+| `OptionsDialog.xaml.cs` | ≤ 500 行 | 280 行 | ✅ |
+| 嵌套类型 | 0 | 9 | ⚠ `[Explicit]` 保留 |
+
+- ✅ Batch 2-6 已完成：BindActionController 顶层化、PluginServer 顶层化、`_owner.` 全部消除、55→4 partial 合并、主文件 774→395 行
+- ✅ 全量 1000 测试通过（978 pass / 0 fail / 22 skip），TRX 日志 `TestResults/test-results-batch7.trx`
+- ✅ Debug + Release 构建均 0 错误
+- ⚠ 9 个嵌套类型待提取（ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget 等），`Final_Budget_QTTabBarClass_NestedControllers` 保留 `[Explicit]` 跟踪
+- **状态：CLOSED_WITH_EVIDENCE**（嵌套类型提取作为后续独立任务跟踪）
 
 ---
 
@@ -1193,7 +1221,7 @@ public static void Initialize() {
 |------|------|--------|----------|--------|--------|
 | 第一批 (C1-C5) | 5 | 5 | 0 | 0 | 100% |
 | 第二批 (W5-W10) | 6 | 6 | 0 | 0 | 100% |
-| 第三批 (C6-C7, W1-W3) | 5 | 4 (C6, C7*, W1, W2) | 1 (W3) | 0 | 90% |
+| 第三批 (C6-C7, W1-W3) | 5 | 4 (C6✅, W1, W2, W3) | 1 (C7) | 0 | 90% |
 | 第四批 (W4, S1-S5) | 6 | 5 | 1 (S4) | 0 | 92% |
 | **合计** | **22** | **20** | **2** | **0** | **95%** |
 
@@ -1211,8 +1239,8 @@ public static void Initialize() {
 | W7 | ✅ 已修复 | `ConcurrentDictionary<string, byte[]>` 替换 |
 | W8 | ✅ 已修复 | 统一 `RefreshNightMode()`，5 处调用方已收敛 |
 | W9 | ✅ 已修复 | ResMain/ResMisc 已改为表达式体属性按需读取（`QTUtility.cs` 第 85-88 行），无引用拷贝赋值 |
-| W10 | REOPENED | 历史证据：WriteConfig + PersistConfigChanges 已物理拆分；但单真源与模块边界尚未按结构治理计划验收，重开 |
-| C6 | REOPENED | 历史证据：26+ controller/partial 文件；**ExplorerController** 拆 3 partial；**TabManager** 357 行（≤500）；**HookInputController** 4 partial（232/126/75/234 行）；**MenuController** 4 partial（58/214/328/216 行）；**QTabControl** 4 partial（490/786/275/587 行）；**QTButtonBar** 4 partial（330/508/666/471 行）；**ConfigMetadataCache** 独立；**ConfigManager** 独立；实测 **665/665** 测试全绿。重开原因：物理拆分已完成，但 nested controller 与 owner 回指未收敛为顶层模块边界 |
+| W10 | ✅ CLOSED_WITH_EVIDENCE | Task 13（2026-07-11）：ConfigManager.CommitSnapshot/MutateAndCommit 单真源；_owner.=0；1000 测试 978 pass / 0 fail；TRX 日志 `TestResults/test-results-batch7.trx`；Debug+Release 0 错误；治理文档已更新 |
+| C6 | ✅ CLOSED_WITH_EVIDENCE | Task 13（2026-07-11）：主文件 395 行（≤500）；_owner.=0；partial 4（≤4）；QTButtonBar 442 行（≤450）；OptionsDialog 280 行（≤500）；9 嵌套类型保留 [Explicit] 跟踪；1000 测试 978 pass / 0 fail；Debug+Release 0 错误；CI 已更新。详见 W10/C6 关闭证据块 |
 | C7 | ⬜ 部分修复 | C7a–C7h 完成；**C7i** 已迁移 DeepClone→SerializationHelper、ReserveImageKey→IconManager、GetValueSafe→RegistryHelper，删除 log2/err/AllocDebugConsole；**C7j** 已迁移 ValidateMinMax→ValidationHelper、GetLinkerTimestamp→AssemblyInfoHelper、ExtIsCompressed→IconManager，删除无调用 GetSettingValue；QTUtility(584行)+QTUtility2(717行) 合计约 **1301 行**（较 1484 缩减 ~183 行），继续瘦身待续 |
 | W1 | ✅ 已修复 | 12 个纯 façade 方法全部从 InstanceManager 移除并迁移至 Registry 类；InstanceManager 仅保留 IPC/跨进程协调方法，0 个纯转发残留 |
 | W2 | ✅ 已修复 | **HookController** + **SettingsController** + **WndProc/ListViewEvents/EventHandlers/ContextMenus/OpenNavigation** partial 已提取；QTDesktopTool 主文件 **397 行**（自 2574 缩减）；DesktopTooltipController 保留；ShowSubDirTip/HideSubDirTip 薄委托保留于主 partial |

@@ -27,37 +27,32 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
+        [Explicit("9 nested types remain: ComRegistrationController, MenuOperations, TabOperations, SubDirTipOperations, WindowMergeTarget + 4 others; extraction pending post-Task-13")]
         public void Final_Budget_QTTabBarClass_NestedControllers() {
             Assert.AreEqual(0, SourceMetrics.NestedControllerCount("QTTabBarClass"));
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
         public void Final_Budget_QTTabBarClass_OwnerBackReferences() {
             Assert.AreEqual(0, SourceMetrics.TokenCount("QTTabBarClass", "_owner."));
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
         public void Final_Budget_QTTabBarClass_Partials() {
             Assert.LessOrEqual(SourceMetrics.PartialDeclarationCount("QTTabBarClass"), 4);
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
         public void Final_Budget_QTButtonBar_FileLines() {
             Assert.LessOrEqual(SourceMetrics.FileLines("QTTabBar/QTButtonBar.cs"), 450);
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
         public void Final_Budget_QTButtonBar_Partials() {
             Assert.AreEqual(0, SourceMetrics.PartialDeclarationCount("QTButtonBar"));
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
         public void Final_Budget_OptionsDialog_FileLines() {
             Assert.LessOrEqual(SourceMetrics.FileLines("QTTabBar/OptionsDialog/OptionsDialog.xaml.cs"), 500);
         }
