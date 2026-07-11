@@ -7,9 +7,9 @@ namespace QTTtabBarTests {
         private static readonly string[] ExplorerControllerFiles = {
             "QTTabBarClass.ExplorerController.cs",
             "Input\\HookInputController.cs",
-            "QTTabBarClass.TabManager.cs",
+            "QTTabBarClass.ShellHosts.cs",
             "Shell\\ShellNavigationController.cs",
-            "QTTabBarClass.ShellUiHost.cs",
+            "QTTabBarClass.ShellHosts.cs",
             "QTTabBarClass.BindActionController.cs",
             "QTTabBarClass.ShutdownController.cs",
             "RebarController.cs",

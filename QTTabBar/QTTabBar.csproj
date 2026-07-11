@@ -352,7 +352,6 @@
     </Compile>
     <Compile Include="Plugin\IPluginServerHost.cs" />
     <Compile Include="Plugin\IPluginServerTabHost.cs" />
-    <Compile Include="QTTabBarClass.PluginServerHost.cs" />
     <Compile Include="PreMergeToMergedDeserializationBinder.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -698,37 +697,13 @@
     <Compile Include="QTTabBarClass.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="QTTabBarClass.MenuController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.MenuController.SysMenu.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.MenuController.TabMenu.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.MenuController.DropDownHandlers.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Menu\IMenuInteractionHost.cs" />
     <Compile Include="Menu\IMenuLifecycleHost.cs" />
     <Compile Include="Menu\IMenuOperationsHost.cs" />
     <Compile Include="Menu\MenuController.cs" />
-    <Compile Include="QTTabBarClass.MenuControllerHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.MenuOperationsHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-<Compile Include="QTTabBarClass.TabManager.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Tabs\ITabOperationsHost.cs" />
         <Compile Include="Tabs\ITabOperationsOwnerHost.cs" />
     <Compile Include="Tabs\TabManager.cs" />
-    <Compile Include="QTTabBarClass.TabOperationsHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="QTTabBarClass.ExplorerController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
@@ -754,75 +729,6 @@
     <Compile Include="Navigation\ExplorerTooltipController.cs" />
     <Compile Include="Navigation\ExplorerSelectionRestoreController.cs" />
     <Compile Include="Navigation\ExplorerNavigationStateController.cs" />
-    <Compile Include="QTTabBarClass.ExplorerCaptureHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerTravelLogHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerSessionRestoreHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerWindowMessageHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerMessageRoutingHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerNavigationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerAttachmentHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerNavigationButtonHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerHookInstallationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerTravelToolbarHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerNavigationLifecycleHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerComEventHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerLockedTabNavigationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerSpecialTravelLogHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerNavigationCleanupHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerPostNavigationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerShutdownNavigationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerLegacyNavigationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerTooltipHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerNavigationStateHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerNavigationCompleteHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerIntegrationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerSelectionRestoreHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="QTTabBarClass.ExplorerController.WindowMessages.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
@@ -847,116 +753,59 @@
     <Compile Include="Input\DroppedFilesController.cs" />
     <Compile Include="Input\IFolderTreeHost.cs" />
     <Compile Include="Input\FolderTreeController.cs" />
-    <Compile Include="QTTabBarClass.DragDropHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.IpcNavigation.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Input\IHookInputHost.cs" />
     <Compile Include="Input\HookInputController.cs" />
     <Compile Include="Input\HookInputController.Keyboard.cs" />
     <Compile Include="Input\HookInputController.MouseWheel.cs" />
     <Compile Include="Input\HookInputController.FolderTree.cs" />
-    <Compile Include="QTTabBarClass.HookInputHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Shell\IFileToolsHost.cs" />
     <Compile Include="Shell\FileToolsController.cs" />
-    <Compile Include="QTTabBarClass.FileToolsHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="QTTabBarClass.BindActionController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Shell\IBindActionHost.cs" />
-    <Compile Include="QTTabBarClass.BindActionHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Shell\IShellCommandHost.cs" />
     <Compile Include="Shell\ShellCommandController.cs" />
-    <Compile Include="QTTabBarClass.ShellCommandHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Input\IListViewInputHost.cs" />
     <Compile Include="Input\ListViewInputController.cs" />
     <Compile Include="Input\ListViewInputController.Keyboard.cs" />
     <Compile Include="Input\ListViewInputController.Mouse.cs" />
-    <Compile Include="QTTabBarClass.ListViewInputHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Band\KeyboardAcceleratorController.cs" />
     <Compile Include="Shell\IShellUiHost.cs" />
     <Compile Include="Shell\ShellUiController.cs" />
-    <Compile Include="QTTabBarClass.ShellUiHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Input\IButtonBarCommandHost.cs" />
     <Compile Include="Input\ButtonBarClickController.cs" />
-    <Compile Include="QTTabBarClass.ButtonBarCommandHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Band\IQTTabBarBandHost.cs" />
     <Compile Include="Band\BandInfoController.cs" />
     <Compile Include="Band\BandLifecycleController.cs" />
     <Compile Include="Band\BandWindowController.cs" />
-    <Compile Include="QTTabBarClass.BandHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="ITabBarCompositionHost.cs" />
     <Compile Include="TabBarComposition.cs" />
     <Compile Include="QTTabBarClass.CompositionHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.DroppedFilesHost.cs">
+    <Compile Include="QTTabBarClass.ExplorerHosts.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
-    <Compile Include="QTTabBarClass.FolderTreeHost.cs">
+    <Compile Include="QTTabBarClass.ShellHosts.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Shell\IViewModeHost.cs" />
     <Compile Include="Shell\ViewModeController.cs" />
-    <Compile Include="QTTabBarClass.ViewModeHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Menu\IPluginMenuHost.cs" />
     <Compile Include="Menu\PluginMenuController.cs" />
-    <Compile Include="QTTabBarClass.PluginMenuHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ExplorerAccess.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.ShutdownAccess.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="QTTabBarClass.ShutdownController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Shutdown\IShutdownResourceHost.cs" />
     <Compile Include="Shutdown\IShutdownPersistenceHost.cs" />
-    <Compile Include="QTTabBarClass.ComRegistrationController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Shell\IShellNavigationHost.cs" />
     <Compile Include="Shell\ShellNavigationController.cs" />
-    <Compile Include="QTTabBarClass.ShellNavigationHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTTabBarClass.TabTooltipController.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Input\ISubDirTipHost.cs" />
         <Compile Include="Input\ISubDirTipOperationsHost.cs" />
     <Compile Include="Input\TabTooltipController.cs" />
-    <Compile Include="QTTabBarClass.SubDirTipHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="Window\IWindowManagementHost.cs" />
     <Compile Include="Window\WindowManagementController.cs" />
-    <Compile Include="QTTabBarClass.WindowManagementHost.cs">
-      <DependentUpon>QTTabBarClass.cs</DependentUpon>
-    </Compile>
     <Compile Include="QTUtility.cs" />
     <Compile Include="QTLogger.cs" />
     <Compile Include="RegistryHelper.cs" />

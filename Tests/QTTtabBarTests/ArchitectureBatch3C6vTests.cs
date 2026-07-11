@@ -25,7 +25,7 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ComRegistration_And_Removed_DeadCode() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string comReg = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComRegistrationController.cs"));
+            string comReg = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.CompositionHost.cs"));
             string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "HookInputController.cs"));
             Assert.IsTrue(main.Contains("ComRegistrationController.Register("));
             Assert.IsTrue(main.Contains("ComRegistrationController.Unregister("));

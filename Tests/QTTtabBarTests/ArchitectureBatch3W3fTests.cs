@@ -51,7 +51,7 @@ namespace QTTtabBarTests {
         [Test]
         public void TabManager_Calls_Owner_TabBarBase_For_TabOperations() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             Assert.IsTrue(content.Contains("_host.AddInsertTab"),
                 "TabOperations should call host AddInsertTab");
             Assert.IsFalse(content.Contains("public void AddInsertTab(QTabItem tab)"),

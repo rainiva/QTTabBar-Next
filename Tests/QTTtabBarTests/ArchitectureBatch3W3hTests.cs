@@ -36,7 +36,7 @@ namespace QTTtabBarTests {
         [Test]
         public void TabManager_No_Longer_Hosts_Tab_Mouse_Handlers() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             foreach(string name in MouseHandlers) {
                 Assert.IsFalse(content.Contains("public void " + name + "("),
                     "TabManager should not host " + name + " after W3h");

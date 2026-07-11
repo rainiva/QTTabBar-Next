@@ -13,7 +13,7 @@ namespace QTTtabBarTests {
             "InitializationOrchestrator.cs",
             "QTabControl.cs",
             "QMenuItem.cs",
-            "QTTabBarClass.MenuController.cs",
+            "QTTabBarClass.ShellHosts.cs",
         };
 
         [Test]
@@ -23,7 +23,7 @@ namespace QTTtabBarTests {
             foreach(string relative in CoreLayerFiles) {
                 string content = relative == "QTabControl.cs"
                     ? QTabControlSourceTestHelper.ReadCombined(FindRepoRoot())
-                    : relative == "QTTabBarClass.MenuController.cs"
+                    : relative == "QTTabBarClass.ShellHosts.cs"
                         ? MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot())
                         : relative == "SubDirTipForm.cs"
                             ? SubDirTipFormSourceTestHelper.ReadCombined(FindRepoRoot())

@@ -1,9 +1,18 @@
+// Auto-merged by merge-partials.py (Batch 5)
+
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System;
+using Microsoft.Win32;
+using QTPlugin;
+using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass : ITabBarCompositionHost {
-        void ITabBarCompositionHost.BuildTabBarComponents() {
+    public partial class QTTabBarClass : IShutdownPersistenceHost, IShutdownResourceHost, ITabBarCompositionHost {
+
+        // --- From QTTabBarClass.CompositionHost.cs ---
+void ITabBarCompositionHost.BuildTabBarComponents() {
             buttonNavHistoryMenu = new ToolStripDropDownButton();
             tabControl1 = new QTabControl();
             CurrentTab = new QTabItem(string.Empty, string.Empty, tabControl1);
@@ -103,6 +112,203 @@ namespace QTTabBarLib {
                 toolStrip.PerformLayout();
             }
             ResumeLayout(false);
+        }
+
+        // --- From QTTabBarClass.ComRegistrationController.cs ---
+internal static class ComRegistrationController {
+            public static void Register(Type t) {
+                string name = t.GUID.ToString("B");
+                ComRegistrationManager.RegisterBand(name, "QTTabBar", "QTTabBar", "QTTabBar");
+                ComRegistrationManager.RegisterToolbar(name, "QTTabBar");
+            }
+
+            public static void Unregister(Type t) {
+                QTLogger.log("QTTabBarClass Unregister");
+                string name = t.GUID.ToString("B");
+                ComRegistrationManager.UnregisterAll(name);
+                try {
+                    using(RegistryKey key2 = Registry.ClassesRoot.OpenSubKey("CLSID", true)) {
+                        if(key2 != null) {
+                            key2.DeleteSubKeyTree("{D2BF470E-ED1C-487F-A444-2BD8835EB6CE}", false);
+                        }
+                    }
+                }
+                catch(Exception ex) {
+                    QTLogger.MakeErrorLog(ex, "Unregister.CLSID2");
+                }
+            }
+        }
+
+        // --- From QTTabBarClass.IpcNavigation.cs ---
+internal void IpcExecuteCaptureNewWindow(string path, int cmdType, string selectName) {
+            if(cmdType == 1) {
+                OpenNewTab(path);
+                if(!string.IsNullOrEmpty(selectName)) {
+                    ShellBrowser.TrySetSelection(new Address[] { new Address(selectName) }, null, true);
+                }
+                RestoreWindow();
+            }
+            else if(cmdType == 2) {
+                OpenNewTab(path);
+                RestoreWindow();
+                if(Config.Window.CaptureWeChatSelection) {
+                    Wait4Select();
+                }
+            }
+            else {
+                OpenNewTab(path);
+                RestoreWindow();
+            }
+        }
+
+        internal void IpcMergeTabs(MergeTabPayload[] payloads) {
+            if(payloads == null || payloads.Length == 0) {
+                return;
+            }
+            tabControl1.SetRedraw(false);
+            try {
+                foreach(MergeTabPayload payload in payloads) {
+                    if(payload == null || string.IsNullOrEmpty(payload.Path)) {
+                        continue;
+                    }
+                    QTabItem tab = new QTabItem(payload.Text ?? payload.Path, payload.Path, tabControl1) {
+                        TabLocked = payload.Locked,
+                        ImageKey = payload.ImageKey,
+                    };
+                    tab.ResetOwner(tabControl1);
+                }
+                QTabItem.CheckSubTexts(tabControl1);
+                TryCallButtonBar(bbar => bbar.RefreshButtons());
+            }
+            finally {
+                tabControl1.SetRedraw(true);
+            }
+        }
+
+        internal void IpcOpenNewTabOrWindowFromPath(string path) {
+            if(string.IsNullOrEmpty(path)) {
+                return;
+            }
+            using(IDLWrapper idlw = new IDLWrapper(path)) {
+                if(idlw.Available) {
+                    OpenNewTabOrWindow(idlw);
+                }
+            }
+        }
+
+        internal void IpcOpenPluginOptions(string pluginId) {
+            if(string.IsNullOrEmpty(pluginId)) {
+                return;
+            }
+            Plugin p;
+            if(pluginServer == null || !pluginServer.TryGetPlugin(pluginId, out p) || p.Instance == null) {
+                return;
+            }
+            try {
+                p.Instance.OnOption();
+            }
+            catch(System.Exception ex) {
+                QTLogger.MakeErrorLog(ex, "IpcOpenPluginOptions");
+            }
+        }
+
+        // --- From QTTabBarClass.ShutdownAccess.cs ---
+QTabControl IShutdownResourceHost.TabControl => tabControl1;
+        TreeViewWrapper IShutdownResourceHost.TreeViewWrapper { get => treeViewWrapper; set => treeViewWrapper = value; }
+        ListViewMonitor IShutdownResourceHost.ListViewManager { get => listViewManager; set => listViewManager = value; }
+        SubDirTipForm IShutdownResourceHost.SubDirTip { get => subDirTip_Tab; set => subDirTip_Tab = value; }
+        PluginServer IShutdownResourceHost.PluginServer { get => pluginServer; set => pluginServer = value; }
+        NativeWindowController IShutdownResourceHost.ExplorerController { get => explorerController; set => explorerController = value; }
+        RebarController IShutdownResourceHost.RebarController { get => rebarController; set => rebarController = value; }
+        NativeWindowController IShutdownResourceHost.TravelButtonController { get => travelBtnController; set => travelBtnController = value; }
+        IntPtr IShutdownResourceHost.BandHandle => Handle;
+        IntPtr IShutdownResourceHost.ExplorerHandle => ExplorerHandle;
+        Cursor IShutdownResourceHost.TabDragCursor { get => curTabDrag; set => curTabDrag = value; }
+        Cursor IShutdownResourceHost.TabCloningCursor { get => curTabCloning; set => curTabCloning = value; }
+        DropTargetWrapper IShutdownResourceHost.DropTargetWrapper { get => dropTargetWrapper; set => dropTargetWrapper = value; }
+        TabSwitchForm IShutdownResourceHost.TabSwitcher { get => tabSwitcher; set => tabSwitcher = value; }
+        Cursor IShutdownResourceHost.CurrentCursor { set => Cursor = value; }
+        bool IShutdownPersistenceHost.IsShown => IsShown;
+        void IShutdownPersistenceHost.UninstallHooks() => _hookInputController.Uninstall();
+        void IShutdownPersistenceHost.AddToHistory(QTabItem item) => AddToHistory(item);
+        ITravelLogStg IShutdownPersistenceHost.TravelLog { get => TravelLog; set => TravelLog = value; }
+        ShellContextMenu IShutdownPersistenceHost.ShellContextMenu { get => shellContextMenu; set => shellContextMenu = value; }
+        ShellBrowserEx IShutdownPersistenceHost.ShellBrowser { get => ShellBrowser; set => ShellBrowser = value; }
+        Dictionary<int, ITravelLogEntry> IShutdownPersistenceHost.LogEntryDic => LogEntryDic;
+        void IShutdownPersistenceHost.SetFinalRelease() => fFinalRelease = true;
+        void IShutdownPersistenceHost.CloseDWBase(uint dwReserved) => CloseDWBase(dwReserved);
+        internal TreeViewWrapper ShutdownTreeViewWrapper {
+            get { return treeViewWrapper; }
+            set { treeViewWrapper = value; }
+        }
+
+        internal bool ShutdownIsShown {
+            get { return IsShown; }
+        }
+
+        internal void ShutdownUninstallHooks() {
+            _hookInputController.Uninstall();
+        }
+
+        internal NativeWindowController ShutdownExplorerController {
+            get { return explorerController; }
+            set { explorerController = value; }
+        }
+
+        internal NativeWindowController ShutdownTravelBtnController {
+            get { return travelBtnController; }
+            set { travelBtnController = value; }
+        }
+
+        internal DropTargetWrapper ShutdownDropTargetWrapper {
+            get { return dropTargetWrapper; }
+            set { dropTargetWrapper = value; }
+        }
+
+        internal ShellContextMenu ShutdownShellContextMenu {
+            get { return shellContextMenu; }
+            set { shellContextMenu = value; }
+        }
+
+        internal IntPtr ShutdownExplorerHandle {
+            get { return ExplorerHandle; }
+        }
+
+        internal ListViewMonitor ShutdownListViewManager {
+            get { return listViewManager; }
+            set { listViewManager = value; }
+        }
+
+        internal void ShutdownAddToHistory(QTabItem item) {
+            AddToHistory(item);
+        }
+
+        internal Cursor ShutdownCurTabDrag {
+            get { return curTabDrag; }
+            set { curTabDrag = value; }
+        }
+
+        internal Cursor ShutdownCurTabCloning {
+            get { return curTabCloning; }
+            set { curTabCloning = value; }
+        }
+
+        internal ITravelLogStg ShutdownTravelLog {
+            get { return TravelLog; }
+            set { TravelLog = value; }
+        }
+
+        internal ShellBrowserEx ShutdownShellBrowser {
+            get { return ShellBrowser; }
+            set { ShellBrowser = value; }
+        }
+
+        internal Dictionary<int, ITravelLogEntry> ShutdownLogEntryDic {
+            get { return LogEntryDic; }
+        }
+
+        internal void ShutdownSetFinalRelease() {
+            fFinalRelease = true;
         }
     }
 }
