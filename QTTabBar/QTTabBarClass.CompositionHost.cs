@@ -2,6 +2,9 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using System;
 using Microsoft.Win32;
@@ -309,6 +312,37 @@ QTabControl IShutdownResourceHost.TabControl => tabControl1;
 
         internal void ShutdownSetFinalRelease() {
             fFinalRelease = true;
+        }
+
+        // �����µ�tabҳ
+        // ���� tab ͼƬ
+        internal static Bitmap[] CreateTabImage() {
+            if(File.Exists(Config.Skin.TabImageFile)) {
+                try {
+                    Bitmap[] bitmapArray = new Bitmap[3];
+                    using(Bitmap bitmap = new Bitmap(Config.Skin.TabImageFile)) {
+                        int height = bitmap.Height / 3;
+                        bitmapArray[0] = bitmap.Clone(new Rectangle(0, 0, bitmap.Width, height), PixelFormat.Format32bppArgb);
+                        bitmapArray[1] = bitmap.Clone(new Rectangle(0, height, bitmap.Width, height), PixelFormat.Format32bppArgb);
+                        bitmapArray[2] = bitmap.Clone(new Rectangle(0, height * 2, bitmap.Width, height), PixelFormat.Format32bppArgb);
+                    }
+                    if(Path.GetExtension(Config.Skin.TabImageFile).PathEquals(".bmp")) {
+                        bitmapArray[0].MakeTransparent(Color.Magenta);
+                        bitmapArray[1].MakeTransparent(Color.Magenta);
+                        bitmapArray[2].MakeTransparent(Color.Magenta);
+                    }
+                    return bitmapArray;
+                }
+                catch {
+                }
+            }
+            return null;
+        }
+
+        // todo: handle links — CreateTMPPathsToOpenNew moved to ListViewInputController (3l)
+
+        internal static void WaitTimeout(int msec) {
+            Thread.Sleep(msec);
         }
     }
 }

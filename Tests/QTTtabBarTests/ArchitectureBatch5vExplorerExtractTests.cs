@@ -52,10 +52,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ExplorerControllerPartials_Still_Delegate_To_Module() {
-            string content = ReadQtTabBarFile("QTTabBarClass.cs");
-            Assert.IsTrue(content.Contains("_explorerControllerModule"),
+            string main = ReadQtTabBarFile("QTTabBarClass.cs");
+            string explorerHosts = ReadQtTabBarFile("QTTabBarClass.ExplorerHosts.cs");
+            Assert.IsTrue(main.Contains("_explorerControllerModule"),
                 "QTTabBarClass should keep the module field and delegate explorer work to it");
-            Assert.IsTrue(content.Contains("_explorerControllerModule.InitializeInstallation"),
+            Assert.IsTrue(explorerHosts.Contains("_explorerControllerModule.InitializeInstallation"),
                 "QTTabBarClass should forward InitializeInstallation to the module");
         }
 

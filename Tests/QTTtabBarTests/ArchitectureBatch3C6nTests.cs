@@ -26,8 +26,9 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ShellUi_And_Keeps_ThinFacades() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             string shellUi = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellUiController.cs"));
-            Assert.IsTrue(main.Contains("_shellUiController.RefreshOptions("));
+            Assert.IsTrue(shellHosts.Contains("_shellUiController.RefreshOptions("));
             Assert.IsFalse(main.Contains("internal void RefreshOptions() {\r\n            QTUtility2.log(  \"QTTabBarClass RefreshOptions\""));
             Assert.IsFalse(main.Contains("private void ShowFolderTree(bool fShow) {"));
             Assert.IsFalse(main.Contains("private void ShowSearchBar(bool fShow) {"));

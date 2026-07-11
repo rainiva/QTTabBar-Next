@@ -2009,5 +2009,116 @@ void IWindowManagementHost.BroadcastMerge(Action<IWindowMergeTarget> merge) {
             public void BeginMerge(MergeTabPayload[] payloads) { InstanceManager.BeginInvokeMainMergeTabs(payloads); }
             public void CloseAfterMerge() { WindowUtils.CloseExplorer(_tabBar.ExplorerHandle, 2, true); }
         }
+
+        private void createNewFile() => _shellCommandController.CreateNewFile();
+
+        private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
+
+        private void Wait4Select() => _shellCommandController.Wait4Select();
+
+        private void ListView_ItemCountChanged(int count) => _listViewInputController.OnItemCountChanged(count);
+
+        private bool ListView_SelectionActivated(Keys modKeys) => _listViewInputController.OnSelectionActivated(modKeys);
+
+        private void ListView_SelectionChanged() => _listViewInputController.OnSelectionChanged();
+
+        private bool ListView_MiddleClick(Point pt) => _listViewInputController.OnMiddleClick(pt);
+
+        private bool ListView_MouseActivate(ref int result) => _listViewInputController.OnMouseActivate(ref result);
+
+        private bool ListView_DoubleClick(Point pt) => _listViewInputController.OnDoubleClick(pt);
+
+        private void ListView_EndLabelEdit(LVITEM item) => _listViewInputController.OnEndLabelEdit(item);
+
+        private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
+
+        private static bool CheckProcessID(IntPtr hwnd1, IntPtr hwnd2) {
+            uint num;
+            uint num2;
+            PInvoke.GetWindowThreadProcessId(hwnd1, out num);
+            PInvoke.GetWindowThreadProcessId(hwnd2, out num2);
+            return ((num == num2) && (num != 0));
+        }
+
+        private static Cursor CreateCursor(Bitmap bmpColor) {
+            Cursor cursor;
+            using(bmpColor) {
+                using(Bitmap bitmap = new Bitmap(0x20, 0x20)) {
+                    ICONINFO piconinfo = new ICONINFO();
+                    piconinfo.fIcon = false;
+                    piconinfo.hbmColor = bmpColor.GetHbitmap();
+                    piconinfo.hbmMask = bitmap.GetHbitmap();
+                    try {
+                        cursor = new Cursor(PInvoke.CreateIconIndirect(ref piconinfo));
+                    }
+                    catch {
+                        cursor = Cursors.Default;
+                    }
+                }
+            }
+            return cursor;
+        }
+
+        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
+            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
+        }
+
+        private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState) {
+            return _dragDropController.DragFileEnter(hDrop, pnt, grfKeyState);
+        }
+
+        private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
+            _dragDropController.DragFileLeave(sender, e);
+        }
+
+        private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
+            _dragDropController.DragFileOver(sender, e);
+        }
+
+
+        // Explorer_NavigateComplete2 lives in ExplorerControllerModule; façade removed (dead code)
+
+        // ��Ϣ����
+        private Cursor GetCursor(bool fDragging) {
+            return GetTabDragCursor(fDragging);
+        }
+        /**
+         * new �Ƿ��������أ�
+         */
+
+
+        private IntPtr GetSearchBand_Edit() {
+            IntPtr hwndSearchBand = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "UniversalSearchBand");
+            if(hwndSearchBand != IntPtr.Zero) {
+                hwndSearchBand = WindowUtils.FindChildWindow(hwndSearchBand, hwnd =>
+                        PInvoke.GetClassName(hwnd) == "Edit" && ((int)PInvoke.GetWindowLongPtr(hwnd, -16) & 0x10000000) != 0);
+            }
+            return hwndSearchBand;
+        }
+
+        private void HandleFileDrop(IntPtr hDrop) {
+            _dragDropController.HandleFileDrop(hDrop);
+        }
+
+        // I don't like this.  It seems wrong to have this here instead of in the button bar class.
+        internal void ProcessButtonBarClick(int buttonID) => _buttonBarClickController.ProcessButtonBarClick(buttonID);
+
+        /// <summary>
+        /// ˢ����������
+        /// </summary>
+        internal void RefreshOptions() => _shellUiController.RefreshOptions();
+
+        internal static void SyncTaskBarMenu() {
+        }
+
+        /**
+         * bug ��ֻ��һ����ǩ��ʱ�򣬵����ǩ�հ״�ʶ��Ϊ��ǩ
+         */
+        // ����ڱ�ǩ�ϲ���
+
+        // ���ô����ö�����
+        private void ToggleTopMost() => _shellUiController.ToggleTopMost();
+        private void UpOneLevel() => _shellNavigationController.UpOneLevel();
+
     }
 }

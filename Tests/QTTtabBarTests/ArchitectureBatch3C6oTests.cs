@@ -32,9 +32,10 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ButtonBarClick_And_BandInfo() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             string buttonBar = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ButtonBarClickController.cs"));
             string bandInfo = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Band", "BandInfoController.cs"));
-            Assert.IsTrue(main.Contains("_buttonBarClickController.ProcessButtonBarClick("));
+            Assert.IsTrue(shellHosts.Contains("_buttonBarClickController.ProcessButtonBarClick("));
             Assert.IsTrue(main.Contains("_bandInfoController.GetBandInfo("));
             Assert.IsFalse(main.Contains("internal void ProcessButtonBarClick(int buttonID) {\r\n            switch(buttonID)"));
             Assert.IsFalse(main.Contains("BandHeight = ComputeBandHeight(rows, Config.Skin.TabHeight, GetBandDpiScale());"));

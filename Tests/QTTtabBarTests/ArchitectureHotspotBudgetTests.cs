@@ -22,7 +22,6 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Explicit("enabled in Task 13 final gate")]
         public void Final_Budget_QTTabBarClass_FileLines() {
             Assert.LessOrEqual(SourceMetrics.FileLines("QTTabBar/QTTabBarClass.cs"), 500);
         }

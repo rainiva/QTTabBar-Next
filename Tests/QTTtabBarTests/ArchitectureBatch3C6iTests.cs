@@ -25,15 +25,16 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ListViewHandlers_To_Controller() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.cs"));
             Assert.IsTrue(main.Contains("_listViewInputController"));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnItemCountChanged("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnSelectionChanged("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnSelectionActivated("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnMiddleClick("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnMouseActivate("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnDoubleClick("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnEndLabelEdit("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnItemCountChanged("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnSelectionChanged("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnSelectionActivated("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnMiddleClick("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnMouseActivate("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnDoubleClick("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnEndLabelEdit("));
             Assert.IsTrue(controller.Contains("class ListViewInputController"));
         }
 

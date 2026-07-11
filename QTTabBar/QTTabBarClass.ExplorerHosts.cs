@@ -484,5 +484,66 @@ int IExplorerWindowMessageHost.SequentialCloseCount { get => iSequential_WM_CLOS
         void IExplorerWindowMessageHost.CloseExplorer(int reason) {
             WindowUtils.CloseExplorer(ExplorerHandle, reason);
         }
+
+        internal IDLWrapper GetCurrentPIDL() {
+            IDLWrapper wrapper = ShellBrowser.GetShellPath();
+            if(!wrapper.Available) {
+                wrapper.Dispose();
+                wrapper = new IDLWrapper(ShellMethods.ShellGetPath2(ExplorerHandle));
+                if(!wrapper.Available) {
+                    wrapper.Dispose();
+                    wrapper = new IDLWrapper(lastCompletedBrowseObjectIDL);
+                }
+            }
+            return wrapper;
+        }
+
+        private IntPtr GetTravelToolBarWindow32() {
+            IntPtr hwndTravelBand = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "TravelBand");
+            return hwndTravelBand != IntPtr.Zero 
+                    ? PInvoke.FindWindowEx(hwndTravelBand, IntPtr.Zero, "ToolbarWindow32", null) 
+                    : IntPtr.Zero;
+        }
+
+        private void InitializeInstallation() {
+            _explorerControllerModule.InitializeInstallation();
+        }
+
+        private void MinimizeToTray() {
+            _windowManagementController.MinimizeToTray();
+        }
+
+
+        internal void NavigateBranchCurrent(int index) {
+            _explorerControllerModule.NavigateBranchCurrent(index);
+        }
+
+        private void NavigateBranches(QTabItem tab, int index) {
+            _explorerControllerModule.NavigateBranches(tab, index);
+        }
+
+        private bool NavigateCurrentTab(bool fBack) {
+            return _explorerControllerModule.NavigateCurrentTab(fBack);
+        }
+
+        private void NavigateToFirstOrLast(bool fBack) {
+            _explorerControllerModule.NavigateToFirstOrLast(fBack);
+        }
+
+        internal void NavigateToHistory(string displayPath, bool fBack, int steps) {
+            _explorerControllerModule.NavigateToHistory(displayPath, fBack, steps);
+        }
+
+        private bool NavigateToIndex(bool fBack, int index) {
+            return _explorerControllerModule.NavigateToIndex(fBack, index);
+        }
+
+
+
+        // ��ʾĿ¼��
+        private void ShowFolderTree(bool fShow) => _shellUiController.ShowFolderTree(fShow);
+        
+        private void ShowSearchBar(bool fShow) => _shellUiController.ShowSearchBar(fShow);
+
     }
 }

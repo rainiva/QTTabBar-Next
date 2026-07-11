@@ -74,7 +74,16 @@ namespace QTTtabBarTests {
 
         [Test]
         public void MergeAllWindows_Delegates_To_WindowManagementController() {
-            AssertFacadeDelegates("MergeAllWindows", "_windowManagementController.MergeAllWindows(");
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
+            int index = shellHosts.IndexOf("private void MergeAllWindows(", StringComparison.Ordinal);
+            Assert.GreaterOrEqual(index, 0, "MergeAllWindows should exist on QTTabBarClass");
+            int brace = shellHosts.IndexOf('{', index);
+            int next = shellHosts.IndexOf("\n        ", brace + 1, StringComparison.Ordinal);
+            string body = next > brace
+                ? shellHosts.Substring(brace, Math.Min(120, next - brace))
+                : shellHosts.Substring(brace, Math.Min(120, shellHosts.Length - brace));
+            Assert.IsTrue(body.Contains("_windowManagementController.MergeAllWindows("),
+                "MergeAllWindows should delegate via _windowManagementController.MergeAllWindows(");
         }
 
         private static void AssertNestedController(string name) {

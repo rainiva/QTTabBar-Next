@@ -23,11 +23,12 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ShellCommands_To_Controller() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellCommandController.cs"));
             Assert.IsTrue(main.Contains("_shellCommandController"));
-            Assert.IsTrue(main.Contains("_shellCommandController.CreateNewFile("));
-            Assert.IsTrue(main.Contains("_shellCommandController.OpenCmd("));
-            Assert.IsTrue(main.Contains("_shellCommandController.Wait4Select("));
+            Assert.IsTrue(shellHosts.Contains("_shellCommandController.CreateNewFile("));
+            Assert.IsTrue(shellHosts.Contains("_shellCommandController.OpenCmd("));
+            Assert.IsTrue(shellHosts.Contains("_shellCommandController.Wait4Select("));
             Assert.IsTrue(controller.Contains("class ShellCommandController"));
         }
 

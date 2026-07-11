@@ -42,13 +42,14 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_BandLifecycle_Navigation_And_Bootstrap() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             string bandLifecycle = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Band", "BandLifecycleController.cs"));
             string shellNav = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellNavigationController.cs"));
             string bootstrap = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceBootstrapController.cs"));
             Assert.IsTrue(main.Contains("_bandLifecycleController.ShowDW("));
             Assert.IsTrue(main.Contains("_bandLifecycleController.UIActivateIO("));
             Assert.IsTrue(main.Contains("_bandLifecycleController.RefreshBandHeightForCurrentDpi("));
-            Assert.IsTrue(main.Contains("_shellNavigationController.UpOneLevel("));
+            Assert.IsTrue(shellHosts.Contains("_shellNavigationController.UpOneLevel("));
             Assert.IsTrue(main.Contains("InstanceBootstrapController.EnsureStaticFieldsInitialized("));
             Assert.IsTrue(main.Contains("InstanceBootstrapController.DetectFirstLoad("));
             Assert.IsFalse(main.Contains("private static void InitializeStaticFields()"));
