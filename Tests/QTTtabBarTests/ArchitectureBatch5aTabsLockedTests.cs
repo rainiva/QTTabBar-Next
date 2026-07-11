@@ -43,8 +43,8 @@ namespace QTTtabBarTests {
         [Test]
         public void Lock_Entry_Points_Do_Not_Call_LockedTabsToRestoreList_Add() {
             string[] files = {
-                "QTTabBarClass.ButtonBarClickController.cs",
-                "QTTabBarClass.MenuController.TabMenu.cs",
+                "QTTabBarClass.ShellHosts.cs",
+                "QTTabBarClass.ShellHosts.cs",
                 "TabBarBase.BindActions.cs",
             };
             foreach(string file in files) {
@@ -57,8 +57,8 @@ namespace QTTtabBarTests {
         [Test]
         public void Lock_Entry_Points_Use_LockedTabsService() {
             string[] files = {
-                "QTTabBarClass.ButtonBarClickController.cs",
-                "QTTabBarClass.MenuController.TabMenu.cs",
+                "QTTabBarClass.ShellHosts.cs",
+                "QTTabBarClass.ShellHosts.cs",
                 "TabBarBase.BindActions.cs",
             };
             foreach(string file in files) {

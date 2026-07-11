@@ -49,21 +49,15 @@ using System.Management;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace QTTabBarLib {
-    /**
-     sealed Ӧ����ĳ����ʱ��sealed ���η�����ֹ������̳��Ը��ࡣ�������ʾ���У��� B �̳����� A����û������Լ̳����� B��
-     class A {}
-     sealed class B : A {}
-     */
     [ComVisible(true), Guid("d2bf470e-ed1c-487f-a333-2bd8835eb6ce")]
     public partial class QTTabBarClass : TabBarBase
     {
        
         private BreadcrumbBar breadcrumbBar;
         
-        
         private MenuController _menuController;
         private TabManager _tabManager;
-        private ExplorerControllerModule _explorerControllerModule;
+        private ExplorerController _explorerControllerModule;
         private DragDropController _dragDropController;
         private HookInputController _hookInputController;
         private FileToolsController _fileToolsController;
@@ -79,12 +73,13 @@ namespace QTTabBarLib {
         private TabTooltipController _tabTooltipController;
         private WindowManagementController _windowManagementController;
         private BandWindowController _bandWindowController;
-        private ComponentBuildController _componentBuildController;
+        private TabBarComposition _tabBarComposition;
         private DroppedFilesController _droppedFilesController;
         private FolderTreeController _folderTreeController;
         private ViewModeController _viewModeController;
         private PluginMenuController _pluginMenuController;
         private ShutdownController _shutdownController;
+        private ComponentBuildController _componentBuildController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -119,33 +114,17 @@ namespace QTTabBarLib {
             form.MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
         }
 
-        private void createNewFile() => _shellCommandController.CreateNewFile();
-
-        private void OpenCmd(QTabItem tab) => _shellCommandController.OpenCmd(tab);
-
-        private void Wait4Select() => _shellCommandController.Wait4Select();
-
-        private void ListView_ItemCountChanged(int count) => _listViewInputController.OnItemCountChanged(count);
-
-        private bool ListView_SelectionActivated(Keys modKeys) => _listViewInputController.OnSelectionActivated(modKeys);
-
-        private void ListView_SelectionChanged() => _listViewInputController.OnSelectionChanged();
-
-        private bool ListView_MiddleClick(Point pt) => _listViewInputController.OnMiddleClick(pt);
-
-        private bool ListView_MouseActivate(ref int result) => _listViewInputController.OnMouseActivate(ref result);
-
-        private bool ListView_DoubleClick(Point pt) => _listViewInputController.OnDoubleClick(pt);
-
-        private void ListView_EndLabelEdit(LVITEM item) => _listViewInputController.OnEndLabelEdit(item);
-
-        private void MergeAllWindows() { _windowManagementController.MergeAllWindows(); }
-
         private ContextMenuStripEx contextMenuDropped;
 
         private DropTargetWrapper dropTargetWrapper;
         private NativeWindowController explorerController;
         
+        private List<ToolStripItem> lstPluginMenuItems_Sys;
+        private List<ToolStripItem> lstPluginMenuItems_Tab;
+
+        private bool NowOpenedByGroupOpener;
+        private bool NowTopMost;
+
         private bool fHideExplorer;
         private readonly bool fIsFirstLoad;
         private volatile bool FirstNavigationCompleted;
@@ -162,43 +141,7 @@ namespace QTTabBarLib {
         
         private NativeWindowController travelBtnController;
         
-        
         private TreeViewWrapper treeViewWrapper;
-        /*// ���ӵ�����
-        private ToolStripMenuItem tsmiAddToGroup;
-        private ToolStripMenuItem tsmiBrowseFolder;
-        private ToolStripMenuItem tsmiCloneThis;
-        private ToolStripMenuItem tsmiClose;
-        private ToolStripMenuItem tsmiCloseAllButCurrent;
-        private ToolStripMenuItem tsmiCloseAllButThis;
-        private ToolStripMenuItem tsmiCloseLeft;
-        private ToolStripMenuItem tsmiCloseRight;
-        private ToolStripMenuItem tsmiCloseWindow;
-        private ToolStripMenuItem tsmiCopy;
-        private ToolStripMenuItem tsmiCreateGroup;
-        private ToolStripMenuItem tsmiCreateWindow;
-        private ToolStripMenuItem tsmiExecuted;
-        private ToolStripMenuItem tsmiGroups;
-        private ToolStripMenuItem tsmiHistory;
-        private ToolStripMenuItem tsmiLastActiv;
-        private ToolStripMenuItem tsmiLockThis;
-        private ToolStripMenuItem tsmiLockToolbar;
-        private ToolStripMenuItem tsmiMergeWindows;
-        private ToolStripMenuItem tsmiOption;
-        private ToolStripMenuItem tsmiProp;
-        private ToolStripMenuItem tsmiTabOrder;
-        private ToolStripMenuItem tsmiUndoClose;
-
-        /*add by qwop 2012.07.13#1#
-        private ToolStripMenuItem tsmiOpenCmd;
-        private ToolStripMenuItem enableApiHook;
-        /*add by qwop 2012.07.13#1#
-
-        private ToolStripSeparator tssep_Sys1;
-        private ToolStripSeparator tssep_Sys2;
-        private ToolStripSeparator tssep_Tab1;
-        private ToolStripSeparator tssep_Tab2;
-        private ToolStripSeparator tssep_Tab3;*/
         private readonly int WM_NEWTREECONTROL = PInvoke.RegisterWindowMessage("QTTabBar_NewTreeControl");
         private readonly int WM_BROWSEOBJECT = PInvoke.RegisterWindowMessage("QTTabBar_BrowseObject");
         private readonly int WM_HEADERINALLVIEWS = PInvoke.RegisterWindowMessage("QTTabBar_HeaderInAllViews");
@@ -207,7 +150,6 @@ namespace QTTabBarLib {
         private readonly int WM_CHECKPULSE = PInvoke.RegisterWindowMessage("QTTabBar_CheckPulse");
         private readonly int WM_SELECTFILE = PInvoke.RegisterWindowMessage("QTTabBar_SelectFile");
 
-        
         internal bool CanNavigateBackward { get { return ((navBtnsFlag & 1) != 0); } }
         internal bool CanNavigateForward { get { return ((navBtnsFlag & 2) != 0); } }
         internal int TabCount { get { return tabControl1.TabCount; } }
@@ -222,7 +164,6 @@ namespace QTTabBarLib {
                 }
             }
         }
-
 
         #region qwop �Զ�����
         public static void OpenOptionDialog()
@@ -246,35 +187,15 @@ namespace QTTabBarLib {
             QTUtility2.ENABLE_LOGGER = Config.Misc.EnableLog;
         }
 
-        private void AddInsertTab(QTabItem tab) {
-            base.AddInsertTab(tab);
-        }
         private void AddStartUpTabs(string openingGRP, string openingPath) {
             _tabManager.AddStartUpTabs(openingGRP, openingPath);
         }
        
-
-        /**
-         * �����ק����ļ��������������Ӧ�ó���˵��ĵ����˵�����
-         */
         internal void AppendUserApps(IList<string> listDroppedPaths) => _droppedFilesController.AppendUserApps(listDroppedPaths);
-
-        // BeforeNavigate moved to ExplorerControllerModule (Batch 13)
-
-        
-
-        private static bool CheckProcessID(IntPtr hwnd1, IntPtr hwnd2) {
-            uint num;
-            uint num2;
-            PInvoke.GetWindowThreadProcessId(hwnd1, out num);
-            PInvoke.GetWindowThreadProcessId(hwnd2, out num2);
-            return ((num == num2) && (num != 0));
-        }
 
         private void ChooseNewDirectory() {
             _tabManager.ChooseNewDirectory();
         }
-        // ClearTravelLogs moved to ExplorerControllerModule (Batch 13)
 
         internal void CloneCurrentTab(bool fSelect = true) {
             _tabManager.CloneCurrentTab(fSelect);
@@ -285,33 +206,13 @@ namespace QTTabBarLib {
         private QTabItem CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index) {
             return _tabManager.CloneTabButton(tab, optionURL, fSelect, index);
         }
-        private List<string> CloseAllTabsExcept(QTabItem leaveThisOne, bool leaveLocked = true) {
-            return base.CloseAllTabsExcept(leaveThisOne, leaveLocked);
-        }
-        /**
-         *�����رմ����¼� by indiff
-         */
         public override void CloseDW(uint dwReserved) => _shutdownController.CloseDW(dwReserved);
 
         internal void CloseDWBase(uint dwReserved) {
             base.CloseDW(dwReserved);
         }
 
-        private void CloseLeftRight(bool fLeft, int index) {
-            base.CloseLeftRight(fLeft, index);
-        }
-
-
-      
-
-        
-
-
-        /**
-         * ������������ API Hook
-         */
         internal void EnableApiHook() => _hookInputController.EnableApiHook();
-
 
         private void Controls_GotFocus(object sender, EventArgs e) {
             OnGotFocus(e);
@@ -321,65 +222,11 @@ namespace QTTabBarLib {
             return _menuController.CreateBranchMenu(fCurrent, container, itemClickedEvent);
         }
 
-        private static Cursor CreateCursor(Bitmap bmpColor) {
-            Cursor cursor;
-            using(bmpColor) {
-                using(Bitmap bitmap = new Bitmap(0x20, 0x20)) {
-                    ICONINFO piconinfo = new ICONINFO();
-                    piconinfo.fIcon = false;
-                    piconinfo.hbmColor = bmpColor.GetHbitmap();
-                    piconinfo.hbmMask = bitmap.GetHbitmap();
-                    try {
-                        cursor = new Cursor(PInvoke.CreateIconIndirect(ref piconinfo));
-                    }
-                    catch {
-                        cursor = Cursors.Default;
-                    }
-                }
-            }
-            return cursor;
-        }
-
-
-
         // ���ӵ���ǩ�鹦��
-        private void Add2Group(QTabItem contextMenuedTab) {
-            ((TabBarBase)this).Add2Group(contextMenuedTab);
-        }
         internal List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent) {
             return _menuController.CreateNavBtnMenuItems(fCurrent);
         }
         
-        // �����µ�tabҳ
-        private QTabItem CreateNewTab(IDLWrapper idlw) {
-            return base.CreateNewTab(idlw);
-        }
-        // ���� tab ͼƬ
-        internal static Bitmap[] CreateTabImage() {
-            if(File.Exists(Config.Skin.TabImageFile)) {
-                try {
-                    Bitmap[] bitmapArray = new Bitmap[3];
-                    using(Bitmap bitmap = new Bitmap(Config.Skin.TabImageFile)) {
-                        int height = bitmap.Height / 3;
-                        bitmapArray[0] = bitmap.Clone(new Rectangle(0, 0, bitmap.Width, height), PixelFormat.Format32bppArgb);
-                        bitmapArray[1] = bitmap.Clone(new Rectangle(0, height, bitmap.Width, height), PixelFormat.Format32bppArgb);
-                        bitmapArray[2] = bitmap.Clone(new Rectangle(0, height * 2, bitmap.Width, height), PixelFormat.Format32bppArgb);
-                    }
-                    if(Path.GetExtension(Config.Skin.TabImageFile).PathEquals(".bmp")) {
-                        bitmapArray[0].MakeTransparent(Color.Magenta);
-                        bitmapArray[1].MakeTransparent(Color.Magenta);
-                        bitmapArray[2].MakeTransparent(Color.Magenta);
-                    }
-                    return bitmapArray;
-                }
-                catch {
-                }
-            }
-            return null;
-        }
-
-        // todo: handle links — CreateTMPPathsToOpenNew moved to ListViewInputController (3l)
-
         protected override void Dispose(bool disposing) {
             if(disposing && (components != null)) {
                 components.Dispose();
@@ -387,169 +234,38 @@ namespace QTTabBarLib {
             base.Dispose(disposing);
         }
 
-
-        // todo: clean, enum.
-
         // 命令的方式  select 1 / factory 2 / other 3
         private int mCmdType = 0;
 
         // This function is either called by BeforeNavigate2 (on XP and Vista)
         // or NavigateComplete2 (on 7)
-        // DoFirstNavigation moved to ExplorerControllerModule (Batch 13)
-
-        /*
-                      Address[] addressArray;
-                      if (ShellBrowser.TryGetSelection(out addressArray, false))
-                      {
-                          foreach (Address address in addressArray)
-                          {
-                              if (address.Path != null && Directory.Exists(address.Path))
-                              {
-                                  QTLogger.log("TryGetSelection " + address.Path);
-                                  // OpenNewTab(address.Path, action == BindAction.ItemsOpenInNewTabNoSel);
-                              }
-                          }
-                      } 
-                    */
-
-
-        // TryParseCommandlineParams moved to ExplorerControllerModule (Batch 13)
-
-        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
-            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
-        }
-
-        private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState) {
-            return _dragDropController.DragFileEnter(hDrop, pnt, grfKeyState);
-        }
-
-        private void dropTargetWrapper_DragFileLeave(object sender, EventArgs e) {
-            _dragDropController.DragFileLeave(sender, e);
-        }
-
-        private void dropTargetWrapper_DragFileOver(object sender, DragEventArgs e) {
-            _dragDropController.DragFileOver(sender, e);
-        }
-
-        // Explorer_BeforeNavigate2 moved to ExplorerControllerModule (Batch 13)
-
-
-
-        // Explorer_NavigateComplete2 lives in ExplorerControllerModule; façade removed (dead code)
-
-
-        // ��Ϣ����
-        // explorerController_MessageCaptured moved to ExplorerControllerModule (Batch 13)
 
         public override void GetBandInfo(uint dwBandID, uint dwViewMode, ref DESKBANDINFO dbi) {
             _bandInfoController.GetBandInfo(dwBandID, dwViewMode, ref dbi);
-        }
-
-        // GetCurrentLogEntry moved to ExplorerControllerModule (Batch 13)
-
-        internal IDLWrapper GetCurrentPIDL() {
-            IDLWrapper wrapper = ShellBrowser.GetShellPath();
-            if(!wrapper.Available) {
-                wrapper.Dispose();
-                wrapper = new IDLWrapper(ShellMethods.ShellGetPath2(ExplorerHandle));
-                if(!wrapper.Available) {
-                    wrapper.Dispose();
-                    wrapper = new IDLWrapper(lastCompletedBrowseObjectIDL);
-                }
-            }
-            return wrapper;
-        }
-
-        private Cursor GetCursor(bool fDragging) {
-            return GetTabDragCursor(fDragging);
-        }
-        /**
-         * new �Ƿ��������أ�
-         */
-        // GetCommandLine moved to ExplorerControllerModule (Batch 13)
-
-        // GetNameToSelectFromCommandLineArg moved to ExplorerControllerModule (Batch 13)
-
-        private IntPtr GetSearchBand_Edit() {
-            IntPtr hwndSearchBand = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "UniversalSearchBand");
-            if(hwndSearchBand != IntPtr.Zero) {
-                hwndSearchBand = WindowUtils.FindChildWindow(hwndSearchBand, hwnd =>
-                        PInvoke.GetClassName(hwnd) == "Edit" && ((int)PInvoke.GetWindowLongPtr(hwnd, -16) & 0x10000000) != 0);
-            }
-            return hwndSearchBand;
         }
 
         public ShellBrowserEx GetShellBrowser() {
             return ShellBrowser;
         }
 
-        private IntPtr GetTravelToolBarWindow32() {
-            IntPtr hwndTravelBand = WindowUtils.FindChildWindow(ExplorerHandle, hwnd => PInvoke.GetClassName(hwnd) == "TravelBand");
-            return hwndTravelBand != IntPtr.Zero 
-                    ? PInvoke.FindWindowEx(hwndTravelBand, IntPtr.Zero, "ToolbarWindow32", null) 
-                    : IntPtr.Zero;
-        }
-
-        private bool HandleCLOSE(IntPtr lParam) => _hookInputController.HandleCLOSE(lParam);
-
         internal static int HandleDragEnter(IntPtr hDrop, out string strDraggingDrive, out string strDraggingStartPath) {
             return DragDropController.HandleDragEnter(hDrop, out strDraggingDrive, out strDraggingStartPath);
         }
 
-        private void HandleFileDrop(IntPtr hDrop) {
-            _dragDropController.HandleFileDrop(hDrop);
-        }
-
-        private void HideTabSwitcher(bool fSwitch) {
-            ((TabBarBase)this).HideTabSwitcher(fSwitch);
-        }
         private void InitializeComponent() {
             components = new Container();
+            _tabBarComposition = new TabBarComposition((ITabBarCompositionHost)this);
+            _tabBarComposition.Build();
+        }
+
+        void ITabBarCompositionHost.BuildTabBarComponents() {
             _componentBuildController = new ComponentBuildController(this);
             _componentBuildController.Build();
         }
 
-        private void InitializeInstallation() {
-            _explorerControllerModule.InitializeInstallation();
+        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
+            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
         }
-
-        private void MinimizeToTray() {
-            _windowManagementController.MinimizeToTray();
-        }
-
-        // NavigateBackToTheFuture moved to ExplorerControllerModule (Batch 13)
-
-        internal void NavigateBranchCurrent(int index) {
-            _explorerControllerModule.NavigateBranchCurrent(index);
-        }
-
-        private void NavigateBranches(QTabItem tab, int index) {
-            _explorerControllerModule.NavigateBranches(tab, index);
-        }
-
-        private bool NavigateCurrentTab(bool fBack) {
-            return _explorerControllerModule.NavigateCurrentTab(fBack);
-        }
-
-        private void NavigateToFirstOrLast(bool fBack) {
-            _explorerControllerModule.NavigateToFirstOrLast(fBack);
-        }
-
-        internal void NavigateToHistory(string displayPath, bool fBack, int steps) {
-            _explorerControllerModule.NavigateToHistory(displayPath, fBack, steps);
-        }
-
-        private bool NavigateToIndex(bool fBack, int index) {
-            return _explorerControllerModule.NavigateToIndex(fBack, index);
-        }
-
-        
-
-        // NavigationButton_DropDownMenu_ItemClicked moved to ExplorerControllerModule (Batch 13)
-
-        // NavigationButtons_Click moved to ExplorerControllerModule (Batch 13)
-
-        // NavigationButtons_DropDownOpening moved to ExplorerControllerModule (Batch 13)
 
         internal void OnMouseDoubleClick() {
             OnMouseDoubleClick(new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
@@ -569,15 +285,8 @@ namespace QTTabBarLib {
         private void OpenDroppedFolder(IList<string> listDroppedPaths) {
             _tabManager.OpenDroppedFolder(listDroppedPaths);
         }
-        // todo: CLEANNNNNNNNN
         public void OpenGroup(string groupName, bool fForceNewWindow, bool fDisableOverrides = false) {
             _tabManager.OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
-        }
-        private bool OpenNewTab(string path, bool blockSelecting = false, bool fForceNew = false) {
-            return base.OpenNewTab(path, blockSelecting, fForceNew);
-        }
-        internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
-            return base.OpenNewTab(idlwGiven, blockSelecting, fForceNew);
         }
         internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
             _tabManager.OpenNewTabOrWindow(idlw, fNeedsPulse);
@@ -586,34 +295,13 @@ namespace QTTabBarLib {
             _tabManager.OpenNewWindow(idlwGiven);
         }
 
-        // I don't like this.  It seems wrong to have this here instead of in the button bar class.
-        // todo: consider moving all this to the button bar and just making the necessary methods internal.
-        internal void ProcessButtonBarClick(int buttonID) => _buttonBarClickController.ProcessButtonBarClick(buttonID);
-
-        /// <summary>
-        /// ˢ����������
-        /// </summary>
-        internal void RefreshOptions() => _shellUiController.RefreshOptions();
-
         [ComRegisterFunction]
         private static void Register(Type t) => ComRegistrationController.Register(t);
 
-        private void ReorderTab(int index, bool fDescending) {
-            ((TabBarBase)this).ReorderTab(index, fDescending);
-        }
         internal void ReplaceByGroup(string groupName) {
             _tabManager.ReplaceByGroup(groupName);
         }
-        private void RestoreLastClosed() {
-            ((TabBarBase)this).RestoreLastClosed();
-        }
-        // 恢复标签
-        private void RestoreTabsOnInitialize(int iIndex, string openingPath) {
-            ((TabBarBase)this).RestoreTabsOnInitialize(iIndex, openingPath);
-        }
-
        
-
         protected override bool ShouldHaveBreak() {
             return Config.Window.BreakTabBar;
         }
@@ -626,36 +314,18 @@ namespace QTTabBarLib {
             base.ShowDW(fShow);
             _bandLifecycleController.ShowDW(fShow);
         }
-        // ��ʾĿ¼��
-        private void ShowFolderTree(bool fShow) => _shellUiController.ShowFolderTree(fShow);
-        
         internal static void ShowMD5(string[] paths) {
             FileToolsController.ShowMD5(paths);
         }
-
-      
-
-        private void ShowSearchBar(bool fShow) => _shellUiController.ShowSearchBar(fShow);
 
         public AbstractListView GetListView() {
             return listView;
         }
         
-        private bool ShowTabSwitcher(bool fShift, bool fRepeat) {
-            return ((TabBarBase)this).ShowTabSwitcher(fShift, fRepeat);
-        }
-        /**
-         * ��ʾ������Ϣ
-         *  shift ��ʾ��ϸ��Ϣ
-         */
         private void subDirTip_MenuItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             _tabTooltipController.SubDirTip_MenuItemClicked(sender, e);
         }
 
-        // �޸�Ԥ��Ŀ¼��ת����ȷ�ı�ǩλ��
-        private int TabIndex() {
-            return TabIndexForNewTab();
-        }
         private void subDirTip_MenuItemRightClicked(object sender, ItemRightClickedEventArgs e) {
             _tabTooltipController.SubDirTip_MenuItemRightClicked(sender, e);
         }
@@ -667,29 +337,6 @@ namespace QTTabBarLib {
         private void subDirTip_MultipleMenuItemsRightClicked(object sender, ItemRightClickedEventArgs e) {
             _tabTooltipController.SubDirTip_MultipleMenuItemsRightClicked(sender, e);
         }
-
-        internal static void SyncTaskBarMenu() {
-        }
-
-        
-
-        
-
-
-
-        /**
-         * bug ��ֻ��һ����ǩ��ʱ�򣬵����ǩ�հ״�ʶ��Ϊ��ǩ
-         */
-        // ����ڱ�ǩ�ϲ���
-
-       
-
-
-
-       
-
-        // ���ô����ö�����
-        private void ToggleTopMost() => _shellUiController.ToggleTopMost();
 
         public override int TranslateAcceleratorIO(ref MSG msg) {
             int result;
@@ -708,24 +355,11 @@ namespace QTTabBarLib {
             return ShellBrowser.TryGetSelection(out adSelectedItems, out pathFocused, fDisplayName);
         }
 
-       
-
-        private void tsmiBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            ((TabBarBase)this).tsmiBranchRoot_DropDownItemClicked(sender, e);
-        }
         public override void UIActivateIO(int fActivate, ref MSG Msg) => _bandLifecycleController.UIActivateIO(fActivate, ref Msg);
 
         [ComUnregisterFunction]
         private static void Unregister(Type t) => ComRegistrationController.Unregister(t);
 
-        private void UpOneLevel() => _shellNavigationController.UpOneLevel();
-
-        internal static void WaitTimeout(int msec) {
-            Thread.Sleep(msec);
-        }
-        /**
-         * ��Ϣ��� by indiff
-         */
         protected override void WndProc(ref Message m) {
             try {
                 _bandWindowController.ProcessWndProc(ref m, out bool suppressBase);
@@ -767,57 +401,5 @@ namespace QTTabBarLib {
 
         private void RefreshBandHeightForCurrentDpi() => _bandLifecycleController.RefreshBandHeightForCurrentDpi();
 
-
-
-        #region ��ǩ���¼���
-        // Fields moved to TabBarBase: rebarController, CurrentAddress, CurrentTab, BandHeight,
-        // BandHeightSpace, ShellBrowser, lstActivatedTabs, ExplorerHandle, LogEntryDic,
-        // listView, listViewManager, TravelLog, pluginServer, NavigatedByCode,
-        // NowTabsAddingRemoving, NowInTravelLog, NowModalDialogShown, NowTabCloned,
-        // NowTabCreated, fNavigatedByTabSelection, CurrentTravelLogIndex, navBtnsFlag,
-        // toolStrip, buttonBack, buttonForward, buttonNavHistoryMenu, TravelToolBarHandle
-
-        private List<ToolStripItem> lstPluginMenuItems_Sys;
-        private List<ToolStripItem> lstPluginMenuItems_Tab;
-
-        private bool NowOpenedByGroupOpener;
-        private bool NowTopMost;
-
-        public bool HideExplorer
-        {
-            get
-            {
-                return fHideExplorer;
-            }
-        }
-
-        /**
-         * ���ӵ���ʷĿ¼
-         */
-        // AddToHistory and TryCallButtonBar moved to TabBarBase
-
-        // ShowMessageNavCanceled moved to TabBarBase
-
-        protected internal override void CancelFailedTabChanging(string newPath) {
-            base.CancelFailedTabChanging(newPath);
-        }
-        // NavigateToPastSpecialDir moved to TabBarBase
-
-        /**
-        * TODO config to refresh  when tab control selected index changed
-        * ���л���ǩ��ʱ�������Ƿ����ˢ��
-        * �����쳣���
-        * System.NullReferenceException: δ�������������õ������ʵ����
-          �� QTTabBarLib.Interop.IShellBrowser.BrowseObject(IntPtr pidl, SBSP wFlags)
-          �� QTTabBarLib.ShellBrowserEx.Navigate(IDLWrapper idlw, SBSP flags)
-          �� QTTabBarLib.QTTabBarClass.tabControl1_SelectedIndexChanged(Object sender, EventArgs e)
-        */
-        // SyncTravelState, SyncToolbarTravelButton, IsSpecialFolderNeedsToTravel,
-        // IsSearchResultFolder, tabControl1_RowCountChanged, SetBarRows moved to TabBarBase
-
-        /**
-         * ����ѡ����
-         */
-        #endregion
     }
 }

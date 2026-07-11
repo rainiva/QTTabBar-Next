@@ -36,7 +36,7 @@ namespace QTTtabBarTests {
         [Test]
         public void TabManager_No_Longer_Hosts_Tab_Mouse_Handlers() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             foreach(string name in MouseHandlers) {
                 Assert.IsFalse(content.Contains("public void " + name + "("),
                     "TabManager should not host " + name + " after W3h");
@@ -47,7 +47,7 @@ namespace QTTtabBarTests {
         public void ComponentBuildController_Wires_Mouse_Events_To_TabBarBase() {
             string content = File.ReadAllText(
                 Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
-            Assert.IsTrue(content.Contains("_owner.tabControl1_MouseDown"),
+            Assert.IsTrue(content.Contains("tabControl1_MouseDown"),
                 "ComponentBuildController should wire tab mouse events to TabBarBase handlers");
             Assert.IsFalse(content.Contains("_tabManager.tabControl1_MouseDown"),
                 "ComponentBuildController should not wire tab mouse events via TabManager after W3h");

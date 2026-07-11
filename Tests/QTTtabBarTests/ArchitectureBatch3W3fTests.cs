@@ -17,9 +17,8 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_No_Longer_Forwards_TabBarBase_TabOperations() {
-            var tabManager = typeof(QTTabBarClass).GetNestedType("TabManager",
-                BindingFlags.Public | BindingFlags.NonPublic);
-            Assert.IsNotNull(tabManager, "TabManager nested type should exist");
+            var tabManager = typeof(TabManager);
+            Assert.IsNotNull(tabManager, "TabManager top-level type should exist");
 
             foreach(string name in RemovedTabManagerForwards) {
                 MethodInfo[] methods = tabManager.GetMethods(
@@ -34,7 +33,9 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Calls_TabBarBase_Directly_For_TabOperations() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs")) +
+                File.ReadAllText(
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             Assert.IsFalse(content.Contains("_tabManager.AddInsertTab"),
                 "QTTabBarClass should call base tab ops directly");
             Assert.IsFalse(content.Contains("_tabManager.CreateNewTab"),
@@ -51,15 +52,15 @@ namespace QTTtabBarTests {
         [Test]
         public void TabManager_Calls_Owner_TabBarBase_For_TabOperations() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
-            Assert.IsTrue(content.Contains("((TabBarBase)_owner).AddInsertTab"),
-                "TabManager should call owner TabBarBase tab ops");
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
+            Assert.IsTrue(content.Contains("_host.AddInsertTab"),
+                "TabOperations should call host AddInsertTab");
             Assert.IsFalse(content.Contains("public void AddInsertTab(QTabItem tab)"),
                 "TabManager AddInsertTab forward method should be removed");
-            Assert.IsFalse(content.Contains("return _owner.CreateNewTab"),
-                "TabManager CreateNewTab forward should be removed");
-            Assert.IsFalse(content.Contains("return _owner.OpenNewTab"),
-                "TabManager OpenNewTab forward should be removed");
+            Assert.IsFalse(content.Contains("return _host.CreateNewTab"),
+                "TabOperations CreateNewTab forward should be removed");
+            Assert.IsFalse(content.Contains("return _host.OpenNewTab"),
+                "TabOperations OpenNewTab forward should be removed");
         }
 
         private static string FindRepoRoot() {

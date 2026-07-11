@@ -34,7 +34,7 @@ namespace QTTtabBarTests {
 
         private static Type ControllerType {
             get {
-                return typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
+                return typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
             }
         }
 
@@ -57,13 +57,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerControllerModule_Holds_Owner_Reference_Of_QTTabBarClass() {
+        public void ExplorerController_Holds_No_QTTabBarClass_Field() {
             Type t = ControllerType;
-            Assert.IsNotNull(t, "ExplorerControllerModule type should exist");
-            FieldInfo owner = t.GetField("_owner", AnyInstance);
-            Assert.IsNotNull(owner, "ExplorerControllerModule should hold an _owner field");
-            Assert.AreEqual(typeof(QTTabBarClass), owner.FieldType,
-                "_owner should reference the outer QTTabBarClass instance");
+            Assert.IsNotNull(t, "ExplorerController type should exist");
+            Assert.IsEmpty(t.GetFields(AnyInstance).Where(field => field.FieldType == typeof(QTTabBarClass)));
         }
 
         #endregion
@@ -602,23 +599,18 @@ namespace QTTtabBarTests {
         // reassignment or duplicate owner references are caught.
 
         [Test]
-        public void ExplorerControllerModule_OwnerField_IsReadOnly() {
-            FieldInfo owner = ControllerType.GetField("_owner", AnyInstance);
-            Assert.IsNotNull(owner, "_owner field must exist");
-            Assert.IsTrue(owner.IsInitOnly,
-                "_owner must be readonly (IsInitOnly) to prevent accidental reassignment");
+        public void ExplorerController_Does_Not_Expose_Owner_Field() {
+            Assert.IsNull(ControllerType.GetField("_owner", AnyInstance));
         }
 
         [Test]
-        public void ExplorerControllerModule_HasExactlyOne_QTTabBarClass_Field() {
+        public void ExplorerController_Has_No_QTTabBarClass_Field() {
             FieldInfo[] qtFields = ControllerType
                 .GetFields(AnyInstance)
                 .Where(f => f.FieldType == typeof(QTTabBarClass))
                 .ToArray();
-            Assert.AreEqual(1, qtFields.Length,
-                "ExplorerControllerModule must have exactly one QTTabBarClass field (_owner)");
-            Assert.AreEqual("_owner", qtFields[0].Name,
-                "The single QTTabBarClass field must be named _owner");
+            Assert.AreEqual(0, qtFields.Length,
+                "ExplorerController must depend on role hosts rather than QTTabBarClass");
         }
 
         #endregion

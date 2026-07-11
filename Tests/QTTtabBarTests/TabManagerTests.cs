@@ -28,19 +28,14 @@ namespace QTTtabBarTests {
         private const BindingFlags AnyInstance =
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-        private static Type TabManagerType {
-            get {
-                return typeof(QTTabBarClass).GetNestedType("TabManager",
-                    BindingFlags.Public | BindingFlags.NonPublic);
-            }
-        }
+        private static Type TabManagerType => typeof(TabManager);
 
         #region Nested TabManager type exists and is internal
 
         [Test]
         public void TabManager_NestedType_Exists() {
             Assert.IsNotNull(TabManagerType,
-                "QTTabBarClass should declare a nested TabManager type");
+                "TabManager should exist as a top-level type in QTTabBarLib");
         }
 
         [Test]
@@ -48,19 +43,19 @@ namespace QTTtabBarTests {
             Type t = TabManagerType;
             Assert.IsNotNull(t, "TabManager type should exist");
             Assert.IsTrue(t.IsClass, "TabManager should be a class");
-            Assert.IsTrue(t.IsNested, "TabManager should be nested in QTTabBarClass");
-            Assert.IsTrue(t.IsNestedAssembly,
-                "TabManager should be internal (nested assembly visibility), no visibility widening");
+            Assert.IsFalse(t.IsNested, "TabManager should be a top-level type, not nested");
+            Assert.IsTrue(t.IsNotPublic,
+                "TabManager should be internal (not public)");
         }
 
         [Test]
         public void TabManager_Holds_Owner_Reference_Of_QTTabBarClass() {
             Type t = TabManagerType;
             Assert.IsNotNull(t, "TabManager type should exist");
-            FieldInfo owner = t.GetField("_owner", AnyInstance);
-            Assert.IsNotNull(owner, "TabManager should hold an _owner field");
-            Assert.AreEqual(typeof(QTTabBarClass), owner.FieldType,
-                "_owner should reference the outer QTTabBarClass instance");
+            FieldInfo host = t.GetField("_host", AnyInstance);
+            Assert.IsNotNull(host, "TabManager should hold a _host field");
+            Assert.AreEqual(typeof(ITabOperationsHost), host.FieldType,
+                "_host should reference the ITabOperationsHost interface");
         }
 
         #endregion
@@ -406,7 +401,7 @@ namespace QTTtabBarTests {
             Assert.IsTrue(f.IsPrivate, "_tabManager should be private");
             Assert.IsFalse(f.IsStatic, "_tabManager should be an instance field");
             Assert.AreEqual(TabManagerType, f.FieldType,
-                "_tabManager must be typed as the nested TabManager");
+                "_tabManager must be typed as the top-level TabManager");
         }
 
         #endregion
@@ -517,8 +512,8 @@ namespace QTTtabBarTests {
             owner.tabControl1 = tabCtrl;
 
             ConstructorInfo ctor = TabManagerType.GetConstructor(
-                AnyInstance, null, new[] { typeof(QTTabBarClass) }, null);
-            object tabManager = ctor.Invoke(new object[] { owner });
+                AnyInstance, null, new[] { typeof(ITabOperationsHost) }, null);
+            object tabManager = ctor.Invoke(new object[] { (ITabOperationsHost)owner });
 
             typeof(QTTabBarClass).GetField("_tabManager",
                 BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, tabManager);
@@ -528,11 +523,6 @@ namespace QTTtabBarTests {
 
         private static int InvokeTabIndex(QTTabBarClass owner) {
             return ((TabBarBase)owner).TabIndexForNewTab();
-        }
-
-        private static int InvokeFacadeTabIndex(QTTabBarClass owner) {
-            return (int)typeof(QTTabBarClass).GetMethod("TabIndex",
-                BindingFlags.NonPublic | BindingFlags.Instance).Invoke(owner, null);
         }
 
         [Test]
@@ -583,40 +573,28 @@ namespace QTTtabBarTests {
                 "Rightmost with 0 tabs: TabIndex should be 0");
         }
 
-        [Test]
-        public void TabIndex_Facade_Equals_Extraction_AllPositions() {
-            var (owner, _) = CreateTabManagerWithFakeOwner(4, 1);
-            foreach(TabPos pos in (TabPos[])Enum.GetValues(typeof(TabPos))) {
-                Config.Tabs.NewTabPosition = pos;
-                int facade = InvokeFacadeTabIndex(owner);
-                int extracted = InvokeTabIndex(owner);
-                Assert.AreEqual(facade, extracted,
-                    "TabIndex façade must equal TabIndexForNewTab for TabPos.{0}", pos);
-            }
-        }
-
         #endregion
 
         #region _owner prefix correctness guard
 
         [Test]
         public void TabManager_OwnerField_IsReadOnly() {
-            FieldInfo owner = TabManagerType.GetField("_owner", AnyInstance);
-            Assert.IsNotNull(owner, "_owner field must exist");
-            Assert.IsTrue(owner.IsInitOnly,
-                "_owner must be readonly (IsInitOnly) to prevent accidental reassignment");
+            FieldInfo host = TabManagerType.GetField("_host", AnyInstance);
+            Assert.IsNotNull(host, "_host field must exist");
+            Assert.IsTrue(host.IsInitOnly,
+                "_host must be readonly (IsInitOnly) to prevent accidental reassignment");
         }
 
         [Test]
         public void TabManager_HasExactlyOne_QTTabBarClass_Field() {
-            FieldInfo[] qtFields = TabManagerType
+            FieldInfo[] hostFields = TabManagerType
                 .GetFields(AnyInstance)
-                .Where(f => f.FieldType == typeof(QTTabBarClass))
+                .Where(f => f.FieldType == typeof(ITabOperationsHost))
                 .ToArray();
-            Assert.AreEqual(1, qtFields.Length,
-                "TabManager must have exactly one QTTabBarClass field (_owner)");
-            Assert.AreEqual("_owner", qtFields[0].Name,
-                "The single QTTabBarClass field must be named _owner");
+            Assert.AreEqual(1, hostFields.Length,
+                "TabManager must have exactly one ITabOperationsHost field (_host)");
+            Assert.AreEqual("_host", hostFields[0].Name,
+                "The single ITabOperationsHost field must be named _host");
         }
 
         #endregion

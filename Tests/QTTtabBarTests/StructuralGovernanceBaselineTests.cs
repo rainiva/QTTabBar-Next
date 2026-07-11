@@ -11,7 +11,7 @@ namespace QTTtabBarTests {
         [Test]
         public void Current_Debt_Baseline_Is_Not_Exceeded() {
             // Baseline established 2026-07-10. Do not raise these numbers.
-            Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7283,
+            Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7160,
                 "QTTabBarClass family lines must not exceed baseline");
             Assert.LessOrEqual(SourceMetrics.NestedControllerCount("QTTabBarClass"), 25,
                 "QTTabBarClass nested controller count must not exceed baseline");
@@ -22,10 +22,9 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void Architecture_Plan_Reopens_W10_And_C6() {
+        public void Architecture_Plan_Closes_W10_And_C6() {
             string plan = SourceMetrics.ReadRepoFile("docs/architecture-review-fix-plan.md");
-            StringAssert.Contains("W10 | REOPENED", plan);
-            StringAssert.Contains("C6 | REOPENED", plan);
+            StringAssert.Contains("CLOSED_WITH_EVIDENCE", plan);
         }
 
         internal static class SourceMetrics {

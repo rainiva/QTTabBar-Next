@@ -8,11 +8,15 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6nTests {
         private static Type ShellUiType =>
-            typeof(QTTabBarClass).GetNestedType("ShellUiController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ShellUiController");
 
         [Test]
         public void ShellUiController_Owns_ShellAndOptionsRefreshMethods() {
             Assert.IsNotNull(ShellUiType);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ShellUiController", BindingFlags.Public | BindingFlags.NonPublic));
+            Type host = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.IShellUiHost");
+            Assert.IsNotNull(ShellUiType.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { host }, null));
             Assert.IsNotNull(ShellUiType.GetMethod("RefreshOptions", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(ShellUiType.GetMethod("ShowFolderTree", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(ShellUiType.GetMethod("ShowSearchBar", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
@@ -22,8 +26,9 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ShellUi_And_Keeps_ThinFacades() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string shellUi = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellUiController.cs"));
-            Assert.IsTrue(main.Contains("_shellUiController.RefreshOptions("));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
+            string shellUi = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Shell", "ShellUiController.cs"));
+            Assert.IsTrue(shellHosts.Contains("_shellUiController.RefreshOptions("));
             Assert.IsFalse(main.Contains("internal void RefreshOptions() {\r\n            QTUtility2.log(  \"QTTabBarClass RefreshOptions\""));
             Assert.IsFalse(main.Contains("private void ShowFolderTree(bool fShow) {"));
             Assert.IsFalse(main.Contains("private void ShowSearchBar(bool fShow) {"));

@@ -28,14 +28,14 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_No_Longer_Hosts_SelectedIndexChanged() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             Assert.IsFalse(content.Contains("public void tabControl1_SelectedIndexChanged("));
         }
 
         [Test]
         public void ComponentBuild_Wires_SelectedIndexChanged_To_TabBarBase_Handler() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
-            Assert.IsTrue(content.Contains("SelectedIndexChanged += _owner.tabControl1_SelectedIndexChanged"),
+            Assert.IsTrue(content.Contains("SelectedIndexChanged += tabControl1_SelectedIndexChanged"),
                 "Main bar should wire SelectedIndexChanged to TabBarBase handler");
             Assert.IsFalse(content.Contains("_tabManager.tabControl1_SelectedIndexChanged"),
                 "Main bar should not wire SelectedIndexChanged through TabManager");

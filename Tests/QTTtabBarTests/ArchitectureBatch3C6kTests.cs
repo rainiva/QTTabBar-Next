@@ -8,11 +8,11 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6kTests {
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
 
         [Test]
         public void ExplorerControllerModule_Owns_WindowBootstrap_Methods() {
-            Assert.IsNotNull(ExplorerModuleType, "ExplorerControllerModule should exist");
+            Assert.IsNotNull(ExplorerModuleType, "ExplorerController should exist");
             Assert.IsNotNull(ExplorerModuleType.GetMethod("InitializeNavBtns", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(ExplorerModuleType.GetMethod("InitializeOpenedWindow", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(ExplorerModuleType.GetMethod("InstallHooks", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
@@ -36,8 +36,8 @@ namespace QTTtabBarTests {
             Assert.IsTrue(explorer.Contains("void InitializeNavBtns("));
             Assert.IsTrue(explorer.Contains("void InitializeOpenedWindow("));
             Assert.IsTrue(explorer.Contains("void InstallHooks("));
-            Assert.IsTrue(explorer.Contains("new ListViewMonitor(_owner.ExShellBrowser"),
-                "ListViewMonitor setup should live in ExplorerControllerModule");
+            Assert.IsTrue(explorer.Contains("InitializeWindowIntegrations"),
+                "ListViewMonitor setup should live in ExplorerControllerModule via InitializeWindowIntegrations");
         }
 
         private static string FindRepoRoot() {

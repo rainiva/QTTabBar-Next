@@ -4,9 +4,9 @@ name: QTTabBar
 
 on:
   push:
-    branches: [ vs2019 ]
-   # tags:
-    #- 'v*'
+    branches: [ vs2019, main, master, 'structural-governance-*' ]
+  pull_request:
+    branches: [ vs2019, main, master ]
 
 jobs:
 
@@ -24,12 +24,12 @@ jobs:
 
     steps:
     - name: 拉取代码
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         
     - name: 配置msbuild
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.3
 
     - name: 配置nuget
       uses: nuget/setup-nuget@v1
@@ -43,14 +43,37 @@ jobs:
 #         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         
     - name: NuGet Restore
-      if: steps.cache.outputs.cache-hit != 'true'
       run: nuget restore $env:Solution_Name
   
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Rebuild the application
-      run: msbuild $env:Solution_Name /t:Rebuild /p:Configuration=$env:Configuration
+    # Build the main application
+    - name: Build application
+      run: msbuild $env:Solution_Name /t:Build /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
+
+    # Build the test project
+    - name: Build tests
+      run: msbuild Tests\QTTtabBarTests\QTTtabBarTests.csproj /p:Configuration=Debug /restore /v:minimal /m
+
+    # Run tests with TRX logging
+    - name: Run tests
+      run: |
+        $vstest = "${{ env.VSTEST_PATH }}"
+        if (-not $vstest) {
+          $vstest = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Recurse -Filter "vstest.console.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+        }
+        if (-not $vstest) {
+          Write-Error "vstest.console.exe not found"
+          exit 1
+        }
+        & $vstest "Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" --logger:"trx;LogFileName=test-results.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: '**/test-results.trx'
         
 #     - name: Zip the release dir   
 #     - uses: montudor/action-zip@v0.1.1
@@ -58,7 +81,7 @@ jobs:
 #         args: zip -qq -r DBCHM.zip DBCHM\bin\Release        
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: QTTabBar
         path: |

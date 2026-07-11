@@ -5,9 +5,9 @@ namespace QTTtabBarTests {
         public static string ReadCombined(string repoRoot) {
             string dir = Path.Combine(repoRoot, "QTTabBar");
             return File.ReadAllText(Path.Combine(dir, "QTButtonBar.cs")) +
-                   File.ReadAllText(Path.Combine(dir, "QTButtonBar.CreateItems.cs")) +
-                   File.ReadAllText(Path.Combine(dir, "QTButtonBar.BandLifecycle.cs")) +
-                   File.ReadAllText(Path.Combine(dir, "QTButtonBar.ItemClick.cs"));
+                   File.ReadAllText(Path.Combine(dir, "ButtonBar", "ButtonBarItemFactory.cs")) +
+                   File.ReadAllText(Path.Combine(dir, "ButtonBarLifecycleController.cs")) +
+                   File.ReadAllText(Path.Combine(dir, "ButtonBarCommandDispatcher.cs"));
         }
     }
 }

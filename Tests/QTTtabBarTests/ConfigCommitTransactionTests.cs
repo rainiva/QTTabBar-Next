@@ -11,11 +11,13 @@ namespace QTTtabBarTests {
 
         [Test]
         public void CommitSnapshot_Clones_Candidate_Before_Publishing() {
-            var candidate = new Config();
-            candidate.tabs.ActivateNewTab = false;
-            ConfigManager.CommitSnapshot(candidate, ConfigCommitScope.All, false);
-            candidate.tabs.ActivateNewTab = true;
-            Assert.IsFalse(Config.Tabs.ActivateNewTab);
+            using(ConfigTestScope.WithRecordingWriter()) {
+                var candidate = new Config();
+                candidate.tabs.ActivateNewTab = false;
+                ConfigManager.CommitSnapshot(candidate, ConfigCommitScope.All, false);
+                candidate.tabs.ActivateNewTab = true;
+                Assert.IsFalse(Config.Tabs.ActivateNewTab);
+            }
         }
 
         [Test]

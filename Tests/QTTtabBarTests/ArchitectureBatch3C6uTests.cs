@@ -20,7 +20,9 @@ namespace QTTtabBarTests {
             string shutdown = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShutdownController.cs"));
             Assert.IsTrue(main.Contains("_shutdownController.CloseDW("));
             Assert.IsFalse(main.Contains("treeViewWrapper.Dispose()"));
-            Assert.IsTrue(shutdown.Contains("ShutdownTreeViewWrapper.Dispose()"));
+            Assert.IsTrue(shutdown.Contains("_resources.TreeViewWrapper.Dispose()"));
+            Assert.IsTrue(shutdown.Contains("IShutdownResourceHost"));
+            Assert.IsTrue(shutdown.Contains("IShutdownPersistenceHost"));
             Assert.IsTrue(shutdown.Contains("Marshal.FinalReleaseComObject"));
         }
 

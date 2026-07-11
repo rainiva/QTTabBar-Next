@@ -15,7 +15,7 @@ namespace QTTtabBarTests {
         };
 
         private static readonly string[] RootRegistryOffendersMustUseRegistryAccess = {
-            "QTButtonBar.BandLifecycle.cs",
+            "QTButtonBar.cs",
             "FileHashComputerForm.cs",
             "IDLWrapper.cs",
         };

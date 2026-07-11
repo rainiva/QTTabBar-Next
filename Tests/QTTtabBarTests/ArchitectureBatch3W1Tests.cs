@@ -26,8 +26,14 @@ namespace QTTtabBarTests {
 
         private static string ReadAllTabBarClassPartials() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
-            return string.Join("\n", Directory.GetFiles(root, "QTTabBarClass*.cs")
+            string result = string.Join("\n", Directory.GetFiles(root, "QTTabBarClass*.cs")
                 .Select(File.ReadAllText));
+            // Include ShellCommandController where SelectionTracker calls actually live
+            string shellCommandPath = Path.Combine(root, "Shell", "ShellCommandController.cs");
+            if(File.Exists(shellCommandPath)) {
+                result += "\n" + File.ReadAllText(shellCommandPath);
+            }
+            return result;
         }
 
         private static string FindRepoRoot() {

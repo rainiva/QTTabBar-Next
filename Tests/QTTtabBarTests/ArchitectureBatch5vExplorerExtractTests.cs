@@ -36,9 +36,9 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ExplorerControllerModule_Is_TopLevel_Type() {
-            Type module = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
-            Assert.IsNotNull(module, "ExplorerControllerModule should be a top-level type in QTTabBarLib");
-            Assert.IsFalse(module.IsNested, "ExplorerControllerModule should not be nested in QTTabBarClass");
+            Type module = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
+            Assert.IsNotNull(module, "ExplorerController should be a top-level type in QTTabBarLib");
+            Assert.IsFalse(module.IsNested, "ExplorerController should not be nested in QTTabBarClass");
         }
 
         [Test]
@@ -51,10 +51,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ExplorerControllerPartials_Still_Delegate_To_Module() {
-            string content = ReadQtTabBarFile("QTTabBarClass.cs");
-            Assert.IsTrue(content.Contains("_explorerControllerModule"),
+            string main = ReadQtTabBarFile("QTTabBarClass.cs");
+            string explorerHosts = ReadQtTabBarFile("QTTabBarClass.ExplorerHosts.cs");
+            Assert.IsTrue(main.Contains("_explorerControllerModule"),
                 "QTTabBarClass should keep the module field and delegate explorer work to it");
-            Assert.IsTrue(content.Contains("_explorerControllerModule.InitializeInstallation"),
+            Assert.IsTrue(explorerHosts.Contains("_explorerControllerModule.InitializeInstallation"),
                 "QTTabBarClass should forward InitializeInstallation to the module");
         }
 

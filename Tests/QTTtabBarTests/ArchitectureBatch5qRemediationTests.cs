@@ -62,7 +62,7 @@ namespace QTTtabBarTests {
         [Test]
         public void EnableApiHook_Retries_HookLibManager_Initialize() {
             string body = ExtractMethodBody(
-                ReadQtTabBarFile("QTTabBarClass.HookInputController.cs"),
+                ReadQtTabBarFile(Path.Combine("Input", "HookInputController.cs")),
                 "void EnableApiHook()");
             Assert.IsTrue(body.Contains("HookLibManager.Initialize"),
                 "EnableApiHook should retry HookLibManager.Initialize when hooks are not loaded");

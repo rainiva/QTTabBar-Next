@@ -250,7 +250,7 @@ namespace QTTabBarLib {
 
                 Icon icon = IconManager.GetIcon(wrapper.PIDL);
                 imgIcon.Source =
-                    (ImageSource)new OptionsDialog.BitmapToImageSourceConverter().Convert(icon.ToBitmap(), null, null, null);
+                    (ImageSource)new BitmapToImageSourceConverter().Convert(icon.ToBitmap(), null, null, null);
             }
         }
 

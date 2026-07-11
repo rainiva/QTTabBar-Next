@@ -24,7 +24,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_No_Longer_Hosts_CloseAllTabsExcept() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             Assert.IsFalse(content.Contains("public List<string> CloseAllTabsExcept("));
         }
 

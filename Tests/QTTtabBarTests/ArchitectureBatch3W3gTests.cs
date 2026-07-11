@@ -26,7 +26,7 @@ namespace QTTtabBarTests {
         [Test]
         public void HookInputController_Delegates_SysColorChange_To_TabBarBase() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.HookInputController.cs"));
+                Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "HookInputController.cs"));
             Assert.IsTrue(content.Contains("HandleSysColorChangeHookMessage"),
                 "HookInputController should delegate SYSCOLORCHANGE to TabBarBase after W3g");
             Assert.IsFalse(content.Contains("Config.Skin.SwitchNighMode(ThemeRefreshService.IsDark);"),

@@ -9,15 +9,15 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C6vTests {
         [Test]
         public void ComRegistrationController_Owns_Register_And_Unregister() {
-            var type = typeof(QTTabBarClass).GetNestedType("ComRegistrationController", BindingFlags.NonPublic);
-            Assert.IsNotNull(type);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ComRegistrationController", false);
+            Assert.IsNotNull(type, "ComRegistrationController should exist as a top-level type (extracted from QTTabBarClass)");
             Assert.IsNotNull(type.GetMethod("Register", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetMethod("Unregister", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic));
         }
 
         [Test]
         public void HookInputController_Owns_EnableApiHook() {
-            var type = typeof(QTTabBarClass).GetNestedType("HookInputController", BindingFlags.NonPublic);
+            var type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.HookInputController", true);
             Assert.IsNotNull(type);
             Assert.IsNotNull(type.GetMethod("EnableApiHook", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
@@ -25,8 +25,8 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ComRegistration_And_Removed_DeadCode() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string comReg = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComRegistrationController.cs"));
-            string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.HookInputController.cs"));
+            string comReg = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
+            string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "HookInputController.cs"));
             Assert.IsTrue(main.Contains("ComRegistrationController.Register("));
             Assert.IsTrue(main.Contains("ComRegistrationController.Unregister("));
             Assert.IsFalse(main.Contains("ComRegistrationManager.RegisterBand("));

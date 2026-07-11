@@ -27,7 +27,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_No_Longer_Hosts_SelectionGuardHandlers() {
-            string content = System.IO.File.ReadAllText(System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs"));
+            string content = System.IO.File.ReadAllText(System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             Assert.IsFalse(content.Contains("public void SaveSelectedItems("));
             Assert.IsFalse(content.Contains("public void tabControl1_Deselecting("));
             Assert.IsFalse(content.Contains("public void tabControl1_Selecting("));

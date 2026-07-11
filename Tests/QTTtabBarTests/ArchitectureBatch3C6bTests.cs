@@ -8,13 +8,11 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6bTests {
         [Test]
-        public void QTTabBarClass_Has_HookInputController_NestedType() {
-            Type nested = typeof(QTTabBarClass).GetNestedType(
-                "HookInputController",
-                BindingFlags.NonPublic);
-            Assert.IsNotNull(nested, "QTTabBarClass should expose HookInputController nested class");
-            FieldInfo ownerField = nested.GetField("_owner", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(ownerField, "HookInputController should hold _owner reference");
+        public void HookInputController_Is_Top_Level_And_Holds_Narrow_Host() {
+            Type controller = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.HookInputController", true);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("HookInputController", BindingFlags.NonPublic));
+            FieldInfo hostField = controller.GetField("_host", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.AreEqual("QTTabBarLib.IHookInputHost", hostField.FieldType.FullName);
         }
 
         [Test]
@@ -24,8 +22,8 @@ namespace QTTtabBarTests {
             string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(main.Contains("_hookInputController"),
                 "QTTabBarClass should own a HookInputController instance");
-            Assert.IsTrue(build.Contains("new HookInputController(_owner)"),
-                "ComponentBuildController should construct HookInputController during initialization");
+            Assert.IsTrue(build.Contains("new HookInputController((IHookInputHost)_host)"),
+                "ComponentBuildController should construct HookInputController through its narrow host contract");
 
             int installIndex = explorer.IndexOf("void InstallHooks()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(installIndex, 0, "ExplorerControllerModule should own InstallHooks");

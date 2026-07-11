@@ -8,10 +8,10 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6mTests {
         private static Type MenuControllerType =>
-            typeof(QTTabBarClass).GetNestedType("MenuController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.MenuController", true);
 
         private static Type KeyboardAcceleratorType =>
-            typeof(QTTabBarClass).GetNestedType("KeyboardAcceleratorController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.KeyboardAcceleratorController", true);
 
         [Test]
         public void MenuController_Owns_SecondaryMenuHandlers_And_FolderLinkClicked() {

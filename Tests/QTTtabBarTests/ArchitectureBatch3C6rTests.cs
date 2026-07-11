@@ -8,7 +8,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6rTests {
         private static Type ComponentBuildType =>
-            typeof(QTTabBarClass).GetNestedType("ComponentBuildController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ComponentBuildController");
 
         [Test]
         public void ComponentBuildController_Owns_Build() {
@@ -22,8 +22,8 @@ namespace QTTtabBarTests {
             string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             Assert.IsTrue(main.Contains("_componentBuildController.Build("));
             Assert.IsFalse(main.Contains("tabControl1.TabPages.Add(CurrentTab)"));
-            Assert.IsTrue(build.Contains("_owner.tabControl1.TabPages.Add(_owner.CurrentTab)"));
-            Assert.IsTrue(build.Contains("_owner._tabManager = new TabManager(_owner)"));
+            Assert.IsTrue(build.Contains("_host.TabControl1.TabPages.Add(_host.CurrentTab)"));
+            Assert.IsTrue(build.Contains("_host.TabManager = new TabManager((ITabOperationsHost)_host)"));
         }
 
         private static string FindRepoRoot() {

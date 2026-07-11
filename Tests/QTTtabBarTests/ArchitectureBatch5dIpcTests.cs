@@ -38,7 +38,7 @@ namespace QTTtabBarTests {
         [Test]
         public void MergeAllWindows_Does_Not_Use_Delegate_Ipc() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.WindowManagementController.cs"));
+                "QTTabBarClass.ShellHosts.cs"));
             Assert.IsFalse(content.Contains("TabBarBroadcast"),
                 "MergeAllWindows should not use TabBarBroadcast");
             Assert.IsFalse(content.Contains("InvokeMain("),

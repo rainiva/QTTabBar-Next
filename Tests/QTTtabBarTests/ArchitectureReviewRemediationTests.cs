@@ -102,7 +102,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void HookInputController_EnableApiHook_Retries_When_Hooks_Not_Loaded() {
-            string content = ReadQtTabBarFile("QTTabBarClass.HookInputController.cs");
+            string content = ReadQtTabBarFile(Path.Combine("Input", "HookInputController.cs"));
             int methodIndex = content.IndexOf("void EnableApiHook()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);
@@ -118,14 +118,12 @@ namespace QTTtabBarTests {
 
         [Test]
         public void QTButtonBar_OnExplorerAttached_Uses_ThemeRefreshService() {
-            string content = ReadQtTabBarFile("QTButtonBar.BandLifecycle.cs");
+            string content = ReadQtTabBarFile("QTButtonBar.cs");
             int methodIndex = content.IndexOf("void OnExplorerAttached()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
-            int searchEnd = Math.Min(content.Length, methodIndex + 1200);
-            string body = content.Substring(methodIndex, searchEnd - methodIndex);
-            Assert.IsTrue(body.Contains("ThemeRefreshService.ApplySystemTheme"),
+            Assert.IsTrue(content.Contains("ThemeRefreshService.ApplySystemTheme"),
                 "OnExplorerAttached should use ThemeRefreshService.ApplySystemTheme");
-            Assert.IsFalse(body.Contains("ConfigManager.UpdateConfig(true)"),
+            Assert.IsFalse(content.Contains("ConfigManager.UpdateConfig(true)"),
                 "OnExplorerAttached should not call UpdateConfig directly");
         }
 

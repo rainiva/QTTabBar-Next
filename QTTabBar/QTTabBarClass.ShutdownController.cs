@@ -9,54 +9,50 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal class ShutdownController {
-        private readonly QTTabBarClass _owner;
+        private readonly IShutdownResourceHost _resources;
+        private readonly IShutdownPersistenceHost _persistence;
 
-        public ShutdownController(QTTabBarClass owner) {
-            _owner = owner;
+        public ShutdownController(IShutdownResourceHost resources, IShutdownPersistenceHost persistence) {
+            _resources = resources;
+            _persistence = persistence;
         }
 
         public void CloseDW(uint dwReserved) {
             try {
-                string[] list = LockedTabsService.RebuildFromTabs(_owner.tabControl1.TabPages);
-                if(_owner.ShutdownTreeViewWrapper != null) {
-                    _owner.ShutdownTreeViewWrapper.Dispose();
-                    _owner.ShutdownTreeViewWrapper = null;
+                string[] list = LockedTabsService.RebuildFromTabs(_resources.TabControl.TabPages);
+                if(_resources.TreeViewWrapper != null) {
+                    _resources.TreeViewWrapper.Dispose();
+                    _resources.TreeViewWrapper = null;
                 }
-                if(_owner.ShutdownListViewManager != null) {
-                    _owner.ShutdownListViewManager.Dispose();
-                    _owner.ShutdownListViewManager = null;
+                if(_resources.ListViewManager != null) {
+                    _resources.ListViewManager.Dispose();
+                    _resources.ListViewManager = null;
                 }
-                if(_owner.subDirTip_Tab != null) {
-                    _owner.subDirTip_Tab.Dispose();
-                    _owner.subDirTip_Tab = null;
+                if(_resources.SubDirTip != null) {
+                    _resources.SubDirTip.Dispose();
+                    _resources.SubDirTip = null;
                 }
-                if(_owner.ShutdownIsShown) {
-                    if(_owner.pluginServer != null) {
-                        _owner.pluginServer.Dispose();
-                        _owner.pluginServer = null;
+                if(_persistence.IsShown) {
+                    if(_resources.PluginServer != null) {
+                        _resources.PluginServer.Dispose();
+                        _resources.PluginServer = null;
                     }
-                    _owner.ShutdownUninstallHooks();
-                    if(_owner.ShutdownExplorerController != null) {
-                        _owner.ShutdownExplorerController.ReleaseHandle();
-                        _owner.ShutdownExplorerController = null;
+                    _persistence.UninstallHooks();
+                    if(_resources.ExplorerController != null) {
+                        _resources.ExplorerController.ReleaseHandle(); _resources.ExplorerController = null;
                     }
-                    if(_owner.rebarController != null) {
-                        _owner.rebarController.Dispose();
-                        _owner.rebarController = null;
+                    if(_resources.RebarController != null) { _resources.RebarController.Dispose(); _resources.RebarController = null;
                     }
-                    if(!OSDetector.IsXP && (_owner.ShutdownTravelBtnController != null)) {
-                        _owner.ShutdownTravelBtnController.ReleaseHandle();
-                        _owner.ShutdownTravelBtnController = null;
+                    if(!OSDetector.IsXP && (_resources.TravelButtonController != null)) { _resources.TravelButtonController.ReleaseHandle(); _resources.TravelButtonController = null;
                     }
 
-                    if(_owner.Handle != IntPtr.Zero) {
-                        InstanceManager.RemoveFromTrayIcon(_owner.Handle);
+                    if(_resources.BandHandle != IntPtr.Zero) { InstanceManager.RemoveFromTrayIcon(_resources.BandHandle);
                     }
 
                     using(RegistryKey key = RegistryAccess.OpenRootCreate()) {
                         if(Config.Misc.KeepHistory) {
-                            foreach(QTabItem item in _owner.tabControl1.TabPages) {
-                                _owner.ShutdownAddToHistory(item);
+                            foreach(QTabItem item in _resources.TabControl.TabPages) {
+                                _persistence.AddToHistory(item);
                             }
                             WindowSessionPersistence.SaveRecentlyClosed(key);
                         }
@@ -68,14 +64,14 @@ namespace QTTabBarLib {
 
                         InstanceManager.UnregisterTabBar();
                         byte windowAlpha;
-                        if(0x80000 != ((int)PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(_owner.ShutdownExplorerHandle, -20), 0x80000))) {
+                        if(0x80000 != ((int)PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(_resources.ExplorerHandle, -20), 0x80000))) {
                             windowAlpha = 0xff;
                         }
                         else {
                             byte num;
                             int num2;
                             int num3;
-                            if(PInvoke.GetLayeredWindowAttributes(_owner.ShutdownExplorerHandle, out num2, out num, out num3)) {
+                            if(PInvoke.GetLayeredWindowAttributes(_resources.ExplorerHandle, out num2, out num, out num3)) {
                                 windowAlpha = num;
                             }
                             else {
@@ -85,50 +81,35 @@ namespace QTTabBarLib {
                         ConfigManager.PersistWindowAlpha(windowAlpha);
                         IDLWrapper.SaveCache(key);
                     }
-                    QTTabBarClass.FileToolsController.DisposeMd5Form();
-                    _owner.Cursor = Cursors.Default;
-                    if((_owner.ShutdownCurTabDrag != null) && (_owner.ShutdownCurTabDrag != Cursors.Default)) {
-                        PInvoke.DestroyIcon(_owner.ShutdownCurTabDrag.Handle);
-                        GC.SuppressFinalize(_owner.ShutdownCurTabDrag);
-                        _owner.ShutdownCurTabDrag = null;
+                    FileToolsController.DisposeMd5Form();
+                    _resources.CurrentCursor = Cursors.Default;
+                    if((_resources.TabDragCursor != null) && (_resources.TabDragCursor != Cursors.Default)) {
+                        PInvoke.DestroyIcon(_resources.TabDragCursor.Handle); GC.SuppressFinalize(_resources.TabDragCursor); _resources.TabDragCursor = null;
                     }
-                    if((_owner.ShutdownCurTabCloning != null) && (_owner.ShutdownCurTabCloning != Cursors.Default)) {
-                        PInvoke.DestroyIcon(_owner.ShutdownCurTabCloning.Handle);
-                        GC.SuppressFinalize(_owner.ShutdownCurTabCloning);
-                        _owner.ShutdownCurTabCloning = null;
+                    if((_resources.TabCloningCursor != null) && (_resources.TabCloningCursor != Cursors.Default)) {
+                        PInvoke.DestroyIcon(_resources.TabCloningCursor.Handle); GC.SuppressFinalize(_resources.TabCloningCursor); _resources.TabCloningCursor = null;
                     }
-                    if(_owner.ShutdownDropTargetWrapper != null) {
-                        _owner.ShutdownDropTargetWrapper.Dispose();
-                        _owner.ShutdownDropTargetWrapper = null;
+                    if(_resources.DropTargetWrapper != null) { _resources.DropTargetWrapper.Dispose(); _resources.DropTargetWrapper = null;
                     }
                     OptionsDialog.ForceClose();
-                    if(_owner.tabSwitcher != null) {
-                        _owner.tabSwitcher.Dispose();
-                        _owner.tabSwitcher = null;
+                    if(_resources.TabSwitcher != null) { _resources.TabSwitcher.Dispose(); _resources.TabSwitcher = null;
                     }
                 }
-                if(_owner.ShutdownTravelLog != null) {
+                if(_persistence.TravelLog != null) {
                     QTLogger.log("ReleaseComObject TravelLog");
-                    Marshal.FinalReleaseComObject(_owner.ShutdownTravelLog);
-                    _owner.ShutdownTravelLog = null;
+                    Marshal.FinalReleaseComObject(_persistence.TravelLog); _persistence.TravelLog = null;
                 }
-                if(_owner.ShutdownShellContextMenu != null) {
-                    _owner.ShutdownShellContextMenu.Dispose();
-                    _owner.ShutdownShellContextMenu = null;
+                if(_persistence.ShellContextMenu != null) { _persistence.ShellContextMenu.Dispose(); _persistence.ShellContextMenu = null;
                 }
-                if(_owner.ShutdownShellBrowser != null) {
-                    _owner.ShutdownShellBrowser.Dispose();
-                    _owner.ShutdownShellBrowser = null;
+                if(_persistence.ShellBrowser != null) { _persistence.ShellBrowser.Dispose(); _persistence.ShellBrowser = null;
                 }
-                foreach(ITravelLogEntry entry in _owner.ShutdownLogEntryDic.Values) {
+                foreach(ITravelLogEntry entry in _persistence.LogEntryDic.Values) {
                     if(entry != null) {
                         QTLogger.log("ReleaseComObject entry");
                         Marshal.FinalReleaseComObject(entry);
                     }
                 }
-                _owner.ShutdownLogEntryDic.Clear();
-                _owner.ShutdownSetFinalRelease();
-                _owner.CloseDWBase(dwReserved);
+                _persistence.LogEntryDic.Clear(); _persistence.SetFinalRelease(); _persistence.CloseDWBase(dwReserved);
             }
             catch(Exception exception2) {
                 QTLogger.MakeErrorLog(exception2, "tabbar closing");

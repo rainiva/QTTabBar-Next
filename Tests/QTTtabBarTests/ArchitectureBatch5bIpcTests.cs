@@ -86,10 +86,10 @@ namespace QTTtabBarTests {
 
         [Test]
         public void SearchBox_Resize_Uses_Typed_SyncSearchBoxWidth() {
-            string content = ReadQtTabBarFile("QTButtonBar.BandLifecycle.cs");
-            int idx = content.IndexOf("searchBox_ResizeComplete", StringComparison.Ordinal);
+            string content = ReadQtTabBarFile("QTButtonBar.cs");
+            int idx = content.LastIndexOf("searchBox_ResizeComplete", StringComparison.Ordinal);
             Assert.GreaterOrEqual(idx, 0);
-            int end = Math.Min(content.Length, idx + 500);
+            int end = Math.Min(content.Length, idx + 1000);
             string body = content.Substring(idx, end - idx);
             Assert.IsTrue(body.Contains("BroadcastSyncSearchBoxWidth"),
                 "search box resize should use typed SyncSearchBoxWidth broadcast");

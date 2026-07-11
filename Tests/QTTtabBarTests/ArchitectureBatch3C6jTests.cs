@@ -8,11 +8,11 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6jTests {
         private static Type MenuControllerType =>
-            typeof(QTTabBarClass).GetNestedType("MenuController", BindingFlags.NonPublic);
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.MenuController", true);
 
         [Test]
         public void MenuController_Owns_InitializeSysMenu_And_InitializeTabMenu() {
-            Assert.IsNotNull(MenuControllerType, "MenuController nested class should exist");
+            Assert.IsNotNull(MenuControllerType, "top-level MenuController should exist");
             Assert.IsNotNull(MenuControllerType.GetMethod("InitializeSysMenu", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(MenuControllerType.GetMethod("InitializeTabMenu", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }

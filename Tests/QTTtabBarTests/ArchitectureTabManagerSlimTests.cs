@@ -6,10 +6,10 @@ namespace QTTtabBarTests {
     public class ArchitectureTabManagerSlimTests {
         [Test]
         public void TabManager_Source_Under_500_Lines() {
-            string path = Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.TabManager.cs");
+            string path = Path.Combine(FindRepoRoot(), "QTTabBar", "Tabs", "TabManager.cs");
             int lines = File.ReadAllLines(path).Length;
             Assert.LessOrEqual(lines, 500,
-                "TabManager main file should be <=500 lines after region lift to TabBarBase");
+                "TabManager top-level file should be <=500 lines after region lift to TabBarBase");
         }
 
         [Test]

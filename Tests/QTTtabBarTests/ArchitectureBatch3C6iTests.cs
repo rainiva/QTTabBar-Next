@@ -9,8 +9,10 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C6iTests {
         [Test]
         public void ListViewInputController_Type_Exists_With_HandlerMethods() {
-            Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.QTTabBarClass+ListViewInputController");
-            Assert.IsNotNull(type, "ListViewInputController nested class should exist");
+            Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ListViewInputController");
+            Assert.IsNotNull(type, "ListViewInputController top-level class should exist");
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ListViewInputController",
+                BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetMethod("OnItemCountChanged", BindingFlags.Instance | BindingFlags.Public));
             Assert.IsNotNull(type.GetMethod("OnSelectionChanged", BindingFlags.Instance | BindingFlags.Public));
             Assert.IsNotNull(type.GetMethod("OnSelectionActivated", BindingFlags.Instance | BindingFlags.Public));
@@ -23,22 +25,23 @@ namespace QTTtabBarTests {
         [Test]
         public void QTTabBarClass_Delegates_ListViewHandlers_To_Controller() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ListViewInputController.cs"));
+            string shellHosts = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
+            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.cs"));
             Assert.IsTrue(main.Contains("_listViewInputController"));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnItemCountChanged("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnSelectionChanged("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnSelectionActivated("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnMiddleClick("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnMouseActivate("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnDoubleClick("));
-            Assert.IsTrue(main.Contains("_listViewInputController.OnEndLabelEdit("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnItemCountChanged("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnSelectionChanged("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnSelectionActivated("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnMiddleClick("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnMouseActivate("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnDoubleClick("));
+            Assert.IsTrue(shellHosts.Contains("_listViewInputController.OnEndLabelEdit("));
             Assert.IsTrue(controller.Contains("class ListViewInputController"));
         }
 
         [Test]
         public void QTTabBarClass_No_Longer_Implements_ListView_SelectionChanged_Body() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ListViewInputController.cs"));
+            string controller = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.cs"));
             Assert.IsFalse(main.Contains("RegistryUtil.WriteSelection("),
                 "WeChat selection capture should move out of QTTabBarClass.cs main partial");
             Assert.IsTrue(controller.Contains("RegistryUtil.WriteSelection("),

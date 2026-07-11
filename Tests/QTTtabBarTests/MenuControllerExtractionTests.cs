@@ -1,375 +1,79 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using NUnit.Framework;
 using QTTabBarLib;
 
 namespace QTTtabBarTests {
-    /// <summary>
-    /// Characterization / guardrail tests for Task 3.2 (Batch 11):
-    /// the right-click menu dispatch logic is extracted from QTTabBarClass into a
-    /// nested internal class QTTabBarClass.MenuController that holds a reference to
-    /// the owning QTTabBarClass instance (_owner) and accesses outer/base members
-    /// through it. Structure-only move: behavior must stay identical.
-    ///
-    /// These tests lock in:
-    ///  - the nested MenuController type exists and is non-public (internal),
-    ///  - it holds a QTTabBarClass owner reference,
-    ///  - it carries the menu dispatch responsibility (the 4 handlers + CreateGroup),
-    ///  - those handlers are no longer declared directly on QTTabBarClass,
-    ///  - CreateBranchMenu / CreateNavBtnMenuItems remain on QTTabBarClass (they have
-    ///    cross-file callers in QTButtonBar.cs and must keep their internal signature).
-    /// </summary>
     [TestFixture]
     public class MenuControllerExtractionTests {
+        private const BindingFlags AnyInstance = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-        private const BindingFlags AnyInstance =
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-
-        private static Type MenuControllerType {
-            get {
-                return typeof(QTTabBarClass).GetNestedType("MenuController",
-                    BindingFlags.Public | BindingFlags.NonPublic);
-            }
-        }
-
-        #region Nested MenuController type exists and is internal
+        private static Assembly Assembly => typeof(QTTabBarClass).Assembly;
+        private static Type MenuControllerType => Assembly.GetType("QTTabBarLib.MenuController", true);
 
         [Test]
-        public void MenuController_NestedType_Exists() {
-            Assert.IsNotNull(MenuControllerType,
-                "QTTabBarClass should declare a nested MenuController type");
+        public void MenuController_Is_TopLevel_And_Does_Not_Hold_The_Root() {
+            Assert.IsFalse(MenuControllerType.IsNested);
+            Assert.IsNull(typeof(QTTabBarClass).GetNestedType("MenuController", BindingFlags.Public | BindingFlags.NonPublic));
+            Assert.IsFalse(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == typeof(QTTabBarClass)));
         }
 
         [Test]
-        public void MenuController_Is_Internal_NestedClass() {
-            Type t = MenuControllerType;
-            Assert.IsNotNull(t, "MenuController type should exist");
-            Assert.IsTrue(t.IsClass, "MenuController should be a class");
-            Assert.IsTrue(t.IsNested, "MenuController should be nested in QTTabBarClass");
-            // internal nested => NestedAssembly (not NestedPublic)
-            Assert.IsTrue(t.IsNestedAssembly,
-                "MenuController should be internal (nested assembly visibility), no visibility widening");
+        public void MenuController_Uses_Two_Narrow_Host_Ports() {
+            Type interactionHost = Assembly.GetType("QTTabBarLib.IMenuInteractionHost", true);
+            Type lifecycleHost = Assembly.GetType("QTTabBarLib.IMenuLifecycleHost", true);
+            Assert.LessOrEqual(interactionHost.GetMethods().Length, 15);
+            Assert.LessOrEqual(lifecycleHost.GetMethods().Length, 15);
+            Assert.IsNotNull(MenuControllerType.GetConstructor(AnyInstance, null, new[] { interactionHost, lifecycleHost }, null));
+            Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == interactionHost));
+            Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == lifecycleHost));
+        }
+
+        [TestCase("contextMenuTab_ItemClicked")]
+        [TestCase("contextMenuSys_ItemClicked")]
+        [TestCase("contextMenuTab_Opening")]
+        [TestCase("contextMenuSys_Opening")]
+        [TestCase("CreateGroup")]
+        [TestCase("FolderLinkClicked")]
+        public void MenuController_Owns_The_Menu_Entry_Points(string methodName) {
+            Assert.IsNotNull(MenuControllerType.GetMethod(methodName, AnyInstance));
+            Assert.IsNull(typeof(QTTabBarClass).GetMethod(methodName, AnyInstance | BindingFlags.DeclaredOnly));
         }
 
         [Test]
-        public void MenuController_Holds_Owner_Reference_Of_QTTabBarClass() {
-            Type t = MenuControllerType;
-            Assert.IsNotNull(t, "MenuController type should exist");
-            FieldInfo owner = t.GetField("_owner", AnyInstance);
-            Assert.IsNotNull(owner, "MenuController should hold an _owner field");
-            Assert.AreEqual(typeof(QTTabBarClass), owner.FieldType,
-                "_owner should reference the outer QTTabBarClass instance");
-        }
-
-        #endregion
-
-        #region MenuController carries the menu dispatch responsibility
-
-        [Test]
-        public void MenuController_Hosts_TabContextMenu_ItemClicked() {
-            Assert.IsNotNull(MenuControllerType.GetMethod("contextMenuTab_ItemClicked", AnyInstance),
-                "MenuController should host contextMenuTab_ItemClicked");
-        }
-
-        [Test]
-        public void MenuController_Hosts_SysContextMenu_ItemClicked() {
-            Assert.IsNotNull(MenuControllerType.GetMethod("contextMenuSys_ItemClicked", AnyInstance),
-                "MenuController should host contextMenuSys_ItemClicked");
-        }
-
-        [Test]
-        public void MenuController_Hosts_TabContextMenu_Opening() {
-            Assert.IsNotNull(MenuControllerType.GetMethod("contextMenuTab_Opening", AnyInstance),
-                "MenuController should host contextMenuTab_Opening");
-        }
-
-        [Test]
-        public void MenuController_Hosts_SysContextMenu_Opening() {
-            Assert.IsNotNull(MenuControllerType.GetMethod("contextMenuSys_Opening", AnyInstance),
-                "MenuController should host contextMenuSys_Opening");
-        }
-
-        [Test]
-        public void MenuController_Hosts_CreateGroup() {
-            Assert.IsNotNull(MenuControllerType.GetMethod("CreateGroup", AnyInstance),
-                "MenuController should host CreateGroup (menu-only helper)");
-        }
-
-        #endregion
-
-        #region Moved handlers no longer declared on QTTabBarClass
-
-        [Test]
-        public void QTTabBarClass_No_Longer_Declares_TabContextMenu_ItemClicked() {
-            MethodInfo m = typeof(QTTabBarClass).GetMethod("contextMenuTab_ItemClicked",
-                AnyInstance | BindingFlags.DeclaredOnly);
-            Assert.IsNull(m,
-                "contextMenuTab_ItemClicked should be moved into MenuController, not on QTTabBarClass");
-        }
-
-        [Test]
-        public void QTTabBarClass_No_Longer_Declares_SysContextMenu_ItemClicked() {
-            MethodInfo m = typeof(QTTabBarClass).GetMethod("contextMenuSys_ItemClicked",
-                AnyInstance | BindingFlags.DeclaredOnly);
-            Assert.IsNull(m,
-                "contextMenuSys_ItemClicked should be moved into MenuController, not on QTTabBarClass");
-        }
-
-        [Test]
-        public void QTTabBarClass_No_Longer_Declares_TabContextMenu_Opening() {
-            MethodInfo m = typeof(QTTabBarClass).GetMethod("contextMenuTab_Opening",
-                AnyInstance | BindingFlags.DeclaredOnly);
-            Assert.IsNull(m,
-                "contextMenuTab_Opening should be moved into MenuController, not on QTTabBarClass");
-        }
-
-        [Test]
-        public void QTTabBarClass_No_Longer_Declares_SysContextMenu_Opening() {
-            MethodInfo m = typeof(QTTabBarClass).GetMethod("contextMenuSys_Opening",
-                AnyInstance | BindingFlags.DeclaredOnly);
-            Assert.IsNull(m,
-                "contextMenuSys_Opening should be moved into MenuController, not on QTTabBarClass");
-        }
-
-        #endregion
-
-        #region Cross-file callable menu builders remain on QTTabBarClass (guardrail)
-
-        [Test]
-        public void QTTabBarClass_Still_Declares_CreateBranchMenu() {
-            MethodInfo m = typeof(QTTabBarClass).GetMethod("CreateBranchMenu",
-                AnyInstance | BindingFlags.DeclaredOnly);
-            Assert.IsNotNull(m,
-                "CreateBranchMenu must stay on QTTabBarClass (called by QTButtonBar.cs)");
-            Assert.IsTrue(m.IsAssembly,
-                "CreateBranchMenu must keep internal visibility");
-        }
-
-        [Test]
-        public void QTTabBarClass_Still_Declares_CreateNavBtnMenuItems() {
-            MethodInfo m = typeof(QTTabBarClass).GetMethod("CreateNavBtnMenuItems",
-                AnyInstance | BindingFlags.DeclaredOnly);
-            Assert.IsNotNull(m,
-                "CreateNavBtnMenuItems must stay on QTTabBarClass (called by QTButtonBar.cs)");
-            Assert.IsTrue(m.IsAssembly,
-                "CreateNavBtnMenuItems must keep internal visibility");
-        }
-
-        #endregion
-
-        #region Wiring contract: _menuController field + init + event/dispatch routing
-
-        // NOTE ON APPROACH
-        // QTTabBarClass is a COM BandObject shell extension; its owner field and the
-        // four context-menu event handlers are wired up inside InitializeComponent(),
-        // which builds live WinForms controls and reads Config, so fully instantiating
-        // it and using GetInvocationList in a headless x86 test host is infeasible/flaky.
-        // Instead we lock the exact same wiring contract deterministically by inspecting
-        // the compiled IL of InitializeComponent()/DoBindAction(): a guardrail that
-        // proves the field is created and that the events / CreateNewGroup dispatch route
-        // through the extracted MenuController, without ever running the COM object.
-        // (IL-token inspection is the alternative explicitly sanctioned for the dispatch
-        // check, and provides the same "prevent-regression" guarantee for the rest.)
-
-        private static readonly Dictionary<short, OpCode> OpCodeMap = BuildOpCodeMap();
-
-        private static Dictionary<short, OpCode> BuildOpCodeMap() {
-            var map = new Dictionary<short, OpCode>();
-            foreach(FieldInfo fi in typeof(OpCodes).GetFields(
-                    BindingFlags.Public | BindingFlags.Static)) {
-                var op = (OpCode)fi.GetValue(null);
-                map[op.Value] = op;
-            }
-            return map;
-        }
-
-        /// <summary>
-        /// Walks the IL of <paramref name="method"/> and collects every metadata
-        /// method/constructor and field it references (via call/callvirt/newobj/ldftn/
-        /// ldfld/stfld ... tokens). Used to assert wiring contracts without running code.
-        /// </summary>
-        private static void CollectIlReferences(MethodBase method,
-                out HashSet<MethodBase> methods, out HashSet<FieldInfo> fields) {
-            methods = new HashSet<MethodBase>();
-            fields = new HashSet<FieldInfo>();
-            MethodBody body = method.GetMethodBody();
-            Assert.IsNotNull(body, "method must have an IL body: " + method.Name);
-            byte[] il = body.GetILAsByteArray();
-            Module module = method.Module;
-            Type[] typeArgs = method.DeclaringType != null && method.DeclaringType.IsGenericType
-                ? method.DeclaringType.GetGenericArguments() : null;
-            Type[] methodArgs = method.IsGenericMethodDefinition
-                ? method.GetGenericArguments() : null;
-
-            int pos = 0;
-            while(pos < il.Length) {
-                short code;
-                if(il[pos] == 0xFE && pos + 1 < il.Length) {
-                    code = unchecked((short)(0xFE00 | il[pos + 1]));
-                    pos += 2;
-                }
-                else {
-                    code = il[pos];
-                    pos += 1;
-                }
-                OpCode op;
-                if(!OpCodeMap.TryGetValue(code, out op)) {
-                    break; // unknown opcode: stop scanning defensively
-                }
-                switch(op.OperandType) {
-                    case OperandType.InlineNone:
-                        break;
-                    case OperandType.ShortInlineBrTarget:
-                    case OperandType.ShortInlineI:
-                    case OperandType.ShortInlineVar:
-                        pos += 1;
-                        break;
-                    case OperandType.InlineVar:
-                        pos += 2;
-                        break;
-                    case OperandType.ShortInlineR:
-                        pos += 4;
-                        break;
-                    case OperandType.InlineI8:
-                    case OperandType.InlineR:
-                        pos += 8;
-                        break;
-                    case OperandType.InlineSwitch: {
-                        int n = BitConverter.ToInt32(il, pos);
-                        pos += 4 + 4 * n;
-                        break;
-                    }
-                    case OperandType.InlineMethod: {
-                        int token = BitConverter.ToInt32(il, pos);
-                        pos += 4;
-                        try {
-                            MethodBase m = module.ResolveMethod(token, typeArgs, methodArgs);
-                            if(m != null) methods.Add(m);
-                        }
-                        catch { /* not a method token in this context */ }
-                        break;
-                    }
-                    case OperandType.InlineField: {
-                        int token = BitConverter.ToInt32(il, pos);
-                        pos += 4;
-                        try {
-                            FieldInfo f = module.ResolveField(token, typeArgs, methodArgs);
-                            if(f != null) fields.Add(f);
-                        }
-                        catch { /* not a field token in this context */ }
-                        break;
-                    }
-                    case OperandType.InlineTok: {
-                        int token = BitConverter.ToInt32(il, pos);
-                        pos += 4;
-                        try {
-                            MethodBase m = module.ResolveMethod(token, typeArgs, methodArgs);
-                            if(m != null) methods.Add(m);
-                        }
-                        catch { }
-                        try {
-                            FieldInfo f = module.ResolveField(token, typeArgs, methodArgs);
-                            if(f != null) fields.Add(f);
-                        }
-                        catch { }
-                        break;
-                    }
-                    default:
-                        // all remaining operand types are 4-byte (branch/type/string/sig/i4)
-                        pos += 4;
-                        break;
-                }
-            }
-        }
-
-        private static MethodInfo ComponentBuildMethod {
-            get {
-                Type buildType = typeof(QTTabBarClass).GetNestedType("ComponentBuildController",
-                    BindingFlags.NonPublic | BindingFlags.Public);
-                Assert.IsNotNull(buildType, "ComponentBuildController nested type should exist");
-                return buildType.GetMethod("Build",
-                    BindingFlags.Public | BindingFlags.Instance);
-            }
-        }
-
-        private static MethodInfo DoBindActionMethod {
-            get {
-                Type controllerType = typeof(QTTabBarClass).GetNestedType("BindActionController",
-                    BindingFlags.NonPublic | BindingFlags.Public);
-                Assert.IsNotNull(controllerType, "BindActionController nested type should exist");
-                return controllerType.GetMethod("DoBindAction",
-                    BindingFlags.Public | BindingFlags.Instance);
+        public void QTTabBarClass_Still_Exposes_Internal_Menu_Builders_Through_The_Controller() {
+            foreach(string methodName in new[] { "CreateBranchMenu", "CreateNavBtnMenuItems" }) {
+                MethodInfo method = typeof(QTTabBarClass).GetMethod(methodName, AnyInstance | BindingFlags.DeclaredOnly);
+                Assert.IsNotNull(method);
+                Assert.IsTrue(method.IsAssembly);
+                Assert.IsNotNull(MenuControllerType.GetMethod(methodName, AnyInstance));
             }
         }
 
         [Test]
-        public void QTTabBarClass_Declares_Private_MenuController_Field() {
-            FieldInfo f = typeof(QTTabBarClass).GetField("_menuController",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(f, "QTTabBarClass should declare a private instance field _menuController");
-            Assert.IsTrue(f.IsPrivate, "_menuController should be private");
-            Assert.IsFalse(f.IsStatic, "_menuController should be an instance field");
-            Assert.AreEqual(MenuControllerType, f.FieldType,
-                "_menuController must be typed as the nested MenuController");
-        }
-
-        [Test]
-        public void InitializeComponent_Constructs_MenuController_And_Assigns_Field() {
-            HashSet<MethodBase> methods;
-            HashSet<FieldInfo> fields;
-            CollectIlReferences(ComponentBuildMethod, out methods, out fields);
-
-            Assert.IsTrue(methods.Any(m => m is ConstructorInfo && m.DeclaringType == MenuControllerType),
-                "ComponentBuildController.Build should construct a MenuController (newobj MenuController..ctor)");
-            Assert.IsTrue(fields.Any(f => f.Name == "_menuController"
-                    && f.DeclaringType == typeof(QTTabBarClass)),
-                "ComponentBuildController.Build should assign the _menuController field (non-null after init)");
-        }
-
-        [Test]
-        public void InitializeComponent_Wires_Four_ContextMenu_Events_To_MenuController() {
-            HashSet<MethodBase> methods;
-            HashSet<FieldInfo> fields;
-            CollectIlReferences(ComponentBuildMethod, out methods, out fields);
-
-            string[] expected = {
-                "contextMenuTab_ItemClicked",
-                "contextMenuTab_Opening",
-                "contextMenuSys_ItemClicked",
-                "contextMenuSys_Opening",
-            };
-            foreach(string name in expected) {
-                Assert.IsTrue(
-                    methods.Any(m => m.DeclaringType == MenuControllerType && m.Name == name),
-                    "ComponentBuildController.Build should bind the context-menu event to MenuController." + name
-                        + " (delegate target = _menuController)");
+        public void Composition_Routes_Menu_Construction_Events_And_Group_Creation_Through_TopLevel_Controller() {
+            string root = FindRepoRoot();
+            string composition = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
+            string bindAction = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.BindActionController.cs"));
+            Assert.IsTrue(composition.Contains("new MenuController((IMenuInteractionHost)_host, (IMenuLifecycleHost)_host)"));
+            foreach(string eventHandler in new[] {
+                "contextMenuTab_ItemClicked", "contextMenuTab_Opening",
+                "contextMenuSys_ItemClicked", "contextMenuSys_Opening"
+            }) {
+                Assert.IsTrue(composition.Contains("_menuController." + eventHandler));
             }
-            // and the delegate targets are loaded from the _menuController field
-            Assert.IsTrue(fields.Any(f => f.Name == "_menuController"
-                    && f.DeclaringType == typeof(QTTabBarClass)),
-                "the four event handlers must be bound through the _menuController instance");
+            Assert.IsTrue(bindAction.Contains("_menuController.CreateGroup("));
         }
 
-        [Test]
-        public void DoBindAction_CreateNewGroup_Routes_To_MenuController_CreateGroup() {
-            HashSet<MethodBase> methods;
-            HashSet<FieldInfo> fields;
-            CollectIlReferences(DoBindActionMethod, out methods, out fields);
-
-            Assert.IsTrue(
-                methods.Any(m => m.DeclaringType == MenuControllerType && m.Name == "CreateGroup"),
-                "BindAction.CreateNewGroup dispatch must call MenuController.CreateGroup");
-            bool routesThroughMenuController = fields.Any(f => f.Name == "_menuController"
-                    && f.DeclaringType == typeof(QTTabBarClass))
-                || fields.Any(f => f.Name == "_owner"
-                    && f.DeclaringType.Name == "BindActionController");
-            Assert.IsTrue(routesThroughMenuController,
-                "the CreateGroup call must be dispatched through _menuController or BindActionController._owner");
+        private static string FindRepoRoot() {
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while(dir != null) {
+                if(File.Exists(Path.Combine(dir.FullName, "QTTabBar Rebirth.sln"))) return dir.FullName;
+                dir = dir.Parent;
+            }
+            throw new InvalidOperationException("Repository root not found.");
         }
-
-        #endregion
     }
 }

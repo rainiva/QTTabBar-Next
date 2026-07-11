@@ -5,11 +5,9 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C7e2Tests {
         private static readonly string[] ExplorerControllerFiles = {
-            "QTTabBarClass.ExplorerController.cs",
-            "QTTabBarClass.HookInputController.cs",
-            "QTTabBarClass.TabManager.cs",
-            "QTTabBarClass.ShellNavigationController.cs",
-            "QTTabBarClass.ShellUiController.cs",
+            "Input\\HookInputController.cs",
+            "QTTabBarClass.ShellHosts.cs",
+            "Shell\\ShellNavigationController.cs",
             "QTTabBarClass.BindActionController.cs",
             "QTTabBarClass.ShutdownController.cs",
             "RebarController.cs",

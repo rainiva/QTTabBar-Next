@@ -16,7 +16,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void HookInputController_Install_Is_Idempotent() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.HookInputController.cs"));
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "HookInputController.cs"));
             Assert.IsTrue(content.Contains("if(hHook_Msg != IntPtr.Zero)"),
                 "HookInputController.Install should skip when hooks already installed");
         }
@@ -51,7 +51,7 @@ namespace QTTtabBarTests {
         [Test]
         public void TabSwitcher_And_HookWheel_Use_SelectTab() {
             string tabSwitcher = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "TabBarBase.TabSwitcher.cs"));
-            string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.HookInputController.cs"));
+            string hook = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "HookInputController.cs"));
             Assert.IsTrue(tabSwitcher.Contains("tabSwitcher_Switched") && tabSwitcher.Contains("SelectTab(e.Index)"));
             Assert.IsFalse(hook.Contains("SelectedIndex = selectedIndex + 1"),
                 "Hook wheel tab switch should use SelectTab");
