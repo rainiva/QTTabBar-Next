@@ -25,7 +25,7 @@ namespace QTTabBarLib {
         ContextMenuStripEx contextMenuSys { get; }
         ContextMenuStripEx contextMenuTab { get; }
         ShellContextMenu shellContextMenu { get; }
-        QTTabBarClass.PluginServer pluginServer { get; }
+        PluginServer pluginServer { get; }
         PluginMenuController _pluginMenuController { get; }
         RebarController rebarController { get; }
         List<QTabItem> lstActivatedTabs { get; }

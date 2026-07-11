@@ -73,7 +73,7 @@ namespace QTTabBarLib {
         internal ToolStripClasses ExtoolStrip { get => toolStrip; set => toolStrip = value; }
         internal NativeWindowController ExtravelBtnController { get => travelBtnController; set => travelBtnController = value; }
         internal void ExtsmiBranchRoot_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) => tsmiBranchRoot_DropDownItemClicked(sender, e);
-        internal QTTabBarClass.PluginServer ExpluginServer { get => pluginServer; set => pluginServer = value; }
+        internal PluginServer ExpluginServer { get => pluginServer; set => pluginServer = value; }
         internal void ExAddInsertTab(QTabItem tab) => AddInsertTab(tab);
         internal void ExAddStartUpTabs(string group, string path) => AddStartUpTabs(group, path);
         internal IAsyncResult ExBeginInvoke(Delegate method) => BeginInvoke(method);

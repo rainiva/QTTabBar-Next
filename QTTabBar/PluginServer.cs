@@ -24,236 +24,238 @@ using System.Windows.Forms;
 using QTPlugin;
 
 namespace QTTabBarLib {
-    public sealed partial class QTTabBarClass {
-        private bool isTabSubFolderMenuVisible = false;
+    public sealed partial class PluginServer : IPluginServer, IDisposable {
+        private Dictionary<string, string[]> dicLocalizingStrings;
+        private QTPlugin.Interop.IShellBrowser shellBrowser;
+        private IPluginServerHost _host;
+        private IPluginServerTabHost _tabHost;
+        private Dictionary<string, Plugin> dicPluginInstances = new Dictionary<string, Plugin>();
 
-        public partial class PluginServer : IPluginServer, IDisposable {
-            private Dictionary<string, string[]> dicLocalizingStrings;
-            private QTPlugin.Interop.IShellBrowser shellBrowser;
-            private QTTabBarClass tabBar;
-            private Dictionary<string, Plugin> dicPluginInstances = new Dictionary<string, Plugin>();
+        internal Dictionary<string, string> dicFullNamesMenuRegistered_Sys = new Dictionary<string, string>();
+        internal Dictionary<string, string> dicFullNamesMenuRegistered_Tab = new Dictionary<string, string>();
 
-            internal Dictionary<string, string> dicFullNamesMenuRegistered_Sys = new Dictionary<string, string>();
-            internal Dictionary<string, string> dicFullNamesMenuRegistered_Tab = new Dictionary<string, string>();
+        public event PluginEventHandler ExplorerStateChanged;
+        public event EventHandler MenuRendererChanged;
+        public event EventHandler MouseEnter;
+        public event EventHandler MouseLeave;
+        public event PluginEventHandler NavigationComplete;
+        public event PluginEventHandler PointedTabChanged;
+        public event PluginEventHandler SelectionChanged;
+        public event PluginEventHandler SettingsChanged;
+        public event PluginEventHandler TabAdded;
+        public event PluginEventHandler TabChanged;
+        public event PluginEventHandler TabRemoved;
 
-            public event PluginEventHandler ExplorerStateChanged;
-            public event EventHandler MenuRendererChanged;
-            public event EventHandler MouseEnter;
-            public event EventHandler MouseLeave;
-            public event PluginEventHandler NavigationComplete;
-            public event PluginEventHandler PointedTabChanged;
-            public event PluginEventHandler SelectionChanged;
-            public event PluginEventHandler SettingsChanged;
-            public event PluginEventHandler TabAdded;
-            public event PluginEventHandler TabChanged;
-            public event PluginEventHandler TabRemoved;
-
-            public PluginServer(QTTabBarClass tabBar) {
-                this.tabBar = tabBar;
-                shellBrowser = (QTPlugin.Interop.IShellBrowser)this.tabBar.ShellBrowser.GetIShellBrowser();
-                dicLocalizingStrings = new Dictionary<string, string[]>();
-                foreach(string file in Config.Lang.PluginLangFiles) {
-                    if(file.Length <= 0 || !File.Exists(file)) continue;
-                    var dict = QTResourceManager.ReadLanguageFile(file);
-                    if(dict == null) continue;
-                    foreach(var pair in dict) {
-                        dicLocalizingStrings[pair.Key] = pair.Value;
-                    }
-                }
-                LoadStartupPlugins();
-            }
-
-            public bool AddApplication(string name, ProcessStartInfo startInfo) {
-                return false;
-            }
-
-            public bool AddGroup(string groupName, string[] paths) {
-                if(paths == null || paths.Length == 0) return false;
-                GroupsManager.AddGroup(groupName, paths);
-                return true;
-            }
-
-            internal void ClearEvents() {
-                TabChanged = null;
-                TabAdded = null;
-                TabRemoved = null;
-                NavigationComplete = null;
-                SelectionChanged = null;
-                ExplorerStateChanged = null;
-                SettingsChanged = null;
-                MouseEnter = null;
-                PointedTabChanged = null;
-                MouseLeave = null;
-                MenuRendererChanged = null;
-            }
-
-            public void ClearFilterEngines() {
-                FilterPlugin = null;
-                FilterCorePlugin = null;
-            }
-
-            public ProcessStartInfo[] GetApplications(string name) {
-                return null;
-            }
-
-            public string[] GetGroupPaths(string groupName) {
-                Group g = GroupsManager.GetGroup(groupName);
-                return g == null ? null : g.Paths.ToArray();
-            }
-
-            public ToolStripRenderer GetMenuRenderer() {
-                return DropDownMenuBase.CurrentRenderer;
-            }
-
-            public void OnExplorerStateChanged(ExplorerWindowActions windowAction) {
-                if(ExplorerStateChanged != null) {
-                    ExplorerStateChanged(this, new PluginEventArgs(windowAction));
+        internal PluginServer(IPluginServerHost host, IPluginServerTabHost tabHost) {
+            _host = host;
+            _tabHost = tabHost;
+            shellBrowser = (QTPlugin.Interop.IShellBrowser)_tabHost.ShellBrowser.GetIShellBrowser();
+            dicLocalizingStrings = new Dictionary<string, string[]>();
+            foreach(string file in Config.Lang.PluginLangFiles) {
+                if(file.Length <= 0 || !File.Exists(file)) continue;
+                var dict = QTResourceManager.ReadLanguageFile(file);
+                if(dict == null) continue;
+                foreach(var pair in dict) {
+                    dicLocalizingStrings[pair.Key] = pair.Value;
                 }
             }
+            LoadStartupPlugins();
+        }
 
-            public void OnMenuRendererChanged() {
-                if(MenuRendererChanged != null) {
-                    MenuRendererChanged(this, EventArgs.Empty);
-                }
-            }
+        public bool AddApplication(string name, ProcessStartInfo startInfo) {
+            return false;
+        }
 
-            public void OnMouseEnter() {
-                if(MouseEnter != null) {
-                    MouseEnter(this, EventArgs.Empty);
-                }
-            }
+        public bool AddGroup(string groupName, string[] paths) {
+            if(paths == null || paths.Length == 0) return false;
+            GroupsManager.AddGroup(groupName, paths);
+            return true;
+        }
 
-            public void OnMouseLeave() {
-                if(MouseLeave != null) {
-                    MouseLeave(this, EventArgs.Empty);
-                }
-            }
+        internal void ClearEvents() {
+            TabChanged = null;
+            TabAdded = null;
+            TabRemoved = null;
+            NavigationComplete = null;
+            SelectionChanged = null;
+            ExplorerStateChanged = null;
+            SettingsChanged = null;
+            MouseEnter = null;
+            PointedTabChanged = null;
+            MouseLeave = null;
+            MenuRendererChanged = null;
+        }
 
-            public void OnNavigationComplete(int index, byte[] idl, string path) {
-                if(NavigationComplete != null) {
-                    NavigationComplete(this, new PluginEventArgs(index, new Address(idl, path)));
-                }
-            }
+        public void ClearFilterEngines() {
+            FilterPlugin = null;
+            FilterCorePlugin = null;
+        }
 
-            public void OnPointedTabChanged(int index, byte[] idl, string path) {
-                if(PointedTabChanged != null) {
-                    PointedTabChanged(this, new PluginEventArgs(index, new Address(idl, path)));
-                }
-            }
+        public ProcessStartInfo[] GetApplications(string name) {
+            return null;
+        }
 
-            public void OnSelectionChanged(int index, byte[] idl, string path) {
-                if(SelectionChanged != null) {
-                    SelectionChanged(this, new PluginEventArgs(index, new Address(idl, path)));
-                }
-            }
+        public string[] GetGroupPaths(string groupName) {
+            Group g = GroupsManager.GetGroup(groupName);
+            return g == null ? null : g.Paths.ToArray();
+        }
 
-            public void OnSettingsChanged(int iType) {
-                if(SettingsChanged != null) {
-                    SettingsChanged(this, new PluginEventArgs(iType, new Address()));
-                }
-            }
+        public ToolStripRenderer GetMenuRenderer() {
+            return DropDownMenuBase.CurrentRenderer;
+        }
 
-            public void OnTabAdded(int index, byte[] idl, string path) {
-                if(TabAdded != null) {
-                    TabAdded(this, new PluginEventArgs(index, new Address(idl, path)));
-                }
-            }
-
-            public void OnTabChanged(int index, byte[] idl, string path) {
-                if(TabChanged != null) {
-                    TabChanged(this, new PluginEventArgs(index, new Address(idl, path)));
-                }
-            }
-
-            public void OnTabRemoved(int index, byte[] idl, string path) {
-                if(TabRemoved != null) {
-                    TabRemoved(this, new PluginEventArgs(index, new Address(idl, path)));
-                }
-            }
-
-            public void OpenGroup(string[] groupNames) {
-                foreach(string str in groupNames) {
-                    tabBar.OpenGroup(str, false);
-                }
-            }
-
-            public void MakeErrorLog(Exception ex, string optional) {
-                QTLogger.MakeErrorLog(ex, optional);
-            }
-
-            public void RegisterMenu(IPluginClient pluginClient, MenuType menuType, string menuText, bool fRegister) {
-                foreach(Plugin plugin in dicPluginInstances.Values.Where(plugin => plugin.Instance == pluginClient)) {
-                    if(fRegister) {
-                        if((menuType & MenuType.Bar) == MenuType.Bar) {
-                            dicFullNamesMenuRegistered_Sys[plugin.PluginInformation.PluginID] = menuText;
-                        }
-                        if((menuType & MenuType.Tab) == MenuType.Tab) {
-                            dicFullNamesMenuRegistered_Tab[plugin.PluginInformation.PluginID] = menuText;
-                        }
-                    }
-                    else {
-                        if((menuType & MenuType.Bar) == MenuType.Bar) {
-                            dicFullNamesMenuRegistered_Sys.Remove(plugin.PluginInformation.PluginID);
-                        }
-                        if((menuType & MenuType.Tab) == MenuType.Tab) {
-                            dicFullNamesMenuRegistered_Tab.Remove(plugin.PluginInformation.PluginID);
-                        }
-                    }
-                    break;
-                }
-            }
-
-            public bool RemoveApplication(string name) {
-                return false;
-            }
-
-            public bool RemoveGroup(string groupName) {
-                return GroupsManager.RemoveGroup(groupName);
-            }
-
-            public IntPtr ExplorerHandle {
-                get {
-                    return tabBar.ExplorerHandle;
-                }
-            }
-
-            public IFilter FilterPlugin { get; private set; }
-
-            public IFilterCore FilterCorePlugin { get; private set; }
-
-            public string[] Groups {
-                get {
-                    return GroupsManager.Groups.Select(g => g.Name).ToArray();
-                }
-            }
-
-            public IntPtr Handle {
-                get {
-                    return tabBar.IsHandleCreated ? tabBar.Handle : IntPtr.Zero;
-                }
-            }
-
-            public IEnumerable<Plugin> Plugins {
-                get {
-                    return new List<Plugin>(dicPluginInstances.Values);
-                }
-            }
-
-            public bool SelectionChangedAttached {
-                get {
-                    return (SelectionChanged != null);
-                }
-            }
-
-            public TabBarOption TabBarOption {
-                get {
-                    return TabBarOptionService.GetTabBarOption();
-                }
-                set {
-                    TabBarOptionService.SetTabBarOption(value, tabBar);
-                }
+        public void OnExplorerStateChanged(ExplorerWindowActions windowAction) {
+            if(ExplorerStateChanged != null) {
+                ExplorerStateChanged(this, new PluginEventArgs(windowAction));
             }
         }
+
+        public void OnMenuRendererChanged() {
+            if(MenuRendererChanged != null) {
+                MenuRendererChanged(this, EventArgs.Empty);
+            }
+        }
+
+        public void OnMouseEnter() {
+            if(MouseEnter != null) {
+                MouseEnter(this, EventArgs.Empty);
+            }
+        }
+
+        public void OnMouseLeave() {
+            if(MouseLeave != null) {
+                MouseLeave(this, EventArgs.Empty);
+            }
+        }
+
+        public void OnNavigationComplete(int index, byte[] idl, string path) {
+            if(NavigationComplete != null) {
+                NavigationComplete(this, new PluginEventArgs(index, new Address(idl, path)));
+            }
+        }
+
+        public void OnPointedTabChanged(int index, byte[] idl, string path) {
+            if(PointedTabChanged != null) {
+                PointedTabChanged(this, new PluginEventArgs(index, new Address(idl, path)));
+            }
+        }
+
+        public void OnSelectionChanged(int index, byte[] idl, string path) {
+            if(SelectionChanged != null) {
+                SelectionChanged(this, new PluginEventArgs(index, new Address(idl, path)));
+            }
+        }
+
+        public void OnSettingsChanged(int iType) {
+            if(SettingsChanged != null) {
+                SettingsChanged(this, new PluginEventArgs(iType, new Address()));
+            }
+        }
+
+        public void OnTabAdded(int index, byte[] idl, string path) {
+            if(TabAdded != null) {
+                TabAdded(this, new PluginEventArgs(index, new Address(idl, path)));
+            }
+        }
+
+        public void OnTabChanged(int index, byte[] idl, string path) {
+            if(TabChanged != null) {
+                TabChanged(this, new PluginEventArgs(index, new Address(idl, path)));
+            }
+        }
+
+        public void OnTabRemoved(int index, byte[] idl, string path) {
+            if(TabRemoved != null) {
+                TabRemoved(this, new PluginEventArgs(index, new Address(idl, path)));
+            }
+        }
+
+        public void OpenGroup(string[] groupNames) {
+            foreach(string str in groupNames) {
+                _host.OpenGroup(str, false);
+            }
+        }
+
+        public void MakeErrorLog(Exception ex, string optional) {
+            QTLogger.MakeErrorLog(ex, optional);
+        }
+
+        public void RegisterMenu(IPluginClient pluginClient, MenuType menuType, string menuText, bool fRegister) {
+            foreach(Plugin plugin in dicPluginInstances.Values.Where(plugin => plugin.Instance == pluginClient)) {
+                if(fRegister) {
+                    if((menuType & MenuType.Bar) == MenuType.Bar) {
+                        dicFullNamesMenuRegistered_Sys[plugin.PluginInformation.PluginID] = menuText;
+                    }
+                    if((menuType & MenuType.Tab) == MenuType.Tab) {
+                        dicFullNamesMenuRegistered_Tab[plugin.PluginInformation.PluginID] = menuText;
+                    }
+                }
+                else {
+                    if((menuType & MenuType.Bar) == MenuType.Bar) {
+                        dicFullNamesMenuRegistered_Sys.Remove(plugin.PluginInformation.PluginID);
+                    }
+                    if((menuType & MenuType.Tab) == MenuType.Tab) {
+                        dicFullNamesMenuRegistered_Tab.Remove(plugin.PluginInformation.PluginID);
+                    }
+                }
+                break;
+            }
+        }
+
+        public bool RemoveApplication(string name) {
+            return false;
+        }
+
+        public bool RemoveGroup(string groupName) {
+            return GroupsManager.RemoveGroup(groupName);
+        }
+
+        public IntPtr ExplorerHandle {
+            get {
+                return _host.ExplorerHandle;
+            }
+        }
+
+        public IFilter FilterPlugin { get; private set; }
+
+        public IFilterCore FilterCorePlugin { get; private set; }
+
+        public string[] Groups {
+            get {
+                return GroupsManager.Groups.Select(g => g.Name).ToArray();
+            }
+        }
+
+        public IntPtr Handle {
+            get {
+                return _host.IsHandleCreated ? _host.Handle : IntPtr.Zero;
+            }
+        }
+
+        public IEnumerable<Plugin> Plugins {
+            get {
+                return new List<Plugin>(dicPluginInstances.Values);
+            }
+        }
+
+        public bool SelectionChangedAttached {
+            get {
+                return (SelectionChanged != null);
+            }
+        }
+
+        public TabBarOption TabBarOption {
+            get {
+                return TabBarOptionService.GetTabBarOption();
+            }
+            set {
+                _host.SetTabBarOption(value);
+            }
+        }
+    }
+
+    public sealed partial class QTTabBarClass {
+        private bool isTabSubFolderMenuVisible = false;
 
         public static Dictionary<String,String[]> testQTUtilityReadLanguageFile(string path) {
             return QTResourceManager.ReadLanguageFile(path);

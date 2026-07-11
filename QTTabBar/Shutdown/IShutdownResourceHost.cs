@@ -8,7 +8,7 @@ namespace QTTabBarLib {
         TreeViewWrapper TreeViewWrapper { get; set; }
         ListViewMonitor ListViewManager { get; set; }
         SubDirTipForm SubDirTip { get; set; }
-        QTTabBarClass.PluginServer PluginServer { get; set; }
+        PluginServer PluginServer { get; set; }
         NativeWindowController ExplorerController { get; set; }
         RebarController RebarController { get; set; }
         NativeWindowController TravelButtonController { get; set; }

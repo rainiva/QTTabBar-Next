@@ -114,7 +114,7 @@ namespace QTTabBarLib
         protected ListViewMonitor listViewManager;
 
         protected ITravelLogStg TravelLog;
-        public QTTabBarClass.PluginServer pluginServer { get; set; }
+        public PluginServer pluginServer { get; set; }
 
         protected bool NowTabDragging;
         protected QTabItem ContextMenuedTab;

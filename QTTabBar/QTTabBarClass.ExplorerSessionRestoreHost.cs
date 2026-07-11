@@ -33,7 +33,7 @@ namespace QTTabBarLib {
 
         void IExplorerSessionRestoreHost.InitializeWindowIntegrations() {
             QTLogger.log("QTTabBarClass PluginServer ");
-            pluginServer = new PluginServer(this);
+            pluginServer = new PluginServer((IPluginServerHost)this, (IPluginServerTabHost)this);
             QTLogger.log("QTTabBarClass TryCallButtonBar ");
             if(!TryCallButtonBar(buttonBar => buttonBar.CreateItems())) {
                 Timer timer = new Timer { Interval = 2000 };

@@ -11,7 +11,7 @@ namespace QTTabBarLib {
         TreeViewWrapper IShutdownResourceHost.TreeViewWrapper { get => treeViewWrapper; set => treeViewWrapper = value; }
         ListViewMonitor IShutdownResourceHost.ListViewManager { get => listViewManager; set => listViewManager = value; }
         SubDirTipForm IShutdownResourceHost.SubDirTip { get => subDirTip_Tab; set => subDirTip_Tab = value; }
-        QTTabBarClass.PluginServer IShutdownResourceHost.PluginServer { get => pluginServer; set => pluginServer = value; }
+        PluginServer IShutdownResourceHost.PluginServer { get => pluginServer; set => pluginServer = value; }
         NativeWindowController IShutdownResourceHost.ExplorerController { get => explorerController; set => explorerController = value; }
         RebarController IShutdownResourceHost.RebarController { get => rebarController; set => rebarController = value; }
         NativeWindowController IShutdownResourceHost.TravelButtonController { get => travelBtnController; set => travelBtnController = value; }

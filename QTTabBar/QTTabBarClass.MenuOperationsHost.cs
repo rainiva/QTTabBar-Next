@@ -59,7 +59,7 @@ namespace QTTabBarLib {
             get { return shellContextMenu; }
         }
 
-        QTTabBarClass.PluginServer IMenuOperationsHost.pluginServer {
+        PluginServer IMenuOperationsHost.pluginServer {
             get { return pluginServer; }
         }
 

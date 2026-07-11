@@ -340,9 +340,7 @@
       <DependentUpon>Options01_Window.xaml</DependentUpon>
     </Compile>
     <Compile Include="PluginManager.cs" />
-    <Compile Include="PluginServer.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="PluginServer.cs" />
     <Compile Include="PluginServer.Commands.cs">
       <DependentUpon>PluginServer.cs</DependentUpon>
     </Compile>
@@ -352,6 +350,9 @@
     <Compile Include="PluginServer.Lifetime.cs">
       <DependentUpon>PluginServer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Plugin\IPluginServerHost.cs" />
+    <Compile Include="Plugin\IPluginServerTabHost.cs" />
+    <Compile Include="QTTabBarClass.PluginServerHost.cs" />
     <Compile Include="PreMergeToMergedDeserializationBinder.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

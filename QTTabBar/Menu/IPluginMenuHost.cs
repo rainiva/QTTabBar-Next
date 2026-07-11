@@ -3,9 +3,9 @@ using QTPlugin;
 
 namespace QTTabBarLib {
     internal interface IPluginMenuHost {
-        QTTabBarClass.PluginServer PluginServer { get; }
+        PluginServer PluginServer { get; }
         QTabItem ContextMenuedTab { get; }
         IntPtr ExplorerHandle { get; }
-        QTTabBarClass.PluginServer.TabWrapper CreateTabWrapper(QTabItem tab);
+        PluginServer.TabWrapper CreateTabWrapper(QTabItem tab);
     }
 }

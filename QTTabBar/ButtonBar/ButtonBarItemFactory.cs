@@ -280,7 +280,7 @@ namespace QTTabBarLib {
                 ToolStripItemClickedEventHandler dropDownItemClicked, ItemRightClickedEventHandler dropDownItemRightClicked) {
             QTTabBarClass tabbar = TabInstanceRegistry.GetThreadTabBar();
             if(tabbar == null || tabbar.pluginServer == null) return;
-            QTTabBarClass.PluginServer pluginServer = tabbar.pluginServer;
+            PluginServer pluginServer = tabbar.pluginServer;
             string pluginID = Config.BBar.ActivePluginIDs[buttonIndex.HiWord() - 1];
             try {
                 bool showText = Config.BBar.ShowButtonLabels;
