@@ -106,6 +106,7 @@ namespace QTTabBarLib {
     }
 
     internal interface IExplorerHookInstallationHost {
+        HookInputController HookInputController { get; }
         void InstallInputHook(int threadId);
         void InstallExplorerWindowHook(NativeWindowController.MessageEventHandler handler);
         bool HasRebar { get; }

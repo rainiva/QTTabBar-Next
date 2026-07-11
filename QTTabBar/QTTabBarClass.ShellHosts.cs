@@ -966,9 +966,7 @@ QTabControl IWindowMergeTargetHost.tabControl1 => tabControl1;
             return cursor;
         }
 
-        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
-            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
-        }
+        // dropTargetWrapper_DragFileDrop moved to QTTabBarClass.cs
 
         private DragDropEffects dropTargetWrapper_DragFileEnter(IntPtr hDrop, Point pnt, int grfKeyState) {
             return _dragDropController.DragFileEnter(hDrop, pnt, grfKeyState);

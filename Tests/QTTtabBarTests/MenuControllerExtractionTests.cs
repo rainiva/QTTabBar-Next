@@ -53,12 +53,11 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void Composition_Routes_Menu_Construction_Events_And_Group_Creation_Through_TopLevel_Controller() {
             string root = FindRepoRoot();
             string composition = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             string bindAction = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.BindActionController.cs"));
-            Assert.IsTrue(composition.Contains("new MenuController((IMenuInteractionHost)_owner, (IMenuLifecycleHost)_owner)"));
+            Assert.IsTrue(composition.Contains("new MenuController((IMenuInteractionHost)_host, (IMenuLifecycleHost)_host)"));
             foreach(string eventHandler in new[] {
                 "contextMenuTab_ItemClicked", "contextMenuTab_Opening",
                 "contextMenuSys_ItemClicked", "contextMenuSys_Opening"

@@ -13,5 +13,9 @@ namespace QTTabBarLib {
         internal ITravelLogEntry GetCurrentLogEntry() {
             return TravelLogController.GetCurrentLogEntry();
         }
+
+        internal string MakeTravelBtnTooltipText(bool back) {
+            return TravelToolbarController.MakeTooltipText(back);
+        }
     }
 }

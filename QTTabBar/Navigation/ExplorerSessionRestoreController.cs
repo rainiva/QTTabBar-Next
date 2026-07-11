@@ -70,6 +70,7 @@ namespace QTTabBarLib {
         }
 
         internal void InitializeOpenedWindow() {
+            // Idempotency guard: _host.IsWindowInitialized maps to fOpenedWindowInitialized on QTTabBarClass
             if(_host.IsWindowInitialized) return;
             _host.IsWindowInitialized = true;
             _host.IsShown = true;

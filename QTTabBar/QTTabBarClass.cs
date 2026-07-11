@@ -79,6 +79,7 @@ namespace QTTabBarLib {
         private ViewModeController _viewModeController;
         private PluginMenuController _pluginMenuController;
         private ShutdownController _shutdownController;
+        private ComponentBuildController _componentBuildController;
 
         internal bool DoFileTools(int index) { return _fileToolsController.DoFileTools(index); }
 
@@ -255,6 +256,15 @@ namespace QTTabBarLib {
             components = new Container();
             _tabBarComposition = new TabBarComposition((ITabBarCompositionHost)this);
             _tabBarComposition.Build();
+        }
+
+        void ITabBarCompositionHost.BuildTabBarComponents() {
+            _componentBuildController = new ComponentBuildController(this);
+            _componentBuildController.Build();
+        }
+
+        private int dropTargetWrapper_DragFileDrop(out IntPtr hwnd, out byte[] idlReal) {
+            return _dragDropController.DragFileDrop(out hwnd, out idlReal);
         }
 
         internal void OnMouseDoubleClick() {

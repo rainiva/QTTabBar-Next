@@ -88,6 +88,8 @@ namespace QTTabBarLib {
             }
 
             public void InstallHooks() {
+                HookInputController _hookInputController = _hookInstallationHost.HookInputController;
+                _hookInputController.Install(PInvoke.GetCurrentThreadId());
                 HookInstallationController.Install();
             }
 

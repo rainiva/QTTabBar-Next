@@ -16,10 +16,12 @@ namespace QTTabBarLib {
     internal sealed class BindActionController {
         private readonly IBindActionHost _host;
         private readonly IBindActionUiHost _uiHost;
+        private readonly MenuController _menuController;
 
-        public BindActionController(IBindActionHost host, IBindActionUiHost uiHost) {
+        public BindActionController(IBindActionHost host, IBindActionUiHost uiHost, MenuController menuController) {
             _host = host;
             _uiHost = uiHost;
+            _menuController = menuController;
         }
 
         public bool DoBindAction(BindAction action, bool fRepeat = false, QTabItem tab = null, IDLWrapper item = null) {
@@ -65,7 +67,7 @@ namespace QTTabBarLib {
                     break;
 
                 case BindAction.CreateNewGroup: // 创建新分组
-                    _uiHost.CreateGroup(tab);
+                    _menuController.CreateGroup(tab);
                     break;
 
                 // case BindAction.AddToGroup: // 添加到标签组

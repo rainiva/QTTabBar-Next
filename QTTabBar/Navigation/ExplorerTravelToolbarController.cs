@@ -91,7 +91,7 @@ namespace QTTabBarLib {
             return true;
         }
 
-        private string MakeTooltipText(bool back) {
+        internal string MakeTooltipText(bool back) {
             string path = string.Empty;
             if(back) {
                 string[] history = _host.CurrentTab.GetHistoryBack();

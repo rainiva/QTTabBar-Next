@@ -43,13 +43,12 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void DragDrop_Handlers_Delegate_To_DragDropController() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             Assert.IsTrue(content.Contains("_dragDropController"),
                 "QTTabBarClass should own a DragDropController instance");
-            Assert.IsTrue(build.Contains("new DragDropController((IDragDropHost)_owner)"),
+            Assert.IsTrue(build.Contains("new DragDropController((IDragDropHost)_host)"),
                 "ComponentBuildController should construct DragDropController through its narrow host contract");
             int dropIndex = content.IndexOf("dropTargetWrapper_DragFileDrop(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(dropIndex, 0);

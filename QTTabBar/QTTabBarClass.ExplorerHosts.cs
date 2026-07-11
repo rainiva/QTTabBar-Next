@@ -129,6 +129,7 @@ int IExplorerWindowCaptureHost.CommandMode { get => mCmdType; set => mCmdType = 
 bool IExplorerComEventHost.IsShown() => IsShown;
 
         // --- From QTTabBarClass.ExplorerHookInstallationHost.cs ---
+HookInputController IExplorerHookInstallationHost.HookInputController => _hookInputController;
 void IExplorerHookInstallationHost.InstallInputHook(int threadId) {
             _hookInputController.Install(threadId);
         }
@@ -409,13 +410,7 @@ QTabItem IExplorerSessionRestoreHost.CurrentTab => CurrentTab;
                 _createItemsRetryTimer.Tick += OnCreateItemsRetryTimerTick;
                 _createItemsRetryTimer.Start();
             }
-            if(Config.Window.WindowAlpha < 0xff) {
-                QTLogger.log("QTTabBarClass SetWindowLongPtr SetLayeredWindowAttributes");
-                byte alpha = Config.Window.WindowAlpha;
-                PInvoke.SetWindowLongPtr(ExplorerHandle, -20,
-                    PInvoke.Ptr_OP_OR(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000));
-                PInvoke.SetLayeredWindowAttributes(ExplorerHandle, 0, alpha, 2);
-            }
+            _explorerControllerModule.ApplySessionWindowAlpha(ExplorerHandle);
             QTLogger.log("QTTabBarClass ListViewMonitor ");
             listViewManager = new ListViewMonitor(ShellBrowser, ExplorerHandle, Handle);
             listViewManager.ListViewChanged += _listViewInputController.OnListViewMonitorChanged;

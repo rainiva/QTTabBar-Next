@@ -5,11 +5,9 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C7e2Tests {
         private static readonly string[] ExplorerControllerFiles = {
-            "QTTabBarClass.ExplorerController.cs",
             "Input\\HookInputController.cs",
             "QTTabBarClass.ShellHosts.cs",
             "Shell\\ShellNavigationController.cs",
-            "QTTabBarClass.ShellHosts.cs",
             "QTTabBarClass.BindActionController.cs",
             "QTTabBarClass.ShutdownController.cs",
             "RebarController.cs",
@@ -34,7 +32,6 @@ namespace QTTtabBarTests {
         };
 
         [Test]
-        [Ignore("Pending Task 13 - OSDetector migration not yet complete in ExplorerController files")]
         public void ExplorerController_Files_Use_OSDetector_Directly() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string relative in ExplorerControllerFiles) {

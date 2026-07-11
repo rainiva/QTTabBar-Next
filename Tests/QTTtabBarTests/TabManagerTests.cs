@@ -525,11 +525,6 @@ namespace QTTtabBarTests {
             return ((TabBarBase)owner).TabIndexForNewTab();
         }
 
-        private static int InvokeFacadeTabIndex(QTTabBarClass owner) {
-            return (int)typeof(QTTabBarClass).GetMethod("TabIndex",
-                BindingFlags.NonPublic | BindingFlags.Instance).Invoke(owner, null);
-        }
-
         [Test]
         public void TabIndex_Rightmost_ReturnsTabCount() {
             var (owner, _) = CreateTabManagerWithFakeOwner(5, 2);
@@ -576,19 +571,6 @@ namespace QTTtabBarTests {
             Config.Tabs.NewTabPosition = TabPos.Rightmost;
             Assert.AreEqual(0, InvokeTabIndex(owner),
                 "Rightmost with 0 tabs: TabIndex should be 0");
-        }
-
-        [Test]
-        [Ignore("TabIndex facade method was removed when TabManager was extracted to top-level")]
-        public void TabIndex_Facade_Equals_Extraction_AllPositions() {
-            var (owner, _) = CreateTabManagerWithFakeOwner(4, 1);
-            foreach(TabPos pos in (TabPos[])Enum.GetValues(typeof(TabPos))) {
-                Config.Tabs.NewTabPosition = pos;
-                int facade = InvokeFacadeTabIndex(owner);
-                int extracted = InvokeTabIndex(owner);
-                Assert.AreEqual(facade, extracted,
-                    "TabIndex façade must equal TabIndexForNewTab for TabPos.{0}", pos);
-            }
         }
 
         #endregion

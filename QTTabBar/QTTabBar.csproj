@@ -747,6 +747,9 @@
     <Compile Include="QTTabBarClass.ExplorerController.MessageRouting.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
+    <Compile Include="QTTabBarClass.ExplorerController.SessionRestore.cs">
+      <DependentUpon>QTTabBarClass.cs</DependentUpon>
+    </Compile>
     <Compile Include="Input\IDragDropHost.cs" />
     <Compile Include="Input\DragDropController.cs" />
     <Compile Include="Input\IDroppedFilesHost.cs" />
@@ -779,9 +782,10 @@
     <Compile Include="Band\BandInfoController.cs" />
     <Compile Include="Band\BandLifecycleController.cs" />
     <Compile Include="Band\BandWindowController.cs" />
+    <Compile Include="IComponentBuildHost.cs" />
     <Compile Include="ITabBarCompositionHost.cs" />
     <Compile Include="TabBarComposition.cs" />
-    <Compile Include="QTTabBarClass.CompositionHost.cs">
+    <Compile Include="QTTabBarClass.ComponentBuildController.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="QTTabBarClass.ExplorerHosts.cs">

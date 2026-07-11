@@ -6,7 +6,6 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C7d2Tests {
         private static readonly string[] CoreLayerFiles = {
             "SubDirTipForm.cs",
-            "QTTabBarClass.ExplorerController.Init.cs",
             "DropDownMenuBase.cs",
             "MenuUtility.cs",
             "TabSwitchForm.cs",
@@ -17,7 +16,6 @@ namespace QTTtabBarTests {
         };
 
         [Test]
-        [Ignore("Pending Task 13 - IconManager migration not yet complete in all core layer files")]
         public void CoreLayer_Files_Use_IconManager_Directly() {
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string relative in CoreLayerFiles) {

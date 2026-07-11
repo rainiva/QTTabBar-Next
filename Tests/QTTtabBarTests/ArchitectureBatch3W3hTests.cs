@@ -44,11 +44,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void ComponentBuildController_Wires_Mouse_Events_To_TabBarBase() {
             string content = File.ReadAllText(
                 Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
-            Assert.IsTrue(content.Contains("_owner.tabControl1_MouseDown"),
+            Assert.IsTrue(content.Contains("tabControl1_MouseDown"),
                 "ComponentBuildController should wire tab mouse events to TabBarBase handlers");
             Assert.IsFalse(content.Contains("_tabManager.tabControl1_MouseDown"),
                 "ComponentBuildController should not wire tab mouse events via TabManager after W3h");

@@ -11,7 +11,7 @@ namespace QTTtabBarTests {
             typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ListViewInputController");
 
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
 
         [Test]
         public void ListViewInputController_Owns_HandleItemActivate() {
@@ -20,14 +20,12 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - ExplorerControllerModule not yet extracted")]
         public void ExplorerControllerModule_Owns_TravelToolbarMessageHandler() {
             Assert.IsNotNull(ExplorerModuleType);
             Assert.IsNotNull(ExplorerModuleType.GetMethod("TravelToolbarMessageCaptured", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
 
         [Test]
-        [Ignore("Pending Task 13 - ItemActivation/TravelToolbar bodies not yet moved")]
         public void QTTabBarClass_No_Longer_Implements_ItemActivation_And_TravelToolbar_Bodies() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string listView = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.cs")) +

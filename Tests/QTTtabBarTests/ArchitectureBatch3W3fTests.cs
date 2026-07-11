@@ -31,10 +31,11 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - base.AddInsertTab routing not yet implemented")]
         public void QTTabBarClass_Calls_TabBarBase_Directly_For_TabOperations() {
             string content = File.ReadAllText(
-                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs")) +
+                File.ReadAllText(
+                Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
             Assert.IsFalse(content.Contains("_tabManager.AddInsertTab"),
                 "QTTabBarClass should call base tab ops directly");
             Assert.IsFalse(content.Contains("_tabManager.CreateNewTab"),

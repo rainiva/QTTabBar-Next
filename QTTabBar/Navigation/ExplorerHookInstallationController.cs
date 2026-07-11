@@ -17,7 +17,7 @@ namespace QTTabBarLib {
         }
 
         internal void Install() {
-            _host.InstallInputHook(PInvoke.GetCurrentThreadId());
+            // InstallInputHook moved to ExplorerController.InstallHooks for direct HookInputController access
             _host.InstallExplorerWindowHook(_windowMessageHandler);
             if(_host.HasRebar) _host.InstallRebar();
             if(!_host.IsLegacyWindowsXp) _host.InstallTravelToolbarHook(_travelToolbarMessageHandler);

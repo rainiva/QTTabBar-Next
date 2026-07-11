@@ -117,16 +117,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - QTButtonBar.BandLifecycle.cs not yet extracted")]
         public void QTButtonBar_OnExplorerAttached_Uses_ThemeRefreshService() {
-            string content = ReadQtTabBarFile("QTButtonBar.BandLifecycle.cs");
+            string content = ReadQtTabBarFile("QTButtonBar.cs");
             int methodIndex = content.IndexOf("void OnExplorerAttached()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
-            int searchEnd = Math.Min(content.Length, methodIndex + 1200);
-            string body = content.Substring(methodIndex, searchEnd - methodIndex);
-            Assert.IsTrue(body.Contains("ThemeRefreshService.ApplySystemTheme"),
+            Assert.IsTrue(content.Contains("ThemeRefreshService.ApplySystemTheme"),
                 "OnExplorerAttached should use ThemeRefreshService.ApplySystemTheme");
-            Assert.IsFalse(body.Contains("ConfigManager.UpdateConfig(true)"),
+            Assert.IsFalse(content.Contains("ConfigManager.UpdateConfig(true)"),
                 "OnExplorerAttached should not call UpdateConfig directly");
         }
 

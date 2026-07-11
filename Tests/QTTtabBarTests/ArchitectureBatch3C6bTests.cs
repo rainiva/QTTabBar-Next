@@ -16,15 +16,14 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - ComponentBuildController not yet extracted")]
         public void Hook_Callbacks_Delegate_To_HookInputController() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(main.Contains("_hookInputController"),
                 "QTTabBarClass should own a HookInputController instance");
-            Assert.IsTrue(build.Contains("new HookInputController((IHookInputHost)_owner)"),
-                "ComponentBuildController should construct HookInputController during initialization");
+            Assert.IsTrue(build.Contains("new HookInputController((IHookInputHost)_host)"),
+                "ComponentBuildController should construct HookInputController through its narrow host contract");
 
             int installIndex = explorer.IndexOf("void InstallHooks()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(installIndex, 0, "ExplorerControllerModule should own InstallHooks");

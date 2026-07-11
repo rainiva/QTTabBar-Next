@@ -11,7 +11,8 @@ namespace QTTtabBarTests {
                    File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.Navigation.cs")) +
                    File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.TravelLog.cs")) +
                    File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.WindowMessages.cs")) +
-                   File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.MessageRouting.cs"));
+                   File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.MessageRouting.cs")) +
+                   File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.SessionRestore.cs"));
         }
     }
 }

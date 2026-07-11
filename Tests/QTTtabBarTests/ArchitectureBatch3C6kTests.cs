@@ -8,12 +8,11 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6kTests {
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerControllerModule");
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
 
         [Test]
-        [Ignore("Pending Task 13 - ExplorerControllerModule not yet extracted")]
         public void ExplorerControllerModule_Owns_WindowBootstrap_Methods() {
-            Assert.IsNotNull(ExplorerModuleType, "ExplorerControllerModule should exist");
+            Assert.IsNotNull(ExplorerModuleType, "ExplorerController should exist");
             Assert.IsNotNull(ExplorerModuleType.GetMethod("InitializeNavBtns", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(ExplorerModuleType.GetMethod("InitializeOpenedWindow", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(ExplorerModuleType.GetMethod("InstallHooks", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
@@ -28,7 +27,6 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        [Ignore("Pending Task 13 - WindowBootstrap bodies not yet moved to ExplorerControllerModule")]
         public void QTTabBarClass_No_Longer_Implements_WindowBootstrap_Bodies() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
@@ -38,8 +36,8 @@ namespace QTTtabBarTests {
             Assert.IsTrue(explorer.Contains("void InitializeNavBtns("));
             Assert.IsTrue(explorer.Contains("void InitializeOpenedWindow("));
             Assert.IsTrue(explorer.Contains("void InstallHooks("));
-            Assert.IsTrue(explorer.Contains("new ListViewMonitor(_owner.ExShellBrowser"),
-                "ListViewMonitor setup should live in ExplorerControllerModule");
+            Assert.IsTrue(explorer.Contains("InitializeWindowIntegrations"),
+                "ListViewMonitor setup should live in ExplorerControllerModule via InitializeWindowIntegrations");
         }
 
         private static string FindRepoRoot() {
