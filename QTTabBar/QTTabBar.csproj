@@ -723,6 +723,7 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Tabs\ITabOperationsHost.cs" />
+        <Compile Include="Tabs\ITabOperationsOwnerHost.cs" />
     <Compile Include="Tabs\TabManager.cs" />
     <Compile Include="QTTabBarClass.TabOperationsHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
@@ -945,6 +946,7 @@
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
     </Compile>
     <Compile Include="Input\ISubDirTipHost.cs" />
+        <Compile Include="Input\ISubDirTipOperationsHost.cs" />
     <Compile Include="Input\TabTooltipController.cs" />
     <Compile Include="QTTabBarClass.SubDirTipHost.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>

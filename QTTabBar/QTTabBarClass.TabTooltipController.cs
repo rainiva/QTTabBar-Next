@@ -11,10 +11,10 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public partial class QTTabBarClass {
         private class SubDirTipOperations {
-            private readonly QTTabBarClass _owner;
+            private readonly ISubDirTipOperationsHost _host;
 
-            public SubDirTipOperations(QTTabBarClass owner) {
-                _owner = owner;
+            public SubDirTipOperations(ISubDirTipOperationsHost host) {
+                _host = host;
             }
 
             public void SubDirTip_MenuItemClicked(object sender, ToolStripItemClickedEventArgs e) {
@@ -22,37 +22,37 @@ namespace QTTabBarLib {
                 if(clickedItem.Target == MenuTarget.Folder) {
                     if(clickedItem.IDLData != null) {
                         using(IDLWrapper wrapper = new IDLWrapper(clickedItem.IDLData)) {
-                            _owner.ShellBrowser.Navigate(wrapper);
+                            _host.ShellBrowser.Navigate(wrapper);
                         }
                         return;
                     }
                     string targetPath = clickedItem.TargetPath;
                     Keys modifierKeys = ModifierKeys;
-                    bool flag = (_owner.subDirTip_Tab != null) && (sender == _owner.subDirTip_Tab);
+                    bool flag = (_host.subDirTip_Tab != null) && (sender == _host.subDirTip_Tab);
                     if((modifierKeys & Keys.Control) == Keys.Control) {
                         using(IDLWrapper wrapper2 = new IDLWrapper(targetPath)) {
-                            _owner.OpenNewWindow(wrapper2);
+                            _host.OpenNewWindow(wrapper2);
                             return;
                         }
                     }
                     if((modifierKeys & Keys.Shift) == Keys.Shift) {
                         using(IDLWrapper wrapper3 = new IDLWrapper(targetPath)) {
-                            _owner.OpenNewTab(wrapper3, false, true);
+                            _host.OpenNewTab(wrapper3, false, true);
                             return;
                         }
                     }
-                    if((!flag || (_owner.ContextMenuedTab == _owner.CurrentTab)) && _owner.CurrentTab.TabLocked)
+                    if((!flag || (_host.ContextMenuedTab == _host.CurrentTab)) && _host.CurrentTab.TabLocked)
                     {
                         QTLogger.log("Clone Tab Button1");
-                        _owner.CloneTabButton(_owner.CurrentTab, targetPath, true, _owner.TabIndexForNewTab());
+                        _host.CloneTabButton(_host.CurrentTab, targetPath, true, _host.TabIndexForNewTab());
                         return;
                     }
-                    if(flag && (_owner.ContextMenuedTab != _owner.CurrentTab)) {
-                        if(_owner.ContextMenuedTab != null) {
-                            if(_owner.ContextMenuedTab.TabLocked) {
-                                var index = _owner.TabIndexForNewTab();
-                                _owner.CloneTabButton(
-                                    _owner.ContextMenuedTab,
+                    if(flag && (_host.ContextMenuedTab != _host.CurrentTab)) {
+                        if(_host.ContextMenuedTab != null) {
+                            if(_host.ContextMenuedTab.TabLocked) {
+                                var index = _host.TabIndexForNewTab();
+                                _host.CloneTabButton(
+                                    _host.ContextMenuedTab,
                                     targetPath,
                                     true,
                                     index
@@ -60,15 +60,15 @@ namespace QTTabBarLib {
                                 return;
                             }
 
-                            _owner.NowTabCloned = targetPath == _owner.CurrentAddress;
-                            _owner.ContextMenuedTab.NavigatedTo(targetPath, null, 1, false);
-                            _owner.tabControl1.SelectTab(_owner.ContextMenuedTab);
+                            _host.NowTabCloned = targetPath == _host.CurrentAddress;
+                            _host.ContextMenuedTab.NavigatedTo(targetPath, null, 1, false);
+                            _host.tabControl1.SelectTab(_host.ContextMenuedTab);
                             QTLogger.log("NavigatedTo SelectTab");
                         }
                         return;
                     }
                     using(IDLWrapper wrapper4 = new IDLWrapper(targetPath)) {
-                        _owner.ShellBrowser.Navigate(wrapper4);
+                        _host.ShellBrowser.Navigate(wrapper4);
                         QTLogger.log("ShellBrowser.Navigate");
                         return;
                     }
@@ -77,7 +77,7 @@ namespace QTTabBarLib {
                     Process.Start(new ProcessStartInfo(clickedItem.Path) {
                         WorkingDirectory = Path.GetDirectoryName(clickedItem.Path) ?? "",
                         ErrorDialog = true,
-                        ErrorDialogParentHandle = _owner.ExplorerHandle
+                        ErrorDialogParentHandle = _host.ExplorerHandle
                     });
                     QTLogger.log("Process.Start");
                     if(Config.Misc.KeepRecentFiles) {
@@ -94,7 +94,7 @@ namespace QTTabBarLib {
                 QMenuItem clickedItem = e.ClickedItem as QMenuItem;
                 if(clickedItem != null) {
                     using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                        e.HRESULT = _owner.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle, false);
+                        e.HRESULT = _host.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle, false);
                     }
                 }
             }
@@ -105,13 +105,13 @@ namespace QTTabBarLib {
                     QTUtility2.InitializeTemporaryPaths();
                     StaticReg.CreateWindowPaths.AddRange(executedDirectories);
                     using(IDLWrapper wrapper = new IDLWrapper(executedDirectories[0])) {
-                        _owner.OpenNewWindow(wrapper);
+                        _host.OpenNewWindow(wrapper);
                         return;
                     }
                 }
                 bool flag = true;
                 foreach(string str in executedDirectories) {
-                    _owner.OpenNewTab(str, !flag);
+                    _host.OpenNewTab(str, !flag);
                     flag = false;
                 }
             }
@@ -123,7 +123,7 @@ namespace QTTabBarLib {
                         return wrapper.IDL;
                     }
                 }).ToList();
-                e.HRESULT = _owner.shellContextMenu.Open(executedIDLs, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle);
+                e.HRESULT = _host.shellContextMenu.Open(executedIDLs, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle);
             }
         }
     }
