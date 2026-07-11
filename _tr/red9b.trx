@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="12ec973f-234d-4188-be78-acfe437e984e" name="coxte@RAINPC 2026-07-10 13:04:52" runUser="RAINPC\coxte" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-10T13:04:52.1033876+08:00" queuing="2026-07-10T13:04:52.1033876+08:00" start="2026-07-10T13:04:50.6792810+08:00" finish="2026-07-10T13:04:52.1233430+08:00" />
+  <TestSettings name="default" id="78c9ad49-4eb1-4d98-92d1-eab780cc354a">
+    <Deployment runDeploymentRoot="coxte_RAINPC_2026-07-10_13_04_52" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b38e5b5b-5164-4c8b-8140-14138736440c" testId="4173c54e-45ab-9a0d-a003-c8660ee3efee" testName="DragTarget_Methods_Moved_Into_Controller" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T13:04:51.9733470+08:00" endTime="2026-07-10T13:04:51.9733470+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b38e5b5b-5164-4c8b-8140-14138736440c">
+      <Output>
+        <ErrorInfo>
+          <Message>  DragDropTargetController must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DragTarget_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 46&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DragTarget_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 46&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4afea396-b17a-4db7-92cf-80c8f90880cf" testId="a3e6279e-49b1-0054-cfaa-ae1ce76dc720" testName="DragDropTargetController_NestedType_Is_Extracted" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T13:04:51.9723467+08:00" endTime="2026-07-10T13:04:51.9733470+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4afea396-b17a-4db7-92cf-80c8f90880cf">
+      <Output>
+        <ErrorInfo>
+          <Message>  DragDropTargetController nested controller must be extracted from DropDownMenuDropTarget&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DragDropTargetController_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 29&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DragDropTargetController_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 29&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d353d8ec-2cb6-43a0-8f5c-11ca6d32cadd" testId="f25fcb4e-3f75-3163-607c-aa1256e750db" testName="DragDropTargetController_Holds_Owner_BackReference" computerName="RAINPC" duration="00:00:00.0560000" startTime="2026-07-10T13:04:51.9151981+08:00" endTime="2026-07-10T13:04:51.9713480+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d353d8ec-2cb6-43a0-8f5c-11ca6d32cadd">
+      <Output>
+        <ErrorInfo>
+          <Message>  DragDropTargetController must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DragDropTargetController_Holds_Owner_BackReference() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 36&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DragDropTargetController_Holds_Owner_BackReference() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 36&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="d2de4ea8-2f0e-47cf-a4da-95223def54f1" testId="cf5dbcc8-46f4-7366-56e9-03152691d5d0" testName="DropDownMenuDropTarget_Delegates_DragTarget_To_Controller" computerName="RAINPC" duration="00:00:00.0030000" startTime="2026-07-10T13:04:51.9733470+08:00" endTime="2026-07-10T13:04:51.9763310+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d2de4ea8-2f0e-47cf-a4da-95223def54f1">
+      <Output>
+        <ErrorInfo>
+          <Message>  DropDownMenuDropTarget should declare and use the extracted DragDropTargetController&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DropDownMenuDropTarget_Delegates_DragTarget_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 65&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests.DropDownMenuDropTarget_Delegates_DragTarget_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9DragDropTargetControllerTests.cs:行号 65&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="DragTarget_Methods_Moved_Into_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="4173c54e-45ab-9a0d-a003-c8660ee3efee">
+      <Execution id="b38e5b5b-5164-4c8b-8140-14138736440c" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests" name="DragTarget_Methods_Moved_Into_Controller" />
+    </UnitTest>
+    <UnitTest name="DragDropTargetController_NestedType_Is_Extracted" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="a3e6279e-49b1-0054-cfaa-ae1ce76dc720">
+      <Execution id="4afea396-b17a-4db7-92cf-80c8f90880cf" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests" name="DragDropTargetController_NestedType_Is_Extracted" />
+    </UnitTest>
+    <UnitTest name="DragDropTargetController_Holds_Owner_BackReference" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="f25fcb4e-3f75-3163-607c-aa1256e750db">
+      <Execution id="d353d8ec-2cb6-43a0-8f5c-11ca6d32cadd" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests" name="DragDropTargetController_Holds_Owner_BackReference" />
+    </UnitTest>
+    <UnitTest name="DropDownMenuDropTarget_Delegates_DragTarget_To_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="cf5dbcc8-46f4-7366-56e9-03152691d5d0">
+      <Execution id="d2de4ea8-2f0e-47cf-a4da-95223def54f1" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9DragDropTargetControllerTests" name="DropDownMenuDropTarget_Delegates_DragTarget_To_Controller" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="4173c54e-45ab-9a0d-a003-c8660ee3efee" executionId="b38e5b5b-5164-4c8b-8140-14138736440c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a3e6279e-49b1-0054-cfaa-ae1ce76dc720" executionId="4afea396-b17a-4db7-92cf-80c8f90880cf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f25fcb4e-3f75-3163-607c-aa1256e750db" executionId="d353d8ec-2cb6-43a0-8f5c-11ca6d32cadd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf5dbcc8-46f4-7366-56e9-03152691d5d0" executionId="d2de4ea8-2f0e-47cf-a4da-95223def54f1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="4" executed="4" passed="0" failed="4" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll&#xD;
+   NUnit3TestExecutor discovered 4 of 4 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

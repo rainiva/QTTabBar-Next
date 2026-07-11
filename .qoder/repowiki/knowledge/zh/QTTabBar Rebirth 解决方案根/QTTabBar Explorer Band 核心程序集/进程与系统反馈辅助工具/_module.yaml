@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: qttabbar_core/helper_utilities
+title: 进程与系统反馈辅助工具
+scope:
+    - QTTabBar/ProcessHelper.cs
+    - QTTabBar/SoundFeedbackService.cs
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core/tabbar_runtime/window_band_lifecycle

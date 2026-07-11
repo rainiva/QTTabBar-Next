@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: qttabbar_core/ipc_hook_infra
+title: 钩子库加载与 IPC 命令分发基础设施
+scope:
+    - QTTabBar/IpcCommandDispatcher.cs
+    - QTTabBar/HookLibManager.cs
+    - QTTabBar/HookStateManager.cs
+source_files: []
+depends_on: []
+related_to:
+    - path: minhook
+    - path: qttabbar_core/core_services

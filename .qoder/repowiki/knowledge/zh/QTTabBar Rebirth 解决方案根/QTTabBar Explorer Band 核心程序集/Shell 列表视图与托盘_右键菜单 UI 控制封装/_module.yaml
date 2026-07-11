@@ -1,0 +1,15 @@
+schema_version: 1
+module_path: qttabbar_core/ui_controls
+title: Shell 列表视图与托盘/右键菜单 UI 控制封装
+scope:
+    - QTTabBar/AbstractListView.cs
+    - QTTabBar/ExtendedItemsView.cs
+    - QTTabBar/ExtendedSysListView32.cs
+    - QTTabBar/ShellContextMenu.cs
+    - QTTabBar/TreeViewWrapper.cs
+    - QTTabBar/Toolbar.cs
+    - QTTabBar/TrayIcon.cs
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core/tabbar_runtime/shell_integration

@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: qttabbar_core/tabbar_runtime/ui_interaction
+title: UI 交互控制器（菜单/按钮条/子目录提示）
+scope:
+    - QTTabBar/QTTabBarClass.MenuController.cs
+    - QTTabBar/QTTabBarClass.ButtonBarClickController.cs
+    - QTTabBar/QTTabBarClass.TabTooltipController.cs
+source_files: []
+depends_on: []
+related_to: []

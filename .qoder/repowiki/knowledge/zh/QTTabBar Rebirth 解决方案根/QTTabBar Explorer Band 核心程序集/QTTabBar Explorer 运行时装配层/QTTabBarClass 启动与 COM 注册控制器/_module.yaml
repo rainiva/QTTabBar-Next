@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: qttabbar_core/tabbar_runtime/boot_com_registration
+title: QTTabBarClass 启动与 COM 注册控制器
+scope:
+    - QTTabBar/QTTabBarClass.InstanceBootstrapController.cs
+    - QTTabBar/QTTabBarClass.ComponentBuildController.cs
+    - QTTabBar/QTTabBarClass.ComRegistrationController.cs
+source_files: []
+depends_on: []
+related_to: []

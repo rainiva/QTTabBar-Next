@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="c6a169b9-1099-4675-8254-ceeba0215445" name="coxte@RAINPC 2026-07-10 13:32:58" runUser="RAINPC\coxte" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-10T13:32:58.6836541+08:00" queuing="2026-07-10T13:32:58.6836541+08:00" start="2026-07-10T13:32:57.2987233+08:00" finish="2026-07-10T13:32:58.7042914+08:00" />
+  <TestSettings name="default" id="076e6467-e611-4afc-8dca-2bb6029cfb16">
+    <Deployment runDeploymentRoot="coxte_RAINPC_2026-07-10_13_32_58" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="355f1c61-907f-4636-ad7a-0af23634b8eb" testId="946e7d64-9d08-19d1-f10e-e439954627aa" testName="EncodingDetector_NestedType_Is_Extracted" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T13:32:58.5589731+08:00" endTime="2026-07-10T13:32:58.5600182+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="355f1c61-907f-4636-ad7a-0af23634b8eb">
+      <Output>
+        <ErrorInfo>
+          <Message>  EncodingDetector nested helper must be extracted from ThumbnailTooltipForm&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests.EncodingDetector_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch10EncodingDetectorTests.cs:行号 31&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests.EncodingDetector_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch10EncodingDetectorTests.cs:行号 31&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3a2ea9af-20d7-4130-aaee-f86d7de7d899" testId="432fa858-30c9-4313-ca00-18d865cf236d" testName="Charset_Methods_Moved_Into_Detector" computerName="RAINPC" duration="00:00:00.0540000" startTime="2026-07-10T13:32:58.5040245+08:00" endTime="2026-07-10T13:32:58.5579722+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a2ea9af-20d7-4130-aaee-f86d7de7d899">
+      <Output>
+        <ErrorInfo>
+          <Message>  EncodingDetector must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests.Charset_Methods_Moved_Into_Detector() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch10EncodingDetectorTests.cs:行号 38&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests.Charset_Methods_Moved_Into_Detector() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch10EncodingDetectorTests.cs:行号 38&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4ba199d7-f53b-4909-8dae-beaf77168fd5" testId="dc23b05c-c49e-a53c-6e90-8725022de6ee" testName="ThumbnailTooltipForm_No_Longer_Hosts_Charset_Method_Bodies" computerName="RAINPC" duration="00:00:00.0020000" startTime="2026-07-10T13:32:58.5600182+08:00" endTime="2026-07-10T13:32:58.5620241+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4ba199d7-f53b-4909-8dae-beaf77168fd5">
+      <Output>
+        <ErrorInfo>
+          <Message>  the DetectEncoding body should no longer live directly in ThumbnailTooltipForm.cs&#xD;
+  Expected: False&#xD;
+  But was:  True&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests.ThumbnailTooltipForm_No_Longer_Hosts_Charset_Method_Bodies() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch10EncodingDetectorTests.cs:行号 59&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests.ThumbnailTooltipForm_No_Longer_Hosts_Charset_Method_Bodies() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch10EncodingDetectorTests.cs:行号 59&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ThumbnailTooltipForm_No_Longer_Hosts_Charset_Method_Bodies" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="dc23b05c-c49e-a53c-6e90-8725022de6ee">
+      <Execution id="4ba199d7-f53b-4909-8dae-beaf77168fd5" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests" name="ThumbnailTooltipForm_No_Longer_Hosts_Charset_Method_Bodies" />
+    </UnitTest>
+    <UnitTest name="EncodingDetector_NestedType_Is_Extracted" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="946e7d64-9d08-19d1-f10e-e439954627aa">
+      <Execution id="355f1c61-907f-4636-ad7a-0af23634b8eb" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests" name="EncodingDetector_NestedType_Is_Extracted" />
+    </UnitTest>
+    <UnitTest name="Charset_Methods_Moved_Into_Detector" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="432fa858-30c9-4313-ca00-18d865cf236d">
+      <Execution id="3a2ea9af-20d7-4130-aaee-f86d7de7d899" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch10EncodingDetectorTests" name="Charset_Methods_Moved_Into_Detector" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="946e7d64-9d08-19d1-f10e-e439954627aa" executionId="355f1c61-907f-4636-ad7a-0af23634b8eb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="432fa858-30c9-4313-ca00-18d865cf236d" executionId="3a2ea9af-20d7-4130-aaee-f86d7de7d899" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dc23b05c-c49e-a53c-6e90-8725022de6ee" executionId="4ba199d7-f53b-4909-8dae-beaf77168fd5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="3" executed="3" passed="0" failed="3" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll&#xD;
+   NUnit3TestExecutor discovered 3 of 3 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

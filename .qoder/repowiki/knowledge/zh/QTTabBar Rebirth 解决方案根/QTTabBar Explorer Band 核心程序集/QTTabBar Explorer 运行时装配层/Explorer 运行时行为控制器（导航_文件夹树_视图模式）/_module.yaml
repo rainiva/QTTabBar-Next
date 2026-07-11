@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: qttabbar_core/tabbar_runtime/explorer_view
+title: Explorer 运行时行为控制器（导航/文件夹树/视图模式）
+scope:
+    - QTTabBar/QTTabBarClass.ExplorerController.cs
+    - QTTabBar/QTTabBarClass.FolderTreeController.cs
+    - QTTabBar/QTTabBarClass.ViewModeController.cs
+source_files: []
+depends_on: []
+related_to: []

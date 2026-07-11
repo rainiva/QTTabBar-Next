@@ -1,0 +1,14 @@
+schema_version: 1
+module_path: qttabbar_core/core_services
+title: 核心配置、会话状态与多实例 IPC 协调服务
+scope:
+    - QTTabBar/Config.cs
+    - QTTabBar/SessionState.cs
+    - QTTabBar/InstanceManager.cs
+    - QTTabBar/GroupsManager.cs
+    - QTTabBar/AppsManager.cs
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core/ipc_hook_infra
+    - path: qttabbar_core/plugin_system

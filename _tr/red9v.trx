@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="d42c4af7-bc30-44e4-bbc4-8707dbc42d29" name="coxte@RAINPC 2026-07-10 12:48:22" runUser="RAINPC\coxte" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-10T12:48:22.5181192+08:00" queuing="2026-07-10T12:48:22.5181192+08:00" start="2026-07-10T12:48:21.0588634+08:00" finish="2026-07-10T12:48:22.5381205+08:00" />
+  <TestSettings name="default" id="09e2355c-db75-45b7-a92d-52d95b6abe7f">
+    <Deployment runDeploymentRoot="coxte_RAINPC_2026-07-10_12_48_22" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="de53c455-c8b6-46ac-b8b8-7f21e50e3fd6" testId="5eba3ff6-07b1-c87c-fc82-fc4b87fcb9a7" testName="ClipboardFileController_Holds_Owner_BackReference" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T12:48:22.3908499+08:00" endTime="2026-07-10T12:48:22.3914417+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="de53c455-c8b6-46ac-b8b8-7f21e50e3fd6">
+      <Output>
+        <ErrorInfo>
+          <Message>  ClipboardFileController must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.ClipboardFileController_Holds_Owner_BackReference() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 36&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.ClipboardFileController_Holds_Owner_BackReference() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 36&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e338f338-b4a0-45eb-98fe-3cf51dc24bb5" testId="bcf091de-8ba1-0e9d-77d6-f6a76c0ec8ff" testName="Clipboard_Methods_Moved_Into_Controller" computerName="RAINPC" duration="00:00:00.0030000" startTime="2026-07-10T12:48:22.3875901+08:00" endTime="2026-07-10T12:48:22.3908499+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e338f338-b4a0-45eb-98fe-3cf51dc24bb5">
+      <Output>
+        <ErrorInfo>
+          <Message>  ClipboardFileController must exist&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.Clipboard_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 46&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.Clipboard_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 46&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="03f89b43-0d23-482f-8d55-7ff5afc94642" testId="0bfa8716-ae66-68e6-a15f-cbe18069dd25" testName="VirtualItemsController_Holds_Owner_BackReference" computerName="RAINPC" duration="00:00:00.0040000" startTime="2026-07-10T12:48:22.3814981+08:00" endTime="2026-07-10T12:48:22.3854081+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="03f89b43-0d23-482f-8d55-7ff5afc94642" />
+    <UnitTestResult executionId="0ad8d34e-2d6c-4325-8ffc-a380c2670904" testId="80725e5a-0659-042c-2fd6-15ab1af133a4" testName="DropDownMenuDropTarget_Delegates_Clipboard_To_Controller" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T12:48:22.3924461+08:00" endTime="2026-07-10T12:48:22.3934463+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0ad8d34e-2d6c-4325-8ffc-a380c2670904">
+      <Output>
+        <ErrorInfo>
+          <Message>  DropDownMenuDropTarget should declare and use the extracted ClipboardFileController&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.DropDownMenuDropTarget_Delegates_Clipboard_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 62&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.DropDownMenuDropTarget_Delegates_Clipboard_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 62&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="06831c2e-f374-449d-ad40-6e19e9b68728" testId="860bd696-2f42-b795-d269-2d5db21887cf" testName="DropDownMenuReorderable_Delegates_Virtual_To_Controller" computerName="RAINPC" duration="00:00:00.0630000" startTime="2026-07-10T12:48:22.3092304+08:00" endTime="2026-07-10T12:48:22.3722416+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="06831c2e-f374-449d-ad40-6e19e9b68728">
+      <Output>
+        <ErrorInfo>
+          <Message>  AddItemsRangeVirtual must delegate the virtual-item lifecycle setup to the controller&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.DropDownMenuReorderable_Delegates_Virtual_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 71&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.DropDownMenuReorderable_Delegates_Virtual_To_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 71&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="91a7e326-0e47-4b8b-b0ff-09e5d99b40e3" testId="f347b89b-c660-9dfe-f282-df12076de0a9" testName="Virtual_Methods_Moved_Into_Controller" computerName="RAINPC" duration="00:00:00.0080000" startTime="2026-07-10T12:48:22.3739836+08:00" endTime="2026-07-10T12:48:22.3814981+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="91a7e326-0e47-4b8b-b0ff-09e5d99b40e3">
+      <Output>
+        <ErrorInfo>
+          <Message>  AddItemsRangeVirtual should be moved into VirtualItemsController&#xD;
+  Expected: True&#xD;
+  But was:  False&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.Virtual_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 53&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests.Virtual_Methods_Moved_Into_Controller() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch8VirtualItemsControllerTests.cs:行号 53&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8d71847b-f461-4c00-8f97-60fc656a34d9" testId="eb4ced12-45d6-d197-48f1-a00a7d052f45" testName="VirtualItemsController_NestedType_Is_Extracted" computerName="RAINPC" duration="00:00:00.0000001" startTime="2026-07-10T12:48:22.3854081+08:00" endTime="2026-07-10T12:48:22.3859413+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8d71847b-f461-4c00-8f97-60fc656a34d9" />
+    <UnitTestResult executionId="d46bf75d-02f7-4c4e-b0ee-0c4a34832ecf" testId="18f842c6-2bf7-a409-75f7-c3fd2132a3f1" testName="ClipboardFileController_NestedType_Is_Extracted" computerName="RAINPC" duration="00:00:00.0010000" startTime="2026-07-10T12:48:22.3914417+08:00" endTime="2026-07-10T12:48:22.3924461+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d46bf75d-02f7-4c4e-b0ee-0c4a34832ecf">
+      <Output>
+        <ErrorInfo>
+          <Message>  ClipboardFileController nested controller must be extracted from DropDownMenuDropTarget&#xD;
+  Expected: not null&#xD;
+  But was:  null&#xD;
+</Message>
+          <StackTrace>   在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.ClipboardFileController_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 29&#xD;
+
+1)    在 QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests.ClipboardFileController_NestedType_Is_Extracted() 位置 D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\ArchitectureBatch9ClipboardControllerTests.cs:行号 29&#xD;
+
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ClipboardFileController_Holds_Owner_BackReference" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="5eba3ff6-07b1-c87c-fc82-fc4b87fcb9a7">
+      <Execution id="de53c455-c8b6-46ac-b8b8-7f21e50e3fd6" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests" name="ClipboardFileController_Holds_Owner_BackReference" />
+    </UnitTest>
+    <UnitTest name="ClipboardFileController_NestedType_Is_Extracted" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="18f842c6-2bf7-a409-75f7-c3fd2132a3f1">
+      <Execution id="d46bf75d-02f7-4c4e-b0ee-0c4a34832ecf" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests" name="ClipboardFileController_NestedType_Is_Extracted" />
+    </UnitTest>
+    <UnitTest name="Virtual_Methods_Moved_Into_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="f347b89b-c660-9dfe-f282-df12076de0a9">
+      <Execution id="91a7e326-0e47-4b8b-b0ff-09e5d99b40e3" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="Virtual_Methods_Moved_Into_Controller" />
+    </UnitTest>
+    <UnitTest name="VirtualItemsController_Holds_Owner_BackReference" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="0bfa8716-ae66-68e6-a15f-cbe18069dd25">
+      <Execution id="03f89b43-0d23-482f-8d55-7ff5afc94642" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="VirtualItemsController_Holds_Owner_BackReference" />
+    </UnitTest>
+    <UnitTest name="DropDownMenuReorderable_Delegates_Virtual_To_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="860bd696-2f42-b795-d269-2d5db21887cf">
+      <Execution id="06831c2e-f374-449d-ad40-6e19e9b68728" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="DropDownMenuReorderable_Delegates_Virtual_To_Controller" />
+    </UnitTest>
+    <UnitTest name="DropDownMenuDropTarget_Delegates_Clipboard_To_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="80725e5a-0659-042c-2fd6-15ab1af133a4">
+      <Execution id="0ad8d34e-2d6c-4325-8ffc-a380c2670904" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests" name="DropDownMenuDropTarget_Delegates_Clipboard_To_Controller" />
+    </UnitTest>
+    <UnitTest name="VirtualItemsController_NestedType_Is_Extracted" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="eb4ced12-45d6-d197-48f1-a00a7d052f45">
+      <Execution id="8d71847b-f461-4c00-8f97-60fc656a34d9" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch8VirtualItemsControllerTests" name="VirtualItemsController_NestedType_Is_Extracted" />
+    </UnitTest>
+    <UnitTest name="Clipboard_Methods_Moved_Into_Controller" storage="d:\project\qttabbar-next\tests\qtttabbartests\bin\debug\net48\qtttabbartests.dll" id="bcf091de-8ba1-0e9d-77d6-f6a76c0ec8ff">
+      <Execution id="e338f338-b4a0-45eb-98fe-3cf51dc24bb5" />
+      <TestMethod codeBase="D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="QTTtabBarTests.ArchitectureBatch9ClipboardControllerTests" name="Clipboard_Methods_Moved_Into_Controller" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="5eba3ff6-07b1-c87c-fc82-fc4b87fcb9a7" executionId="de53c455-c8b6-46ac-b8b8-7f21e50e3fd6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bcf091de-8ba1-0e9d-77d6-f6a76c0ec8ff" executionId="e338f338-b4a0-45eb-98fe-3cf51dc24bb5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0bfa8716-ae66-68e6-a15f-cbe18069dd25" executionId="03f89b43-0d23-482f-8d55-7ff5afc94642" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="80725e5a-0659-042c-2fd6-15ab1af133a4" executionId="0ad8d34e-2d6c-4325-8ffc-a380c2670904" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="860bd696-2f42-b795-d269-2d5db21887cf" executionId="06831c2e-f374-449d-ad40-6e19e9b68728" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f347b89b-c660-9dfe-f282-df12076de0a9" executionId="91a7e326-0e47-4b8b-b0ff-09e5d99b40e3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eb4ced12-45d6-d197-48f1-a00a7d052f45" executionId="8d71847b-f461-4c00-8f97-60fc656a34d9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="18f842c6-2bf7-a409-75f7-c3fd2132a3f1" executionId="d46bf75d-02f7-4c4e-b0ee-0c4a34832ecf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="8" executed="8" passed="2" failed="6" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running selected tests in D:\Project\QTTabBar-Next\Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll&#xD;
+   NUnit3TestExecutor discovered 8 of 8 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
