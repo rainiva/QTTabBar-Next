@@ -11,8 +11,9 @@ namespace QTTtabBarTests {
             "QTabControl.cs",
             "QTabControl.LayoutPainting.cs",
             "QTabControl.MouseInput.cs",
-            "QTButtonBar.CreateItems.cs",
-            "QTButtonBar.BandLifecycle.cs",
+            "QTButtonBar.cs",
+            "ButtonBar\\ButtonBarItemFactory.cs",
+            "ButtonBarLifecycleController.cs",
             "QTTabBarClass.ExplorerController.Init.cs",
         };
 

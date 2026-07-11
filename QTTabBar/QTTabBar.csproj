@@ -655,15 +655,13 @@
     <Compile Include="QTButtonBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="QTButtonBar.CreateItems.cs">
-      <DependentUpon>QTButtonBar.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTButtonBar.BandLifecycle.cs">
-      <DependentUpon>QTButtonBar.cs</DependentUpon>
-    </Compile>
-    <Compile Include="QTButtonBar.ItemClick.cs">
-      <DependentUpon>QTButtonBar.cs</DependentUpon>
-    </Compile>
+    <Compile Include="ButtonBar\IButtonBarHost.cs" />
+    <Compile Include="ButtonBarLifecycleController.cs" />
+    <Compile Include="ButtonBarImageLoader.cs" />
+    <Compile Include="ButtonBarImageStrip.cs" />
+    <Compile Include="ButtonBar\ButtonBarItemFactory.cs" />
+    <Compile Include="ButtonBarCommandDispatcher.cs" />
+    <Compile Include="ButtonBarOperationalController.cs" />
     <Compile Include="QTDesktopTool.cs">
       <SubType>UserControl</SubType>
     </Compile>
