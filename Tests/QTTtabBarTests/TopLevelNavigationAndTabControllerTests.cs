@@ -47,7 +47,7 @@ namespace QTTtabBarTests {
             string source = System.IO.File.ReadAllText(System.IO.Path.Combine(
                 FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
             StringAssert.Contains("(IExplorerNavigationHost)this", source);
-            StringAssert.Contains("(IExplorerSessionHost)this", source);
+            StringAssert.Contains("(IExplorerSessionTravelHost)this", source);
             StringAssert.DoesNotContain("new ExplorerController", source);
         }
 
@@ -60,10 +60,8 @@ namespace QTTtabBarTests {
             switch(type.Name) {
                 case "IExplorerNavigationHost":
                     return 48;
-                case "IExplorerSessionHost":
-                    return 30;
-                case "IExplorerTravelHost":
-                    return 20;
+                case "IExplorerSessionTravelHost":
+                    return 50;
                 default:
                     return 15;
             }
@@ -104,7 +102,7 @@ namespace QTTtabBarTests {
         public void ExplorerCommandDispatcher_Is_TopLevel_And_Uses_A_Narrow_Capture_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type dispatcher = assembly.GetType("QTTabBarLib.ExplorerCommandDispatcher", false);
-            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionHost", false);
+            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionTravelHost", false);
 
             Assert.IsNotNull(dispatcher, "new-window capture must be a top-level dispatcher");
             Assert.IsNotNull(host, "new-window capture must use the merged session host contract");
@@ -120,10 +118,10 @@ namespace QTTtabBarTests {
         public void ExplorerTravelLogController_Is_TopLevel_And_Uses_A_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.ExplorerTravelLogController", false);
-            Type host = assembly.GetType("QTTabBarLib.IExplorerTravelHost", false);
+            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionTravelHost", false);
 
             Assert.IsNotNull(controller, "travel log responsibility must be a top-level controller");
-            Assert.IsNotNull(host, "travel responsibilities must use the merged travel host contract");
+            Assert.IsNotNull(host, "travel responsibilities must use the merged session-travel host contract");
             Assert.IsFalse(controller.IsNested, "travel log controller must not be nested");
             Assert.IsFalse(controller.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(field => field.FieldType == typeof(QTTabBarClass)),
@@ -136,7 +134,7 @@ namespace QTTtabBarTests {
         public void ExplorerSessionRestoreController_Is_TopLevel_And_Uses_A_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.ExplorerSessionRestoreController", false);
-            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionHost", false);
+            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionTravelHost", false);
 
             Assert.IsNotNull(controller, "session restore responsibility must be a top-level controller");
             Assert.IsNotNull(host, "session restore must use the merged session host contract");
@@ -237,17 +235,17 @@ namespace QTTtabBarTests {
         }
 
         [TestCase("QTTabBarLib.ExplorerHookInstallationController", "QTTabBarLib.IExplorerHookInstallationHost")]
-        [TestCase("QTTabBarLib.ExplorerTravelToolbarController", "QTTabBarLib.IExplorerTravelHost")]
+        [TestCase("QTTabBarLib.ExplorerTravelToolbarController", "QTTabBarLib.IExplorerSessionTravelHost")]
         [TestCase("QTTabBarLib.ExplorerNavigationLifecycleController", "QTTabBarLib.IExplorerNavigationHost")]
         [TestCase("QTTabBarLib.ExplorerComEventController", "QTTabBarLib.IExplorerNavigationHost")]
         [TestCase("QTTabBarLib.ExplorerLockedTabNavigationController", "QTTabBarLib.IExplorerLockedTabNavigationHost")]
-        [TestCase("QTTabBarLib.ExplorerSpecialTravelLogController", "QTTabBarLib.IExplorerTravelHost")]
+        [TestCase("QTTabBarLib.ExplorerSpecialTravelLogController", "QTTabBarLib.IExplorerSessionTravelHost")]
         [TestCase("QTTabBarLib.ExplorerNavigationCleanupController", "QTTabBarLib.IExplorerNavigationHost")]
         [TestCase("QTTabBarLib.ExplorerPostNavigationController", "QTTabBarLib.IExplorerNavigationHost")]
-        [TestCase("QTTabBarLib.ExplorerShutdownNavigationController", "QTTabBarLib.IExplorerSessionHost")]
+        [TestCase("QTTabBarLib.ExplorerShutdownNavigationController", "QTTabBarLib.IExplorerSessionTravelHost")]
         [TestCase("QTTabBarLib.ExplorerLegacyNavigationController", "QTTabBarLib.IExplorerLegacyNavigationHost")]
-        [TestCase("QTTabBarLib.ExplorerTooltipController", "QTTabBarLib.IExplorerTooltipHost")]
-        [TestCase("QTTabBarLib.ExplorerSelectionRestoreController", "QTTabBarLib.IExplorerSelectionRestoreHost")]
+        [TestCase("QTTabBarLib.ExplorerTooltipController", "QTTabBarLib.IExplorerNavPresentationHost")]
+        [TestCase("QTTabBarLib.ExplorerSelectionRestoreController", "QTTabBarLib.IExplorerNavPresentationHost")]
         [TestCase("QTTabBarLib.ExplorerNavigationStateController", "QTTabBarLib.IExplorerNavigationHost")]
         public void Explorer_Integration_Controllers_Are_TopLevel_And_Use_Narrow_Hosts(string controllerName, string hostName) {
             Assembly assembly = typeof(QTTabBarClass).Assembly;

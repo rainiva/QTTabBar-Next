@@ -11,6 +11,7 @@ namespace QTTtabBarTests {
         private static readonly HashSet<string> AllowedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             "TabBarBase.TabOperations.cs",
             "QTTabBarClass.ComponentBuildController.cs",
+            "TabSelectionCoordinator.cs",
             "QTSecondViewBar.ComponentBuild.cs",
             "QTabItem.cs",
         };

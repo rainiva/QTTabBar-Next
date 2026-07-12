@@ -9,6 +9,7 @@ namespace QTTtabBarTests {
     public class OptionsEntryWhitelistTests {
         private static readonly HashSet<string> AllowedOptionsOpenFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             "OptionsDialog.xaml.cs",
+            "OptionsDialogEntry.cs",
             "MenuOperationsController.cs",
             "BindAction/BindActionController.cs",
             "PluginServer.Commands.cs",

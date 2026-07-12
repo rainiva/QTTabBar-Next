@@ -7,9 +7,9 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     internal sealed class MenuController {
         private readonly IMenuContext _context;
-        private readonly IMenuControllerHost _host;
+        private readonly IMenuPluginFacadeHost _host;
 
-        public MenuController(IMenuContext context, IMenuControllerHost host) {
+        public MenuController(IMenuContext context, IMenuPluginFacadeHost host) {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _host = host ?? throw new ArgumentNullException(nameof(host));
         }

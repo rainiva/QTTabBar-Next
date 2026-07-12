@@ -4,15 +4,20 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerNavigationController {
+        private readonly ITabContext _tabContext;
         private readonly IExplorerNavigationHost _host;
         private readonly Action<string, bool, int> _cancelFailedNavigation;
 
-        internal ExplorerNavigationController(IExplorerNavigationHost host, Action<string, bool, int> cancelFailedNavigation) {
+        internal ExplorerNavigationController(
+            ITabContext tabContext,
+            IExplorerNavigationHost host,
+            Action<string, bool, int> cancelFailedNavigation) {
+            _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
             _host = host;
             _cancelFailedNavigation = cancelFailedNavigation;
         }
 
-        internal void NavigateBranchCurrent(int index) => NavigateBranches(_host.GetCurrentTab(), index);
+        internal void NavigateBranchCurrent(int index) => NavigateBranches(_tabContext.CurrentTab, index);
 
         internal void NavigateBranches(QTabItem tab, int index) {
             LogData log = tab.Branches[index];
@@ -26,7 +31,7 @@ namespace QTTabBarLib {
             else {
                 _host.SelectTab(tab);
                 if(_host.IsSpecialTravelPath(log.Path)) {
-                    _host.SaveSelectedItems(_host.GetCurrentTab());
+                    _host.SaveSelectedItems(_tabContext.CurrentTab);
                     _host.SetNavigatedByCode(true);
                     _host.NavigateToPastSpecialDirectory(log.Hash);
                 }
@@ -35,7 +40,7 @@ namespace QTTabBarLib {
                     using(IDLWrapper wrapper = new IDLWrapper(log.IDL)) {
                         if(!wrapper.Available) _host.ShowNavigationCanceled(log.Path);
                         else {
-                            _host.SaveSelectedItems(_host.GetCurrentTab());
+                            _host.SaveSelectedItems(_tabContext.CurrentTab);
                             _host.NavigateShell(wrapper);
                         }
                     }
@@ -44,7 +49,7 @@ namespace QTTabBarLib {
         }
 
         internal bool NavigateCurrentTab(bool back) {
-            QTabItem current = _host.GetCurrentTab();
+            QTabItem current = _tabContext.CurrentTab;
             string currentPath = current.CurrentPath;
             LogData data = back ? current.GoBackward() : current.GoForward();
             if(string.IsNullOrEmpty(data.Path)) return false;
@@ -74,12 +79,12 @@ namespace QTTabBarLib {
         }
 
         internal void NavigateToFirstOrLast(bool back) {
-            string[] history = back ? _host.GetCurrentTab().GetHistoryBack() : _host.GetCurrentTab().GetHistoryForward();
+            string[] history = back ? _tabContext.CurrentTab.GetHistoryBack() : _tabContext.CurrentTab.GetHistoryForward();
             if(history.Length > (back ? 1 : 0)) NavigateToHistory(history[history.Length - 1], back, history.Length - 1);
         }
 
         internal void NavigateToHistory(string displayPath, bool back, int steps) {
-            QTabItem current = _host.GetCurrentTab();
+            QTabItem current = _tabContext.CurrentTab;
             LogData data = new LogData();
             int rollback = back ? steps : steps + 1;
             for(int i = 0; i < rollback; i++) data = back ? current.GoBackward() : current.GoForward();
@@ -108,7 +113,7 @@ namespace QTTabBarLib {
 
         internal bool NavigateToIndex(bool back, int index) {
             if(index == 0) return false;
-            string[] history = back ? _host.GetCurrentTab().GetHistoryBack() : _host.GetCurrentTab().GetHistoryForward();
+            string[] history = back ? _tabContext.CurrentTab.GetHistoryBack() : _tabContext.CurrentTab.GetHistoryForward();
             if((back && history.Length - 1 < index) || (!back && history.Length < index)) return false;
             NavigateToHistory(back ? history[index] : history[index - 1], back, back ? index : index - 1);
             return true;
@@ -119,7 +124,7 @@ namespace QTTabBarLib {
             if(item == null) return;
             MenuItemArguments args = item.MenuItemArguments;
             if(Control.ModifierKeys == Keys.Shift) {
-                _host.CloneTab(_host.GetCurrentTab(), null, true, -1);
+                _host.CloneTab(_tabContext.CurrentTab, null, true, -1);
                 NavigateToHistory(args.Path, args.IsBack, args.Index);
             }
             else if(Control.ModifierKeys == Keys.Control) {

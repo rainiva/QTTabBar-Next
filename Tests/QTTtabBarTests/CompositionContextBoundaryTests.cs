@@ -92,6 +92,44 @@ namespace QTTtabBarTests {
         }
 
         [Test]
+        public void No_Shell_Menu_Plugin_Host_Exposes_CurrentTab() {
+            var assembly = typeof(QTTabBarClass).Assembly;
+            foreach(string hostName in new[] {
+                "IBindActionHost",
+                "IPluginServerHost",
+                "ISubDirTipFacadeHost",
+                "ITabOperationsFacadeHost",
+                "IShellBandHost",
+            }) {
+                Type host = assembly.GetType("QTTabBarLib." + hostName, false);
+                Assert.IsNotNull(host, hostName + " must exist");
+                Assert.IsNull(host.GetProperty("CurrentTab"),
+                    hostName + " must not expose CurrentTab after M2");
+            }
+        }
+
+        [Test]
+        public void No_Host_Interface_Exposes_CurrentTab_Property_After_M3() {
+            var assembly = typeof(QTTabBarClass).Assembly;
+            foreach(Type type in assembly.GetTypes()) {
+                if(!type.IsInterface || type.Namespace != "QTTabBarLib" || !type.Name.EndsWith("Host", StringComparison.Ordinal)) {
+                    continue;
+                }
+                Assert.IsNull(type.GetProperty("CurrentTab"),
+                    type.Name + " must not expose CurrentTab property after M3");
+            }
+        }
+
+        [Test]
+        public void IExplorerNavigationHost_Does_Not_Expose_GetOrSetCurrentTab_After_M3() {
+            Type host = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.IExplorerNavigationHost", true);
+            Assert.IsNull(host.GetMethod("GetCurrentTab"),
+                "IExplorerNavigationHost.GetCurrentTab must be removed in M3");
+            Assert.IsNull(host.GetMethod("SetCurrentTab"),
+                "IExplorerNavigationHost.SetCurrentTab must be removed in M3");
+        }
+
+        [Test]
         public void QtTabBarClass_Custom_Host_Interface_Count_Does_Not_Exceed_Baseline() {
             int count = typeof(QTTabBarClass).GetInterfaces()
                 .Count(t => t.Namespace == "QTTabBarLib");

@@ -15,7 +15,6 @@ namespace QTTabBarLib {
         bool NowModalDialogShown { get; set; }
 
         QTabControl tabControl1 { get; }
-        QTabItem CurrentTab { get; }
         ShellBrowserEx ShellBrowser { get; }
 
         void OpenGroup(string groupName, bool fForceNewWindow);

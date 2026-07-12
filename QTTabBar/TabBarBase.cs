@@ -103,6 +103,10 @@ namespace QTTabBarLib
         public RebarController rebarController;
         protected string CurrentAddress;
         protected QTabItem CurrentTab;
+        internal TabSelectionCoordinator TabSelection { get; set; }
+        internal ref QTabItem CurrentTabSlot => ref CurrentTab;
+        internal QTabItem ContextCurrentTab => CurrentTab;
+
         protected int BandHeight;
         public static int BandHeightSpace = 3;
         protected ShellBrowserEx ShellBrowser;

@@ -34,7 +34,7 @@ using Timer = System.Windows.Forms.Timer;
 using ToolTip = System.Windows.Forms.ToolTip;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass : IButtonBarCommandHost, IDragDropHost, IDroppedFilesHost, IFileToolsHost, IFolderTreeHost, IHookFolderTreePort, IHookInputHost, IHookKeyboardPort, IHookMessagePort, IHookMousePort, IHookViewPort, IListViewInputHost, IQTTabBarBandHost, IShellCommandHost, IShellNavigationHost, IShellUiHost, IViewModeHost, IWindowManagementHost {
+    public partial class QTTabBarClass : IButtonBarCommandHost, IDragDropHost, IFileDropToolsHost, IFolderTreeHost, IHookFolderTreePort, IHookInputHost, IHookKeyboardPort, IHookMessagePort, IHookMousePort, IHookViewPort, IListViewInputHost, IQTTabBarBandHost, IShellBandHost, IShellUiHost, IViewModeHost, IWindowManagementHost {
 
         // --- From QTTabBarClass.HookInputHost.cs ---
         IHookMessagePort IHookInputHost.Messages => this;
@@ -127,7 +127,7 @@ QTabControl IQTTabBarBandHost.TabControl { get { return tabControl1; } }
         bool IQTTabBarBandHost.CloseTab(QTabItem tab) { return CloseTab(tab); }
         void IQTTabBarBandHost.FocusListView() { listView.SetFocus(); }
         void IQTTabBarBandHost.ShowTabContextMenu(QTabItem tab, Point anchor) {
-            _menuContext.ContextMenuedTab = tab;
+            SetContextMenuedTab(tab);
             contextMenuTab.Show(PointToScreen(anchor));
         }
 
@@ -161,20 +161,20 @@ QTabControl IDragDropHost.TabControl { get { return tabControl1; } }
         void IDragDropHost.OpenDroppedFolder(IList<string> droppedPaths) { OpenDroppedFolder(droppedPaths); }
 
         // --- From QTTabBarClass.DroppedFilesHost.cs ---
-IntPtr IDroppedFilesHost.ExplorerHandle => ExplorerHandle;
-        IContainer IDroppedFilesHost.Components => components;
+IntPtr IFileDropToolsHost.ExplorerHandle => ExplorerHandle;
+        IContainer IFileDropToolsHost.Components => components;
 
-        ContextMenuStripEx IDroppedFilesHost.DroppedFilesMenu {
+        ContextMenuStripEx IFileDropToolsHost.DroppedFilesMenu {
             get { return contextMenuDropped; }
             set { contextMenuDropped = value; }
         }
 
         // --- From QTTabBarClass.FileToolsHost.cs ---
-ShellBrowserEx IFileToolsHost.ShellBrowser {
+ShellBrowserEx IFileDropToolsHost.ShellBrowser {
             get { return ShellBrowser; }
         }
 
-        QTabControl IFileToolsHost.TabControl {
+        QTabControl IFileDropToolsHost.TabControl {
             get { return tabControl1; }
         }
 
@@ -254,21 +254,16 @@ IContainer IListViewInputHost.Components => components;
             listView.SubDirTip_MultipleMenuItemsRightClicked += subDirTip_MultipleMenuItemsRightClicked;
         }
 
-        // --- From QTTabBarClass.ShellCommandHost.cs ---
-string IShellCommandHost.SelectedTabPath { get { return pluginServer.SelectedTab.Address.Path; } }
-        ShellBrowserEx IShellCommandHost.ShellBrowser { get { return ShellBrowser; } }
-        QTabItem IShellCommandHost.CurrentTab { get { return CurrentTab; } }
-        QTabControl IShellCommandHost.TabControl { get { return tabControl1; } }
-        void IShellCommandHost.QuitExplorer() {
+        // --- From QTTabBarClass.ShellCommandHost.cs / ShellNavigationHost.cs ---
+        string IShellBandHost.SelectedTabPath { get { return pluginServer.SelectedTab.Address.Path; } }
+        ShellBrowserEx IShellBandHost.ShellBrowser { get { return ShellBrowser; } }
+        QTabControl IShellBandHost.TabControl { get { return tabControl1; } }
+        void IShellBandHost.QuitExplorer() {
             Explorer.Quit();
             WindowUtils.CloseExplorer(ExplorerHandle, 0);
         }
-
-        // --- From QTTabBarClass.ShellNavigationHost.cs ---
-QTabItem IShellNavigationHost.CurrentTab { get { return CurrentTab; } }
-        QTabControl IShellNavigationHost.TabControl { get { return tabControl1; } }
-        IntPtr IShellNavigationHost.ExplorerHandle { get { return ExplorerHandle; } }
-        void IShellNavigationHost.AddInsertTab(QTabItem tab) { AddInsertTab(tab); }
+        IntPtr IShellBandHost.ExplorerHandle { get { return ExplorerHandle; } }
+        void IShellBandHost.AddInsertTab(QTabItem tab) { AddInsertTab(tab); }
 
         // --- From QTTabBarClass.ShellUiHost.cs ---
 void IShellUiHost.RefreshOptions() {
@@ -468,16 +463,16 @@ ShellBrowserEx IViewModeHost.ShellBrowser {
         private static bool IsUniversalSearchBand(IntPtr hwnd) { return PInvoke.GetClassName(hwnd) == "UniversalSearchBand"; }
         private static bool IsSearchEdit(IntPtr hwnd) { return PInvoke.GetClassName(hwnd) == "Edit" && ((int)PInvoke.GetWindowLongPtr(hwnd, -16) & 0x10000000) != 0; }
 
-        internal sealed class WindowMergeTarget : IWindowMergeTarget {
-            private readonly IWindowManagementHost _host;
-            public WindowMergeTarget(IWindowManagementHost host) { _host = host; }
-            public MergeTabPayload[] BuildMergePayloads() {
-                return _host.tabControl1.TabPages.Select(tab => MergeTabPayload.FromTab(tab.Clone(true)))
-                    .Where(payload => payload != null).ToArray();
-            }
-            public void BeginMerge(MergeTabPayload[] payloads) { InstanceManager.BeginInvokeMainMergeTabs(payloads); }
-            public void CloseAfterMerge() { WindowUtils.CloseExplorer(_host.ExplorerHandle, 2, true); }
-        }
+    }
 
+    internal sealed class WindowMergeTarget : IWindowMergeTarget {
+        private readonly IWindowManagementHost _host;
+        public WindowMergeTarget(IWindowManagementHost host) { _host = host; }
+        public MergeTabPayload[] BuildMergePayloads() {
+            return _host.tabControl1.TabPages.Select(tab => MergeTabPayload.FromTab(tab.Clone(true)))
+                .Where(payload => payload != null).ToArray();
+        }
+        public void BeginMerge(MergeTabPayload[] payloads) { InstanceManager.BeginInvokeMainMergeTabs(payloads); }
+        public void CloseAfterMerge() { WindowUtils.CloseExplorer(_host.ExplorerHandle, 2, true); }
     }
 }

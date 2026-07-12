@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using QTPlugin;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    internal interface IMenuControllerHost {
+    internal interface IMenuPluginFacadeHost {
         List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent);
         List<QMenuItem> CreateNavBtnMenuItems(bool fCurrent);
         void MenuitemAddToGroup_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e);
@@ -24,5 +25,8 @@ namespace QTTabBarLib {
         void contextMenuTab_Opening(object sender, CancelEventArgs e);
         void CreateGroup(QTabItem contextMenuedTab);
         void InitializeTabMenu(bool fText);
+
+        PluginServer PluginServer { get; }
+        PluginServer.TabWrapper CreateTabWrapper(QTabItem tab);
     }
 }

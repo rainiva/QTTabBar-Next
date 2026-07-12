@@ -8,10 +8,10 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class FileToolsController {
-        private readonly IFileToolsHost _host;
+        private readonly IFileDropToolsHost _host;
         private static FileHashComputerForm md5Form;
 
-        public FileToolsController(IFileToolsHost host) {
+        public FileToolsController(IFileDropToolsHost host) {
             _host = host;
         }
 

@@ -12,16 +12,16 @@
 
 | # | 类别 | 场景 | 详细清单 | 人工签收 |
 |---|------|------|----------|----------|
-| 1 | 核心 | 会话恢复含无效路径 | [wave15 §场景 1](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 2 | 核心 | 启动组 + NeverOpenSame | [wave15 §场景 2](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 3 | 核心 | 插件 vs UI 无效目标 | [wave15 §场景 3](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 4 | 核心 | 设置 Apply + 局部 Window | [wave15 §场景 4](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 5 | 核心 | 跨进程 IPC 开标签 | [wave15 §场景 5](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 6 | 核心 | 菜单/Shell（Context 迁移后） | [wave15 §场景 6](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 7 | 核心 | SecondView 显示/隐藏/关闭 | [wave15 §场景 7](wave15-explorer-manual-signoff-checklist.md) | pending |
-| 8 | 部署 | 新 MSI / 注册后 **Options 可打开** | 见下方 §部署 8 | pending |
-| 9 | 部署 | GAC **1.0.0.0 → 1.5.6.7** 升级无 XAML 异常 | 见下方 §部署 9 | pending |
-| 10 | 导航 | 后退/前进 + 会话恢复导航 + 锁定 tab 分支 | [wave20-navigation-signoff.md](wave20-navigation-signoff.md)（场景 10–12 **全部 Pass**） | pending |
+| 1 | 核心 | 会话恢复含无效路径 | [wave15 §场景 1](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 2 | 核心 | 启动组 + NeverOpenSame | [wave15 §场景 2](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 3 | 核心 | 插件 vs UI 无效目标 | [wave15 §场景 3](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 4 | 核心 | 设置 Apply + 局部 Window | [wave15 §场景 4](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 5 | 核心 | 跨进程 IPC 开标签 | [wave15 §场景 5](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 6 | 核心 | 菜单/Shell（Context 迁移后） | [wave15 §场景 6](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 7 | 核心 | SecondView 显示/隐藏/关闭 | [wave15 §场景 7](wave15-explorer-manual-signoff-checklist.md) | signed 2026-07-12 |
+| 8 | 部署 | 新 MSI / 注册后 **Options 可打开** | 见下方 §部署 8 | signed 2026-07-12 |
+| 9 | 部署 | GAC **1.0.0.0 → 1.5.6.7** 升级无 XAML 异常 | 见下方 §部署 9 | signed 2026-07-12 |
+| 10 | 导航 | 后退/前进 + 会话恢复导航 + 锁定 tab 分支 | [wave20-navigation-signoff.md](wave20-navigation-signoff.md)（场景 10–12 **全部 Pass**） | signed 2026-07-12 |
 
 **全部 Pass 后**，在 `progress.md` 写入：
 
@@ -92,6 +92,6 @@ Wave20 导航 10–12 signed YYYY-MM-DD   （若与上同日可合并一行）
 
 | 已签 | 待签 |
 |------|------|
-| 0 / 10 | 10 |
+| 10 / 10 | 0 |
 
 *Wave 20 manual sign-off master — 2026-07-12*

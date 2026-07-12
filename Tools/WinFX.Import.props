@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Resolves Microsoft.WinFX.targets from the newest installed Windows Desktop SDK. -->
+  <PropertyGroup>
+    <_WinFxTargetsRelative>Sdks\Microsoft.NET.Sdk.WindowsDesktop\targets\Microsoft.WinFX.targets</_WinFxTargetsRelative>
+    <_WinFxSdkRoot Condition="'$(_WinFxSdkRoot)' == '' and Exists('$(ProgramFiles)\dotnet\sdk')">$(ProgramFiles)\dotnet\sdk</_WinFxSdkRoot>
+    <_WinFxSdkRoot Condition="'$(_WinFxSdkRoot)' == '' and Exists('$(MSBuildProgramFiles32)\dotnet\sdk')">$(MSBuildProgramFiles32)\dotnet\sdk</_WinFxSdkRoot>
+    <_WinFxSdkVersion Condition="'$(_WinFxSdkVersion)' == '' and Exists('$(_WinFxSdkRoot)\10.0.204\$(_WinFxTargetsRelative)')">10.0.204</_WinFxSdkVersion>
+    <_WinFxSdkVersion Condition="'$(_WinFxSdkVersion)' == '' and Exists('$(_WinFxSdkRoot)\8.0.421\$(_WinFxTargetsRelative)')">8.0.421</_WinFxSdkVersion>
+    <WinFXTargets Condition="'$(WinFXTargets)' == '' and '$(_WinFxSdkVersion)' != ''">$(_WinFxSdkRoot)\$(_WinFxSdkVersion)\$(_WinFxTargetsRelative)</WinFXTargets>
+  </PropertyGroup>
+  <Import Project="$(WinFXTargets)" Condition="'$(WinFXTargets)' != '' and Exists('$(WinFXTargets)')" />
+</Project>

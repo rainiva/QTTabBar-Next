@@ -12,10 +12,10 @@ using IShellView = QTTabBarLib.Interop.IShellView;
 namespace QTTabBarLib {
     internal sealed class ShellCommandController {
         private readonly IMenuContext _menuContext;
-        private readonly IShellCommandHost _host;
+        private readonly IShellBandHost _host;
         private const int WS_SHOWNORMAL = 1;
 
-        public ShellCommandController(IMenuContext menuContext, IShellCommandHost host) {
+        public ShellCommandController(IMenuContext menuContext, IShellBandHost host) {
             _menuContext = menuContext ?? throw new ArgumentNullException(nameof(menuContext));
             _host = host ?? throw new ArgumentNullException(nameof(host));
         }
@@ -71,8 +71,8 @@ namespace QTTabBarLib {
                 try {
                     count++;
                     if(count >= 10) timer.Stop();
-                    string selectionPath = RegistryUtil.ReadSelection(_host.CurrentTab.CurrentPath);
-                    QTLogger.log(" ReadSelection key " + _host.CurrentTab.CurrentPath + " path " + selectionPath);
+                    string selectionPath = RegistryUtil.ReadSelection(_menuContext.CurrentTab.CurrentPath);
+                    QTLogger.log(" ReadSelection key " + _menuContext.CurrentTab.CurrentPath + " path " + selectionPath);
                     if(QTUtility2.IsNotEmpty(selectionPath)) {
                         QTLogger.log("find mainShellView ");
                         IShellView mainShellView = null;

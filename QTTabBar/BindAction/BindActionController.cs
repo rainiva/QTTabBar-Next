@@ -15,11 +15,13 @@ namespace QTTabBarLib {
     /// </summary>
     internal sealed class BindActionController {
         private readonly IMenuContext _menuContext;
+        private readonly ITabContext _tabContext;
         private readonly IBindActionHost _host;
         private readonly MenuController _menuController;
 
-        public BindActionController(IMenuContext menuContext, IBindActionHost host, MenuController menuController) {
+        public BindActionController(IMenuContext menuContext, ITabContext tabContext, IBindActionHost host, MenuController menuController) {
             _menuContext = menuContext ?? throw new ArgumentNullException(nameof(menuContext));
+            _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
             _host = host;
             _menuController = menuController;
         }
@@ -29,7 +31,7 @@ namespace QTTabBarLib {
                 return true;
             }
 
-            if(tab == null) tab = _host.CurrentTab;
+            if(tab == null) tab = _tabContext.CurrentTab;
 
             switch(action) {
                 case BindAction.GoBack:
@@ -85,14 +87,14 @@ namespace QTTabBarLib {
 
                 case BindAction.ShowTabMenuCurrent:
                     if(tab.Index != -1) {
-                        _menuContext.ContextMenuedTab = tab;
+                        _menuContext.SetContextMenuedTab(tab);
                         Rectangle rect = _host.TabControl.GetTabRect(tab.Index, true);
                         _host.ContextMenuTab.Show(_host.PointToScreen(new Point(rect.Right + 10, rect.Bottom - 10)));
                     }
                     break;
 
                 case BindAction.ShowTabMenu:
-                    _menuContext.ContextMenuedTab = tab;
+                    _menuContext.SetContextMenuedTab(tab);
                     _host.ContextMenuTab.Show(Cursor.Position);
                     break;
 

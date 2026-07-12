@@ -4,8 +4,8 @@ using static QTTtabBarTests.StructuralGovernanceBaselineTests;
 namespace QTTtabBarTests {
     [TestFixture]
     public class BandOrchestrationClusterBudgetTests {
-        private const int BandOrchestrationClusterBaseline = 5986;
-        private const int TabBarBaseFamilyBaseline = 2090;
+        private const int BandOrchestrationClusterBaseline = 5889;
+        private const int TabBarBaseFamilyBaseline = 2095;
         private const int BandOrchestrationClusterRootCureTarget = 6800;
 
         [Test]

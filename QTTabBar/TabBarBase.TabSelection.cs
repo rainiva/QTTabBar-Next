@@ -7,10 +7,11 @@ namespace QTTabBarLib {
             QTLogger.log("tabControl1_SelectedIndexChanged");
             QTabItem selectedTab = tabControl1.SelectedTab;
             string currentPath = selectedTab.CurrentPath;
+            TabSelectionCoordinator selection = TabSelection ?? (TabSelection = new TabSelectionCoordinator(this));
             if(IsSpecialFolderNeedsToTravel(currentPath) &&
                LogEntryDic.ContainsKey(selectedTab.GetLogHash(true, 0))) {
                 NavigatedByCode = true;
-                CurrentTab = selectedTab;
+                selection.SyncFromSelection(selectedTab, TabSelectionReason.UserSelection);
                 UpdateActivatedTabs();
                 fNavigatedByTabSelection = NavigateToPastSpecialDir(CurrentTab.GetLogHash(true, 0));
                 NotifyTabChanged(selectedTab);
@@ -29,7 +30,7 @@ namespace QTTabBarLib {
                         CancelFailedTabChanging(currentPath);
                         return;
                     }
-                    CurrentTab = selectedTab;
+                    selection.SyncFromSelection(selectedTab, TabSelectionReason.UserSelection);
                     UpdateActivatedTabs();
                     if(((currentPath != CurrentAddress) ||
                         (OSDetector.IsXP && (currentPath == OSDetector.PATH_SEARCHFOLDER))) ||

@@ -77,7 +77,7 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTTabBarClass_Implements_At_Most_40_Host_Interfaces() {
+        public void QTTabBarClass_Implements_At_Most_32_Host_Interfaces() {
             var hostInterfaces = new System.Collections.Generic.HashSet<string>(StringComparer.Ordinal);
             string root = Path.Combine(FindRepoRoot(), "QTTabBar");
             foreach(string file in Directory.GetFiles(root, "QTTabBarClass*.cs")) {
@@ -89,8 +89,8 @@ namespace QTTtabBarTests {
                     hostInterfaces.Add(match.Value);
                 }
             }
-            Assert.LessOrEqual(hostInterfaces.Count, 40,
-                "QTTabBarClass Host interface count must stay within Wave 18 budget: "
+            Assert.LessOrEqual(hostInterfaces.Count, 32,
+                "QTTabBarClass Host interface count must meet root-cure R-7 budget: "
                 + string.Join(", ", hostInterfaces.OrderBy(name => name)));
         }
 

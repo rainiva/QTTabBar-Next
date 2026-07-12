@@ -1,5 +1,115 @@
 # Progress Log
 
+## 结构根治 CLOSED 2026-07-12
+
+**Wave20 人工 10/10 signed 2026-07-12**（含导航 10–12；本机 Explorer 验收无问题）
+
+**R-10 新增功能探针 signed 2026-07-12**
+
+| 项 | 记录 |
+|----|------|
+| 功能 | 标签右键菜单顶部只读项 `Path: {CurrentPath}`（`RootCureProbe_CurrentPath`） |
+| 改动文件 | `MenuOperations/RootCureFeatureProbeController.cs`（新建）、`QTTabBarClass.ComponentBuildController.cs`（接线）、`RootCureFeatureProbeTests.cs` |
+| Host partial | **未改**（`QTTabBarClass.*Host` 声明仍为 31 个接口） |
+| 新增 `I*Host` 成员 | **无** |
+| 依赖 | 仅 `IMenuContext` + `ITabContext`；`ComponentBuildController.Build()` 本地实例化 |
+
+**DoD：** R-1～R-12 全部满足 → **结构根治 CLOSED 2026-07-12**
+
+---
+
+## Session: 2026-07-12 (M4 Ratchet + §9 + CLOSED)
+
+### Phase: M4 — Host/Ex 净降 + 反假治理 + R-10 探针 + CLOSED
+- **Status:** **CLOSED**
+- **人工：** Wave20 10/10 signed 2026-07-12
+- **TDD：** RED → GREEN → **1025 passed, 0 failed**（含 `RootCureFeatureProbeTests` ×3）
+- **Host 合并（40 → 31）：**
+  - `IShellBandHost` ← ShellCommand + ShellNavigation
+  - `IExplorerSessionTravelHost` ← Session + Travel
+  - `ISubDirTipFacadeHost` ← SubDirTip + SubDirTipOperations
+  - `IExplorerNavPresentationHost` ← Tooltip + SelectionRestore
+  - `IMenuOperationsFacadeHost` ← MenuStrip + MenuServices + MenuOperations
+  - `ITabOperationsFacadeHost` ← TabOperations + TabOperationsOwner
+  - `IFileDropToolsHost` ← DroppedFiles + FileTools
+  - `IMenuPluginFacadeHost` ← PluginMenu + MenuController
+- **Ex facade：** 删 `ExplorerHosts` 全部 `Ex*` 死块（55 → **0**）
+- **Ratchet：** Cluster **5889**（R-10 探针 +3）；TabBarBase **2095**；Host **31**；测试 **1025**
+- **文档：** `structural-governance.md` §9 反假治理入库；§2/§4 Host≤32、Ex≤0
+- **门禁登记：** `ArchitectureAcceptanceMatrixTests` + `HostCountRatchetTests` + `WhitelistMonotonicityTests` + `RootCureFeatureProbeTests`
+- **未 CLOSED：** ~~R-3 人工 10/10、R-10 探针待完成~~ → **已全部完成 2026-07-12**
+- **下一步：** 合并 PR-M4；用 Release MSI 分发；停止结构 Wave（§14）
+
+## Session: 2026-07-12 (M3 Navigation + Bootstrap)
+
+### Phase: M3 — PR-3 Navigation 删 Host CurrentTab / GetSetCurrentTab
+- **Status:** complete；导航 10–12 **signed 2026-07-12**
+- **TDD：** RED（6 项失败）→ GREEN → **1018 passed, 0 failed**
+- **删 Host 成员与别名：**
+  - `IExplorerNavigationHost.GetCurrentTab` / `SetCurrentTab`
+  - `IExplorerSessionHost` / `IExplorerTravelHost` / `IExplorerTooltipHost` 的 `CurrentTab`
+  - `IComponentBuildHost.CurrentTab`
+  - `CompositionCurrentTab` / `ExCurrentTab`
+- **Navigation 迁移：**
+  - `ExplorerNavigationController` → `ITabContext`
+  - `ExplorerNavigationStateController` → `ITabContext` + `ApplySilentSelection(TravelByTree)`
+  - `ExplorerTravelToolbarController` / `ExplorerTooltipController` / `ExplorerSessionRestoreController` → `ITabContext`
+  - `TabContext` / `MenuContext` 改读 `TabBarBase.ContextCurrentTab`
+- **门禁：** 全库 Host 无 `CurrentTab` 属性；Navigation 无 `_host.GetCurrentTab`/`SetCurrentTab`；Ex facade **54**（-1）
+- **基线：** Cluster **6019**（+10），TabBarBase family **2095**（+1），测试 **1018**
+- **下一步：** M4 ratchet + §9 + 人工 10/10；或先签 `wave20-navigation-signoff.md` 场景 10–12
+
+## Session: 2026-07-12 (M2 Shell/Menu/Plugin)
+
+### Phase: M2 — 删 6 个 Host.CurrentTab + 调用方迁移
+- **Status:** complete
+- **TDD：** RED（`No_Shell_Menu_Plugin_Host_Exposes_CurrentTab`、`Shell_Menu_Plugin_Do_Not_Read_Host_CurrentTab`）→ GREEN → **1013 passed, 0 failed**
+- **删 6 个 Host.CurrentTab 成员：**
+  - `IBindActionHost`、`IPluginServerHost`、`ISubDirTipOperationsHost`、`ITabOperationsOwnerHost`、`IShellCommandHost`、`IShellNavigationHost`
+  - 实现从 `MenuOperationsHost.cs` / `ShellHosts.cs` 移除
+- **调用方迁移：**
+  - `BindActionController`、`SubDirTipOperations`、`ShellNavigationController` 注入 `ITabContext`
+  - `ShellCommandController.Wait4Select` 改读 `_menuContext.CurrentTab`
+  - `PluginServer` 构造 `(IPluginServerHost, ITabContext)`；`TabWrapper` / Close 命令改读 `_tabContext`
+  - `ComponentBuildController` 接线 `TabContext`
+- **门禁：** `CompositionContextBoundaryTests.No_Shell_Menu_Plugin_Host_Exposes_CurrentTab` 绿；Host **接口数仍 40**（M2 删成员不删接口；≤34/≤32 留 M3/M4 合并）
+- **基线：** Host **40**，测试 **1013**
+- **下一步：** M3 — Navigation 删 `GetCurrentTab`/`SetCurrentTab` + Explorer Host.CurrentTab
+
+## Session: 2026-07-12 (M1 真源地基)
+
+### Phase: M1 — TabSelectionCoordinator + ContextMenuedTab 单写
+- **Status:** complete
+- **TDD：** RED（5 项失败）→ GREEN → **1011 passed, 0 failed**
+- **PR-1A ContextMenuedTab：**
+  - `SetContextMenuedTab` 统一入口；`MenuContext` setter 经 `CompositionSetContextMenuedTab`
+  - 移除 `ShellHosts` / `BindAction` 对 `_menuContext.ContextMenuedTab =` 的旁路
+  - 白名单收紧至 `TabBarBase` / `ExplorerContext` / `QTTabBarClass`
+- **PR-1B TabSelectionCoordinator：**
+  - 新建 `QTTabBar/TabSelectionCoordinator.cs`（唯一 `CurrentTabSlot` 写者）
+  - `TabBarBase.TabSelection` / `TabOperations` 改走 Coordinator
+  - `TabContext` / `CompositionCurrentTab` / `IExplorerNavigationHost.SetCurrentTab` / Bootstrap 接线
+- **基线：** Cluster **6009**（+23），Host **40**，测试 **1011**
+- **下一步：** M2 — 删 6 个 Host.CurrentTab
+
+## Session: 2026-07-12 (M0 验证链恢复)
+
+### Phase: M0 — 结构根治执行清单 §2
+- **Status:** complete
+- **构建：**
+  - `dotnet build QTTabBar/QTTabBar.csproj -c Debug` → 0 error
+  - `dotnet build QTTabBar/QTTabBar.csproj -c Release` → 0 error
+  - `dotnet build Tests/QTTtabBarTests/QTTtabBarTests.csproj -c Debug` → 0 error
+- **测试：**
+  - `dotnet test Tests/QTTtabBarTests/QTTtabBarTests.csproj --no-build -c Debug` → **1007 passed, 0 failed**（37.4s）
+- **生产改动：**
+  - `QTTabBarClass.MenuOperationsHost.cs` — `SHDocVw.WebBrowser` 消除 CS0104
+  - `Tools/WinFX.Import.props` + `QTTabBar.csproj` — dotnet CLI 下 WPF MarkupCompile
+  - `QTTabBar.csproj` — Core MSBuild 跳过 NotifyPropertyWeaver
+  - `QTTabBarClass.ShellHosts.cs` — `WindowMergeTarget` 从嵌套类提升为命名空间级（修复 nested controller 门禁）
+- **基线（§12）：** Cluster **5986**，Host **40**，Ex **55**
+- **下一步：** M1 — `TabSelectionCoordinator` + ContextMenuedTab 单写
+
 ## Session: 2026-07-10
 
 ### Phase 1: Requirements and Evidence Baseline
@@ -249,7 +359,11 @@
 ## Session: 2026-07-12 (Wave 20 — 根治验收)
 
 ### Phase: Wave 20 automated acceptance
-- **Status:** in progress（Cluster **5986** ≤6800 根治已达成；人工 10/10 pending）
+- **Status:** M0 验证链已恢复；人工 10/10 仍 pending
+- **M0 实测（2026-07-12）：**
+  - Debug + Release `dotnet build QTTabBar.csproj`：**0 error**
+  - `dotnet test Tests/QTTtabBarTests/QTTtabBarTests.csproj --no-build -c Debug`：**1007 passed, 0 failed**
+  - 基线：Cluster **5986**，Host **40**，Ex **55**
 - Deliverables:
   - `docs/testing/wave20-manual-signoff-master.md` — 10/10 总表
   - `Wave20AcceptanceGuardTests` — 根治门禁 + root cure 债务报告
@@ -267,14 +381,14 @@
 **签收说明：** 10 项全部 Pass 后写入 `Wave20 人工 10/10 signed YYYY-MM-DD`。
 
 ### Next action
+- **工程：** 开始 **M2**（删 6 个 Host `CurrentTab` 成员 + 调用方迁移）
 - **用户：** Phase 0 部署 + 本机 Explorer 执行 [wave20-manual-signoff-master.md](docs/testing/wave20-manual-signoff-master.md) 10/10
-- **工程：** 人工 10/10 签收；可选 HookInput partial 合并进一步减 Cluster
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | Wave 20 自动化门禁全绿；Cluster 5986 ≤6800；人工 10/10 pending |
-| Where am I going? | 10/10 signed + Phase 0 部署签收 |
+| Where am I? | **M1 完成** — Coordinator 单写 + ContextMenuedTab 收紧；1011 测试 0 failed |
+| Where am I going? | **M2** — 删 6 个 Host.CurrentTab（Shell/Menu/Plugin） |
 | What's the goal? | 验收总表全 Pass + 10/10 人工 + 无 ExplorerController + H-5 零违规 |
 | What have I learned? | findings.md Grill 1–9 表 |
 | What have I done? | Wave10–15 实现；Grill+计划回写 |

@@ -4,9 +4,9 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerTravelLogController {
-        private readonly IExplorerTravelHost _host;
+        private readonly IExplorerSessionTravelHost _host;
 
-        internal ExplorerTravelLogController(IExplorerTravelHost host) {
+        internal ExplorerTravelLogController(IExplorerSessionTravelHost host) {
             _host = host;
         }
 

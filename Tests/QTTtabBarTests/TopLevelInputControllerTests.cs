@@ -7,7 +7,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class TopLevelInputControllerTests {
         [TestCase("DragDropController", "IDragDropHost")]
-        [TestCase("DroppedFilesController", "IDroppedFilesHost")]
+        [TestCase("DroppedFilesController", "IFileDropToolsHost")]
         [TestCase("FolderTreeController", "IFolderTreeHost")]
         [TestCase("ListViewInputController", "IListViewInputHost")]
         [TestCase("HookInputController", "IHookInputHost")]
@@ -33,7 +33,7 @@ namespace QTTtabBarTests {
         }
 
         [TestCase("IDragDropHost")]
-        [TestCase("IDroppedFilesHost")]
+        [TestCase("IFileDropToolsHost")]
         [TestCase("IFolderTreeHost")]
         [TestCase("IListViewInputHost")]
         [TestCase("IHookInputHost")]

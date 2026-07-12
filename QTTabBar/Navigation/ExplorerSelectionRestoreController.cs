@@ -2,9 +2,9 @@ using QTPlugin;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerSelectionRestoreController {
-        private readonly IExplorerSelectionRestoreHost _host;
+        private readonly IExplorerNavPresentationHost _host;
 
-        internal ExplorerSelectionRestoreController(IExplorerSelectionRestoreHost host) { _host = host; }
+        internal ExplorerSelectionRestoreController(IExplorerNavPresentationHost host) { _host = host; }
 
         internal void RestoreAfterNavigation() {
             if(!_host.ShouldRestoreSelection()) return;

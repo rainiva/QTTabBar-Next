@@ -13,7 +13,7 @@ namespace QTTabBarLib {
         void PostToUi(Action action);
     }
 
-    internal interface IExplorerSessionHost {
+    internal interface IExplorerSessionTravelHost {
         int CommandMode { get; set; }
         bool IsQuitting { get; set; }
         bool HideExplorer { get; set; }
@@ -21,7 +21,6 @@ namespace QTTabBarLib {
         ShellWebBrowser Explorer { get; }
         void AddStartupTabs(string group, string path);
 
-        QTabItem CurrentTab { get; }
         bool IsWindowInitialized { get; set; }
         bool IsShown { set; }
         void CreateNewTab(IDLWrapper target);
@@ -34,13 +33,10 @@ namespace QTTabBarLib {
         void MarkExplorerHidden();
         bool IsCaptureNewWindowCommand();
         void QuitAndHideExplorer();
-    }
 
-    internal interface IExplorerTravelHost {
         ITravelLogStg TravelLog { get; }
         bool IsSpecialFolderNeedsToTravel(string path);
 
-        QTabItem CurrentTab { get; }
         IntPtr TravelToolbarHandle { get; }
         ToolStripDropDownButton HistoryButton { get; }
         void PopulateNavigationHistory();
@@ -83,7 +79,6 @@ namespace QTTabBarLib {
     }
 
     internal interface IExplorerNavigationHost {
-        QTabItem GetCurrentTab();
         void SelectTab(QTabItem tab);
         void ShowNavigationCanceled(string path);
         void OpenNewWindow(IDLWrapper target);
@@ -99,7 +94,6 @@ namespace QTTabBarLib {
         void PopulateNavigationHistoryMenu();
         bool IsBackNavigationButton(object sender);
 
-        void SetCurrentTab(QTabItem tab);
         QTabControl GetTabControl();
         string GetCurrentAddress();
         void SetCurrentAddress(string address);
@@ -187,13 +181,10 @@ namespace QTTabBarLib {
         void ClearExplorerNavigationPrevented();
     }
 
-    internal interface IExplorerTooltipHost {
+    internal interface IExplorerNavPresentationHost {
         string CurrentAddress { get; }
-        QTabItem CurrentTab { get; }
         void CacheDisplayName(string address, string displayName);
-    }
 
-    internal interface IExplorerSelectionRestoreHost {
         bool ShouldRestoreSelection();
         Address[] GetSelectedItems(out string path);
         void RestoreSelection(Address[] items, string path);

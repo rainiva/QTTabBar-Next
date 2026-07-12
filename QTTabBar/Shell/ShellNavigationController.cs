@@ -3,15 +3,17 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ShellNavigationController {
-        private readonly IShellNavigationHost _host;
+        private readonly IShellBandHost _host;
+        private readonly ITabContext _tabContext;
 
-        public ShellNavigationController(IShellNavigationHost host) {
+        public ShellNavigationController(IShellBandHost host, ITabContext tabContext) {
             _host = host;
+            _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
         }
 
         public void UpOneLevel() {
-            if(_host.CurrentTab.TabLocked) {
-                QTabItem tab = _host.CurrentTab.Clone();
+            if(_tabContext.CurrentTab.TabLocked) {
+                QTabItem tab = _tabContext.CurrentTab.Clone();
                 _host.AddInsertTab(tab);
                 _host.TabControl.SelectTab(tab);
             }

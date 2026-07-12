@@ -54,8 +54,8 @@ namespace QTTabBarLib {
     }
 
     internal sealed class ExplorerShutdownNavigationController {
-        private readonly IExplorerSessionHost _host;
-        internal ExplorerShutdownNavigationController(IExplorerSessionHost host) { _host = host; }
+        private readonly IExplorerSessionTravelHost _host;
+        internal ExplorerShutdownNavigationController(IExplorerSessionTravelHost host) { _host = host; }
         internal bool HandleNavigationComplete() {
             if(!_host.IsQuitting) return false;
             _host.MarkExplorerHidden();
@@ -79,8 +79,8 @@ namespace QTTabBarLib {
     }
 
     internal sealed class ExplorerSpecialTravelLogController {
-        private readonly IExplorerTravelHost _host;
-        internal ExplorerSpecialTravelLogController(IExplorerTravelHost host) { _host = host; }
+        private readonly IExplorerSessionTravelHost _host;
+        internal ExplorerSpecialTravelLogController(IExplorerSessionTravelHost host) { _host = host; }
         internal int RecordWhenNeeded(bool isSpecialTravelPath) {
             if(_host.IsNavigatedByCode() || !isSpecialTravelPath) return -1;
             int hash = DateTime.Now.GetHashCode();

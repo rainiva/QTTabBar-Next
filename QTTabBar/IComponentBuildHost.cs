@@ -15,6 +15,7 @@ namespace QTTabBarLib {
         MenuController MenuController { get; set; }
         IMenuContext MenuContext { get; }
         IExplorerContext ExplorerContext { get; }
+        ITabContext TabContext { get; }
         DragDropController DragDropController { get; set; }
         HookInputController HookInputController { get; set; }
         FileToolsController FileToolsController { get; set; }
@@ -39,7 +40,7 @@ namespace QTTabBarLib {
         // --- UI control field getters/setters ---
         ToolStripDropDownButton ButtonNavHistoryMenu { get; set; }
         QTabControl TabControl1 { get; set; }
-        QTabItem CurrentTab { get; set; }
+        QTabItem AttachBootstrapCurrentTab();
         ContextMenuStripEx ContextMenuTab { get; set; }
         ContextMenuStripEx ContextMenuSys { get; set; }
 

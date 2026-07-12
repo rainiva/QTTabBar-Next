@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using static QTTtabBarTests.StructuralGovernanceBaselineTests;
 
@@ -9,12 +10,23 @@ namespace QTTtabBarTests {
     public class ContextMenuedTab_WritePathTests {
         private static readonly HashSet<string> AllowedDirectWriteFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             "TabBarBase.cs",
-            "ExplorerContext.cs",
+            "Composition/ExplorerContext.cs",
             "QTTabBarClass.cs",
-            "QTTabBarClass.ExplorerHosts.cs",
-            "BindAction/BindActionController.cs",
-            "QTTabBarClass.ShellHosts.cs",
         };
+
+        [Test]
+        public void MenuContext_ContextMenuedTab_Assignment_Only_In_MenuContext_Setter() {
+            string root = Path.Combine(RepoRoot(), "QTTabBar");
+            foreach(string relativePath in SourceMetrics.SourceFiles()) {
+                string fullPath = Path.Combine(root, relativePath.Replace('/', Path.DirectorySeparatorChar));
+                string source = File.ReadAllText(fullPath);
+                if(!Regex.IsMatch(source, @"\b_menuContext\.ContextMenuedTab\s*=(?!=)")) {
+                    continue;
+                }
+                Assert.AreEqual("Composition/ExplorerContext.cs", relativePath.Replace('\\', '/'),
+                    "_menuContext.ContextMenuedTab assignment must only live in MenuContext setter: " + relativePath);
+            }
+        }
 
         [Test]
         public void ContextMenuedTab_Assignment_Only_In_Approved_Write_Paths() {

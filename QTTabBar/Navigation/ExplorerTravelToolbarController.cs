@@ -7,14 +7,16 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerTravelToolbarController {
-        private readonly IExplorerTravelHost _host;
+        private readonly IExplorerSessionTravelHost _host;
+        private readonly ITabContext _tabContext;
 
-        internal ExplorerTravelToolbarController(IExplorerTravelHost host) {
+        internal ExplorerTravelToolbarController(IExplorerSessionTravelHost host, ITabContext tabContext) {
             _host = host;
+            _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
         }
 
         internal bool Process(ref Message message) {
-            QTabItem currentTab = _host.CurrentTab;
+            QTabItem currentTab = _tabContext.CurrentTab;
             if(currentTab == null) {
                 QTLogger.log("QTTabBarClass travelBtnController_MessageCaptured CurrentTab == null");
                 return false;
@@ -94,11 +96,11 @@ namespace QTTabBarLib {
         internal string MakeTooltipText(bool back) {
             string path = string.Empty;
             if(back) {
-                string[] history = _host.CurrentTab.GetHistoryBack();
+                string[] history = _tabContext.CurrentTab.GetHistoryBack();
                 if(history.Length > 1) path = history[1];
             }
             else {
-                string[] history = _host.CurrentTab.GetHistoryForward();
+                string[] history = _tabContext.CurrentTab.GetHistoryForward();
                 if(history.Length > 0) path = history[0];
             }
             if(path.Length == 0) return path;

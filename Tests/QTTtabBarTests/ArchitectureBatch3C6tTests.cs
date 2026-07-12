@@ -26,7 +26,7 @@ namespace QTTtabBarTests {
             Type controller = assembly.GetType("QTTabBarLib.PluginMenuController", true);
             Type menuContext = assembly.GetType("QTTabBarLib.IMenuContext", true);
             Type explorerContext = assembly.GetType("QTTabBarLib.IExplorerContext", true);
-            Type host = assembly.GetType("QTTabBarLib.IPluginMenuHost", true);
+            Type host = assembly.GetType("QTTabBarLib.IMenuPluginFacadeHost", true);
             Assert.IsNull(typeof(QTTabBarClass).GetNestedType("PluginMenuController",
                 BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,

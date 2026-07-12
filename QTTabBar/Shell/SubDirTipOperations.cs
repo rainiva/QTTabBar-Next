@@ -9,12 +9,14 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class SubDirTipOperations {
-        private readonly ISubDirTipOperationsHost _host;
+        private readonly ISubDirTipFacadeHost _host;
         private readonly IMenuContext _menuContext;
+        private readonly ITabContext _tabContext;
 
-        public SubDirTipOperations(ISubDirTipOperationsHost host, IMenuContext menuContext) {
+        public SubDirTipOperations(ISubDirTipFacadeHost host, IMenuContext menuContext, ITabContext tabContext) {
             _host = host;
             _menuContext = menuContext ?? throw new ArgumentNullException(nameof(menuContext));
+            _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
         }
 
         public void SubDirTip_MenuItemClicked(object sender, ToolStripItemClickedEventArgs e) {
@@ -41,13 +43,13 @@ namespace QTTabBarLib {
                         return;
                     }
                 }
-                if((!flag || (_menuContext.ContextMenuedTab == _host.CurrentTab)) && _host.CurrentTab.TabLocked)
+                if((!flag || (_menuContext.ContextMenuedTab == _tabContext.CurrentTab)) && _tabContext.CurrentTab.TabLocked)
                 {
                     QTLogger.log("Clone Tab Button1");
-                    _host.CloneTabButton(_host.CurrentTab, targetPath, true, _host.TabIndexForNewTab());
+                    _host.CloneTabButton(_tabContext.CurrentTab, targetPath, true, _host.TabIndexForNewTab());
                     return;
                 }
-                if(flag && (_menuContext.ContextMenuedTab != _host.CurrentTab)) {
+                if(flag && (_menuContext.ContextMenuedTab != _tabContext.CurrentTab)) {
                     if(_menuContext.ContextMenuedTab != null) {
                         if(_menuContext.ContextMenuedTab.TabLocked) {
                             var index = _host.TabIndexForNewTab();

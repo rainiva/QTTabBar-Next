@@ -22,7 +22,7 @@ namespace QTTtabBarTests {
             string build = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             Assert.IsTrue(main.Contains("_componentBuildController.Build("));
             Assert.IsFalse(main.Contains("tabControl1.TabPages.Add(CurrentTab)"));
-            Assert.IsTrue(build.Contains("_host.TabControl1.TabPages.Add(_host.CurrentTab)"));
+            Assert.IsTrue(build.Contains("_host.TabControl1.TabPages.Add(bootstrapTab)"));
             StringAssert.DoesNotContain("TabManager", build,
                 "ComponentBuildController must not wire TabManager after Wave 18");
         }

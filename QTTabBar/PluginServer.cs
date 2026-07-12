@@ -28,6 +28,7 @@ namespace QTTabBarLib {
         private Dictionary<string, string[]> dicLocalizingStrings;
         private QTPlugin.Interop.IShellBrowser shellBrowser;
         private IPluginServerHost _host;
+        private readonly ITabContext _tabContext;
         private Dictionary<string, Plugin> dicPluginInstances = new Dictionary<string, Plugin>();
 
         internal Dictionary<string, string> dicFullNamesMenuRegistered_Sys = new Dictionary<string, string>();
@@ -45,8 +46,9 @@ namespace QTTabBarLib {
         public event PluginEventHandler TabChanged;
         public event PluginEventHandler TabRemoved;
 
-        internal PluginServer(IPluginServerHost host) {
+        internal PluginServer(IPluginServerHost host, ITabContext tabContext) {
             _host = host;
+            _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
             shellBrowser = (QTPlugin.Interop.IShellBrowser)_host.ShellBrowser.GetIShellBrowser();
             dicLocalizingStrings = new Dictionary<string, string[]>();
             foreach(string file in Config.Lang.PluginLangFiles) {

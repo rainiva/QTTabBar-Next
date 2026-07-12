@@ -25,10 +25,11 @@ namespace QTTtabBarTests {
         public void ShellNavigationController_Uses_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.ShellNavigationController", true);
-            Type host = assembly.GetType("QTTabBarLib.IShellNavigationHost", true);
+            Type host = assembly.GetType("QTTabBarLib.IShellBandHost", true);
+            Type tabContext = assembly.GetType("QTTabBarLib.ITabContext", true);
             Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ShellNavigationController", BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                null, new[] { host }, null));
+                null, new[] { host, tabContext }, null));
             Assert.IsNotNull(controller.GetMethod("UpOneLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
 

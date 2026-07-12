@@ -32,15 +32,16 @@ namespace QTTabBarLib {
 
         internal ExplorerSessionRestoreController SessionRestore =>
             _sessionRestore ?? (_sessionRestore = new ExplorerSessionRestoreController(
-                (IExplorerSessionHost)this,
+                (IExplorerSessionTravelHost)this,
+                _tabContext,
                 InstallHooks,
                 NavigateAfterInstallation));
 
         internal ExplorerCommandDispatcher CommandDispatch =>
-            _commandDispatch ?? (_commandDispatch = new ExplorerCommandDispatcher((IExplorerSessionHost)this));
+            _commandDispatch ?? (_commandDispatch = new ExplorerCommandDispatcher((IExplorerSessionTravelHost)this));
 
         private ExplorerTravelLogController TravelLogController =>
-            _travelLogController ?? (_travelLogController = new ExplorerTravelLogController((IExplorerTravelHost)this));
+            _travelLogController ?? (_travelLogController = new ExplorerTravelLogController((IExplorerSessionTravelHost)this));
 
         private ExplorerWindowMessageController WindowMessageController =>
             _windowMessageController ?? (_windowMessageController = new ExplorerWindowMessageController(
@@ -54,6 +55,7 @@ namespace QTTabBarLib {
 
         private ExplorerNavigationController NavigationController =>
             _navigationController ?? (_navigationController = new ExplorerNavigationController(
+                _tabContext,
                 (IExplorerNavigationHost)this,
                 CancelFailedNavigation));
 
@@ -84,7 +86,8 @@ namespace QTTabBarLib {
 
         private ExplorerTravelToolbarController TravelToolbarController =>
             _travelToolbarController ?? (_travelToolbarController = new ExplorerTravelToolbarController(
-                (IExplorerTravelHost)this));
+                (IExplorerSessionTravelHost)this,
+                _tabContext));
 
         private ExplorerNavigationLifecycleController NavigationLifecycleController =>
             _navigationLifecycleController ?? (_navigationLifecycleController = new ExplorerNavigationLifecycleController(
@@ -101,7 +104,7 @@ namespace QTTabBarLib {
 
         private ExplorerSpecialTravelLogController SpecialTravelLogController =>
             _specialTravelLogController ?? (_specialTravelLogController = new ExplorerSpecialTravelLogController(
-                (IExplorerTravelHost)this));
+                (IExplorerSessionTravelHost)this));
 
         private ExplorerNavigationCleanupController NavigationCleanupController =>
             _navigationCleanupController ?? (_navigationCleanupController = new ExplorerNavigationCleanupController((IExplorerNavigationHost)this));
@@ -110,19 +113,24 @@ namespace QTTabBarLib {
             _postNavigationController ?? (_postNavigationController = new ExplorerPostNavigationController((IExplorerNavigationHost)this));
 
         private ExplorerShutdownNavigationController ShutdownNavigationController =>
-            _shutdownNavigationController ?? (_shutdownNavigationController = new ExplorerShutdownNavigationController((IExplorerSessionHost)this));
+            _shutdownNavigationController ?? (_shutdownNavigationController = new ExplorerShutdownNavigationController((IExplorerSessionTravelHost)this));
 
         private ExplorerLegacyNavigationController LegacyNavigationController =>
             _legacyNavigationController ?? (_legacyNavigationController = new ExplorerLegacyNavigationController((IExplorerLegacyNavigationHost)this));
 
         private ExplorerTooltipController TooltipController =>
-            _tooltipController ?? (_tooltipController = new ExplorerTooltipController((IExplorerTooltipHost)this));
+            _tooltipController ?? (_tooltipController = new ExplorerTooltipController(
+                (IExplorerNavPresentationHost)this,
+                _tabContext));
 
         private ExplorerSelectionRestoreController SelectionRestoreController =>
-            _selectionRestoreController ?? (_selectionRestoreController = new ExplorerSelectionRestoreController((IExplorerSelectionRestoreHost)this));
+            _selectionRestoreController ?? (_selectionRestoreController = new ExplorerSelectionRestoreController((IExplorerNavPresentationHost)this));
 
         private ExplorerNavigationStateController NavigationStateController =>
-            _navigationStateController ?? (_navigationStateController = new ExplorerNavigationStateController((IExplorerNavigationHost)this));
+            _navigationStateController ?? (_navigationStateController = new ExplorerNavigationStateController(
+                (IExplorerNavigationHost)this,
+                _tabContext,
+                TabSelection));
 
         private void NavigateAfterInstallation(object locationUrl) {
             Explorer_NavigateComplete2(null, ref locationUrl);

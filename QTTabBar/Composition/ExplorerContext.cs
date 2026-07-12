@@ -19,6 +19,7 @@ namespace QTTabBarLib {
         QTabControl TabControl { get; }
         QTabItem CurrentTab { get; }
         QTabItem ContextMenuedTab { get; set; }
+        void SetContextMenuedTab(QTabItem tab);
         MenuController MenuController { get; }
     }
 
@@ -43,8 +44,8 @@ namespace QTTabBarLib {
 
         public QTabControl TabControl => _host.tabControl1;
         public QTabItem CurrentTab {
-            get { return _host.CompositionCurrentTab; }
-            set { _host.CompositionCurrentTab = value; }
+            get => _host.ContextCurrentTab;
+            set => _host.TabSelection.AssignCurrentTab(value, TabSelectionReason.NavigationSelect);
         }
 
         public bool TryCreateTab(Address address, int requestedIndex, bool locked, bool select) {
@@ -60,10 +61,13 @@ namespace QTTabBarLib {
         }
 
         public QTabControl TabControl => _host.tabControl1;
-        public QTabItem CurrentTab => _host.CompositionCurrentTab;
+        public QTabItem CurrentTab => _host.ContextCurrentTab;
         public QTabItem ContextMenuedTab {
             get { return _host.CompositionContextMenuedTab; }
-            set { _host.CompositionContextMenuedTab = value; }
+            set { _host.CompositionSetContextMenuedTab(value); }
+        }
+        public void SetContextMenuedTab(QTabItem tab) {
+            _host.CompositionSetContextMenuedTab(tab);
         }
         public MenuController MenuController => ((IComponentBuildHost)_host).MenuController;
     }

@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace QTTtabBarTests {
     [TestFixture]
     public class ExplorerFacadeBudgetTests {
-        private const int ExFacadeBudget = 55;
+        private const int ExFacadeBudget = 0;
 
         [Test]
         public void Ex_Facade_Count_Does_Not_Exceed_Baseline() {

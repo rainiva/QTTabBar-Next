@@ -7,7 +7,7 @@ namespace QTTtabBarTests {
         [Test]
         public void TabManager_Source_File_Does_Not_Exist() {
             string path = Path.Combine(FindRepoRoot(), "QTTabBar", "Tabs", "TabManager.cs");
-            Assert.IsFalse(File.Exists(path), "Wave 18 removes TabManager.cs; tab ops live on TabBarBase / ITabOperationsHost");
+            Assert.IsFalse(File.Exists(path), "Wave 18 removes TabManager.cs; tab ops live on TabBarBase / ITabOperationsFacadeHost");
         }
 
         [Test]

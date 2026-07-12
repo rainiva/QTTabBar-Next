@@ -204,7 +204,7 @@ namespace Qwop {
                 lstSelectedItems.AddRange(addresses);
             }*/
 
-            InstanceManager.ExecuteOnServerProcessOpenOptions();
+            OptionsDialogEntry.Open();
         }
 
         public string Text {

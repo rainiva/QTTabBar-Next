@@ -23,7 +23,7 @@ namespace QTTtabBarTests {
         [Test]
         public void MenuController_Uses_MenuContext_And_Single_Menu_Host() {
             Type menuContext = Assembly.GetType("QTTabBarLib.IMenuContext", true);
-            Type menuHost = Assembly.GetType("QTTabBarLib.IMenuControllerHost", true);
+            Type menuHost = Assembly.GetType("QTTabBarLib.IMenuPluginFacadeHost", true);
             Assert.LessOrEqual(menuHost.GetMethods().Length, 20);
             Assert.IsNotNull(MenuControllerType.GetConstructor(AnyInstance, null, new[] { menuContext, menuHost }, null));
             Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == menuContext));

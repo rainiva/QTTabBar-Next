@@ -26,12 +26,12 @@ namespace QTTabBarLib {
 
         public ITab[] GetTabs() {
             return (from QTabItem item in _host.tabControl1.TabPages
-                    select (ITab)(new TabWrapper(item, _host))).ToArray();
+                    select (ITab)(new TabWrapper(item, _host, _tabContext))).ToArray();
         }
 
         public ITab HitTest(Point pnt) {
             QTabItem tabMouseOn = _host.tabControl1.GetTabMouseOn();
-            return tabMouseOn != null ? new TabWrapper(tabMouseOn, _host) : null;
+            return tabMouseOn != null ? new TabWrapper(tabMouseOn, _host, _tabContext) : null;
         }
 
         public bool TryGetSelection(out Address[] adSelectedItems) {
@@ -52,7 +52,7 @@ namespace QTTabBarLib {
 
         public ITab SelectedTab {
             get {
-                return _host.CurrentTab != null ? new TabWrapper(_host.CurrentTab, _host) : null;
+                return _tabContext.CurrentTab != null ? new TabWrapper(_tabContext.CurrentTab, _host, _tabContext) : null;
             }
             set {
                 TabWrapper wrapper = value as TabWrapper;
@@ -65,10 +65,12 @@ namespace QTTabBarLib {
         internal sealed class TabWrapper : ITab {
             private QTabItem tab;
             private IPluginServerHost _host;
+            private readonly ITabContext _tabContext;
 
-            public TabWrapper(QTabItem tab, IPluginServerHost tabHost) {
+            public TabWrapper(QTabItem tab, IPluginServerHost tabHost, ITabContext tabContext) {
                 this.tab = tab;
                 this._host = tabHost;
+                _tabContext = tabContext ?? throw new ArgumentNullException(nameof(tabContext));
                 this.tab.Closed += tab_Closed;
             }
 
@@ -182,7 +184,7 @@ namespace QTTabBarLib {
 
             public bool Selected {
                 get {
-                    return ((tab != null) && (_host.CurrentTab == tab));
+                    return ((tab != null) && (_tabContext.CurrentTab == tab));
                 }
                 set {
                     if((tab != null) && value) {

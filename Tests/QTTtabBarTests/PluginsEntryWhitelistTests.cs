@@ -22,8 +22,9 @@ namespace QTTtabBarTests {
                 }
                 string source = File.ReadAllText(file);
                 bool usesOptionsDialogOpen = source.Contains("OptionsDialog.Open");
+                bool usesOptionsDialogEntryOpen = source.Contains("OptionsDialogEntry.Open");
                 bool usesIpcOpenOptions = source.Contains("ExecuteOnServerProcessOpenOptions");
-                if(!usesOptionsDialogOpen && !usesIpcOpenOptions) {
+                if(!usesOptionsDialogOpen && !usesOptionsDialogEntryOpen && !usesIpcOpenOptions) {
                     continue;
                 }
                 string fileName = Path.GetFileName(file);

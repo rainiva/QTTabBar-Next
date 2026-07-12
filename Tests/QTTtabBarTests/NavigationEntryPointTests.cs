@@ -13,8 +13,7 @@ namespace QTTtabBarTests {
             string source = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Navigation", "ExplorerNavigationOrchestrator.cs"));
             StringAssert.Contains("internal sealed class ExplorerNavigationOrchestrator", source);
             StringAssert.Contains("IExplorerNavigationHost navigationHost", source);
-            StringAssert.DoesNotContain("IExplorerSessionHost", source);
-            StringAssert.DoesNotContain("IExplorerTravelHost", source);
+            StringAssert.DoesNotContain("IExplorerSessionTravelHost", source);
         }
 
         [Test]
@@ -65,6 +64,21 @@ namespace QTTtabBarTests {
                     Assert.AreEqual("ExplorerNavigationOrchestrator.cs", fileName,
                         "NavigationLifecycleController.BeforeNavigate must only be invoked from ExplorerNavigationOrchestrator, not " + fileName);
                 }
+            }
+        }
+
+        [Test]
+        public void Navigation_Controllers_Do_Not_Call_Host_CurrentTab_Surface() {
+            string navDir = Path.Combine(FindRepoRoot(), "QTTabBar", "Navigation");
+            foreach(string file in Directory.GetFiles(navDir, "*.cs", SearchOption.AllDirectories)) {
+                string source = File.ReadAllText(file);
+                string fileName = Path.GetFileName(file);
+                Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(source, @"\b_host\.GetCurrentTab\s*\("),
+                    fileName + " must read ITabContext instead of IExplorerNavigationHost.GetCurrentTab");
+                Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(source, @"\b_host\.SetCurrentTab\s*\("),
+                    fileName + " must use TabSelectionCoordinator instead of IExplorerNavigationHost.SetCurrentTab");
+                Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(source, @"\b_host\.CurrentTab\b"),
+                    fileName + " must read ITabContext instead of host CurrentTab");
             }
         }
 

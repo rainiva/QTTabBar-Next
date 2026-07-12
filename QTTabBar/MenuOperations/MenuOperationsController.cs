@@ -13,21 +13,15 @@ namespace QTTabBarLib {
     internal sealed class MenuOperationsController {
         private readonly IMenuContext _menuContext;
         private readonly IExplorerContext _explorerContext;
-        private readonly IMenuStripHost _strip;
-        private readonly IMenuServicesHost _services;
-        private readonly IMenuOperationsHost _host;
+        private readonly IMenuOperationsFacadeHost _facade;
 
         public MenuOperationsController(
         IMenuContext menuContext,
         IExplorerContext explorerContext,
-        IMenuStripHost strip,
-        IMenuServicesHost services,
-        IMenuOperationsHost host) {
+        IMenuOperationsFacadeHost facade) {
         _menuContext = menuContext ?? throw new ArgumentNullException(nameof(menuContext));
         _explorerContext = explorerContext ?? throw new ArgumentNullException(nameof(explorerContext));
-        _strip = strip ?? throw new ArgumentNullException(nameof(strip));
-        _services = services ?? throw new ArgumentNullException(nameof(services));
-        _host = host ?? throw new ArgumentNullException(nameof(host));
+        _facade = facade ?? throw new ArgumentNullException(nameof(facade));
         }
 
         public List<ToolStripItem> CreateBranchMenu(bool fCurrent, IContainer container, ToolStripItemClickedEventHandler itemClickedEvent) {
@@ -43,8 +37,8 @@ namespace QTTabBarLib {
                     int index = -1;
                     foreach(LogData data in branches) {
                         index++;
-                        if(_host.IsSpecialFolderNeedsToTravel(data.Path)) {
-                            if(_services.LogEntryDic.ContainsKey(data.Hash)) {
+                        if(_facade.IsSpecialFolderNeedsToTravel(data.Path)) {
+                            if(_facade.LogEntryDic.ContainsKey(data.Hash)) {
                                 goto Label_00B3;
                             }
                             continue;
@@ -71,8 +65,8 @@ namespace QTTabBarLib {
                 if((historyBack.Length + historyForward.Length) > 1) {
                     for(int i = historyBack.Length - 1; i >= 0; i--) {
                         QMenuItem item2 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyBack[i], true, i, MenuGenre.Navigation));
-                        if(_host.IsSpecialFolderNeedsToTravel(historyBack[i])) {
-                            item2.Enabled = _services.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
+                        if(_facade.IsSpecialFolderNeedsToTravel(historyBack[i])) {
+                            item2.Enabled = _facade.LogEntryDic.ContainsKey(item.GetLogHash(true, i));
                         }
                         else if(!QTUtility2.PathExists(historyBack[i])) {
                             item2.Enabled = false;
@@ -84,8 +78,8 @@ namespace QTTabBarLib {
                     }
                     for(int j = 0; j < historyForward.Length; j++) {
                         QMenuItem item3 = MenuUtility.CreateMenuItem(new MenuItemArguments(historyForward[j], false, j, MenuGenre.Navigation));
-                        if(_host.IsSpecialFolderNeedsToTravel(historyForward[j])) {
-                            item3.Enabled = _services.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
+                        if(_facade.IsSpecialFolderNeedsToTravel(historyForward[j])) {
+                            item3.Enabled = _facade.LogEntryDic.ContainsKey(item.GetLogHash(false, j));
                         }
                         else if(!QTUtility2.PathExists(historyForward[j])) {
                             item3.Enabled = false;
@@ -125,7 +119,7 @@ namespace QTTabBarLib {
 
         public void MenuitemExecuted_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
                 using(IDLWrapper wrapper = new IDLWrapper(e.ClickedItem.ToolTipText)) {
-                    e.HRESULT = _services.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                    e.HRESULT = _facade.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
                 }
                 if(e.HRESULT == 0xffff) {
                     StaticReg.ExecutedPathsList.Remove(e.ClickedItem.ToolTipText);
@@ -142,12 +136,12 @@ namespace QTTabBarLib {
                     GroupsManager.SaveGroups();
                 }
                 else {
-                    _host.OpenGroup(groupName, modifierKeys == Keys.Control, false);
+                    _facade.OpenGroup(groupName, modifierKeys == Keys.Control, false);
                 }
         }
 
         public void MenuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-                GroupsManager.HandleReorder(_strip.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
+                GroupsManager.HandleReorder(_facade.tsmiGroups.DropDownItems.Cast<ToolStripItem>());
                 QTTabBarClass.SyncTaskBarMenu();
         }
 
@@ -157,19 +151,19 @@ namespace QTTabBarLib {
                     MenuItemArguments menuItemArguments = clickedItem.MenuItemArguments;
                     switch(Control.ModifierKeys) {
                         case Keys.Shift:
-                            _host.CloneTabButton(_menuContext.ContextMenuedTab, null, true, -1);
-                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            _facade.CloneTabButton(_menuContext.ContextMenuedTab, null, true, -1);
+                            _facade.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
                             return;
 
                         case Keys.Control: {
                                 using(IDLWrapper wrapper = new IDLWrapper(menuItemArguments.Path)) {
-                                    _host.OpenNewWindow(wrapper);
+                                    _facade.OpenNewWindow(wrapper);
                                     return;
                                 }
                             }
                         default:
                             _menuContext.TabControl.SelectTab(_menuContext.ContextMenuedTab);
-                            _host.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
+                            _facade.NavigateToHistory(menuItemArguments.Path, menuItemArguments.IsBack, menuItemArguments.Index);
                             return;
                     }
                 }
@@ -179,7 +173,7 @@ namespace QTTabBarLib {
                 QMenuItem clickedItem = e.ClickedItem as QMenuItem;
                 if(clickedItem != null) {
                     using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                        e.HRESULT = _services.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
+                        e.HRESULT = _facade.shellContextMenu.Open(wrapper, e.IsKey ? e.Point : Control.MousePosition, ((DropDownMenuReorderable)sender).Handle, true);
                     }
                     if(e.HRESULT == 0xffff) {
                         StaticReg.ClosedTabHistoryList.Remove(clickedItem.Path);
@@ -189,7 +183,7 @@ namespace QTTabBarLib {
         }
 
         public void DdrmrGroups_ItemMiddleClicked(object sender, ItemRightClickedEventArgs e) {
-                _host.ReplaceByGroup(e.ClickedItem.Text);
+                _facade.ReplaceByGroup(e.ClickedItem.Text);
         }
 
         public bool FolderLinkClicked(IDLWrapper wrapper, Keys modifierKeys, bool middle) {
@@ -197,7 +191,7 @@ namespace QTTabBarLib {
                 MouseChord chord = QTUtility.MakeMouseChord(middle ? MouseChord.Middle : MouseChord.Left, modifierKeys);
                 BindAction action;
                 if(Config.Mouse.LinkActions.TryGetValue(chord, out action)) {
-                    _host.DoBindAction(action, false, null, wrapper);
+                    _facade.DoBindAction(action, false, null, wrapper);
                     return true;
                 }
                 QTLogger.log("QTTabBarClass FolderLinkClicked 未获取到配置的动作");
@@ -205,27 +199,27 @@ namespace QTTabBarLib {
         }
 
         public void contextMenuSys_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-                if(e.ClickedItem == _strip.tsmiOption) {
+                if(e.ClickedItem == _facade.tsmiOption) {
                     OptionsDialog.Open();
                 }
-                else if(e.ClickedItem == _strip.tsmiCloseAllButCurrent) {
+                else if(e.ClickedItem == _facade.tsmiCloseAllButCurrent) {
                     if(_menuContext.TabControl.TabCount != 1) {
-                        _host.CloseAllTabsExcept(_menuContext.CurrentTab);
+                        _facade.CloseAllTabsExcept(_menuContext.CurrentTab);
                     }
                 }
-                else if(e.ClickedItem == _strip.tsmiBrowseFolder) {
-                    _host.ChooseNewDirectory();
+                else if(e.ClickedItem == _facade.tsmiBrowseFolder) {
+                    _facade.ChooseNewDirectory();
                 }
-                else if(e.ClickedItem == _strip.tsmiCloseWindow) {
+                else if(e.ClickedItem == _facade.tsmiCloseWindow) {
                     {
                         LockedTabsService.PersistFromTabs(_menuContext.TabControl.TabPages);
                     }
                     WindowUtils.CloseExplorer(_explorerContext.ExplorerHandle, 1);
                 }
                 else {
-                    if(e.ClickedItem == _strip.tsmiLastActiv) {
+                    if(e.ClickedItem == _facade.tsmiLastActiv) {
                         try {
-                            _menuContext.TabControl.SelectTab(_services.lstActivatedTabs[_services.lstActivatedTabs.Count - 2]);
+                            _menuContext.TabControl.SelectTab(_facade.lstActivatedTabs[_facade.lstActivatedTabs.Count - 2]);
                             return;
                         }
                         catch (Exception ex)
@@ -234,11 +228,11 @@ namespace QTTabBarLib {
                             return;
                         }
                     }
-                    if(e.ClickedItem == _strip.tsmiLockToolbar) {
-                        _services.rebarController.Locked = !_strip.tsmiLockToolbar.Checked;
+                    if(e.ClickedItem == _facade.tsmiLockToolbar) {
+                        _facade.rebarController.Locked = !_facade.tsmiLockToolbar.Checked;
                     }
-                    else if(e.ClickedItem == _strip.tsmiMergeWindows) {
-                        _host.MergeAllWindows();
+                    else if(e.ClickedItem == _facade.tsmiMergeWindows) {
+                        _facade.MergeAllWindows();
                     }
                 }
         }
@@ -247,128 +241,128 @@ namespace QTTabBarLib {
         public void contextMenuSys_Opening(object sender, CancelEventArgs e) {
                 InitializeSysMenu(false);
                 // 延迟加载菜单内容
-                _strip.contextMenuSys.SuspendLayout();
-                _strip.tsmiGroups.DropDown.SuspendLayout();
-                _strip.tsmiUndoClose.DropDown.SuspendLayout();
+                _facade.contextMenuSys.SuspendLayout();
+                _facade.tsmiGroups.DropDown.SuspendLayout();
+                _facade.tsmiUndoClose.DropDown.SuspendLayout();
 
-                MenuUtility.CreateGroupItems(_strip.tsmiGroups);
-                MenuUtility.CreateUndoClosedItems(_strip.tsmiUndoClose);
-                if((_services.lstActivatedTabs.Count > 1) && _menuContext.TabControl.TabPages.Contains(_services.lstActivatedTabs[_services.lstActivatedTabs.Count - 2])) {
-                    _strip.tsmiLastActiv.ToolTipText = _services.lstActivatedTabs[_services.lstActivatedTabs.Count - 2].CurrentPath;
-                    _strip.tsmiLastActiv.Enabled = true;
+                MenuUtility.CreateGroupItems(_facade.tsmiGroups);
+                MenuUtility.CreateUndoClosedItems(_facade.tsmiUndoClose);
+                if((_facade.lstActivatedTabs.Count > 1) && _menuContext.TabControl.TabPages.Contains(_facade.lstActivatedTabs[_facade.lstActivatedTabs.Count - 2])) {
+                    _facade.tsmiLastActiv.ToolTipText = _facade.lstActivatedTabs[_facade.lstActivatedTabs.Count - 2].CurrentPath;
+                    _facade.tsmiLastActiv.Enabled = true;
                 }
                 else {
-                    _strip.tsmiLastActiv.ToolTipText = string.Empty;
-                    _strip.tsmiLastActiv.Enabled = false;
+                    _facade.tsmiLastActiv.ToolTipText = string.Empty;
+                    _facade.tsmiLastActiv.Enabled = false;
                 }
-                while(_strip.tsmiExecuted.DropDownItems.Count > 0) {
-                    _strip.tsmiExecuted.DropDownItems[0].Dispose();
+                while(_facade.tsmiExecuted.DropDownItems.Count > 0) {
+                    _facade.tsmiExecuted.DropDownItems[0].Dispose();
                 }
                 List<ToolStripItem> list = MenuUtility.CreateRecentFilesItems();
                 if(list.Count > 0) {
-                    _strip.tsmiExecuted.DropDown.SuspendLayout();
-                    _strip.tsmiExecuted.DropDownItems.AddRange(list.ToArray());
-                    _strip.tsmiExecuted.DropDown.ResumeLayout();
+                    _facade.tsmiExecuted.DropDown.SuspendLayout();
+                    _facade.tsmiExecuted.DropDownItems.AddRange(list.ToArray());
+                    _facade.tsmiExecuted.DropDown.ResumeLayout();
                 }
-                _strip.tsmiExecuted.Enabled = _strip.tsmiExecuted.DropDownItems.Count > 0;
-                _strip.tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
-                _strip.tsmiLockToolbar.Checked = _services.rebarController.Locked;
-                if((_services.lstPluginMenuItems_Sys != null) && (_services.lstPluginMenuItems_Sys.Count > 0)) {
-                    foreach(ToolStripItem item in _services.lstPluginMenuItems_Sys) {
+                _facade.tsmiExecuted.Enabled = _facade.tsmiExecuted.DropDownItems.Count > 0;
+                _facade.tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
+                _facade.tsmiLockToolbar.Checked = _facade.rebarController.Locked;
+                if((_facade.lstPluginMenuItems_Sys != null) && (_facade.lstPluginMenuItems_Sys.Count > 0)) {
+                    foreach(ToolStripItem item in _facade.lstPluginMenuItems_Sys) {
                         item.Dispose();
                     }
-                    _services.lstPluginMenuItems_Sys = null;
+                    _facade.lstPluginMenuItems_Sys = null;
                 }
-                if((_services.pluginServer != null) && (_services.pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
-                    _services.lstPluginMenuItems_Sys = new List<ToolStripItem>();
-                    int index = _strip.contextMenuSys.Items.IndexOf(_strip.tsmiOption);
+                if((_facade.pluginServer != null) && (_facade.pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
+                    _facade.lstPluginMenuItems_Sys = new List<ToolStripItem>();
+                    int index = _facade.contextMenuSys.Items.IndexOf(_facade.tsmiOption);
                     ToolStripSeparator separator = new ToolStripSeparator();
-                    _strip.contextMenuSys.Items.Insert(index, separator);
-                    foreach(string str in _services.pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
-                        ToolStripMenuItem item2 = new ToolStripMenuItem(_services.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
+                    _facade.contextMenuSys.Items.Insert(index, separator);
+                    foreach(string str in _facade.pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
+                        ToolStripMenuItem item2 = new ToolStripMenuItem(_facade.pluginServer.dicFullNamesMenuRegistered_Sys[str]);
                         item2.Name = str;
                         item2.Tag = MenuType.Bar;
-                        item2.Click += _services._pluginMenuController.PluginItemsClick;
-                        _strip.contextMenuSys.Items.Insert(index, item2);
-                        _services.lstPluginMenuItems_Sys.Add(item2);
+                        item2.Click += _facade._pluginMenuController.PluginItemsClick;
+                        _facade.contextMenuSys.Items.Insert(index, item2);
+                        _facade.lstPluginMenuItems_Sys.Add(item2);
                     }
-                    _services.lstPluginMenuItems_Sys.Add(separator);
+                    _facade.lstPluginMenuItems_Sys.Add(separator);
                 }
-                _strip.tsmiUndoClose.DropDown.ResumeLayout();
-                _strip.tsmiGroups.DropDown.ResumeLayout();
-                _strip.contextMenuSys.ResumeLayout();
+                _facade.tsmiUndoClose.DropDown.ResumeLayout();
+                _facade.tsmiGroups.DropDown.ResumeLayout();
+                _facade.contextMenuSys.ResumeLayout();
         }
 
         public void InitializeSysMenu(bool fText) {
                 bool flag = false;
-                if(_strip.tsmiGroups == null) {
+                if(_facade.tsmiGroups == null) {
                     flag = true;
-                    _strip.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
-                    _strip.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
-                    _strip.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
-                    _strip.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
-                    _strip.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
-                    _strip.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
-                    _strip.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
-                    _strip.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
-                    _strip.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
-                    _strip.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
-                    _strip.tssep_Sys1 = new ToolStripSeparator();
-                    _strip.tssep_Sys2 = new ToolStripSeparator();
-                    if(_strip.contextMenuSys != null) {
-                        _strip.contextMenuSys.SuspendLayout();
-                        _strip.contextMenuSys.Items[0].Dispose();
-                        _strip.contextMenuSys.Items.AddRange(new ToolStripItem[]
+                    _facade.tsmiGroups = new ToolStripMenuItem(ResourceCache.ResMain[12]);
+                    _facade.tsmiUndoClose = new ToolStripMenuItem(ResourceCache.ResMain[13]);
+                    _facade.tsmiLastActiv = new ToolStripMenuItem(ResourceCache.ResMain[14]);
+                    _facade.tsmiExecuted = new ToolStripMenuItem(ResourceCache.ResMain[15]);
+                    _facade.tsmiBrowseFolder = new ToolStripMenuItem(ResourceCache.ResMain[0x10] + "...");
+                    _facade.tsmiCloseAllButCurrent = new ToolStripMenuItem(ResourceCache.ResMain[0x11]);
+                    _facade.tsmiCloseWindow = new ToolStripMenuItem(ResourceCache.ResMain[0x12]);
+                    _facade.tsmiOption = new ToolStripMenuItem(ResourceCache.ResMain[0x13]);
+                    _facade.tsmiLockToolbar = new ToolStripMenuItem(ResourceCache.ResMain[0x20]);
+                    _facade.tsmiMergeWindows = new ToolStripMenuItem(ResourceCache.ResMain[0x21]);
+                    _facade.tssep_Sys1 = new ToolStripSeparator();
+                    _facade.tssep_Sys2 = new ToolStripSeparator();
+                    if(_facade.contextMenuSys != null) {
+                        _facade.contextMenuSys.SuspendLayout();
+                        _facade.contextMenuSys.Items[0].Dispose();
+                        _facade.contextMenuSys.Items.AddRange(new ToolStripItem[]
                         {
-                            _strip.tsmiGroups, _strip.tsmiUndoClose, _strip.tsmiLastActiv, _strip.tsmiExecuted,
-                            _strip.tssep_Sys1, _strip.tsmiBrowseFolder, _strip.tsmiCloseAllButCurrent, _strip.tsmiCloseWindow,
-                            _strip.tsmiMergeWindows, _strip.tsmiLockToolbar, _strip.tssep_Sys2, _strip.tsmiOption
+                            _facade.tsmiGroups, _facade.tsmiUndoClose, _facade.tsmiLastActiv, _facade.tsmiExecuted,
+                            _facade.tssep_Sys1, _facade.tsmiBrowseFolder, _facade.tsmiCloseAllButCurrent, _facade.tsmiCloseWindow,
+                            _facade.tsmiMergeWindows, _facade.tsmiLockToolbar, _facade.tssep_Sys2, _facade.tsmiOption
                         });
                     }
 
-                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_strip.components, true, false);
+                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(_facade.components, true, false);
                     reorderable.ReorderFinished += MenuitemGroups_ReorderFinished;
                     reorderable.ItemRightClicked += MenuUtility.GroupMenu_ItemRightClicked;
                     reorderable.ItemMiddleClicked += DdrmrGroups_ItemMiddleClicked;
                     reorderable.ImageList = ResourceCache.ImageListGlobal;
-                    _strip.tsmiGroups.DropDown = reorderable;
-                    _strip.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
-                    DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_strip.components);
+                    _facade.tsmiGroups.DropDown = reorderable;
+                    _facade.tsmiGroups.DropDownItemClicked += MenuitemGroups_DropDownItemClicked;
+                    DropDownMenuReorderable reorderable2 = new DropDownMenuReorderable(_facade.components);
                     reorderable2.ReorderEnabled = false;
-                    reorderable2.MessageParent = _strip.Handle;
+                    reorderable2.MessageParent = _facade.Handle;
                     reorderable2.ImageList = ResourceCache.ImageListGlobal;
                     reorderable2.ItemRightClicked += DdmrUndoClose_ItemRightClicked;
-                    _strip.tsmiUndoClose.DropDown = reorderable2;
-                    _strip.tsmiUndoClose.DropDownItemClicked += _strip.menuitemUndoClose_DropDownItemClicked;
-                    DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_strip.components);
-                    reorderable3.MessageParent = _strip.Handle;
+                    _facade.tsmiUndoClose.DropDown = reorderable2;
+                    _facade.tsmiUndoClose.DropDownItemClicked += _facade.menuitemUndoClose_DropDownItemClicked;
+                    DropDownMenuReorderable reorderable3 = new DropDownMenuReorderable(_facade.components);
+                    reorderable3.MessageParent = _facade.Handle;
                     reorderable3.ItemRightClicked += MenuitemExecuted_ItemRightClicked;
                     reorderable3.ItemClicked += MenuitemExecuted_DropDownItemClicked;
                     reorderable3.ImageList = ResourceCache.ImageListGlobal;
-                    _strip.tsmiExecuted.DropDown = reorderable3;
-                    _strip.tssep_Sys1.Enabled = false;
-                    _strip.tssep_Sys2.Enabled = false;
-                    if(_strip.contextMenuSys != null) {
-                        _strip.contextMenuSys.ResumeLayout(false);
+                    _facade.tsmiExecuted.DropDown = reorderable3;
+                    _facade.tssep_Sys1.Enabled = false;
+                    _facade.tssep_Sys2.Enabled = false;
+                    if(_facade.contextMenuSys != null) {
+                        _facade.contextMenuSys.ResumeLayout(false);
                     }
                 }
                 if(!flag && fText) {
-                    _strip.tsmiGroups.Text = ResourceCache.ResMain[12];
-                    _strip.tsmiUndoClose.Text = ResourceCache.ResMain[13];
-                    _strip.tsmiLastActiv.Text = ResourceCache.ResMain[14];
-                    _strip.tsmiExecuted.Text = ResourceCache.ResMain[15];
-                    _strip.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
-                    _strip.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
-                    _strip.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
-                    _strip.tsmiOption.Text = ResourceCache.ResMain[0x13];
-                    _strip.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
-                    _strip.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
+                    _facade.tsmiGroups.Text = ResourceCache.ResMain[12];
+                    _facade.tsmiUndoClose.Text = ResourceCache.ResMain[13];
+                    _facade.tsmiLastActiv.Text = ResourceCache.ResMain[14];
+                    _facade.tsmiExecuted.Text = ResourceCache.ResMain[15];
+                    _facade.tsmiBrowseFolder.Text = ResourceCache.ResMain[0x10] + "...";
+                    _facade.tsmiCloseAllButCurrent.Text = ResourceCache.ResMain[0x11];
+                    _facade.tsmiCloseWindow.Text = ResourceCache.ResMain[0x12];
+                    _facade.tsmiOption.Text = ResourceCache.ResMain[0x13];
+                    _facade.tsmiLockToolbar.Text = ResourceCache.ResMain[0x20];
+                    _facade.tsmiMergeWindows.Text = ResourceCache.ResMain[0x21];
                 }
         }
 
         public void contextMenuTab_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
                 if(_menuContext.ContextMenuedTab != null) {
-                    if(e.ClickedItem == _strip.tsmiClose) {
+                    if(e.ClickedItem == _facade.tsmiClose) {
                         if(_menuContext.TabControl.TabCount == 1) {
                             {
                                 LockedTabsService.PersistFromTabs(_menuContext.TabControl.TabPages);
@@ -376,44 +370,44 @@ namespace QTTabBarLib {
                             WindowUtils.CloseExplorer(_explorerContext.ExplorerHandle, 1);
                         }
                         else {
-                            _host.CloseTab(_menuContext.ContextMenuedTab);
+                            _facade.CloseTab(_menuContext.ContextMenuedTab);
                         }
                     }
-                    else if(e.ClickedItem == _strip.tsmiCloseAllButThis) {
-                        _host.CloseAllTabsExcept(_menuContext.ContextMenuedTab);
+                    else if(e.ClickedItem == _facade.tsmiCloseAllButThis) {
+                        _facade.CloseAllTabsExcept(_menuContext.ContextMenuedTab);
                     }
-                    else if(e.ClickedItem == _strip.tsmiCloseLeft) {
+                    else if(e.ClickedItem == _facade.tsmiCloseLeft) {
                         int index = _menuContext.TabControl.TabPages.IndexOf(_menuContext.ContextMenuedTab);
                         if(index > 0) {
-                            _host.CloseLeftRight(true, index);
+                            _facade.CloseLeftRight(true, index);
                         }
                     }
-                    else if(e.ClickedItem == _strip.tsmiCloseRight) {
+                    else if(e.ClickedItem == _facade.tsmiCloseRight) {
                         int num2 = _menuContext.TabControl.TabPages.IndexOf(_menuContext.ContextMenuedTab);
                         if(num2 >= 0) {
-                            _host.CloseLeftRight(false, num2);
+                            _facade.CloseLeftRight(false, num2);
                         }
                     }
-                    else if(e.ClickedItem == _strip.tsmiCreateGroup) {
+                    else if(e.ClickedItem == _facade.tsmiCreateGroup) {
                         CreateGroup(_menuContext.ContextMenuedTab);
                     }
-                    else if(e.ClickedItem == _strip.tsmiLockThis) {
+                    else if(e.ClickedItem == _facade.tsmiLockThis) {
                         LockedTabsService.ToggleTab(
                             _menuContext.ContextMenuedTab,
                             _menuContext.TabControl.TabPages.Cast<QTabItem>());
                     }
-                    else if(e.ClickedItem == _strip.tsmiCloneThis) {
-                        _host.CloneTabButton(_menuContext.ContextMenuedTab, null, true, -1);
+                    else if(e.ClickedItem == _facade.tsmiCloneThis) {
+                        _facade.CloneTabButton(_menuContext.ContextMenuedTab, null, true, -1);
                     }
-                    else if(e.ClickedItem == _strip.tsmiCreateWindow) {
+                    else if(e.ClickedItem == _facade.tsmiCreateWindow) {
                         using(IDLWrapper wrapper = new IDLWrapper(_menuContext.ContextMenuedTab.CurrentIDL)) {
-                            _host.OpenNewWindow(wrapper);
+                            _facade.OpenNewWindow(wrapper);
                         }
                         if(/*!Config.KeepOnSeparate != */ ((Control.ModifierKeys & Keys.Shift) != Keys.None)) {
-                            _host.CloseTab(_menuContext.ContextMenuedTab);
+                            _facade.CloseTab(_menuContext.ContextMenuedTab);
                         }
                     }
-                    else if(e.ClickedItem == _strip.tsmiCopy) {
+                    else if(e.ClickedItem == _facade.tsmiCopy) {
                         string currentPath = _menuContext.ContextMenuedTab.CurrentPath;
                         if(currentPath.IndexOf("???") != -1) {
                             currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
@@ -423,14 +417,14 @@ namespace QTTabBarLib {
                         }
                         QTUtility2.SetStringClipboard(currentPath);
                     }
-                    else if(e.ClickedItem == _strip.tsmiProp) {
+                    else if(e.ClickedItem == _facade.tsmiProp) {
                         ShellMethods.ShowProperties(_menuContext.ContextMenuedTab.CurrentIDL);
                     }
-                    else if (e.ClickedItem == _strip.tsmiOpenCmd) { // add by qwop.
-                        _host.OpenCmd( null );
-                    } else if (e.ClickedItem == _strip.enableApiHook)
+                    else if (e.ClickedItem == _facade.tsmiOpenCmd) { // add by qwop.
+                        _facade.OpenCmd( null );
+                    } else if (e.ClickedItem == _facade.enableApiHook)
                     {
-                        _host.EnableApiHook();
+                        _facade.EnableApiHook();
                     }
                 }
         }
@@ -444,70 +438,70 @@ namespace QTTabBarLib {
                     }
                     else {
                         _menuContext.TabControl.SetContextMenuState(true);
-                        _strip.contextMenuTab.SuspendLayout();
+                        _facade.contextMenuTab.SuspendLayout();
                         if(_menuContext.TabControl.TabCount == 1) {
-                            _strip.tsmiTabOrder.Enabled = _strip.tsmiCloseAllButThis.Enabled = _strip.tsmiCloseLeft.Enabled = _strip.tsmiCloseRight.Enabled = false;
+                            _facade.tsmiTabOrder.Enabled = _facade.tsmiCloseAllButThis.Enabled = _facade.tsmiCloseLeft.Enabled = _facade.tsmiCloseRight.Enabled = false;
                         }
                         else {
                             if(index == 0) {
-                                _strip.tsmiCloseLeft.Enabled = false;
-                                _strip.tsmiCloseRight.Enabled = true;
+                                _facade.tsmiCloseLeft.Enabled = false;
+                                _facade.tsmiCloseRight.Enabled = true;
                             }
                             else if(index == (_menuContext.TabControl.TabCount - 1)) {
-                                _strip.tsmiCloseLeft.Enabled = true;
-                                _strip.tsmiCloseRight.Enabled = false;
+                                _facade.tsmiCloseLeft.Enabled = true;
+                                _facade.tsmiCloseRight.Enabled = false;
                             }
                             else {
-                                _strip.tsmiCloseLeft.Enabled = _strip.tsmiCloseRight.Enabled = true;
+                                _facade.tsmiCloseLeft.Enabled = _facade.tsmiCloseRight.Enabled = true;
                             }
-                            _strip.tsmiTabOrder.Enabled = _strip.tsmiCloseAllButThis.Enabled = true;
+                            _facade.tsmiTabOrder.Enabled = _facade.tsmiCloseAllButThis.Enabled = true;
                         }
-                        _strip.tsmiClose.Enabled = !_menuContext.ContextMenuedTab.TabLocked;
-                        _strip.tsmiLockThis.Text = _menuContext.ContextMenuedTab.TabLocked ? ResourceCache.ResMain[20] : ResourceCache.ResMain[6];
+                        _facade.tsmiClose.Enabled = !_menuContext.ContextMenuedTab.TabLocked;
+                        _facade.tsmiLockThis.Text = _menuContext.ContextMenuedTab.TabLocked ? ResourceCache.ResMain[20] : ResourceCache.ResMain[6];
                         if(GroupsManager.GroupCount > 0) {
-                            _strip.tsmiAddToGroup.DropDown.SuspendLayout();
-                            _strip.tsmiAddToGroup.Enabled = true;
-                            while(_strip.tsmiAddToGroup.DropDownItems.Count > 0) {
-                                _strip.tsmiAddToGroup.DropDownItems[0].Dispose();
+                            _facade.tsmiAddToGroup.DropDown.SuspendLayout();
+                            _facade.tsmiAddToGroup.Enabled = true;
+                            while(_facade.tsmiAddToGroup.DropDownItems.Count > 0) {
+                                _facade.tsmiAddToGroup.DropDownItems[0].Dispose();
                             }
                             foreach(Group g in GroupsManager.Groups.Where(g => g.Paths.Count > 0)) {
-                                _strip.tsmiAddToGroup.DropDownItems.Add(new ToolStripMenuItem(g.Name) {
+                                _facade.tsmiAddToGroup.DropDownItems.Add(new ToolStripMenuItem(g.Name) {
                                     ImageKey = IconManager.GetImageKey(g.Paths[0], null)
                                 });
                             }
-                            _strip.tsmiAddToGroup.DropDown.ResumeLayout();
+                            _facade.tsmiAddToGroup.DropDown.ResumeLayout();
                         }
                         else {
-                            _strip.tsmiAddToGroup.Enabled = false;
+                            _facade.tsmiAddToGroup.Enabled = false;
                         }
-                        _strip.tsmiHistory.DropDown.SuspendLayout();
-                        while(_strip.tsmiHistory.DropDownItems.Count > 0) {
-                            _strip.tsmiHistory.DropDownItems[0].Dispose();
+                        _facade.tsmiHistory.DropDown.SuspendLayout();
+                        while(_facade.tsmiHistory.DropDownItems.Count > 0) {
+                            _facade.tsmiHistory.DropDownItems[0].Dispose();
                         }
                         if((_menuContext.ContextMenuedTab.HistoryCount_Back + _menuContext.ContextMenuedTab.HistoryCount_Forward) > 1) {
-                            _strip.tsmiHistory.DropDownItems.AddRange(CreateNavBtnMenuItems(false).ToArray());
-                            _strip.tsmiHistory.DropDownItems.AddRange(CreateBranchMenu(false, _strip.components, _strip.tsmiBranchRoot_DropDownItemClicked).ToArray());
-                            _strip.tsmiHistory.Enabled = true;
+                            _facade.tsmiHistory.DropDownItems.AddRange(CreateNavBtnMenuItems(false).ToArray());
+                            _facade.tsmiHistory.DropDownItems.AddRange(CreateBranchMenu(false, _facade.components, _facade.tsmiBranchRoot_DropDownItemClicked).ToArray());
+                            _facade.tsmiHistory.Enabled = true;
                         }
                         else {
-                            _strip.tsmiHistory.Enabled = false;
+                            _facade.tsmiHistory.Enabled = false;
                         }
-                        _strip.tsmiHistory.DropDown.ResumeLayout();
-                        _strip.contextMenuTab.Items.Remove(_strip.menuTextBoxTabAlias);
+                        _facade.tsmiHistory.DropDown.ResumeLayout();
+                        _facade.contextMenuTab.Items.Remove(_facade.menuTextBoxTabAlias);
                         if(!Config.Tabs.RenameAmbTabs) {
-                            _strip.contextMenuTab.Items.Insert(12, _strip.menuTextBoxTabAlias);
+                            _facade.contextMenuTab.Items.Insert(12, _facade.menuTextBoxTabAlias);
                             if(_menuContext.ContextMenuedTab.Comment.Length > 0) {
-                                _strip.menuTextBoxTabAlias.Text = _menuContext.ContextMenuedTab.Comment;
-                                _strip.menuTextBoxTabAlias.ForeColor = SystemColors.WindowText;
+                                _facade.menuTextBoxTabAlias.Text = _menuContext.ContextMenuedTab.Comment;
+                                _facade.menuTextBoxTabAlias.ForeColor = SystemColors.WindowText;
                             }
                             else {
-                                _strip.menuTextBoxTabAlias.Text = ResourceCache.ResMain[0x1b];
-                                _strip.menuTextBoxTabAlias.ForeColor = SystemColors.GrayText;
+                                _facade.menuTextBoxTabAlias.Text = ResourceCache.ResMain[0x1b];
+                                _facade.menuTextBoxTabAlias.ForeColor = SystemColors.GrayText;
                             }
-                            _strip.menuTextBoxTabAlias.Enabled = !_menuContext.TabControl.AutoSubText;
+                            _facade.menuTextBoxTabAlias.Enabled = !_menuContext.TabControl.AutoSubText;
                         }
-                        if(_strip.tsmiTabOrder.DropDownItems.Count == 0) {
-                            ((ToolStripDropDownMenu)_strip.tsmiTabOrder.DropDown).ShowImageMargin = false;
+                        if(_facade.tsmiTabOrder.DropDownItems.Count == 0) {
+                            ((ToolStripDropDownMenu)_facade.tsmiTabOrder.DropDown).ShowImageMargin = false;
                             ToolStripMenuItem item2 = new ToolStripMenuItem(ResourceCache.ResMain[0x1d]);
                             ToolStripMenuItem item3 = new ToolStripMenuItem(ResourceCache.ResMain[30]);
                             ToolStripMenuItem item4 = new ToolStripMenuItem(ResourceCache.ResMain[0x1f]);
@@ -518,35 +512,35 @@ namespace QTTabBarLib {
                             item4.Name = "Active";
                             separator.Enabled = false;
                             item5.Name = "Rev";
-                            _strip.tsmiTabOrder.DropDownItems.Add(item2);
-                            _strip.tsmiTabOrder.DropDownItems.Add(item3);
-                            _strip.tsmiTabOrder.DropDownItems.Add(item4);
-                            _strip.tsmiTabOrder.DropDownItems.Add(separator);
-                            _strip.tsmiTabOrder.DropDownItems.Add(item5);
-                            _strip.tsmiTabOrder.DropDownItemClicked += _strip.menuitemTabOrder_DropDownItemClicked;
+                            _facade.tsmiTabOrder.DropDownItems.Add(item2);
+                            _facade.tsmiTabOrder.DropDownItems.Add(item3);
+                            _facade.tsmiTabOrder.DropDownItems.Add(item4);
+                            _facade.tsmiTabOrder.DropDownItems.Add(separator);
+                            _facade.tsmiTabOrder.DropDownItems.Add(item5);
+                            _facade.tsmiTabOrder.DropDownItemClicked += _facade.menuitemTabOrder_DropDownItemClicked;
                         }
-                        if((_services.lstPluginMenuItems_Tab != null) && (_services.lstPluginMenuItems_Tab.Count > 0)) {
-                            foreach(ToolStripItem item6 in _services.lstPluginMenuItems_Tab) {
+                        if((_facade.lstPluginMenuItems_Tab != null) && (_facade.lstPluginMenuItems_Tab.Count > 0)) {
+                            foreach(ToolStripItem item6 in _facade.lstPluginMenuItems_Tab) {
                                 item6.Dispose();
                             }
-                            _services.lstPluginMenuItems_Tab = null;
+                            _facade.lstPluginMenuItems_Tab = null;
                         }
-                        if((_services.pluginServer != null) && (_services.pluginServer.dicFullNamesMenuRegistered_Tab.Count > 0)) {
-                            _services.lstPluginMenuItems_Tab = new List<ToolStripItem>();
-                            int num2 = _strip.contextMenuTab.Items.IndexOf(_strip.tsmiProp);
+                        if((_facade.pluginServer != null) && (_facade.pluginServer.dicFullNamesMenuRegistered_Tab.Count > 0)) {
+                            _facade.lstPluginMenuItems_Tab = new List<ToolStripItem>();
+                            int num2 = _facade.contextMenuTab.Items.IndexOf(_facade.tsmiProp);
                             ToolStripSeparator separator2 = new ToolStripSeparator();
-                            _strip.contextMenuTab.Items.Insert(num2, separator2);
-                            foreach(string str3 in _services.pluginServer.dicFullNamesMenuRegistered_Tab.Keys) {
-                                ToolStripMenuItem item7 = new ToolStripMenuItem(_services.pluginServer.dicFullNamesMenuRegistered_Tab[str3]);
+                            _facade.contextMenuTab.Items.Insert(num2, separator2);
+                            foreach(string str3 in _facade.pluginServer.dicFullNamesMenuRegistered_Tab.Keys) {
+                                ToolStripMenuItem item7 = new ToolStripMenuItem(_facade.pluginServer.dicFullNamesMenuRegistered_Tab[str3]);
                                 item7.Name = str3;
                                 item7.Tag = MenuType.Tab;
-                                item7.Click += _services._pluginMenuController.PluginItemsClick;
-                                _strip.contextMenuTab.Items.Insert(num2, item7);
-                                _services.lstPluginMenuItems_Tab.Add(item7);
+                                item7.Click += _facade._pluginMenuController.PluginItemsClick;
+                                _facade.contextMenuTab.Items.Insert(num2, item7);
+                                _facade.lstPluginMenuItems_Tab.Add(item7);
                             }
-                            _services.lstPluginMenuItems_Tab.Add(separator2);
+                            _facade.lstPluginMenuItems_Tab.Add(separator2);
                         }
-                        _strip.contextMenuTab.ResumeLayout();
+                        _facade.contextMenuTab.ResumeLayout();
                     }
                 }
                 catch (Exception ex) { QTLogger.MakeErrorLog(ex); }
@@ -554,7 +548,7 @@ namespace QTTabBarLib {
 
         // 创建标签分组
         public void CreateGroup(QTabItem contextMenuedTab) {
-                _host.NowModalDialogShown = true;
+                _facade.NowModalDialogShown = true;
                 using(CreateNewGroupForm form = new CreateNewGroupForm(contextMenuedTab.CurrentPath, _menuContext.TabControl.TabPages)) {
                     // Application.EnableVisualStyles();
                     //  Application.SetCompatibleTextRenderingDefault(false);
@@ -562,83 +556,83 @@ namespace QTTabBarLib {
                    form.TopMost = true;
                    form.ShowDialog();
                 }
-                _host.NowModalDialogShown = false;
+                _facade.NowModalDialogShown = false;
         }
 
         public void InitializeTabMenu(bool fText) {
                 try {
                     bool flag = false;
-                    if(_strip.tsmiClose == null) {
+                    if(_facade.tsmiClose == null) {
                         flag = true;
-                        _strip.tsmiClose = new ToolStripMenuItem(ResourceCache.ResMain[0]);
-                        _strip.tsmiCloseRight = new ToolStripMenuItem(ResourceCache.ResMain[1]);
-                        _strip.tsmiCloseLeft = new ToolStripMenuItem(ResourceCache.ResMain[2]);
-                        _strip.tsmiCloseAllButThis = new ToolStripMenuItem(ResourceCache.ResMain[3]);
-                        _strip.tsmiAddToGroup = new ToolStripMenuItem(ResourceCache.ResMain[4]);
-                        _strip.tsmiCreateGroup = new ToolStripMenuItem(ResourceCache.ResMain[5] + "...");
-                        _strip.tsmiLockThis = new ToolStripMenuItem(ResourceCache.ResMain[6]);
-                        _strip.tsmiCloneThis = new ToolStripMenuItem(ResourceCache.ResMain[7]);
-                        _strip.tsmiCreateWindow = new ToolStripMenuItem(ResourceCache.ResMain[8]);
-                        _strip.tsmiCopy = new ToolStripMenuItem(ResourceCache.ResMain[9]);
-                        _strip.tsmiProp = new ToolStripMenuItem(ResourceCache.ResMain[10]);
-                        _strip.tsmiHistory = new ToolStripMenuItem(ResourceCache.ResMain[11]);
-                        _strip.tsmiTabOrder = new ToolStripMenuItem(ResourceCache.ResMain[0x1c]);
+                        _facade.tsmiClose = new ToolStripMenuItem(ResourceCache.ResMain[0]);
+                        _facade.tsmiCloseRight = new ToolStripMenuItem(ResourceCache.ResMain[1]);
+                        _facade.tsmiCloseLeft = new ToolStripMenuItem(ResourceCache.ResMain[2]);
+                        _facade.tsmiCloseAllButThis = new ToolStripMenuItem(ResourceCache.ResMain[3]);
+                        _facade.tsmiAddToGroup = new ToolStripMenuItem(ResourceCache.ResMain[4]);
+                        _facade.tsmiCreateGroup = new ToolStripMenuItem(ResourceCache.ResMain[5] + "...");
+                        _facade.tsmiLockThis = new ToolStripMenuItem(ResourceCache.ResMain[6]);
+                        _facade.tsmiCloneThis = new ToolStripMenuItem(ResourceCache.ResMain[7]);
+                        _facade.tsmiCreateWindow = new ToolStripMenuItem(ResourceCache.ResMain[8]);
+                        _facade.tsmiCopy = new ToolStripMenuItem(ResourceCache.ResMain[9]);
+                        _facade.tsmiProp = new ToolStripMenuItem(ResourceCache.ResMain[10]);
+                        _facade.tsmiHistory = new ToolStripMenuItem(ResourceCache.ResMain[11]);
+                        _facade.tsmiTabOrder = new ToolStripMenuItem(ResourceCache.ResMain[0x1c]);
 
                         int len = ResourceCache.ResMain.Length;
-                        _strip.tsmiOpenCmd = new ToolStripMenuItem(ResourceCache.ResMain[len - 1]);
-                        _strip.enableApiHook = new ToolStripMenuItem("Enable Image Hook");
+                        _facade.tsmiOpenCmd = new ToolStripMenuItem(ResourceCache.ResMain[len - 1]);
+                        _facade.enableApiHook = new ToolStripMenuItem("Enable Image Hook");
 
-                        _strip.menuTextBoxTabAlias = new ToolStripTextBox();
-                        _strip.tssep_Tab1 = new ToolStripSeparator();
-                        _strip.tssep_Tab2 = new ToolStripSeparator();
-                        _strip.tssep_Tab3 = new ToolStripSeparator();
-                        _strip.contextMenuTab.SuspendLayout();
-                        _strip.contextMenuTab.Items[0].Dispose();
-                        _strip.contextMenuTab.Items.AddRange(new ToolStripItem[] {
-                            _strip.tsmiClose, _strip.tsmiCloseRight, _strip.tsmiCloseLeft, _strip.tsmiCloseAllButThis,
-                            _strip.tssep_Tab1, _strip.tsmiAddToGroup, _strip.tsmiCreateGroup, _strip.tssep_Tab2, _strip.tsmiLockThis,
-                            _strip.tsmiCloneThis, _strip.tsmiCreateWindow, _strip.tsmiCopy, _strip.tsmiTabOrder, _strip.tssep_Tab3, _strip.tsmiProp,
-                            _strip.tsmiHistory,
-                            _strip.tsmiOpenCmd,
+                        _facade.menuTextBoxTabAlias = new ToolStripTextBox();
+                        _facade.tssep_Tab1 = new ToolStripSeparator();
+                        _facade.tssep_Tab2 = new ToolStripSeparator();
+                        _facade.tssep_Tab3 = new ToolStripSeparator();
+                        _facade.contextMenuTab.SuspendLayout();
+                        _facade.contextMenuTab.Items[0].Dispose();
+                        _facade.contextMenuTab.Items.AddRange(new ToolStripItem[] {
+                            _facade.tsmiClose, _facade.tsmiCloseRight, _facade.tsmiCloseLeft, _facade.tsmiCloseAllButThis,
+                            _facade.tssep_Tab1, _facade.tsmiAddToGroup, _facade.tsmiCreateGroup, _facade.tssep_Tab2, _facade.tsmiLockThis,
+                            _facade.tsmiCloneThis, _facade.tsmiCreateWindow, _facade.tsmiCopy, _facade.tsmiTabOrder, _facade.tssep_Tab3, _facade.tsmiProp,
+                            _facade.tsmiHistory,
+                            _facade.tsmiOpenCmd,
                         });
 
-                        _strip.tsmiAddToGroup.DragDrop += (sender, e) => {
-                            _host.NowTabDragging = true;
+                        _facade.tsmiAddToGroup.DragDrop += (sender, e) => {
+                            _facade.NowTabDragging = true;
                             var dataObject = e.Data;
                             QTLogger.log("e.Data: " + dataObject);
-                            _host.NowTabDragging = false;
+                            _facade.NowTabDragging = false;
                         };
 
-                        _strip.tsmiAddToGroup.DropDownItemClicked += MenuitemAddToGroup_DropDownItemClicked;
-                        (_strip.tsmiAddToGroup.DropDown).ImageList = ResourceCache.ImageListGlobal;
-                        _strip.tsmiHistory.DropDown = new DropDownMenuBase(_strip.components, true, true, true);
-                        _strip.tsmiHistory.DropDownItemClicked += MenuitemHistory_DropDownItemClicked;
-                        (_strip.tsmiHistory.DropDown).ImageList = ResourceCache.ImageListGlobal;
-                        _strip.menuTextBoxTabAlias.Text = _strip.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
-                        _strip.menuTextBoxTabAlias.GotFocus += _strip.menuTextBoxTabAlias_GotFocus;
-                        _strip.menuTextBoxTabAlias.LostFocus += _strip.menuTextBoxTabAlias_LostFocus;
-                        _strip.menuTextBoxTabAlias.KeyPress += _strip.menuTextBoxTabAlias_KeyPress;
-                        _strip.tsmiTabOrder.DropDown = new ContextMenuStripEx(_strip.components, false);
-                        _strip.tssep_Tab1.Enabled = false;
-                        _strip.tssep_Tab2.Enabled = false;
-                        _strip.tssep_Tab3.Enabled = false;
-                        _strip.contextMenuTab.ResumeLayout(false);
+                        _facade.tsmiAddToGroup.DropDownItemClicked += MenuitemAddToGroup_DropDownItemClicked;
+                        (_facade.tsmiAddToGroup.DropDown).ImageList = ResourceCache.ImageListGlobal;
+                        _facade.tsmiHistory.DropDown = new DropDownMenuBase(_facade.components, true, true, true);
+                        _facade.tsmiHistory.DropDownItemClicked += MenuitemHistory_DropDownItemClicked;
+                        (_facade.tsmiHistory.DropDown).ImageList = ResourceCache.ImageListGlobal;
+                        _facade.menuTextBoxTabAlias.Text = _facade.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
+                        _facade.menuTextBoxTabAlias.GotFocus += _facade.menuTextBoxTabAlias_GotFocus;
+                        _facade.menuTextBoxTabAlias.LostFocus += _facade.menuTextBoxTabAlias_LostFocus;
+                        _facade.menuTextBoxTabAlias.KeyPress += _facade.menuTextBoxTabAlias_KeyPress;
+                        _facade.tsmiTabOrder.DropDown = new ContextMenuStripEx(_facade.components, false);
+                        _facade.tssep_Tab1.Enabled = false;
+                        _facade.tssep_Tab2.Enabled = false;
+                        _facade.tssep_Tab3.Enabled = false;
+                        _facade.contextMenuTab.ResumeLayout(false);
                     }
                     if(!flag && fText) {
-                        _strip.tsmiClose.Text = ResourceCache.ResMain[0];
-                        _strip.tsmiCloseRight.Text = ResourceCache.ResMain[1];
-                        _strip.tsmiCloseLeft.Text = ResourceCache.ResMain[2];
-                        _strip.tsmiCloseAllButThis.Text = ResourceCache.ResMain[3];
-                        _strip.tsmiAddToGroup.Text = ResourceCache.ResMain[4];
-                        _strip.tsmiCreateGroup.Text = ResourceCache.ResMain[5] + "...";
-                        _strip.tsmiLockThis.Text = ResourceCache.ResMain[6];
-                        _strip.tsmiCloneThis.Text = ResourceCache.ResMain[7];
-                        _strip.tsmiCreateWindow.Text = ResourceCache.ResMain[8];
-                        _strip.tsmiCopy.Text = ResourceCache.ResMain[9];
-                        _strip.tsmiProp.Text = ResourceCache.ResMain[10];
-                        _strip.tsmiHistory.Text = ResourceCache.ResMain[11];
-                        _strip.tsmiTabOrder.Text = ResourceCache.ResMain[0x1c];
-                        _strip.menuTextBoxTabAlias.Text = _strip.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
+                        _facade.tsmiClose.Text = ResourceCache.ResMain[0];
+                        _facade.tsmiCloseRight.Text = ResourceCache.ResMain[1];
+                        _facade.tsmiCloseLeft.Text = ResourceCache.ResMain[2];
+                        _facade.tsmiCloseAllButThis.Text = ResourceCache.ResMain[3];
+                        _facade.tsmiAddToGroup.Text = ResourceCache.ResMain[4];
+                        _facade.tsmiCreateGroup.Text = ResourceCache.ResMain[5] + "...";
+                        _facade.tsmiLockThis.Text = ResourceCache.ResMain[6];
+                        _facade.tsmiCloneThis.Text = ResourceCache.ResMain[7];
+                        _facade.tsmiCreateWindow.Text = ResourceCache.ResMain[8];
+                        _facade.tsmiCopy.Text = ResourceCache.ResMain[9];
+                        _facade.tsmiProp.Text = ResourceCache.ResMain[10];
+                        _facade.tsmiHistory.Text = ResourceCache.ResMain[11];
+                        _facade.tsmiTabOrder.Text = ResourceCache.ResMain[0x1c];
+                        _facade.menuTextBoxTabAlias.Text = _facade.menuTextBoxTabAlias.ToolTipText = ResourceCache.ResMain[0x1b];
                     }
                 }
                 catch(Exception e) {

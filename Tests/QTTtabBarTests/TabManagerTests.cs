@@ -7,7 +7,7 @@ using QTTabBarLib;
 
 namespace QTTtabBarTests {
     /// <summary>
-    /// Wave 18: TabManager deleted. Tab operations route via ITabOperationsHost on QTTabBarClass / TabBarBase.
+    /// Wave 18: TabManager deleted. Tab operations route via ITabOperationsFacadeHost on QTTabBarClass / TabBarBase.
     /// </summary>
     [TestFixture]
     public class TabManagerTests {
@@ -21,9 +21,9 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void QTTabBarClass_Implements_ITabOperationsHost() {
-            Assert.IsTrue(typeof(ITabOperationsHost).IsAssignableFrom(typeof(QTTabBarClass)),
-                "QTTabBarClass must implement ITabOperationsHost directly after TabManager removal");
+        public void QTTabBarClass_Implements_ITabOperationsFacadeHost() {
+            Assert.IsTrue(typeof(ITabOperationsFacadeHost).IsAssignableFrom(typeof(QTTabBarClass)),
+                "QTTabBarClass must implement ITabOperationsFacadeHost directly after TabManager removal");
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabOperationsHost_Declares_CloneTabButton_StringBoolInt() {
-            string source = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Hosts", "Tabs", "ITabOperationsHost.cs"));
+            string source = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Hosts", "Tabs", "ITabOperationsFacadeHost.cs"));
             StringAssert.Contains("CloneTabButton(QTabItem tab, string optionUrl, bool select, int index)", source);
         }
 

@@ -56,10 +56,10 @@ namespace QTTtabBarTests {
         public void QTTabBarClass_ShowTabContextMenu_Uses_MenuContext() {
             string source = System.IO.File.ReadAllText(
                 System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
-            StringAssert.Contains("_menuContext.ContextMenuedTab = tab", source,
-                "ShowTabContextMenu must write context tab through MenuContext");
-            StringAssert.DoesNotContain("void IQTTabBarBandHost.ShowTabContextMenu(QTabItem tab, Point anchor) {\r\n            ContextMenuedTab = tab;",
-                source);
+            StringAssert.Contains("SetContextMenuedTab(tab)", source,
+                "ShowTabContextMenu must route through SetContextMenuedTab");
+            StringAssert.DoesNotContain("_menuContext.ContextMenuedTab = tab", source,
+                "ShowTabContextMenu must not assign MenuContext directly");
         }
 
         private static TabSelectionTestBar CreateSelectionTestBar() {
@@ -74,6 +74,7 @@ namespace QTTtabBarTests {
 
             bar.tabControl1 = tabCtrl;
             bar.SelectedTab = tab;
+            bar.TabSelection = new TabSelectionCoordinator(bar);
             SetField(bar, "CurrentTab", tab);
             SetField(bar, "CurrentAddress", ExistingPath);
             SetField(bar, "lstActivatedTabs", new List<QTabItem> { tab });

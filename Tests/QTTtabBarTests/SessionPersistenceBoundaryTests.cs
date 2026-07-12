@@ -24,20 +24,21 @@ namespace QTTtabBarTests {
             StringAssert.Contains("QTTabBarClass.ComponentBuildController.cs", doc);
             StringAssert.Contains("QTSecondViewBar.ComponentBuild.cs", doc);
             StringAssert.Contains("TabBarBase.TabOperations.cs", doc);
+            StringAssert.Contains("TabSelectionCoordinator.cs", doc);
         }
 
         [Test]
         public void Structural_Governance_Documents_Measured_Hotspot_Baselines() {
             string doc = GovernanceDoc();
-            StringAssert.Contains("5986", doc);
+            StringAssert.Contains("5889", doc);
             StringAssert.Contains("6800", doc);
             StringAssert.Contains("Hosts", doc);
-            StringAssert.Contains("2090", doc);
+            StringAssert.Contains("2095", doc);
             StringAssert.Contains("FamilyLinesRecursive", doc);
             StringAssert.Contains("≤1058", doc);
             StringAssert.Contains("≤1293", doc);
             StringAssert.Contains("≤900", doc);
-            StringAssert.Contains("≤40", doc);
+            StringAssert.Contains("≤32", doc);
             Assert.IsFalse(doc.Contains("nested controller = 0"),
                 "Governance doc must not claim nested controller count is already zero");
             Assert.IsFalse(doc.Contains("InstanceManager ≤813") || doc.Contains("InstanceManager <=813"),

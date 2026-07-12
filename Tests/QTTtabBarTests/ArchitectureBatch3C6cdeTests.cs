@@ -11,7 +11,7 @@ namespace QTTtabBarTests {
         public void FileToolsController_Uses_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.FileToolsController", true);
-            Type host = assembly.GetType("QTTabBarLib.IFileToolsHost", true);
+            Type host = assembly.GetType("QTTabBarLib.IFileDropToolsHost", true);
             Assert.IsNull(typeof(QTTabBarClass).GetNestedType("FileToolsController",
                 BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
@@ -27,7 +27,7 @@ namespace QTTtabBarTests {
         public void TabTooltipController_Uses_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.TabTooltipController", true);
-            Type host = assembly.GetType("QTTabBarLib.ISubDirTipHost", true);
+            Type host = assembly.GetType("QTTabBarLib.ISubDirTipFacadeHost", true);
             Assert.IsNull(typeof(QTTabBarClass).GetNestedType("TabTooltipController",
                 BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,

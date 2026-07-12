@@ -28,7 +28,7 @@ namespace QTTabBarLib {
                         return true;
 
                     case Commands.CloseCurrentTab:
-                        return _host.CloseTab(_host.CurrentTab);
+                        return _host.CloseTab(_tabContext.CurrentTab);
 
                     case Commands.CloseLeft:
                     case Commands.CloseRight:
@@ -36,7 +36,7 @@ namespace QTTabBarLib {
                         return true;
 
                     case Commands.CloseAllButCurrent:
-                        _host.CloseAllTabsExcept(_host.CurrentTab);
+                        _host.CloseAllTabsExcept(_tabContext.CurrentTab);
                         return true;
 
                     case Commands.CloseAllButOne: {

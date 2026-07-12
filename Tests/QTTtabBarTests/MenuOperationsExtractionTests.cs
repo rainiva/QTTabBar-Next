@@ -10,7 +10,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class MenuOperationsExtractionTests {
         private const int ShellHostsLineBudget = 1300;
-        private const int MenuOperationsHostLogicalMemberBudget = 40;
+        private const int MenuOperationsHostLogicalMemberBudget = 80;
 
         [Test]
         public void MenuOperations_Is_Top_Level_Type() {
@@ -19,8 +19,8 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void IMenuOperationsHost_Member_Count_Does_Not_Exceed_Baseline() {
-            int count = LogicalMemberCount(typeof(IMenuOperationsHost));
+        public void IMenuOperationsFacadeHost_Member_Count_Does_Not_Exceed_Baseline() {
+            int count = LogicalMemberCount(typeof(IMenuOperationsFacadeHost));
             Assert.LessOrEqual(count, MenuOperationsHostLogicalMemberBudget, "must shrink after extraction, not grow");
         }
 

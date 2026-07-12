@@ -15,7 +15,6 @@ namespace QTTtabBarTests {
         };
 
         private static readonly HashSet<string> MultiHostWhitelist = new HashSet<string>(StringComparer.Ordinal) {
-            "MenuOperationsController",
         };
 
         private static readonly Regex ConstructorPattern = new Regex(

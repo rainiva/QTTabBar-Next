@@ -274,7 +274,7 @@ namespace QTTabBarLib {
                 }
                 return true;
             }
-            CurrentTab = null;
+            (TabSelection ?? (TabSelection = new TabSelectionCoordinator(this))).ClearCurrent(TabSelectionReason.Clear);
             int tabCount = tabControl1.TabCount;
             if(tabCount == 0) {
                 return true;

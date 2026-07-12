@@ -32,9 +32,9 @@ namespace QTTtabBarTests {
         public void ComponentBuildController_Wires_Leaf_Controllers_With_Single_Host_Cast() {
             string source = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
             string[] requiredWires = {
-                "new MenuController(_host.MenuContext, (IMenuControllerHost)_host)",
+                "new MenuController(_host.MenuContext, (IMenuPluginFacadeHost)_host)",
                 "new DragDropController((IDragDropHost)_host)",
-                "new TabTooltipController((ISubDirTipHost)_host)",
+                "new TabTooltipController((ISubDirTipFacadeHost)_host)",
                 "new ShutdownController((IShutdownHost)_host)",
             };
             foreach(string wire in requiredWires) {

@@ -184,23 +184,23 @@ namespace QTTabBarLib {
         }
 
         private void AddStartUpTabs(string openingGRP, string openingPath) {
-            ((ITabOperationsHost)this).AddStartUpTabs(openingGRP, openingPath);
+            ((ITabOperationsFacadeHost)this).AddStartUpTabs(openingGRP, openingPath);
         }
        
         internal void AppendUserApps(IList<string> listDroppedPaths) => _droppedFilesController.AppendUserApps(listDroppedPaths);
 
         private void ChooseNewDirectory() {
-            ((ITabOperationsHost)this).ChooseNewDirectory();
+            ((ITabOperationsFacadeHost)this).ChooseNewDirectory();
         }
 
         internal void CloneCurrentTab(bool fSelect = true) {
-            ((ITabOperationsHost)this).CloneCurrentTab(fSelect);
+            ((ITabOperationsFacadeHost)this).CloneCurrentTab(fSelect);
         }
         private void CloneTabButton(QTabItem tab, LogData log) {
-            ((ITabOperationsHost)this).CloneTabButton(tab, log);
+            ((ITabOperationsFacadeHost)this).CloneTabButton(tab, log);
         }
         private QTabItem CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index) {
-            return ((ITabOperationsHost)this).CloneTabButton(tab, optionURL, fSelect, index);
+            return ((ITabOperationsFacadeHost)this).CloneTabButton(tab, optionURL, fSelect, index);
         }
         public override void CloseDW(uint dwReserved) => _shutdownController.CloseDW(dwReserved);
 
@@ -250,6 +250,7 @@ namespace QTTabBarLib {
 
         private void InitializeComponent() {
             components = new Container();
+            TabSelection = new TabSelectionCoordinator(this);
             _explorerContext = new ExplorerContext(this);
             _tabContext = new TabContext(this);
             _menuContext = new MenuContext(this);
@@ -276,7 +277,11 @@ namespace QTTabBarLib {
         }
 
         protected override void SetContextMenuedTab(QTabItem tab) {
-            _menuContext.ContextMenuedTab = tab;
+            ContextMenuedTab = tab;
+        }
+
+        internal void CompositionSetContextMenuedTab(QTabItem tab) {
+            SetContextMenuedTab(tab);
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) {
@@ -286,23 +291,23 @@ namespace QTTabBarLib {
         }
 
         private void OpenDroppedFolder(IList<string> listDroppedPaths) {
-            ((ITabOperationsHost)this).OpenDroppedFolder(listDroppedPaths);
+            ((ITabOperationsFacadeHost)this).OpenDroppedFolder(listDroppedPaths);
         }
         public void OpenGroup(string groupName, bool fForceNewWindow, bool fDisableOverrides = false) {
-            ((ITabOperationsHost)this).OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
+            ((ITabOperationsFacadeHost)this).OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
         }
         internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
-            ((ITabOperationsHost)this).OpenNewTabOrWindow(idlw, fNeedsPulse);
+            ((ITabOperationsFacadeHost)this).OpenNewTabOrWindow(idlw, fNeedsPulse);
         }
         internal void OpenNewWindow(IDLWrapper idlwGiven) {
-            ((ITabOperationsHost)this).OpenNewWindow(idlwGiven);
+            ((ITabOperationsFacadeHost)this).OpenNewWindow(idlwGiven);
         }
 
         [ComRegisterFunction]
         private static void Register(Type t) => ComRegistrationController.Register(t);
 
         internal void ReplaceByGroup(string groupName) {
-            ((ITabOperationsHost)this).ReplaceByGroup(groupName);
+            ((ITabOperationsFacadeHost)this).ReplaceByGroup(groupName);
         }
        
         protected override bool ShouldHaveBreak() {

@@ -4,9 +4,9 @@ using System.Windows.Forms;
 
 namespace QTTabBarLib {
     internal sealed class DroppedFilesController {
-        private readonly IDroppedFilesHost _host;
+        private readonly IFileDropToolsHost _host;
 
-        public DroppedFilesController(IDroppedFilesHost host) {
+        public DroppedFilesController(IFileDropToolsHost host) {
             _host = host;
         }
 

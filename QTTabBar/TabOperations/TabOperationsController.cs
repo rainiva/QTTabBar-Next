@@ -10,9 +10,9 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     internal sealed class TabOperationsController {
         private readonly ITabContext _context;
-        private readonly ITabOperationsOwnerHost _host;
+        private readonly ITabOperationsFacadeHost _host;
 
-        public TabOperationsController(ITabContext context, ITabOperationsOwnerHost host) {
+        public TabOperationsController(ITabContext context, ITabOperationsFacadeHost host) {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _host = host ?? throw new ArgumentNullException(nameof(host));
         }

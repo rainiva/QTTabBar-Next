@@ -24,6 +24,7 @@ namespace QTTabBarLib {
         MenuController IComponentBuildHost.MenuController { get => _menuController; set => _menuController = value; }
         IMenuContext IComponentBuildHost.MenuContext => _menuContext;
         IExplorerContext IComponentBuildHost.ExplorerContext => _explorerContext;
+        ITabContext IComponentBuildHost.TabContext => _tabContext;
         DragDropController IComponentBuildHost.DragDropController { get => _dragDropController; set => _dragDropController = value; }
         HookInputController IComponentBuildHost.HookInputController { get => _hookInputController; set => _hookInputController = value; }
         FileToolsController IComponentBuildHost.FileToolsController { get => _fileToolsController; set => _fileToolsController = value; }
@@ -48,7 +49,9 @@ namespace QTTabBarLib {
         // --- IComponentBuildHost: UI control field getters/setters ---
         ToolStripDropDownButton IComponentBuildHost.ButtonNavHistoryMenu { get => buttonNavHistoryMenu; set => buttonNavHistoryMenu = value; }
         QTabControl IComponentBuildHost.TabControl1 { get => tabControl1; set => tabControl1 = value; }
-        QTabItem IComponentBuildHost.CurrentTab { get => CurrentTab; set => CurrentTab = value; }
+        QTabItem IComponentBuildHost.AttachBootstrapCurrentTab() {
+            return TabSelection.AttachBootstrapPlaceholder(tabControl1);
+        }
         ContextMenuStripEx IComponentBuildHost.ContextMenuTab { get => contextMenuTab; set => contextMenuTab = value; }
         ContextMenuStripEx IComponentBuildHost.ContextMenuSys { get => contextMenuSys; set => contextMenuSys = value; }
 
@@ -314,7 +317,7 @@ namespace QTTabBarLib {
         public void Build() {
             _host.ButtonNavHistoryMenu = new ToolStripDropDownButton();
             _host.TabControl1 = new QTabControl();
-            _host.CurrentTab = new QTabItem(string.Empty, string.Empty, _host.TabControl1);
+            QTabItem bootstrapTab = _host.AttachBootstrapCurrentTab();
             _host.ContextMenuTab = new ContextMenuStripEx(_host.Components, false);
             _host.ContextMenuSys = new ContextMenuStripEx(_host.Components, false);
             _host.TabControl1.SuspendLayout();
@@ -335,32 +338,35 @@ namespace QTTabBarLib {
             _host.ButtonNavHistoryMenu.DropDown.ImageList = ResourceCache.ImageListGlobal;
 
             _host.TabControl1.SetRedraw(false);
-            _host.TabControl1.TabPages.Add(_host.CurrentTab);
+            _host.TabControl1.TabPages.Add(bootstrapTab);
             _host.TabControl1.Dock = DockStyle.Fill;
             _host.TabControl1.ContextMenuStrip = _host.ContextMenuTab;
             _host.TabControl1.RefreshOptions(true);
 
-            _host.MenuController = new MenuController(_host.MenuContext, (IMenuControllerHost)_host);
+            _host.MenuController = new MenuController(_host.MenuContext, (IMenuPluginFacadeHost)_host);
             _host.DragDropController = new DragDropController((IDragDropHost)_host);
             _host.HookInputController = new HookInputController((IHookInputHost)_host);
-            _host.FileToolsController = new FileToolsController((IFileToolsHost)_host);
-            _host.BindActionController = new BindActionController(_host.MenuContext, (IBindActionHost)_host, _host.MenuController);
-            _host.ShellCommandController = new ShellCommandController(_host.MenuContext, (IShellCommandHost)_host);
+            _host.FileToolsController = new FileToolsController((IFileDropToolsHost)_host);
+            _host.BindActionController = new BindActionController(_host.MenuContext, _host.TabContext, (IBindActionHost)_host, _host.MenuController);
+            _host.ShellCommandController = new ShellCommandController(_host.MenuContext, (IShellBandHost)_host);
             _host.ListViewInputController = new ListViewInputController((IListViewInputHost)_host);
             _host.KeyboardAcceleratorController = new KeyboardAcceleratorController((IQTTabBarBandHost)_host);
             _host.ShellUiController = new ShellUiController((IShellUiHost)_host);
             _host.ButtonBarClickController = new ButtonBarClickController((IButtonBarCommandHost)_host);
             _host.BandInfoController = new BandInfoController((IQTTabBarBandHost)_host);
             _host.BandLifecycleController = new BandLifecycleController((IQTTabBarBandHost)_host);
-            _host.ShellNavigationController = new ShellNavigationController((IShellNavigationHost)_host);
-            _host.TabTooltipController = new TabTooltipController((ISubDirTipHost)_host);
+            _host.ShellNavigationController = new ShellNavigationController((IShellBandHost)_host, _host.TabContext);
+            _host.TabTooltipController = new TabTooltipController((ISubDirTipFacadeHost)_host);
             _host.WindowManagementController = new WindowManagementController((IWindowManagementHost)_host);
             _host.BandWindowController = new BandWindowController((IQTTabBarBandHost)_host);
-            _host.DroppedFilesController = new DroppedFilesController((IDroppedFilesHost)_host);
+            _host.DroppedFilesController = new DroppedFilesController((IFileDropToolsHost)_host);
             _host.FolderTreeController = new FolderTreeController((IFolderTreeHost)_host);
             _host.ViewModeController = new ViewModeController((IViewModeHost)_host);
-            _host.PluginMenuController = new PluginMenuController(_host.MenuContext, _host.ExplorerContext, (IPluginMenuHost)_host);
+            _host.PluginMenuController = new PluginMenuController(_host.MenuContext, _host.ExplorerContext, (IMenuPluginFacadeHost)_host);
             _host.ShutdownController = new ShutdownController((IShutdownHost)_host);
+
+            var rootCureFeatureProbe = new RootCureFeatureProbeController(_host.MenuContext, _host.TabContext);
+            rootCureFeatureProbe.AttachTo(_host.ContextMenuTab);
 
             // Wire up all events (delegated to host)
             _host.WireControlEvents();

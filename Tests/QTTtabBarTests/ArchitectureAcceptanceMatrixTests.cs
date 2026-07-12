@@ -28,6 +28,7 @@ namespace QTTtabBarTests {
             "OptionsEntryWhitelistTests",
             "PluginsEntryWhitelistTests",
             "ContextMenuedTab_WritePathTests",
+            "CurrentTab_SingleWriterTests",
             "NavigationEntryPointTests",
             "CurrentTabInvariantTests",
             "Wave18StructuralGuardTests",
@@ -40,6 +41,9 @@ namespace QTTtabBarTests {
             "OptionsDialogTransactionUiTests",
             "Wave20AcceptanceGuardTests",
             "Wave20ClusterSplitTests",
+            "HostCountRatchetTests",
+            "WhitelistMonotonicityTests",
+            "RootCureFeatureProbeTests",
         };
 
         [Test]
@@ -77,13 +81,15 @@ namespace QTTtabBarTests {
             StringAssert.Contains("Wave 10", doc);
             StringAssert.Contains("Wave 14", doc);
             StringAssert.Contains("Host 接口", doc);
-            StringAssert.Contains("≤48", doc);
+            StringAssert.Contains("≤32", doc);
+            StringAssert.Contains("反假治理", doc);
+            StringAssert.Contains("§9", doc);
             StringAssert.Contains("ShellHosts", doc);
             StringAssert.Contains("≤900", doc);
             StringAssert.Contains("MenuOperationsController", doc);
             StringAssert.Contains("ITabContext", doc);
             StringAssert.Contains("ContextMenuedTab", doc);
-            StringAssert.Contains("1075", doc);
+            StringAssert.Contains("1025", doc);
         }
 
         [Test]

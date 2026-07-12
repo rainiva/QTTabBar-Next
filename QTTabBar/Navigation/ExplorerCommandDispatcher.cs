@@ -10,9 +10,9 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerCommandDispatcher {
-        private readonly IExplorerSessionHost _host;
+        private readonly IExplorerSessionTravelHost _host;
 
-        internal ExplorerCommandDispatcher(IExplorerSessionHost host) {
+        internal ExplorerCommandDispatcher(IExplorerSessionTravelHost host) {
             _host = host;
         }
 

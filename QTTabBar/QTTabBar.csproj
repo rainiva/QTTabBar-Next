@@ -417,6 +417,7 @@
     </Compile>
     <Compile Include="OptionsDialog\Converters.cs" />
     <Compile Include="OptionsDialog\OptionsDialogWpfBootstrap.cs" />
+    <Compile Include="OptionsDialogEntry.cs" />
     <Compile Include="OptionsDialog\OptionsDialogTab.cs" />
     <Compile Include="RebarController.cs" />
     <Compile Include="MiscClasses.cs" />
@@ -434,6 +435,7 @@
     <Compile Include="StaticReg.cs" />
     <Compile Include="StaticRegAccess.cs" />
     <Compile Include="TabInsertionPolicy.cs" />
+    <Compile Include="TabSelectionCoordinator.cs" />
     <Compile Include="TabBarBase.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -709,14 +711,12 @@
     <Compile Include="QTTabBarClass.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Hosts\Menu\IMenuControllerHost.cs" />
-    <Compile Include="Hosts\Menu\IMenuOperationsHost.cs" />
-    <Compile Include="Hosts\Menu\IMenuServicesHost.cs" />
-    <Compile Include="Hosts\Menu\IMenuStripHost.cs" />
+    <Compile Include="Hosts\Menu\IMenuOperationsFacadeHost.cs" />
+    <Compile Include="Hosts\Menu\IMenuPluginFacadeHost.cs" />
     <Compile Include="Menu\MenuController.cs" />
     <Compile Include="MenuOperations\MenuOperationsController.cs" />
-    <Compile Include="Hosts\Tabs\ITabOperationsHost.cs" />
-        <Compile Include="Hosts\Tabs\ITabOperationsOwnerHost.cs" />
+    <Compile Include="MenuOperations\RootCureFeatureProbeController.cs" />
+    <Compile Include="Hosts\Tabs\ITabOperationsFacadeHost.cs" />
     <Compile Include="TabOperations\TabOperationsController.cs" />
     <Compile Include="QTTabBarClass.ExplorerIntegration.cs">
       <DependentUpon>QTTabBarClass.cs</DependentUpon>
@@ -741,7 +741,7 @@
     <Compile Include="Navigation\ExplorerNavigationStateController.cs" />
     <Compile Include="Hosts\Input\IDragDropHost.cs" />
     <Compile Include="Input\DragDropController.cs" />
-    <Compile Include="Hosts\Input\IDroppedFilesHost.cs" />
+    <Compile Include="Hosts\Shell\IFileDropToolsHost.cs" />
     <Compile Include="Input\DroppedFilesController.cs" />
     <Compile Include="Hosts\Input\IFolderTreeHost.cs" />
     <Compile Include="Input\FolderTreeController.cs" />
@@ -750,12 +750,11 @@
     <Compile Include="Input\HookInputController.Keyboard.cs" />
     <Compile Include="Input\HookInputController.MouseWheel.cs" />
     <Compile Include="Input\HookInputController.FolderTree.cs" />
-    <Compile Include="Hosts\Shell\IFileToolsHost.cs" />
     <Compile Include="Shell\FileToolsController.cs" />
     <Compile Include="BindAction\BindActionController.cs" />
     <Compile Include="Hosts\Shell\IBindActionHost.cs" />
     <Compile Include="Shell\SubDirTipOperations.cs" />
-    <Compile Include="Hosts\Shell\IShellCommandHost.cs" />
+    <Compile Include="Hosts\Shell\IShellBandHost.cs" />
     <Compile Include="Shell\ShellCommandController.cs" />
     <Compile Include="Hosts\Input\IListViewInputHost.cs" />
     <Compile Include="Input\ListViewInputController.cs" />
@@ -787,14 +786,11 @@
     </Compile>
     <Compile Include="Hosts\Shell\IViewModeHost.cs" />
     <Compile Include="Shell\ViewModeController.cs" />
-    <Compile Include="Hosts\Menu\IPluginMenuHost.cs" />
     <Compile Include="Menu\PluginMenuController.cs" />
     <Compile Include="Shutdown\ShutdownController.cs" />
     <Compile Include="Shutdown\IShutdownHost.cs" />
-    <Compile Include="Hosts\Shell\IShellNavigationHost.cs" />
     <Compile Include="Shell\ShellNavigationController.cs" />
-    <Compile Include="Hosts\Input\ISubDirTipHost.cs" />
-        <Compile Include="Hosts\Input\ISubDirTipOperationsHost.cs" />
+    <Compile Include="Hosts\Input\ISubDirTipFacadeHost.cs" />
     <Compile Include="Input\TabTooltipController.cs" />
     <Compile Include="Hosts\Window\IWindowManagementHost.cs" />
     <Compile Include="Window\WindowManagementController.cs" />
@@ -1276,6 +1272,11 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
   </ItemGroup>
+  <PropertyGroup>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <!-- WPF Page markup compile: required for dotnet/CLI MSBuild (CI uses setup-msbuild with VS toolchain). -->
+  <Import Project="$(MSBuildThisFileDirectory)..\Tools\WinFX.Import.props" Condition="Exists('$(MSBuildThisFileDirectory)..\Tools\WinFX.Import.props')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureInteropAssemblies" BeforeTargets="BeforeBuild">
     <PropertyGroup>
@@ -1296,8 +1297,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <UsingTask TaskName="NotifyPropertyWeaverMsBuildTask.WeavingTask" AssemblyFile="$(MSBuildThisFileDirectory)..\Tools\NotifyPropertyWeaverMsBuildTask.dll" />
-  <Target Name="AfterCompile">
+  <!-- NotifyPropertyWeaver requires full-framework MSBuild (VS toolchain); skip under dotnet/Core MSBuild. -->
+  <UsingTask TaskName="NotifyPropertyWeaverMsBuildTask.WeavingTask" AssemblyFile="$(MSBuildThisFileDirectory)..\Tools\NotifyPropertyWeaverMsBuildTask.dll" Condition="'$(MSBuildRuntimeType)' != 'Core'" />
+  <Target Name="AfterCompile" Condition="'$(MSBuildRuntimeType)' != 'Core'">
     <NotifyPropertyWeaverMsBuildTask.WeavingTask TargetPath="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)$(TargetFileName)" References="@(ReferencePath)" />
   </Target>
 </Project>
