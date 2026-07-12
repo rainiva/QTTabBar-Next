@@ -56,8 +56,6 @@ namespace QTTabBarLib {
         private BreadcrumbBar breadcrumbBar;
         
         private MenuController _menuController;
-        private TabManager _tabManager;
-        private ExplorerController _explorerControllerModule;
         private DragDropController _dragDropController;
         private HookInputController _hookInputController;
         private FileToolsController _fileToolsController;
@@ -74,6 +72,9 @@ namespace QTTabBarLib {
         private WindowManagementController _windowManagementController;
         private BandWindowController _bandWindowController;
         private TabBarComposition _tabBarComposition;
+        private IExplorerContext _explorerContext;
+        private ITabContext _tabContext;
+        private IMenuContext _menuContext;
         private DroppedFilesController _droppedFilesController;
         private FolderTreeController _folderTreeController;
         private ViewModeController _viewModeController;
@@ -165,12 +166,7 @@ namespace QTTabBarLib {
             }
         }
 
-        #region qwop �Զ�����
-        public static void OpenOptionDialog()
-        {
-            OptionsDialog.Open();
-        }
-
+        #region qwop 自定义项
         public static QTTabBarClass GetThreadTabBar()
         {
             return TabInstanceRegistry.GetThreadTabBar(); 
@@ -188,23 +184,23 @@ namespace QTTabBarLib {
         }
 
         private void AddStartUpTabs(string openingGRP, string openingPath) {
-            _tabManager.AddStartUpTabs(openingGRP, openingPath);
+            ((ITabOperationsHost)this).AddStartUpTabs(openingGRP, openingPath);
         }
        
         internal void AppendUserApps(IList<string> listDroppedPaths) => _droppedFilesController.AppendUserApps(listDroppedPaths);
 
         private void ChooseNewDirectory() {
-            _tabManager.ChooseNewDirectory();
+            ((ITabOperationsHost)this).ChooseNewDirectory();
         }
 
         internal void CloneCurrentTab(bool fSelect = true) {
-            _tabManager.CloneCurrentTab(fSelect);
+            ((ITabOperationsHost)this).CloneCurrentTab(fSelect);
         }
         private void CloneTabButton(QTabItem tab, LogData log) {
-            _tabManager.CloneTabButton(tab, log);
+            ((ITabOperationsHost)this).CloneTabButton(tab, log);
         }
         private QTabItem CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index) {
-            return _tabManager.CloneTabButton(tab, optionURL, fSelect, index);
+            return ((ITabOperationsHost)this).CloneTabButton(tab, optionURL, fSelect, index);
         }
         public override void CloseDW(uint dwReserved) => _shutdownController.CloseDW(dwReserved);
 
@@ -254,6 +250,9 @@ namespace QTTabBarLib {
 
         private void InitializeComponent() {
             components = new Container();
+            _explorerContext = new ExplorerContext(this);
+            _tabContext = new TabContext(this);
+            _menuContext = new MenuContext(this);
             _tabBarComposition = new TabBarComposition((ITabBarCompositionHost)this);
             _tabBarComposition.Build();
         }
@@ -272,8 +271,12 @@ namespace QTTabBarLib {
         }
 
         protected override void OnExplorerAttached() {
-            _explorerControllerModule.OnExplorerAttachedCore();
+            OnExplorerAttachedCore();
             FinishExplorerAttached();
+        }
+
+        protected override void SetContextMenuedTab(QTabItem tab) {
+            _menuContext.ContextMenuedTab = tab;
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) {
@@ -283,23 +286,23 @@ namespace QTTabBarLib {
         }
 
         private void OpenDroppedFolder(IList<string> listDroppedPaths) {
-            _tabManager.OpenDroppedFolder(listDroppedPaths);
+            ((ITabOperationsHost)this).OpenDroppedFolder(listDroppedPaths);
         }
         public void OpenGroup(string groupName, bool fForceNewWindow, bool fDisableOverrides = false) {
-            _tabManager.OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
+            ((ITabOperationsHost)this).OpenGroup(groupName, fForceNewWindow, fDisableOverrides);
         }
         internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
-            _tabManager.OpenNewTabOrWindow(idlw, fNeedsPulse);
+            ((ITabOperationsHost)this).OpenNewTabOrWindow(idlw, fNeedsPulse);
         }
         internal void OpenNewWindow(IDLWrapper idlwGiven) {
-            _tabManager.OpenNewWindow(idlwGiven);
+            ((ITabOperationsHost)this).OpenNewWindow(idlwGiven);
         }
 
         [ComRegisterFunction]
         private static void Register(Type t) => ComRegistrationController.Register(t);
 
         internal void ReplaceByGroup(string groupName) {
-            _tabManager.ReplaceByGroup(groupName);
+            ((ITabOperationsHost)this).ReplaceByGroup(groupName);
         }
        
         protected override bool ShouldHaveBreak() {
@@ -397,6 +400,16 @@ namespace QTTabBarLib {
             QTLogger.log("QTTabBarClass OnDpiChanged old=" + oldDpi + " new=" + newDpi);
             Dpi = newDpi;
             RefreshBandHeightForCurrentDpi();
+        }
+
+        private bool isTabSubFolderMenuVisible = false;
+
+        protected override bool IsTabSubFolderMenuVisible {
+            get { return isTabSubFolderMenuVisible; }
+        }
+
+        protected override int CalcBandHeight(int count) {
+            return -1;
         }
 
         private void RefreshBandHeightForCurrentDpi() => _bandLifecycleController.RefreshBandHeightForCurrentDpi();

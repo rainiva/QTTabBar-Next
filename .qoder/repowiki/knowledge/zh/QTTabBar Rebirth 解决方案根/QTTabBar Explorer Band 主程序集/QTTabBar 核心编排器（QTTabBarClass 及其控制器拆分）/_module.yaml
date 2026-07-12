@@ -1,0 +1,14 @@
+schema_version: 1
+module_path: qttabbar_core/core_orchestrator
+title: QTTabBar 核心编排器（QTTabBarClass 及其控制器拆分）
+scope:
+    - QTTabBar/QTTabBarClass.cs
+    - QTTabBar/QTTabBarClass.ExplorerController.cs
+    - QTTabBar/QTTabBarClass.ShellHosts.cs
+    - QTTabBar/QTTabBarClass.ComponentBuildController.cs
+    - QTTabBar/QTTabBarClass.BindActionController.cs
+    - QTTabBar/QTTabBarClass.ShutdownController.cs
+    - QTTabBar/QTTabBar1.ruleset
+source_files: []
+depends_on: []
+related_to: []

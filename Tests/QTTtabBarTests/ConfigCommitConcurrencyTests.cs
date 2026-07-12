@@ -8,20 +8,6 @@ using QTTabBarLib;
 namespace QTTtabBarTests {
     [TestFixture]
     public class ConfigCommitConcurrencyTests {
-        private sealed class FirstWriteBarrierWriter : IConfigWriter {
-            private int _writeCount;
-
-            public ManualResetEventSlim FirstWriteEntered { get; } = new ManualResetEventSlim(false);
-            public ManualResetEventSlim SecondMutationEntered { get; } = new ManualResetEventSlim(false);
-
-            public void Write(Config config, bool desktopOnly) {
-                if(Interlocked.Increment(ref _writeCount) == 1) {
-                    FirstWriteEntered.Set();
-                    SecondMutationEntered.Wait(TimeSpan.FromSeconds(2));
-                }
-            }
-        }
-
         [SetUp]
         public void SetUp() {
             ConfigManager.ReplaceLoadedConfigForTests(new Config());
@@ -61,6 +47,23 @@ namespace QTTtabBarTests {
                     "Concurrent commits did not complete.");
                 Assert.AreEqual(101, Config.Desktop.FirstItem);
                 Assert.AreEqual(202, Config.Desktop.SecondItem);
+            }
+        }
+
+        [Test]
+        public void Partial_WindowAlpha_Commit_Preserves_Concurrent_Full_Mutation() {
+            var writer = new FirstWriteBarrierWriter();
+            using(ConfigTestScope.WithWriter(writer)) {
+                Task apply = Task.Run(() => ConfigManager.MutateAndCommit(config =>
+                    config.desktop.FirstItem = 303, ConfigCommitScope.All, false));
+
+                Assert.IsTrue(writer.FirstWriteEntered.Wait(TimeSpan.FromSeconds(5)));
+                Task local = Task.Run(() => ConfigManager.PersistWindowAlpha(0x33));
+                writer.SecondMutationEntered.Set();
+
+                Assert.IsTrue(Task.WaitAll(new[] { apply, local }, TimeSpan.FromSeconds(10)));
+                Assert.AreEqual(303, Config.Desktop.FirstItem);
+                Assert.AreEqual((byte)0x33, Config.Window.WindowAlpha);
             }
         }
 

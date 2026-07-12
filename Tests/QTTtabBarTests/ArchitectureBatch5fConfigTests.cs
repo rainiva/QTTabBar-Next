@@ -56,15 +56,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void PersistPartialWindowSetting_Applies_Local_UpdateConfig() {
+        public void MutateWindowAndCommit_Applies_Local_UpdateConfig() {
             string content = ReadConfigManager();
-            string body = ExtractMethodBody(content, "void PersistPartialWindowSetting(");
-            Assert.IsTrue(body.Contains("UpdateConfig(false)"),
-                "PersistPartialWindowSetting should apply local side effects via UpdateConfig(false)");
-            int updateIndex = body.IndexOf("UpdateConfig(false)", StringComparison.Ordinal);
-            int broadcastIndex = body.IndexOf("StaticBroadcastCommand", StringComparison.Ordinal);
-            Assert.Greater(broadcastIndex, updateIndex,
-                "Local UpdateConfig should run before peer broadcast");
+            string body = ExtractMethodBody(content, "void MutateWindowAndCommit(");
+            Assert.IsTrue(body.Contains("UpdateConfig(broadcast)"),
+                "MutateWindowAndCommit should apply side effects via UpdateConfig");
+            Assert.IsTrue(body.Contains("_windowWriter.Write("),
+                "MutateWindowAndCommit should delegate window registry write to IConfigWindowWriter");
         }
     }
 }

@@ -14,7 +14,7 @@ namespace QTTtabBarTests {
             "QTButtonBar.cs",
             "ButtonBar\\ButtonBarItemFactory.cs",
             "ButtonBarLifecycleController.cs",
-            "QTTabBarClass.ExplorerController.Init.cs",
+            "QTTabBarClass.ExplorerIntegration.cs",
         };
 
         private static string FindRepoRoot() {

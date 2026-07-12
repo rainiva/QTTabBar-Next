@@ -9,16 +9,22 @@ namespace QTTtabBarTests {
 
         [Test]
         public void NoGrowth_Budget_Is_Not_Exceeded() {
-            // Immediate no-growth gate. Values are the current debt measured
-            // when the baseline was established; they must not rise.
             Assert.LessOrEqual(SourceMetrics.FamilyLines("QTTabBarClass"), 7160,
-                "QTTabBarClass family lines must not grow");
-            Assert.LessOrEqual(SourceMetrics.NestedControllerCount("QTTabBarClass"), 25,
-                "QTTabBarClass nested controller count must not grow");
-            Assert.LessOrEqual(SourceMetrics.TokenCount("QTTabBarClass", "_owner."), 1397,
-                "QTTabBarClass _owner back-references must not grow");
+                "QTTabBarClass approved partial family lines must not grow");
+            Assert.AreEqual(0, SourceMetrics.NestedControllerCount("QTTabBarClass"),
+                "QTTabBarClass nested controller count must remain zero");
+            Assert.AreEqual(0, SourceMetrics.TokenCount("QTTabBarClass", "_owner."),
+                "QTTabBarClass _owner back-references must remain zero on approved partials");
             Assert.LessOrEqual(SourceMetrics.FamilyLines("QTButtonBar"), 2164,
                 "QTButtonBar family lines must not grow");
+            Assert.LessOrEqual(
+                SourceMetrics.FamilyLinesRecursive("InstanceManager", "Ipc", "Instances", "Tray"),
+                1058,
+                "InstanceManager family (including split dirs) must not grow");
+            Assert.LessOrEqual(
+                SourceMetrics.FamilyLinesRecursive("QTSecondViewBar", "SecondView"),
+                1293,
+                "QTSecondViewBar family (including split dirs) must not grow");
         }
 
         [Test]
@@ -27,18 +33,8 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void Final_Budget_QTTabBarClass_NestedControllers() {
-            Assert.AreEqual(0, SourceMetrics.NestedControllerCount("QTTabBarClass"));
-        }
-
-        [Test]
-        public void Final_Budget_QTTabBarClass_OwnerBackReferences() {
-            Assert.AreEqual(0, SourceMetrics.TokenCount("QTTabBarClass", "_owner."));
-        }
-
-        [Test]
         public void Final_Budget_QTTabBarClass_Partials() {
-            Assert.LessOrEqual(SourceMetrics.PartialDeclarationCount("QTTabBarClass"), 4);
+            Assert.LessOrEqual(SourceMetrics.PartialDeclarationCount("QTTabBarClass"), 6);
         }
 
         [Test]

@@ -52,7 +52,7 @@ namespace QTTabBarLib {
                                 subDirTip_Tab = new SubDirTipForm(Handle, true, listView);
                                 WireSubDirTipTabEvents(subDirTip_Tab);
                             }
-                            ContextMenuedTab = tab;
+                            SetContextMenuedTab(tab);
                             Point pnt = tabControl1.PointToScreen(new Point(tab.TabBounds.X + offsetX, fParent ? tab.TabBounds.Top : (tab.TabBounds.Bottom - 3)));
                             if(tab != CurrentTab) {
                                 pnt.X += 2;

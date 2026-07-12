@@ -30,13 +30,18 @@ using QTPlugin;
 using QTTabBarLib.Common;
 using QTTabBarLib.ExplorerBrowser;
 using QTTabBarLib.Interop;
+using QTTabBarLib.SecondView;
 using IShellFolder = QTTabBarLib.Interop.IShellFolder;
 
 namespace QTTabBarLib
 {
     [ComVisible(true), Guid("d2bf470e-ed1c-487f-a888-2bd8835eb6ce")]
     // public sealed class QTSecondViewBar : TabBarBase
-    public sealed partial class QTSecondViewBar : TabBarBase
+    public sealed partial class QTSecondViewBar : TabBarBase,
+        ISecondViewHost,
+        ISecondViewSubclassHost,
+        ISecondViewExplorerHost,
+        ISecondViewLifecycleHost
     {
         private Panel viewContainer;
         private Panel controlContainer;
@@ -62,6 +67,13 @@ namespace QTTabBarLib
         private ExplorerBrowser.WindowsForms.ExplorerBrowser explorerBrowser;
         private ShellObject _currentLocation;
 
+        private SecondViewWindowSubclassController _subclassController;
+        private SecondViewExplorerController _explorerController;
+        private SecondViewLifecycleController _lifecycleController;
+        private bool _isShown;
+        private bool fShownDW;
+        internal int BaseBarPreferredSize { get; set; }
+
         public ShellObject CurrentLocation
         {
             get
@@ -83,7 +95,9 @@ namespace QTTabBarLib
                 Application.EnableVisualStyles();
                 BandHeight = 500;
                 this.InitializeComponent();
-                // this.tabManager = (TabManagerBase) new QSecondViewBar.TabManagerSecond(this);
+                _subclassController = new SecondViewWindowSubclassController(this);
+                _explorerController = new SecondViewExplorerController(this);
+                _lifecycleController = new SecondViewLifecycleController(this, _subclassController, _explorerController);
             }
             catch (Exception ex)
             {
@@ -91,53 +105,9 @@ namespace QTTabBarLib
             }
         }
 
-        private bool fShownDW;
         public override void ShowDW(bool fShow)
         {
-            this.Visible = this.fShownDW = fShow;
-            /*if ((fShow && !FirstNavigationCompleted) && ((Explorer != null) && (Explorer.ReadyState == tagREADYSTATE.READYSTATE_COMPLETE)))
-            {
-                InitializeInstallation();
-            }
-
-            if (!fShow)
-            {
-                using (RegistryKey key = RegistryAccess.OpenRootCreate())
-                {
-                    key.SetValue("BreakTabBar", BandHasBreak() ? 1 : 0);
-                }
-            }*/
-            this.UpdateView(fShow);
-            base.ShowDW(fShow);
-
-            if (this.rebarWindowSubclass != null)
-                this.rebarWindowSubclass.Disabled = !fShow;
-            if (this.baseBarWindowSubclass != null)
-                this.baseBarWindowSubclass.Disabled = !fShow;
-            // base.RefreshRebarBand();
-            // RefreshRebarBand();
-        }
-
-
-
-        private void UpdateView(bool fShow)
-        {
-            try
-            {
-                this.viewContainer.SuspendLayout();
-                while (this.viewContainer.Controls.Count > 1)
-                    this.viewContainer.Controls.RemoveAt(0);
-                this.viewContainer.ResumeLayout();
-            }
-            catch (Exception ex)
-            {
-                string optional = ".UpdateView";
-                QTLogger.MakeErrorLog(ex, optional);
-            }
-            finally
-            {
-                // this.tabControl1.ParentChanged = true;
-            }
+            _lifecycleController.ShowDW(fShow);
         }
 
 
@@ -177,20 +147,7 @@ namespace QTTabBarLib
 
         private void InitializeInstallation()
         {
-            InitializeOpenedWindow();
-            object locationURL = Explorer.LocationURL;
-            if (ShellBrowser != null)
-            {
-                using (IDLWrapper wrapper = ShellBrowser.GetShellPath())
-                {
-                    if (wrapper.Available)
-                    {
-                        locationURL = wrapper.Path;
-                    }
-                }
-            }
-            QTLogger.log("QTTabBarClass InitializeInstallation  pDisp :" + null + " locationURL :" + (string)locationURL);
-            Explorer_NavigateComplete2(null, ref locationURL);
+            _lifecycleController.InitializeInstallation();
         }
 
         protected override unsafe void WndProc(ref Message m)
@@ -307,116 +264,12 @@ namespace QTTabBarLib
 
         public override void CloseDW(uint dwReserved)
         {
-            try
-            {
-                /*string[] list1 = (from ITab tab in pluginServer.GetTabs()
-                                 where tab.Locked
-                                 select tab.Address.Path).ToArray();
-                MessageBox.Show(String.Join(",", list1));
-               
-
-                MessageBox.Show("关闭窗口:" + tabControl1.TabPages.Count );
-                string[] list = (from QTabItem item2 in tabControl1.TabPages
-                                 where item2.TabLocked
-                                 select item2.CurrentPath).ToArray();
-                MessageBox.Show(String.Join(",", list));
- */
-                this.viewContainer.Controls.Clear();
-                foreach (QTabItem tab in this.tabControl1.TabPages)
-                    tab.OnClose();
-
-                this.UninstallHooks();
-                if (listViewManager != null)
-                {
-                    listViewManager.Dispose();
-                    listViewManager = null;
-                }
-
-                if (TravelLog != null)
-                {
-                    QTLogger.log("ReleaseComObject TravelLog");
-                    Marshal.FinalReleaseComObject(TravelLog);
-                    TravelLog = null;
-                }
-                if (shellContextMenu != null)
-                {
-                    shellContextMenu.Dispose();
-                    shellContextMenu = null;
-                }
-                if (ShellBrowser != null)
-                {
-                    ShellBrowser.Dispose();
-                    ShellBrowser = null;
-                }
-                /*foreach (ITravelLogEntry entry in LogEntryDic.Values)
-                {
-                    if (entry != null)
-                    {
-                        QTLogger.log("ReleaseComObject entry");
-                        Marshal.FinalReleaseComObject(entry);
-                    }
-                }*/
-                fFinalRelease = true;
-            }
-            catch (Exception exception2)
-            {
-                QTLogger.MakeErrorLog(exception2, "tabbar closing");
-            }
-            base.CloseDW(dwReserved);
+            _lifecycleController.CloseDW(dwReserved);
         }
 
-        private void UninstallHooks()
-        {
-            if (this.rebarWindowSubclass != null)
-            {
-                this.rebarWindowSubclass.ReleaseHandle();
-                this.rebarWindowSubclass = (WindowSubclass)null;
-            }
-            if (this.baseBarWindowSubclass == null)
-                return;
-            this.baseBarWindowSubclass.ReleaseHandle();
-            this.baseBarWindowSubclass = (WindowSubclass)null;
-        }
-
-        // public virtual void GetBandInfo(uint dwBandID, uint dwViewMode, ref DESKBANDINFO pdbi) {
         public override void GetBandInfo(uint dwBandID, uint dwViewMode, ref DESKBANDINFO dbi)
         {
-            base.GetBandInfo(dwBandID, dwViewMode, ref dbi);
-            try
-            {
-                if ((dbi.dwMask & DBIM.INTEGRAL) != (0))
-                {
-                    // dbi.ptActual.X = Size.Width;
-                    // dbi.ptActual.Y = BandHeight;
-                    dbi.ptIntegral.X = 1;
-                    dbi.ptIntegral.Y = 1;
-                }
-
-                if (this.fNowResizing && (dbi.dwMask & DBIM.MINSIZE) != (DBIM)0)
-                {
-                    dbi.ptMinSize.X = this.prefSize;
-                    dbi.ptMinSize.Y = this.prefSize;
-                    this.fNowResizing = false;
-                }
-
-                // 可以更改带对象的高度  
-                // 不会显示大小调整手柄，以允许用户移动或调整带对象的大小。  
-                // DBIMF.NOMARGINS 带对象不应显示边距。
-
-                if ((dbi.dwMask & DBIM.MODEFLAGS) != (0))
-                {
-                    dbi.dwModeFlags = DBIMF.VARIABLEHEIGHT | DBIMF.NOMARGINS;
-                }
-
-                /*if ((dbi.dwMask & DBIM.TITLE) != (0))
-                {
-                    dbi.wszTitle = "second";
-                }*/
-            }
-            catch (Exception ex)
-            {
-                QTLogger.MakeErrorLog(ex);
-            }
+            _lifecycleController.GetBandInfo(dwBandID, dwViewMode, ref dbi);
         }
 
         /*protected override void OnExplorerAttached()
@@ -460,33 +313,9 @@ namespace QTTabBarLib
             }
             return false;
         }*/
-        private bool fEventsActivated;
-
         private void ActivateEvents(bool fActive)
         {
-            if (fActive)
-            {
-                if (this.fEventsActivated)
-                    return;
-                // this.explorerBrowser.KeyDown = new EventHandler
-                // this.explorerManager.MouseHookProc += new HookProc(this.explorerManager_MouseHookProc);
-                // this.explorerManager.KeyDown += new EventHandler<KeyHookEventArgs>(this.explorerManager_KeyDown);
-                // this.explorerManager.KeyUp += new EventHandler<KeyHookEventArgs>(this.explorerManager_KeyUp);
-                // this.explorerManager.ExplorerManagerEvent += new EventHandler<ExplorerManagerEventArgs>(this.explorerManager_ExplorerManagerEvent);
-                // this.explorerManager.SubFolderMenuEvents += new EventHandler<ExplorerManagerEventArgs>(this.explorerManager_SubFolderMenuEvents);
-                this.fEventsActivated = true;
-            }
-            else
-            {
-                if (!this.fEventsActivated)
-                    return;
-                // this.explorerManager.MouseHookProc -= new HookProc(this.explorerManager_MouseHookProc);
-                // this.explorerManager.KeyDown -= new EventHandler<KeyHookEventArgs>(this.explorerManager_KeyDown);
-                // this.explorerManager.KeyUp -= new EventHandler<KeyHookEventArgs>(this.explorerManager_KeyUp);
-                // this.explorerManager.ExplorerManagerEvent -= new EventHandler<ExplorerManagerEventArgs>(this.explorerManager_ExplorerManagerEvent);
-                // this.explorerManager.SubFolderMenuEvents -= new EventHandler<ExplorerManagerEventArgs>(this.explorerManager_SubFolderMenuEvents);
-                this.fEventsActivated = false;
-            }
+            _explorerController.ActivateEvents(fActive);
         }
 
         protected override void OnExplorerAttachActivate() {
@@ -495,10 +324,7 @@ namespace QTTabBarLib
 
         protected override void OnExplorerAttached()
         {
-            QTLogger.log("QTSecondViewBar OnExplorerAttached");
-            ExplorerHandle = (IntPtr)Explorer.HWND;
-            InitializeOpenedWindow();
-            FinishExplorerAttached();
+            _lifecycleController.OnExplorerAttached();
         }
 
         private VisualStyleRenderer bgRenderer;
@@ -524,44 +350,6 @@ namespace QTTabBarLib
                     }
                 }
                 base.OnPaintBackground(e);
-            }
-        }
-
-        private void Explorer_BeforeNavigate2(object pDisp,
-            ref object URL,
-            ref object Flags,
-            ref object TargetFrameName,
-            ref object PostData,
-            ref object Headers,
-            ref bool Cancel)
-        {
-            // DebugUtil.WriteLine("QTTabBarClass Explorer_BeforeNavigate2:" ); // add by qwop.
-            QTLogger.log("QTSecondViewBar Explorer_BeforeNavigate2  pDisp :" + pDisp
-                                                                             + " URL :" + (string)URL
-                                                                             + " Flags :" + Flags
-                                                                             + " TargetFrameName :" + TargetFrameName
-                                                                             + " PostData :" + PostData
-                                                                             + " Headers :" + Headers
-                                                                             + " Cancel :" + Cancel
-
-            );
-            /*if (!IsShown)
-            {
-                DoFirstNavigation(true, (string)URL);
-            }*/
-        }
-
-        private void Explorer_NavigateComplete2(object pDisp, ref object URL)
-        {
-            QTLogger.log("QTSecondViewBar Explorer_NavigateComplete2  pDisp :"
-                           + pDisp
-                           + " URL :" + (string)URL
-            );
-            if(ShellBrowser != null) {
-                ShellBrowser.OnNavigateComplete();
-            }
-            if(listView != null) {
-                listView.RefreshViewWatermark(false);
             }
         }
 
@@ -665,6 +453,124 @@ namespace QTTabBarLib
         // SyncTravelState, SyncToolbarTravelButton, IsSpecialFolderNeedsToTravel,
         // IsSearchResultFolder, tabControl1_RowCountChanged, SetBarRows moved to TabBarBase
 
+
+        #endregion
+
+        #region ISecondViewHost
+
+        IntPtr ISecondViewHost.ExplorerHandle => ExplorerHandle;
+        IntPtr ISecondViewHost.ReBarHandle => ReBarHandle;
+        ShellBrowserEx ISecondViewHost.ShellBrowser => ShellBrowser;
+        bool ISecondViewHost.IsShown {
+            get => _isShown;
+            set => _isShown = value;
+        }
+
+        #endregion
+
+        #region ISecondViewSubclassHost
+
+        SHDocVw.WebBrowser ISecondViewSubclassHost.Explorer => Explorer;
+        IntPtr ISecondViewSubclassHost.BandHandle => Handle;
+        bool ISecondViewSubclassHost.IsVertical => IsVertical;
+        bool ISecondViewSubclassHost.UserResizing {
+            get => UserResizing;
+            set => UserResizing = value;
+        }
+        int ISecondViewSubclassHost.BaseBarPreferredSize {
+            get => BaseBarPreferredSize;
+            set => BaseBarPreferredSize = value;
+        }
+        bool ISecondViewSubclassHost.IsShownDW => fShownDW;
+        bool ISecondViewSubclassHost.IsBandHandleCreated => IsHandleCreated;
+        bool ISecondViewSubclassHost.IsBandDisposed => IsDisposed;
+        Color ISecondViewSubclassHost.VerticalExplorerBarBackgroundColor => VerticalExplorerBarBackgroundColor;
+        Color ISecondViewSubclassHost.HorizontalExplorerBarBackgroundColor => HorizontalExplorerBarBackgroundColor;
+        void ISecondViewSubclassHost.HandleSysColorChangeHookMessage() => HandleSysColorChangeHookMessage();
+
+        #endregion
+
+        #region ISecondViewExplorerHost
+
+        SHDocVw.WebBrowser ISecondViewExplorerHost.Explorer => Explorer;
+        IntPtr ISecondViewExplorerHost.ExplorerHandle {
+            get => ExplorerHandle;
+            set => ExplorerHandle = value;
+        }
+        AbstractListView ISecondViewExplorerHost.ListView => listView;
+        ListViewMonitor ISecondViewExplorerHost.ListViewManager {
+            get => listViewManager;
+            set => listViewManager = value;
+        }
+        IntPtr ISecondViewExplorerHost.BandHandle => Handle;
+        void ISecondViewExplorerHost.OnListViewChanged() => ListViewMonitor_ListViewChanged(this, EventArgs.Empty);
+        void ISecondViewExplorerHost.FinishExplorerAttached() => FinishExplorerAttached();
+        void ISecondViewExplorerHost.ActivateOnAttach() => Activate();
+
+        #endregion
+
+        #region ISecondViewLifecycleHost
+
+        bool ISecondViewLifecycleHost.IsShownDW {
+            get => fShownDW;
+            set => fShownDW = value;
+        }
+        Panel ISecondViewLifecycleHost.ViewContainer => viewContainer;
+        QTabControl ISecondViewLifecycleHost.TabControl => tabControl1;
+        bool ISecondViewLifecycleHost.NowResizing {
+            get => fNowResizing;
+            set => fNowResizing = value;
+        }
+        int ISecondViewLifecycleHost.PrefSize {
+            get => prefSize;
+            set => prefSize = value;
+        }
+        ListViewMonitor ISecondViewLifecycleHost.ListViewManager {
+            get => listViewManager;
+            set => listViewManager = value;
+        }
+        ITravelLogStg ISecondViewLifecycleHost.TravelLog {
+            get => TravelLog;
+            set => TravelLog = value;
+        }
+        ShellContextMenu ISecondViewLifecycleHost.ShellContextMenu => shellContextMenu;
+        IntPtr ISecondViewLifecycleHost.BandHandle => Handle;
+        void ISecondViewLifecycleHost.ShowDWBase(bool fShow) => base.ShowDW(fShow);
+        void ISecondViewLifecycleHost.CloseDWBase(uint dwReserved) => base.CloseDW(dwReserved);
+        void ISecondViewLifecycleHost.GetBandInfoBase(uint dwBandID, uint dwViewMode, ref DESKBANDINFO dbi) =>
+            base.GetBandInfo(dwBandID, dwViewMode, ref dbi);
+        void ISecondViewLifecycleHost.SetFinalRelease() => fFinalRelease = true;
+        void ISecondViewLifecycleHost.DisposeListViewManager() {
+            if(listViewManager != null) {
+                listViewManager.Dispose();
+                listViewManager = null;
+            }
+        }
+        void ISecondViewLifecycleHost.DisposeTravelLog() {
+            if(TravelLog != null) {
+                QTLogger.log("ReleaseComObject TravelLog");
+                Marshal.FinalReleaseComObject(TravelLog);
+                TravelLog = null;
+            }
+        }
+        void ISecondViewLifecycleHost.DisposeShellContextMenu() {
+            if(shellContextMenu != null) {
+                shellContextMenu.Dispose();
+                shellContextMenu = null;
+            }
+        }
+        void ISecondViewLifecycleHost.DisposeShellBrowser() {
+            if(ShellBrowser != null) {
+                ShellBrowser.Dispose();
+                ShellBrowser = null;
+            }
+        }
+        void ISecondViewLifecycleHost.ClearViewContainer() => viewContainer.Controls.Clear();
+        void ISecondViewLifecycleHost.CloseAllTabs() {
+            foreach(QTabItem tab in tabControl1.TabPages) {
+                tab.OnClose();
+            }
+        }
 
         #endregion
     }

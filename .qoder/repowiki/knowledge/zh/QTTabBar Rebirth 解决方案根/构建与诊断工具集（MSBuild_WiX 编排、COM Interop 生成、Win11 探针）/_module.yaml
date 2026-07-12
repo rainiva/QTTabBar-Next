@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: tools_build
+title: 构建与诊断工具集（MSBuild/WiX 编排、COM Interop 生成、Win11 探针）
+scope:
+    - Tools/
+source_files: []
+depends_on: []
+related_to:
+    - path: installer_wix
+    - path: qtplugin_api

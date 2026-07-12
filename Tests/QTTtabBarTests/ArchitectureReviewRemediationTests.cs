@@ -169,7 +169,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void InstanceManager_ByteToDel_Uses_IpcDelegateGuard() {
-            string content = ReadQtTabBarFile("InstanceManager.cs");
+            string content = IpcSourceTestHelper.ReadCombined(FindRepoRoot());
             int methodIndex = content.IndexOf("Delegate ByteToDel(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);

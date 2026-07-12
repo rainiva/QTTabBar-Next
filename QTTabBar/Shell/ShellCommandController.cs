@@ -11,10 +11,14 @@ using IShellView = QTTabBarLib.Interop.IShellView;
 
 namespace QTTabBarLib {
     internal sealed class ShellCommandController {
+        private readonly IMenuContext _menuContext;
         private readonly IShellCommandHost _host;
         private const int WS_SHOWNORMAL = 1;
 
-        public ShellCommandController(IShellCommandHost host) { _host = host; }
+        public ShellCommandController(IMenuContext menuContext, IShellCommandHost host) {
+            _menuContext = menuContext ?? throw new ArgumentNullException(nameof(menuContext));
+            _host = host ?? throw new ArgumentNullException(nameof(host));
+        }
 
         public void CreateNewFile() {
             IShellView shellView = null;
@@ -47,7 +51,7 @@ namespace QTTabBarLib {
 
         public void OpenCmd(QTabItem tab) {
             if(_host.ShellBrowser.GetIShellBrowser() != null) {
-                string currentPath = tab != null ? tab.CurrentPath : _host.ContextMenuedTab.CurrentPath;
+                string currentPath = tab != null ? tab.CurrentPath : _menuContext.ContextMenuedTab.CurrentPath;
                 if(currentPath.IndexOf("???") != -1) currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
                 else if(currentPath.IndexOf("*?*?*") != -1) currentPath = currentPath.Substring(0, currentPath.IndexOf("*?*?*"));
                 if(Directory.Exists(currentPath)) CmdPath(currentPath);

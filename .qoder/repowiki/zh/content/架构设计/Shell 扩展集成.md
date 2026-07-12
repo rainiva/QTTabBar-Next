@@ -12,7 +12,17 @@
 - [ComRegistrationManager.cs](file://QTTabBar/ComRegistrationManager.cs)
 - [QTButtonBar.cs](file://QTTabBar/QTButtonBar.cs)
 - [QTDesktopTool.cs](file://QTTabBar/QTDesktopTool.cs)
+- [QTSecondViewBar.cs](file://QTTabBar/QTSecondViewBar.cs)
+- [CanonicalEntryAndComIdentityTests.cs](file://Tests/QTTtabBarTests/CanonicalEntryAndComIdentityTests.cs)
 </cite>
+
+## 更新摘要
+**所做更改**   
+- 移除了对已删除的 QTCommandBar.cs 文件的引用
+- 更新了 COM 组件 GUID 冲突检测机制说明
+- 增强了注册机制章节，包含新的测试验证逻辑
+- 更新了架构总览图以反映当前的组件结构
+- 添加了关于遗留 COM 组件清理的最佳实践
 
 ## 目录
 1. [简介](#简介)
@@ -29,8 +39,10 @@
 ## 简介
 本文件面向 QTTabBar-Next 的 Shell 扩展集成，系统性阐述 Windows Shell Band 对象的工作原理、COM 接口契约（IDeskBand、IObjectWithSite、IOleWindow、IShellBrowser）、BandObject 基类的设计模式与继承层次、注册机制与生命周期管理、资源管理器集成细节（窗口消息处理、事件监听、状态同步），并提供可操作的自定义扩展实现路径、性能优化策略与常见问题排障方法。
 
+**更新** 本项目已完成遗留 COM 组件清理工作，移除了 QTCommandBar.cs 等废弃组件，消除了潜在的 GUID 冲突风险。
+
 ## 项目结构
-本项目围绕“Shell 扩展库 + 具体扩展实现”组织：
+本项目围绕"Shell 扩展库 + 具体扩展实现"组织：
 - BandObjectLib：提供 Band 对象基类与关键 COM 接口定义，屏蔽底层 Rebar/Explorer 差异，统一生命周期与 DPI 适配。
 - QTTabBar：具体扩展实现，包括标签栏、按钮栏、桌面工具等，均基于 BandObject 派生。
 - ComRegistrationManager：集中封装 COM 注册/卸载逻辑，简化各扩展的注册流程。
@@ -48,6 +60,7 @@ TBB["TabBarBase<br/>抽象基类"]
 QTB["QTTabBarClass<br/>标签栏"]
 QTTB["QTButtonBar<br/>按钮栏"]
 QDT["QTDesktopTool<br/>桌面工具"]
+QSVB["QTSecondViewBar<br/>第二视图栏"]
 CRM["ComRegistrationManager<br/>注册器"]
 end
 subgraph "Shell 宿主"
@@ -61,14 +74,16 @@ TBB --> BO
 QTB --> TBB
 QTTB --> BO
 QDT --> BO
+QSVB --> TBB
 QTB --> SB
 QTTB --> SB
 QDT --> SB
+QSVB --> SB
 QTB --> CRM
 QDT --> CRM
 ```
 
-图表来源
+**图表来源**
 - [BandObject.cs:35-43](file://BandObjectLib/BandObject.cs#L35-L43)
 - [IDeskBand.cs:23-31](file://BandObjectLib/Interop/IDeskBand.cs#L23-L31)
 - [IObjectWithSite.cs:23-31](file://BandObjectLib/Interop/IObjectWithSite.cs#L23-L31)
@@ -77,15 +92,17 @@ QDT --> CRM
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [IShellBrowser.cs:22-54](file://QTPluginLib/Interop/IShellBrowser.cs#L22-L54)
 
-章节来源
+**章节来源**
 - [BandObject.cs:35-43](file://BandObjectLib/BandObject.cs#L35-L43)
 - [TabBarBase.cs:21](file://QTTabBar/TabBarBase.cs#L21)
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [IShellBrowser.cs:22-54](file://QTPluginLib/Interop/IShellBrowser.cs#L22-L54)
 
@@ -99,10 +116,13 @@ QDT --> CRM
   - QTTabBarClass：标签栏主类，组合多个控制器模块，负责与 IShellBrowser 交互、消息分发、UI 更新。
   - QTButtonBar：按钮栏，提供常用操作入口，同样为 BandObject 派生。
   - QTDesktopTool：桌面工具，DeskBand 类型，支持桌面/任务栏场景。
+  - QTSecondViewBar：第二视图栏，提供额外的浏览功能。
 - 注册器
   - ComRegistrationManager：集中处理 CLSID、Implemented Categories、IE Toolbar、BHO 等注册项的增删。
 
-章节来源
+**更新** 项目已移除 QTCommandBar.cs 遗留组件，消除了潜在的 GUID 冲突风险。
+
+**章节来源**
 - [BandObject.cs:35-43](file://BandObjectLib/BandObject.cs#L35-L43)
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
 - [BandObject.cs:317-345](file://BandObjectLib/BandObject.cs#L317-L345)
@@ -111,6 +131,7 @@ QDT --> CRM
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 
 ## 架构总览
@@ -123,7 +144,7 @@ participant BO as "BandObject(基类)"
 participant Site as "IObjectWithSite"
 participant OleWin as "IOleWindow"
 participant SB as "IShellBrowser"
-participant Ext as "具体扩展(QTTabBarClass/QTButtonBar/QTDesktopTool)"
+participant Ext as "具体扩展(QTTabBarClass/QTButtonBar/QTDesktopTool/QTSecondViewBar)"
 Exp->>BO : 创建并初始化
 Exp->>BO : SetSite(pUnkSite)
 BO->>Site : QueryService(IWebBrowserApp)
@@ -135,7 +156,7 @@ Exp->>Ext : CloseDW()
 Ext->>BO : 释放 COM 引用/清理资源
 ```
 
-图表来源
+**图表来源**
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
 - [BandObject.cs:486-498](file://BandObjectLib/BandObject.cs#L486-L498)
 - [BandObject.cs:507-515](file://BandObjectLib/BandObject.cs#L507-L515)
@@ -190,7 +211,7 @@ BandObject ..|> IDockingWindow
 BandObject ..|> IPersistStream
 ```
 
-图表来源
+**图表来源**
 - [BandObject.cs:35-43](file://BandObjectLib/BandObject.cs#L35-L43)
 - [BandObject.cs:317-345](file://BandObjectLib/BandObject.cs#L317-L345)
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
@@ -202,7 +223,7 @@ BandObject ..|> IPersistStream
 - [IObjectWithSite.cs:23-31](file://BandObjectLib/Interop/IObjectWithSite.cs#L23-L31)
 - [IOleWindow.cs:23-27](file://BandObjectLib/Interop/IOleWindow.cs#L23-L27)
 
-章节来源
+**章节来源**
 - [BandObject.cs:35-43](file://BandObjectLib/BandObject.cs#L35-L43)
 - [BandObject.cs:317-345](file://BandObjectLib/BandObject.cs#L317-L345)
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
@@ -219,6 +240,7 @@ BandObject ..|> IPersistStream
   - BandObject → TabBarBase → QTTabBarClass
   - BandObject → QTButtonBar
   - BandObject → QTDesktopTool
+  - BandObject → TabBarBase → QTSecondViewBar
 - 职责划分
   - TabBarBase：提取标签栏公共逻辑（导航、列表、Rebar 高度、DPI 计算）。
   - 具体扩展：各自业务逻辑与 UI 构建。
@@ -230,23 +252,27 @@ class TabBarBase
 class QTTabBarClass
 class QTButtonBar
 class QTDesktopTool
+class QTSecondViewBar
 TabBarBase --|> BandObject
 QTTabBarClass --|> TabBarBase
 QTButtonBar --|> BandObject
 QTDesktopTool --|> BandObject
+QTSecondViewBar --|> TabBarBase
 ```
 
-图表来源
+**图表来源**
 - [TabBarBase.cs:21](file://QTTabBar/TabBarBase.cs#L21)
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 
-章节来源
+**章节来源**
 - [TabBarBase.cs:21](file://QTTabBar/TabBarBase.cs#L21)
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 
 ### Shell 宿主集成与消息流
 - 窗口消息与输入
@@ -265,13 +291,13 @@ Suppressed --> |否| BaseProc["调用基类 WndProc"]
 BaseProc --> End
 ```
 
-图表来源
+**图表来源**
 - [QTTabBarClass.cs:729-739](file://QTTabBar/QTTabBarClass.cs#L729-L739)
 - [BandObject.cs:507-515](file://BandObjectLib/BandObject.cs#L507-L515)
 - [BandObject.cs:500-505](file://BandObjectLib/BandObject.cs#L500-L505)
 - [IShellBrowser.cs:22-54](file://QTPluginLib/Interop/IShellBrowser.cs#L22-L54)
 
-章节来源
+**章节来源**
 - [QTTabBarClass.cs:729-739](file://QTTabBar/QTTabBarClass.cs#L729-L739)
 - [BandObject.cs:507-515](file://BandObjectLib/BandObject.cs#L507-L515)
 - [BandObject.cs:500-505](file://BandObjectLib/BandObject.cs#L500-L505)
@@ -286,35 +312,42 @@ BaseProc --> End
 - 生命周期
   - Explorer 调用 SetSite → GetWindow → ShowDW → 用户交互 → CloseDW。
   - 在 CloseDW 中释放 COM 引用、解除子窗口钩子、注销全局注册表项（如按钮栏）。
+- **新增** GUID 唯一性验证
+  - 通过 CanonicalEntryAndComIdentityTests 确保所有 COM 类的 GUID 唯一性，防止冲突。
 
 ```mermaid
 sequenceDiagram
 participant Reg as "注册器"
 participant CLR as ".NET 运行时"
+participant Test as "GUID 验证测试"
 participant Exp as "Explorer"
 participant Ext as "扩展类"
 Reg->>CLR : 触发 [ComRegisterFunction]
 CLR->>Reg : 调用 Register(Type)
 Reg->>Reg : 写入 CLSID/菜单/帮助/Implemented Categories
+Test->>Test : 扫描所有 COM 类 GUID
+Test->>Test : 检查 GUID 唯一性
 Exp->>Ext : SetSite(pUnkSite)
 Exp->>Ext : ShowDW(true)
 Exp->>Ext : CloseDW()
 Ext->>Reg : 卸载时删除注册项
 ```
 
-图表来源
+**图表来源**
 - [QTTabBarClass.cs:598-599](file://QTTabBar/QTTabBarClass.cs#L598-L599)
 - [QTTabBarClass.cs:718-719](file://QTTabBar/QTTabBarClass.cs#L718-L719)
 - [QTDesktopTool.cs:463-475](file://QTTabBar/QTDesktopTool.cs#L463-L475)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [ComRegistrationManager.cs:86-97](file://QTTabBar/ComRegistrationManager.cs#L86-L97)
+- [CanonicalEntryAndComIdentityTests.cs:71-74](file://Tests/QTTtabBarTests/CanonicalEntryAndComIdentityTests.cs#L71-L74)
 
-章节来源
+**章节来源**
 - [QTTabBarClass.cs:598-599](file://QTTabBar/QTTabBarClass.cs#L598-L599)
 - [QTTabBarClass.cs:718-719](file://QTTabBar/QTTabBarClass.cs#L718-L719)
 - [QTDesktopTool.cs:463-475](file://QTTabBar/QTDesktopTool.cs#L463-L475)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [ComRegistrationManager.cs:86-97](file://QTTabBar/ComRegistrationManager.cs#L86-L97)
+- [CanonicalEntryAndComIdentityTests.cs:71-74](file://Tests/QTTtabBarTests/CanonicalEntryAndComIdentityTests.cs#L71-L74)
 
 ## 依赖关系分析
 - 直接依赖
@@ -330,27 +363,31 @@ graph LR
 QTB["QTTabBarClass"] --> BO["BandObject"]
 QTTB["QTButtonBar"] --> BO
 QDT["QTDesktopTool"] --> BO
+QSVB["QTSecondViewBar"] --> BO
 QTB --> SB["IShellBrowser"]
 QTTB --> SB
 QDT --> SB
+QSVB --> SB
 QTB --> CRM["ComRegistrationManager"]
 QDT --> CRM
 BO --> IOWS["IObjectWithSite"]
 BO --> IOW["IOleWindow"]
 ```
 
-图表来源
+**图表来源**
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 - [IShellBrowser.cs:22-54](file://QTPluginLib/Interop/IShellBrowser.cs#L22-L54)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
 
-章节来源
+**章节来源**
 - [QTTabBarClass.cs:57-58](file://QTTabBar/QTTabBarClass.cs#L57-L58)
 - [QTButtonBar.cs:37-38](file://QTTabBar/QTButtonBar.cs#L37-L38)
 - [QTDesktopTool.cs:38-40](file://QTTabBar/QTDesktopTool.cs#L38-L40)
+- [QTSecondViewBar.cs:37-39](file://QTTabBar/QTSecondViewBar.cs#L37-39)
 - [IShellBrowser.cs:22-54](file://QTPluginLib/Interop/IShellBrowser.cs#L22-L54)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
@@ -368,7 +405,7 @@ BO --> IOW["IOleWindow"]
 - 日志与诊断
   - 启用可选日志输出，记录关键生命周期与异常堆栈，便于定位问题。
 
-章节来源
+**章节来源**
 - [BandObject.cs:429-484](file://BandObjectLib/BandObject.cs#L429-L484)
 - [BandObject.cs:486-498](file://BandObjectLib/BandObject.cs#L486-L498)
 - [BandObject.cs:577-585](file://BandObjectLib/BandObject.cs#L577-L585)
@@ -380,18 +417,23 @@ BO --> IOW["IOleWindow"]
   - 扩展未出现在 Explorer 中：检查 CLSID 与 Implemented Categories 是否正确注册。
   - 界面错位/高度异常：确认 DPI 计算与 SetBarRows/RefreshHeightForCurrentDpi 调用时机。
   - 崩溃/无响应：查看异常日志文件，关注 WndProc 抛出的异常与 COM 释放顺序。
+  - **新增** GUID 冲突：使用 CanonicalEntryAndComIdentityTests 检测重复的 COM GUID。
 - 调试技巧
   - 启用 BandObject 日志，观察 SetSite/ShowDW/CloseDW 调用链。
   - 在 WndProc 中打印消息编号与参数，定位消息处理分支。
   - 使用进程内断点与反汇编工具验证 COM 接口实现与返回值。
+  - **新增** 运行 GUID 唯一性测试，确保没有重复的 COM 类标识符。
 
-章节来源
+**更新** 项目已建立自动化测试来防止 GUID 冲突，建议在开发过程中定期运行 CanonicalEntryAndComIdentityTests。
+
+**章节来源**
 - [BandObject.cs:646-771](file://BandObjectLib/BandObject.cs#L646-L771)
 - [QTTabBarClass.cs:729-739](file://QTTabBar/QTTabBarClass.cs#L729-L739)
 - [QTButtonBar.cs:227-251](file://QTTabBar/QTButtonBar.cs#L227-L251)
+- [CanonicalEntryAndComIdentityTests.cs:71-74](file://Tests/QTTtabBarTests/CanonicalEntryAndComIdentityTests.cs#L71-L74)
 
 ## 结论
-QTTabBar-Next 的 Shell 扩展通过 BandObject 基类统一了 COM 契约与宿主交互细节，结合 TabBarBase 抽象出标签栏通用能力，并以模块化控制器组织复杂逻辑。注册器集中管理注册表项，确保安装/卸载一致性。遵循本文的性能与内存管理建议，可有效提升稳定性与用户体验。
+QTTabBar-Next 的 Shell 扩展通过 BandObject 基类统一了 COM 契约与宿主交互细节，结合 TabBarBase 抽象出标签栏通用能力，并以模块化控制器组织复杂逻辑。注册器集中管理注册表项，确保安装/卸载一致性。项目已完成遗留 COM 组件清理工作，移除了 QTCommandBar.cs 等废弃组件，并通过自动化测试确保 GUID 唯一性。遵循本文的性能与内存管理建议，可有效提升稳定性与用户体验。
 
 ## 附录：自定义 Shell 扩展实现要点
 - 步骤概览
@@ -399,12 +441,16 @@ QTTabBar-Next 的 Shell 扩展通过 BandObject 基类统一了 COM 契约与宿
   - 实现必要生命周期：SetSite/GetSite、ShowDW/CloseDW、GetBandInfo。
   - 如需与 Shell 交互，通过 ShellBrowserEx 访问 IShellBrowser。
   - 在 [ComRegisterFunction]/[ComUnregisterFunction] 中调用 ComRegistrationManager 完成注册/卸载。
+  - **新增** 确保 GUID 唯一性，避免与其他 COM 组件冲突。
 - 参考路径
   - 基类与接口：[BandObject.cs](file://BandObjectLib/BandObject.cs)、[IDeskBand.cs](file://BandObjectLib/Interop/IDeskBand.cs)、[IObjectWithSite.cs](file://BandObjectLib/Interop/IObjectWithSite.cs)、[IOleWindow.cs](file://BandObjectLib/Interop/IOleWindow.cs)
   - 注册示例：[QTDesktopTool.cs](file://QTTabBar/QTDesktopTool.cs)、[ComRegistrationManager.cs](file://QTTabBar/ComRegistrationManager.cs)
   - 与 Shell 交互：[IShellBrowser.cs](file://QTPluginLib/Interop/IShellBrowser.cs)
+  - **新增** GUID 验证：[CanonicalEntryAndComIdentityTests.cs](file://Tests/QTTtabBarTests/CanonicalEntryAndComIdentityTests.cs)
 
-章节来源
+**更新** 实现了完整的 COM 组件生命周期管理，包括自动化的 GUID 冲突检测和清理机制。
+
+**章节来源**
 - [BandObject.cs:35-43](file://BandObjectLib/BandObject.cs#L35-L43)
 - [IDeskBand.cs:23-31](file://BandObjectLib/Interop/IDeskBand.cs#L23-L31)
 - [IObjectWithSite.cs:23-31](file://BandObjectLib/Interop/IObjectWithSite.cs#L23-L31)
@@ -412,3 +458,4 @@ QTTabBar-Next 的 Shell 扩展通过 BandObject 基类统一了 COM 契约与宿
 - [QTDesktopTool.cs:463-475](file://QTTabBar/QTDesktopTool.cs#L463-L475)
 - [ComRegistrationManager.cs:10-21](file://QTTabBar/ComRegistrationManager.cs#L10-L21)
 - [IShellBrowser.cs:22-54](file://QTPluginLib/Interop/IShellBrowser.cs#L22-L54)
+- [CanonicalEntryAndComIdentityTests.cs:71-74](file://Tests/QTTtabBarTests/CanonicalEntryAndComIdentityTests.cs#L71-L74)

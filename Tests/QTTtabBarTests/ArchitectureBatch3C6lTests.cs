@@ -10,9 +10,6 @@ namespace QTTtabBarTests {
         private static Type ListViewInputType =>
             typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ListViewInputController");
 
-        private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
-
         [Test]
         public void ListViewInputController_Owns_HandleItemActivate() {
             Assert.IsNotNull(ListViewInputType);
@@ -20,9 +17,9 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerControllerModule_Owns_TravelToolbarMessageHandler() {
-            Assert.IsNotNull(ExplorerModuleType);
-            Assert.IsNotNull(ExplorerModuleType.GetMethod("TravelToolbarMessageCaptured", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        public void ExplorerIntegration_Owns_TravelToolbarMessageHandler() {
+            string integration = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
+            StringAssert.Contains("TravelToolbarMessageCaptured(", integration);
         }
 
         [Test]
@@ -30,7 +27,7 @@ namespace QTTtabBarTests {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string listView = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.cs")) +
                 File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Input", "ListViewInputController.Keyboard.cs"));
-            string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
+            string explorer = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
             Assert.IsFalse(main.Contains("private bool HandleItemActivate("));
             Assert.IsFalse(main.Contains("private bool travelBtnController_MessageCaptured("));
             Assert.IsFalse(main.Contains("private string MakeTravelBtnTooltipText("));

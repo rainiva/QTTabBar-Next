@@ -19,7 +19,7 @@ namespace QTTtabBarTests {
             Assert.IsFalse(utility.Contains("public static void SaveClosing"),
                 "QTUtility should not facade SaveClosing after C7m");
             Assert.IsTrue(ReadQtTabBarFile("TabBarBase.Close.cs").Contains("WindowSessionPersistence.SaveClosing"));
-            string shutdown = ReadQtTabBarFile("QTTabBarClass.ShutdownController.cs");
+            string shutdown = ReadQtTabBarFile("Shutdown/ShutdownController.cs");
             Assert.IsTrue(shutdown.Contains("WindowSessionPersistence.SaveRecentlyClosed"));
             Assert.IsTrue(shutdown.Contains("WindowSessionPersistence.SaveRecentFiles"));
         }

@@ -5,5 +5,4 @@ scope:
     - I18N/
 source_files: []
 depends_on: []
-related_to:
-    - path: qtplugin_api
+related_to: []

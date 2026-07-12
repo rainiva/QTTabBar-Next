@@ -51,9 +51,9 @@ namespace QTTtabBarTests {
                 ReadQtTabBarFile("ConfigManager.cs"),
                 "void PersistWindowAlpha(");
             Assert.IsTrue(
-                body.Contains("PersistPartialWindowSetting")
+                body.Contains("MutateWindowAndCommit")
                     || (body.Contains("EncodeReloadConfig") && body.Contains("ConfigVersionTracker")),
-                "PersistWindowAlpha should persist through partial window path with IPC broadcast");
+                "PersistWindowAlpha should persist through unified window commit with IPC broadcast");
             Assert.IsFalse(
                 Regex.IsMatch(body, @"CreateSubKey[\s\S]*SetValue\s*\(\s*""WindowAlpha"""),
                 "PersistWindowAlpha should not inline registry write outside unified persist path");

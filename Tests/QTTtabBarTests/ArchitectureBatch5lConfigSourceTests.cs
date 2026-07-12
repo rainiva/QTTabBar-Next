@@ -54,7 +54,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void ShutdownController_Persists_Via_ConfigManager() {
-            string body = ReadQtTabBarFile("QTTabBarClass.ShutdownController.cs");
+            string body = ReadQtTabBarFile("Shutdown/ShutdownController.cs");
             Assert.IsTrue(body.Contains("ConfigManager.PersistWindowAlpha"),
                 "Shutdown should persist WindowAlpha through ConfigManager");
             Assert.IsFalse(body.Contains("key.SetValue(\"WindowAlpha\""),

@@ -7,7 +7,7 @@ namespace QTTtabBarTests {
     public class ArchitectureBatch3C7aTests {
         [Test]
         public void InstanceManager_Uses_SerializationHelper_Directly() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceManager.cs"));
+            string content = IpcSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(content.Contains("SerializationHelper.ObjectToByteArray("));
             Assert.IsTrue(content.Contains("SerializationHelper.ByteArrayToObject("));
             Assert.IsFalse(content.Contains("QTUtility.ObjectToByteArray("));

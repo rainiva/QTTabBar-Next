@@ -25,17 +25,17 @@ namespace QTTtabBarTests {
         [Test]
         public void SecondViewBar_Still_Uses_WindowSubclass_Hooks() {
             string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
-            Assert.IsTrue(content.Contains("baseBarSubclassProc"),
-                "QTSecondViewBar should keep active WindowSubclass hooks after W3j");
+            Assert.IsTrue(content.Contains("BaseBarSubclassProc"),
+                "SecondView should keep active WindowSubclass hooks after controller extraction");
             Assert.IsTrue(content.Contains("InstallHooks"),
-                "QTSecondViewBar should keep InstallHooks for WindowSubclass after W3j");
+                "SecondView should keep InstallHooks for WindowSubclass after controller extraction");
         }
 
         [Test]
         public void SecondViewBar_SubclassProc_Handles_SysColorChange() {
             string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(content.Contains("case WM.SYSCOLORCHANGE:"),
-                "SecondViewBar baseBarSubclassProc should handle SYSCOLORCHANGE after review fix");
+                "SecondView BaseBarSubclassProc should handle SYSCOLORCHANGE after review fix");
         }
 
         private static string FindRepoRoot() {

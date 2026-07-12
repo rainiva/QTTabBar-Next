@@ -7,9 +7,9 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerTravelToolbarController {
-        private readonly IExplorerTravelToolbarHost _host;
+        private readonly IExplorerTravelHost _host;
 
-        internal ExplorerTravelToolbarController(IExplorerTravelToolbarHost host) {
+        internal ExplorerTravelToolbarController(IExplorerTravelHost host) {
             _host = host;
         }
 

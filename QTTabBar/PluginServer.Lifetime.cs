@@ -19,7 +19,7 @@ namespace QTTabBarLib {
             FilterCorePlugin = null;
             dicPluginInstances.Clear();
             _host = null;
-            _tabHost = null;
+            _host = null;
             shellBrowser = null;
         }
 

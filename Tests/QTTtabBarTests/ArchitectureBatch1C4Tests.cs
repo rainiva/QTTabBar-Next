@@ -45,15 +45,10 @@ namespace QTTtabBarTests {
         [Test]
         public void PersistBreakTabBar_Writes_Registry_And_Broadcasts() {
             string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
-            int methodIndex = content.IndexOf("void PersistBreakTabBar(bool breakTabBar)", StringComparison.Ordinal);
-            Assert.GreaterOrEqual(methodIndex, 0);
-            int brace = content.IndexOf('{', methodIndex);
-            int nextMethod = content.IndexOf("\n        public static ", brace + 1, StringComparison.Ordinal);
-            string body = nextMethod > 0
-                ? content.Substring(brace, nextMethod - brace)
-                : content.Substring(brace, Math.Min(600, content.Length - brace));
-            Assert.IsTrue(body.Contains("PersistPartialWindowSetting"));
-            Assert.IsTrue(content.Contains("void PersistPartialWindowSetting"));
+            Assert.IsTrue(content.Contains("void PersistBreakTabBar("));
+            Assert.IsTrue(content.Contains("MutateWindowAndCommit"));
+            Assert.IsTrue(content.Contains("void MutateWindowAndCommit("));
+            Assert.IsTrue(content.Contains("UpdateConfig("));
             Assert.IsTrue(content.Contains("ConfigVersionTracker.Increment()"));
             Assert.IsTrue(content.Contains("StaticBroadcastCommand"));
             Assert.IsTrue(content.Contains("EncodeReloadConfig"));

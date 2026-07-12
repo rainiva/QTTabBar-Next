@@ -21,10 +21,11 @@ namespace QTTtabBarTests {
             string main = System.IO.File.ReadAllText(
                 System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
             string controller = System.IO.File.ReadAllText(
-                System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.BindActionController.cs"));
+                System.IO.Path.Combine(FindRepoRoot(), "QTTabBar", "BindAction", "BindActionController.cs"));
             Assert.IsTrue(main.Contains("_bindActionController"));
             Assert.IsTrue(main.Contains("_bindActionController.DoBindAction("));
             Assert.IsTrue(controller.Contains("class BindActionController"));
+            StringAssert.DoesNotContain("partial class QTTabBarClass", controller);
         }
 
         private static string FindRepoRoot() {

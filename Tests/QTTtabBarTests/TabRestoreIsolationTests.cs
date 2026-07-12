@@ -22,7 +22,8 @@ namespace QTTtabBarTests {
             string source = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "TabBarBase.TabRestoration.cs"));
             Assert.IsFalse(Regex.IsMatch(source, @"Config\.Tabs\.NewTabPosition\s*="),
                 "RestoreTabsOnInitialize should not mutate global NewTabPosition");
-            StringAssert.Contains("CreateNewTabAt(wrapper2, TabPos.Rightmost)", source);
+            StringAssert.Contains("TryCreateTabCore", source);
+            StringAssert.Contains("TabPos.Rightmost", source);
         }
     }
 }

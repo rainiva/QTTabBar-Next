@@ -35,7 +35,7 @@ namespace QTTtabBarTests {
             if(File.Exists(corePath)) {
                 return File.ReadAllText(corePath);
             }
-            string controllerPath = Path.Combine(root, "QTTabBar", "QTTabBarClass.BindActionController.cs");
+            string controllerPath = Path.Combine(root, "QTTabBar", "BindAction", "BindActionController.cs");
             if(File.Exists(controllerPath)) {
                 return File.ReadAllText(controllerPath);
             }

@@ -6,4 +6,4 @@ scope:
 source_files: []
 depends_on: []
 related_to:
-    - path: qttabbar_core/tabbar_runtime
+    - path: qttabbar_core

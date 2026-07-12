@@ -15,8 +15,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build QTTtabBarTests (MSBuild)
-        run: msbuild "Tests\QTTtabBarTests\QTTtabBarTests.csproj" /p:Configuration=Release /m
+      - name: Build tests with Visual Studio MSBuild
+        run: msbuild Tests\QTTtabBarTests\QTTtabBarTests.csproj /t:Rebuild /p:Configuration=Debug /m /v:minimal
 
-      - name: Run tests
-        run: dotnet test "Tests\QTTtabBarTests\QTTtabBarTests.csproj" --no-build --no-restore --configuration Release --verbosity minimal
+      - name: Run architecture and behavior tests
+        run: dotnet test Tests\QTTtabBarTests\QTTtabBarTests.csproj --no-build --no-restore --configuration Debug --logger "trx;LogFileName=qt-tabbar-tests.trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: structural-governance-test-results
+          path: '**/qt-tabbar-tests.trx'

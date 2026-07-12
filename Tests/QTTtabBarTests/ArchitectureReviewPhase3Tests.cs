@@ -36,16 +36,16 @@ namespace QTTtabBarTests {
 
         [Test]
         public void GetTotalInstanceCount_Uses_Local_Registry_As_Floor() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceManager.cs"));
+            string content = IpcSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(content.Contains("TabInstanceRegistry.Count"));
             Assert.IsTrue(content.Contains("Math.Max(local, service.GetTotalInstanceCount())"));
         }
 
         [Test]
-        public void ConfigManager_Has_PersistPartialWindowSetting() {
+        public void ConfigManager_Has_MutateWindowAndCommit() {
             string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
-            Assert.IsTrue(content.Contains("PersistPartialWindowSetting"));
-            Assert.IsTrue(content.Contains("PersistPartialWindowSetting(key =>"));
+            Assert.IsTrue(content.Contains("MutateWindowAndCommit"));
+            Assert.IsTrue(content.Contains("_windowWriter.Write("));
         }
 
         [Test]

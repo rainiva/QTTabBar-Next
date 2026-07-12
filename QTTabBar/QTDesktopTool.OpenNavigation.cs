@@ -48,7 +48,7 @@ namespace QTTabBarLib {
             else {
                 Group g = GroupsManager.GetGroup(group);
                 if(g == null || g.Paths.Count == 0) return;
-                StaticReg.CreateWindowGroup = group;
+                WindowCaptureSession.EnqueueGroup(group);
                 using(var pidl = new IDLWrapper(g.Paths[0])) {
                     // todo: ensure it gets locked and what not
                     OpenWindow(pidl);

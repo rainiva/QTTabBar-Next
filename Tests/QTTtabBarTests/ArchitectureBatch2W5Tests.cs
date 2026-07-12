@@ -34,15 +34,9 @@ namespace QTTtabBarTests {
 
         [Test]
         public void NoCapturePathsList_AlwaysInSync_WithConfig() {
-            ConfigManager.Initialize();
-            string savedNoCaptureAt = Config.Window.NoCaptureAt;
-            List<string> savedList = SessionState.NoCapturePathsList == null
-                ? new List<string>()
-                : new List<string>(SessionState.NoCapturePathsList);
+            ConfigManager.ReplaceLoadedConfigForTests(new Config());
             try {
-                MethodInfo update = GetUpdateNoCapturePathsMethod();
-                Assert.IsNotNull(update);
-                update.Invoke(null, new object[] { new[] { @"C:\Path1", @"C:\Path2" } });
+                ConfigManager.SetNoCapturePathsAndBroadcast(new[] { @"C:\Path1", @"C:\Path2" });
 
                 Assert.That(SessionState.NoCapturePathsList, Is.Not.Null);
                 Assert.That(SessionState.NoCapturePathsList.Count, Is.EqualTo(2));
@@ -52,18 +46,12 @@ namespace QTTtabBarTests {
                 Assert.That(Config.Window.NoCaptureAt, Does.Contain(@"C:\Path2"));
             }
             finally {
-                MethodInfo update = GetUpdateNoCapturePathsMethod();
-                if(update != null) {
-                    update.Invoke(null, new object[] { savedList });
-                }
-                else {
-                    Config.Window.NoCaptureAt = savedNoCaptureAt;
-                }
+                ConfigManager.SetNoCapturePathsAndBroadcast(Array.Empty<string>());
             }
         }
 
         [Test]
-        public void SetNoCapturePathsAndBroadcast_Uses_UpdateNoCapturePaths() {
+        public void SetNoCapturePathsAndBroadcast_Uses_MutateWindowAndCommit() {
             string content = ConfigSourceTestHelper.ReadCombined(FindRepoRoot());
             int methodIndex = content.IndexOf("void SetNoCapturePathsAndBroadcast(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
@@ -72,10 +60,8 @@ namespace QTTtabBarTests {
             string body = nextMethod > 0
                 ? content.Substring(brace, nextMethod - brace)
                 : content.Substring(brace, Math.Min(800, content.Length - brace));
-            Assert.IsTrue(body.Contains("UpdateNoCapturePaths("),
-                "SetNoCapturePathsAndBroadcast should route through UpdateNoCapturePaths");
-            Assert.IsFalse(body.Contains("Config.Window.NoCaptureAt = string.Join"),
-                "SetNoCapturePathsAndBroadcast should not assign NoCaptureAt directly");
+            Assert.IsTrue(body.Contains("MutateWindowAndCommit("),
+                "SetNoCapturePathsAndBroadcast should route through MutateWindowAndCommit");
         }
 
         [Test]

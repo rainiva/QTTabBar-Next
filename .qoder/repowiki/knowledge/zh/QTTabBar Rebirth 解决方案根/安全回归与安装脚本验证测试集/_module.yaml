@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: tests
+title: 安全回归与安装脚本验证测试集
+scope:
+    - Tests/
+    - Test/
+source_files: []
+depends_on: []
+related_to:
+    - path: qttabbar_core
+    - path: register_native

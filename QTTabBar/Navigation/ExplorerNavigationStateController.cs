@@ -10,9 +10,9 @@ namespace QTTabBarLib {
     }
 
     internal sealed class ExplorerNavigationStateController {
-        private readonly IExplorerNavigationStateHost _host;
+        private readonly IExplorerNavigationHost _host;
 
-        internal ExplorerNavigationStateController(IExplorerNavigationStateHost host) { _host = host; }
+        internal ExplorerNavigationStateController(IExplorerNavigationHost host) { _host = host; }
 
         internal ExplorerNavigationState Synchronize(string path, bool isSpecialTravelPath, bool isShellPathButNotFileSystem, int specialHash) {
             if(_host.IsTravelByTree()) {

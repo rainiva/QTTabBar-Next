@@ -90,7 +90,7 @@ namespace QTTabBarLib {
                     DraggingTab = tabMouseOn;
                 }
                 else if(e.Button == MouseButtons.Right) {
-                    ContextMenuedTab = tabMouseOn;
+                    SetContextMenuedTab(tabMouseOn);
                 }
             }
         }

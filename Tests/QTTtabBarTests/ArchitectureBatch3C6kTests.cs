@@ -7,37 +7,34 @@ using QTTabBarLib;
 namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch3C6kTests {
-        private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
-
         [Test]
-        public void ExplorerControllerModule_Owns_WindowBootstrap_Methods() {
-            Assert.IsNotNull(ExplorerModuleType, "ExplorerController should exist");
-            Assert.IsNotNull(ExplorerModuleType.GetMethod("InitializeNavBtns", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
-            Assert.IsNotNull(ExplorerModuleType.GetMethod("InitializeOpenedWindow", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
-            Assert.IsNotNull(ExplorerModuleType.GetMethod("InstallHooks", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+        public void ExplorerIntegration_Owns_WindowBootstrap_Methods() {
+            string integration = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
+            string sessionRestore = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Navigation", "ExplorerSessionRestoreController.cs"));
+            StringAssert.Contains("void InitializeNavBtns(", integration);
+            StringAssert.Contains("void InstallHooks(", integration);
+            StringAssert.Contains("InitializeOpenedWindow", sessionRestore);
         }
 
         [Test]
-        public void ExplorerController_Calls_Local_InitializeOpenedWindow() {
+        public void ExplorerIntegration_Calls_SessionRestore_InitializeOpenedWindow() {
             string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(explorer.Contains("InitializeOpenedWindow();"));
             Assert.IsFalse(explorer.Contains("_owner.InitializeOpenedWindow("),
-                "ExplorerControllerModule should call its own InitializeOpenedWindow");
+                "Explorer integration should call SessionRestore.InitializeOpenedWindow");
         }
 
         [Test]
-        public void QTTabBarClass_No_Longer_Implements_WindowBootstrap_Bodies() {
+        public void QTTabBarClass_No_Longer_Implements_WindowBootstrap_Bodies_Inline() {
             string main = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.cs"));
-            string explorer = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
+            string explorer = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
             Assert.IsFalse(main.Contains("private void InitializeNavBtns("));
             Assert.IsFalse(main.Contains("private void InitializeOpenedWindow("));
             Assert.IsFalse(main.Contains("private void InstallHooks("));
             Assert.IsTrue(explorer.Contains("void InitializeNavBtns("));
-            Assert.IsTrue(explorer.Contains("void InitializeOpenedWindow("));
             Assert.IsTrue(explorer.Contains("void InstallHooks("));
             Assert.IsTrue(explorer.Contains("InitializeWindowIntegrations"),
-                "ListViewMonitor setup should live in ExplorerControllerModule via InitializeWindowIntegrations");
+                "ListViewMonitor setup should live in session restore via InitializeWindowIntegrations");
         }
 
         private static string FindRepoRoot() {

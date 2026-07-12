@@ -46,7 +46,7 @@ namespace QTTtabBarTests {
         [Test]
         public void Orchestrator_And_Shutdown_Symmetry() {
             string orchestrator = ReadQtTabBarFile("InitializationOrchestrator.cs");
-            string shutdown = ReadQtTabBarFile("QTTabBarClass.ShutdownController.cs");
+            string shutdown = ReadQtTabBarFile("Shutdown/ShutdownController.cs");
             Assert.IsTrue(orchestrator.Contains("WindowSessionPersistence.LoadRecentFilesAndClosedTabs"),
                 "Load path should go through WindowSessionPersistence");
             Assert.IsTrue(shutdown.Contains("WindowSessionPersistence.SaveRecentlyClosed"),

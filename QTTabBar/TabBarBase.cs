@@ -118,6 +118,11 @@ namespace QTTabBarLib
 
         protected bool NowTabDragging;
         protected QTabItem ContextMenuedTab;
+
+        protected virtual void SetContextMenuedTab(QTabItem tab) {
+            ContextMenuedTab = tab;
+        }
+
         protected Cursor curTabCloning;
         protected Cursor curTabDrag;
         protected Rectangle DraggingDestRect;

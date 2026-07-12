@@ -12,9 +12,9 @@ namespace QTTabBarLib {
     /// </summary>
     internal interface IComponentBuildHost {
         // --- Controller field setters ---
-        ExplorerController ExplorerControllerModule { get; set; }
-        TabManager TabManager { get; set; }
         MenuController MenuController { get; set; }
+        IMenuContext MenuContext { get; }
+        IExplorerContext ExplorerContext { get; }
         DragDropController DragDropController { get; set; }
         HookInputController HookInputController { get; set; }
         FileToolsController FileToolsController { get; set; }
@@ -54,6 +54,9 @@ namespace QTTabBarLib {
         float GetBandDpiScale();
         void SuspendLayout();
         void ResumeLayout(bool performLayout);
+
+        // --- Explorer integration ---
+        void InitializeNavBtns(bool fSync);
 
         // --- Event wiring hook ---
         void WireControlEvents();

@@ -68,5 +68,18 @@ namespace QTTabBarLib {
                 }
             }
         }
+
+        internal static string[] LoadTabsOnLastClosedWindow() {
+            using(RegistryKey key = RegistryAccess.OpenRoot(false)) {
+                if(key == null) {
+                    return new string[0];
+                }
+                string raw = key.GetValue("TabsOnLastClosedWindow", string.Empty) as string ?? string.Empty;
+                if(string.IsNullOrEmpty(raw)) {
+                    return new string[0];
+                }
+                return raw.Split(QTUtility.SEPARATOR_CHAR);
+            }
+        }
     }
 }

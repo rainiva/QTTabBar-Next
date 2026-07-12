@@ -13,9 +13,14 @@ using SHDocVw;
 using WebBrowser = SHDocVw.WebBrowser;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass : IExplorerAttachmentHost, IExplorerComEventHost, IExplorerHookInstallationHost, IExplorerIntegrationHost, IExplorerLegacyNavigationHost, IExplorerLockedTabNavigationHost, IExplorerMessageRoutingHost, IExplorerNavigationButtonHost, IExplorerNavigationCleanupHost, IExplorerNavigationCompleteHost, IExplorerNavigationHost, IExplorerNavigationLifecycleHost, IExplorerNavigationStateHost, IExplorerPostNavigationHost, IExplorerSelectionRestoreHost, IExplorerSessionRestoreHost, IExplorerShutdownNavigationHost, IExplorerSpecialTravelLogHost, IExplorerTooltipHost, IExplorerTravelLogHost, IExplorerTravelToolbarHost, IExplorerWindowCaptureHost, IExplorerWindowMessageHost {
+    public partial class QTTabBarClass : IExplorerAttachmentHost, IExplorerHookInstallationHost, IExplorerIntegrationHost, IExplorerLegacyNavigationHost, IExplorerLockedTabNavigationHost, IExplorerMessageRoutingHost, IExplorerNavigationButtonHost, IExplorerNavigationHost, IExplorerSelectionRestoreHost, IExplorerSessionHost, IExplorerTooltipHost, IExplorerTravelHost, IExplorerWindowMessageHost {
 
         // --- From QTTabBarClass.ExplorerAccess.cs ---
+        internal IntPtr CompositionExplorerHandle { get => ExplorerHandle; set => ExplorerHandle = value; }
+        internal ShellBrowserEx CompositionShellBrowser { get => ShellBrowser; set => ShellBrowser = value; }
+        internal QTabItem CompositionCurrentTab { get => CurrentTab; set => CurrentTab = value; }
+        internal QTabItem CompositionContextMenuedTab { get => ContextMenuedTab; set => ContextMenuedTab = value; }
+
 internal IInputObjectSite ExBandObjectSite => BandObjectSite;
         internal string ExCurrentAddress { get => CurrentAddress; set => CurrentAddress = value; }
         internal QTabItem ExCurrentTab { get => CurrentTab; set => CurrentTab = value; }
@@ -118,15 +123,14 @@ WebBrowser IExplorerAttachmentHost.Explorer => Explorer;
         }
 
         // --- From QTTabBarClass.ExplorerCaptureHost.cs ---
-int IExplorerWindowCaptureHost.CommandMode { get => mCmdType; set => mCmdType = value; }
-        bool IExplorerWindowCaptureHost.IsQuitting { get => fNowQuitting; set => fNowQuitting = value; }
-        bool IExplorerWindowCaptureHost.HideExplorer { get => fHideExplorer; set => fHideExplorer = value; }
-        IntPtr IExplorerWindowCaptureHost.ExplorerHandle => ExplorerHandle;
-        WebBrowser IExplorerWindowCaptureHost.Explorer => Explorer;
-        void IExplorerWindowCaptureHost.AddStartupTabs(string group, string path) => AddStartUpTabs(group, path);
+int IExplorerSessionHost.CommandMode { get => mCmdType; set => mCmdType = value; }
+        bool IExplorerSessionHost.IsQuitting { get => fNowQuitting; set => fNowQuitting = value; }
+        bool IExplorerSessionHost.HideExplorer { get => fHideExplorer; set => fHideExplorer = value; }
+        IntPtr IExplorerSessionHost.ExplorerHandle => ExplorerHandle;
+        WebBrowser IExplorerSessionHost.Explorer => Explorer;
+        void IExplorerSessionHost.AddStartupTabs(string group, string path) => AddStartUpTabs(group, path);
 
         // --- From QTTabBarClass.ExplorerComEventHost.cs ---
-bool IExplorerComEventHost.IsShown() => IsShown;
 
         // --- From QTTabBarClass.ExplorerHookInstallationHost.cs ---
 HookInputController IExplorerHookInstallationHost.HookInputController => _hookInputController;
@@ -260,22 +264,20 @@ ToolStripDropDownButton IExplorerNavigationButtonHost.HistoryButton => buttonNav
         }
 
         // --- From QTTabBarClass.ExplorerNavigationCleanupHost.cs ---
-void IExplorerNavigationCleanupHost.ResetNavigationFlags() { QTUtility.RestoreFolderTree_Hide = NavigatedByCode = fNavigatedByTabSelection = NowTabCreated = fNowTravelByTree = false; }
-        void IExplorerNavigationCleanupHost.EnableTabRedraw() => tabControl1.SetRedraw(true);
-        void IExplorerNavigationCleanupHost.MarkFirstNavigationComplete() => FirstNavigationCompleted = true;
-        void IExplorerNavigationCleanupHost.RefreshViewWatermark() => listView.RefreshViewWatermark(false);
+void IExplorerNavigationHost.ResetNavigationFlags() { QTUtility.RestoreFolderTree_Hide = NavigatedByCode = fNavigatedByTabSelection = NowTabCreated = fNowTravelByTree = false; }
+        void IExplorerNavigationHost.EnableTabRedraw() => tabControl1.SetRedraw(true);
+        void IExplorerNavigationHost.MarkFirstNavigationComplete() => FirstNavigationCompleted = true;
+        void IExplorerNavigationHost.RefreshViewWatermark() => listView.RefreshViewWatermark(false);
 
         // --- From QTTabBarClass.ExplorerNavigationCompleteHost.cs ---
-void IExplorerNavigationCompleteHost.CompleteBrowseObjectNavigation() {
+        void IExplorerNavigationHost.CompleteBrowseObjectNavigation() {
             lastCompletedBrowseObjectIDL = lastAttemptedBrowseObjectIDL;
             ShellBrowser.OnNavigateComplete();
         }
-        bool IExplorerNavigationCompleteHost.IsShown() => IsShown;
-        bool IExplorerNavigationCompleteHost.IsSpecialTravelPath(string path) => IsSpecialFolderNeedsToTravel(path);
-        void IExplorerNavigationCompleteHost.DisableTabRedraw() => tabControl1.SetRedraw(false);
+        void IExplorerNavigationHost.DisableTabRedraw() => tabControl1.SetRedraw(false);
 
         // --- From QTTabBarClass.ExplorerNavigationHost.cs ---
-QTabItem IExplorerNavigationHost.GetCurrentTab() => CurrentTab;
+        QTabItem IExplorerNavigationHost.GetCurrentTab() => CurrentTab;
         void IExplorerNavigationHost.SelectTab(QTabItem tab) => tabControl1.SelectTab(tab);
         void IExplorerNavigationHost.ShowNavigationCanceled(string path) => ShowMessageNavCanceled(path, false);
         void IExplorerNavigationHost.OpenNewWindow(IDLWrapper target) => OpenNewWindow(target);
@@ -311,20 +313,17 @@ QTabItem IExplorerNavigationHost.GetCurrentTab() => CurrentTab;
         bool IExplorerNavigationHost.IsBackNavigationButton(object sender) => sender == buttonBack;
 
         // --- From QTTabBarClass.ExplorerNavigationLifecycleHost.cs ---
-bool IExplorerNavigationLifecycleHost.IsShown() => IsShown;
-        bool IExplorerNavigationLifecycleHost.IsNavigatedByCode() => NavigatedByCode;
-        void IExplorerNavigationLifecycleHost.SetNavigatedByCode(bool value) => NavigatedByCode = value;
-        void IExplorerNavigationLifecycleHost.PrepareBeforeNavigation(bool autoNavigate) { HideSubDirTip_Tab_Menu(); NowTabDragging = false; fAutoNavigating = autoNavigate; }
-        bool IExplorerNavigationLifecycleHost.IsInTravelLog() => NowInTravelLog;
-        bool IExplorerNavigationLifecycleHost.HasEarlierTravelLogEntry() => CurrentTravelLogIndex > 0;
-        void IExplorerNavigationLifecycleHost.StepBackTravelLog() => CurrentTravelLogIndex--;
-        void IExplorerNavigationLifecycleHost.SetInTravelLog(bool value) => NowInTravelLog = value;
-        void IExplorerNavigationLifecycleHost.SaveSelectedItems() => SaveSelectedItems(CurrentTab);
-        bool IExplorerNavigationLifecycleHost.IsSpecialTravelPath(string path) => IsSpecialFolderNeedsToTravel(path);
-        void IExplorerNavigationLifecycleHost.NavigateBackToFuture() => _explorerControllerModule.NavigateBackToTheFuture();
-        void IExplorerNavigationLifecycleHost.SetLastAttemptedBrowseObject(byte[] idl) => lastAttemptedBrowseObjectIDL = idl;
-        void IExplorerNavigationLifecycleHost.ShowNavigationCanceled(string path) => ShowMessageNavCanceled(path, false);
-        void IExplorerNavigationLifecycleHost.RollBackNavigation(bool forward, int count) {
+        bool IExplorerNavigationHost.IsShown() => IsShown;
+        bool IExplorerNavigationHost.IsNavigatedByCode() => NavigatedByCode;
+        void IExplorerNavigationHost.PrepareBeforeNavigation(bool autoNavigate) { HideSubDirTip_Tab_Menu(); NowTabDragging = false; fAutoNavigating = autoNavigate; }
+        bool IExplorerNavigationHost.IsInTravelLog() => NowInTravelLog;
+        bool IExplorerNavigationHost.HasEarlierTravelLogEntry() => CurrentTravelLogIndex > 0;
+        void IExplorerNavigationHost.StepBackTravelLog() => CurrentTravelLogIndex--;
+        void IExplorerNavigationHost.SetInTravelLog(bool value) => NowInTravelLog = value;
+        void IExplorerNavigationHost.SaveSelectedItems() => SaveSelectedItems(CurrentTab);
+        void IExplorerNavigationHost.NavigateBackToFuture() => NavigateBackToTheFuture();
+        void IExplorerNavigationHost.SetLastAttemptedBrowseObject(byte[] idl) => lastAttemptedBrowseObjectIDL = idl;
+        void IExplorerNavigationHost.RollBackNavigation(bool forward, int count) {
             for(int i = 0; i < count; i++) {
                 if(forward) CurrentTab.GoForward();
                 else CurrentTab.GoBackward();
@@ -332,36 +331,34 @@ bool IExplorerNavigationLifecycleHost.IsShown() => IsShown;
         }
 
         // --- From QTTabBarClass.ExplorerNavigationStateHost.cs ---
-QTabItem IExplorerNavigationStateHost.GetCurrentTab() => CurrentTab;
-        void IExplorerNavigationStateHost.SetCurrentTab(QTabItem tab) { CurrentTab = tab; }
-        QTabControl IExplorerNavigationStateHost.GetTabControl() => tabControl1;
-        string IExplorerNavigationStateHost.GetCurrentAddress() => CurrentAddress;
-        void IExplorerNavigationStateHost.SetCurrentAddress(string address) { CurrentAddress = address; }
-        string IExplorerNavigationStateHost.GetExplorerLocationName() => Explorer.LocationName;
-        bool IExplorerNavigationStateHost.IsTravelByTree() => fNowTravelByTree;
-        bool IExplorerNavigationStateHost.IsNavigatedByCode() => NavigatedByCode;
-        bool IExplorerNavigationStateHost.IsNavigationByTabSelection() => fNavigatedByTabSelection;
-        bool IExplorerNavigationStateHost.IsAutoNavigating() => fAutoNavigating;
-        IDLWrapper IExplorerNavigationStateHost.GetCurrentPidl() => GetCurrentPIDL();
-        QTabItem IExplorerNavigationStateHost.CreateNewTab(IDLWrapper wrapper) => CreateNewTab(wrapper);
-        void IExplorerNavigationStateHost.SyncTravelState() => SyncTravelState();
+        void IExplorerNavigationHost.SetCurrentTab(QTabItem tab) { CurrentTab = tab; }
+        QTabControl IExplorerNavigationHost.GetTabControl() => tabControl1;
+        string IExplorerNavigationHost.GetCurrentAddress() => CurrentAddress;
+        void IExplorerNavigationHost.SetCurrentAddress(string address) { CurrentAddress = address; }
+        string IExplorerNavigationHost.GetExplorerLocationName() => Explorer.LocationName;
+        bool IExplorerNavigationHost.IsTravelByTree() => fNowTravelByTree;
+        bool IExplorerNavigationHost.IsNavigationByTabSelection() => fNavigatedByTabSelection;
+        bool IExplorerNavigationHost.IsAutoNavigating() => fAutoNavigating;
+        IDLWrapper IExplorerNavigationHost.GetCurrentPidl() => GetCurrentPIDL();
+        QTabItem IExplorerNavigationHost.CreateNewTab(IDLWrapper wrapper) => CreateNewTab(wrapper);
+        void IExplorerNavigationHost.SyncTravelState() => SyncTravelState();
 
         // --- From QTTabBarClass.ExplorerPostNavigationHost.cs ---
-void IExplorerPostNavigationHost.CompleteFolderTreeIfNeeded() {
+void IExplorerNavigationHost.CompleteFolderTreeIfNeeded() {
             if(QTUtility.RestoreFolderTree_Hide) new WaitTimeoutCallback(QTTabBarClass.WaitTimeout).BeginInvoke(150, _folderTreeController.AsyncComplete_FolderTree, false);
         }
-        void IExplorerPostNavigationHost.ApplyRestoredTabLock(string path) {
+        void IExplorerNavigationHost.ApplyRestoredTabLock(string path) {
             if(!fNowRestoring) return;
             fNowRestoring = false;
             if(StaticReg.LockedTabsToRestoreList.Contains(path)) CurrentTab.TabLocked = true;
         }
-        void IExplorerPostNavigationHost.BringExplorerToFrontIfNeeded() {
+        void IExplorerNavigationHost.BringExplorerToFrontIfNeeded() {
             if((!OSDetector.IsXP || FirstNavigationCompleted) && (!PInvoke.IsWindowVisible(ExplorerHandle) || PInvoke.IsIconic(ExplorerHandle))) WindowUtils.BringExplorerToFront(ExplorerHandle);
         }
-        void IExplorerPostNavigationHost.NotifyPluginNavigationComplete(byte[] idl, string url) {
+        void IExplorerNavigationHost.NotifyPluginNavigationComplete(byte[] idl, string url) {
             if(pluginServer != null) pluginServer.OnNavigationComplete(tabControl1.SelectedIndex, idl, url);
         }
-        void IExplorerPostNavigationHost.CloseHistoryMenuIfOpen() {
+        void IExplorerNavigationHost.CloseHistoryMenuIfOpen() {
             if(buttonNavHistoryMenu.DropDown.Visible) buttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppFocusChange);
         }
 
@@ -374,19 +371,18 @@ bool IExplorerSelectionRestoreHost.ShouldRestoreSelection() => NavigatedByCode &
         }
 
         // --- From QTTabBarClass.ExplorerSessionRestoreHost.cs ---
-QTabItem IExplorerSessionRestoreHost.CurrentTab => CurrentTab;
-        bool IExplorerSessionRestoreHost.IsWindowInitialized { get => fOpenedWindowInitialized; set => fOpenedWindowInitialized = value; }
-        bool IExplorerSessionRestoreHost.IsShown { set => IsShown = value; }
-        void IExplorerSessionRestoreHost.CreateNewTab(IDLWrapper target) => CreateNewTab(target);
-        void IExplorerSessionRestoreHost.OpenNewTab(IDLWrapper target, bool select) => OpenNewTab(target, select);
-        void IExplorerSessionRestoreHost.AddStartupTabs(string group, string path) => AddStartUpTabs(group, path);
+QTabItem IExplorerSessionHost.CurrentTab => CurrentTab;
+        bool IExplorerSessionHost.IsWindowInitialized { get => fOpenedWindowInitialized; set => fOpenedWindowInitialized = value; }
+        bool IExplorerSessionHost.IsShown { set => IsShown = value; }
+        void IExplorerSessionHost.CreateNewTab(IDLWrapper target) => CreateNewTab(target);
+        void IExplorerSessionHost.OpenNewTab(IDLWrapper target, bool select) => OpenNewTab(target, select);
 
-        void IExplorerSessionRestoreHost.OpenStartupGroup(string group) {
+        void IExplorerSessionHost.OpenStartupGroup(string group) {
             NowOpenedByGroupOpener = true;
             OpenGroup(group, false);
         }
 
-        object IExplorerSessionRestoreHost.GetInitialLocationUrl() {
+        object IExplorerSessionHost.GetInitialLocationUrl() {
             object locationUrl = Explorer.LocationURL;
             if(ShellBrowser != null) {
                 using(IDLWrapper wrapper = ShellBrowser.GetShellPath()) {
@@ -396,21 +392,21 @@ QTabItem IExplorerSessionRestoreHost.CurrentTab => CurrentTab;
             return locationUrl;
         }
 
-        void IExplorerSessionRestoreHost.ActivateExplorerInstance() {
+        void IExplorerSessionHost.ActivateExplorerInstance() {
             InstanceManager.PushTabBarInstance(this);
             InstanceManager.SetMainUIControl(this);
         }
 
-        void IExplorerSessionRestoreHost.InitializeWindowIntegrations() {
+        void IExplorerSessionHost.InitializeWindowIntegrations() {
             QTLogger.log("QTTabBarClass PluginServer ");
-            pluginServer = new PluginServer((IPluginServerHost)this, (IPluginServerTabHost)this);
+            pluginServer = new PluginServer((IPluginServerHost)this);
             QTLogger.log("QTTabBarClass TryCallButtonBar ");
             if(!TryCallButtonBar(CreateItemsOnButtonBar)) {
                 _createItemsRetryTimer = new Timer { Interval = 2000 };
                 _createItemsRetryTimer.Tick += OnCreateItemsRetryTimerTick;
                 _createItemsRetryTimer.Start();
             }
-            _explorerControllerModule.ApplySessionWindowAlpha(ExplorerHandle);
+            ApplySessionWindowAlpha(ExplorerHandle);
             QTLogger.log("QTTabBarClass ListViewMonitor ");
             listViewManager = new ListViewMonitor(ShellBrowser, ExplorerHandle, Handle);
             listViewManager.ListViewChanged += _listViewInputController.OnListViewMonitorChanged;
@@ -427,14 +423,13 @@ QTabItem IExplorerSessionRestoreHost.CurrentTab => CurrentTab;
         }
 
         // --- From QTTabBarClass.ExplorerShutdownNavigationHost.cs ---
-bool IExplorerShutdownNavigationHost.IsQuitting() => fNowQuitting;
-        void IExplorerShutdownNavigationHost.MarkExplorerHidden() => fHideExplorer = true;
-        bool IExplorerShutdownNavigationHost.IsCaptureNewWindowCommand() => mCmdType == 3;
-        void IExplorerShutdownNavigationHost.QuitAndHideExplorer() { Explorer.Quit(); WindowUtils.HideExplorer(ExplorerHandle); }
+        void IExplorerSessionHost.MarkExplorerHidden() => fHideExplorer = true;
+        bool IExplorerSessionHost.IsCaptureNewWindowCommand() => mCmdType == 3;
+        void IExplorerSessionHost.QuitAndHideExplorer() { Explorer.Quit(); WindowUtils.HideExplorer(ExplorerHandle); }
 
         // --- From QTTabBarClass.ExplorerSpecialTravelLogHost.cs ---
-bool IExplorerSpecialTravelLogHost.IsNavigatedByCode() => NavigatedByCode;
-        void IExplorerSpecialTravelLogHost.AddSpecialTravelLog(int hash) => LogEntryDic[hash] = _explorerControllerModule.GetCurrentLogEntry();
+bool IExplorerTravelHost.IsNavigatedByCode() => NavigatedByCode;
+        void IExplorerTravelHost.AddSpecialTravelLog(int hash) => LogEntryDic[hash] = GetCurrentLogEntry();
 
         // --- From QTTabBarClass.ExplorerTooltipHost.cs ---
 string IExplorerTooltipHost.CurrentAddress => CurrentAddress;
@@ -444,15 +439,15 @@ string IExplorerTooltipHost.CurrentAddress => CurrentAddress;
         }
 
         // --- From QTTabBarClass.ExplorerTravelLogHost.cs ---
-ITravelLogStg IExplorerTravelLogHost.TravelLog => TravelLog;
-        bool IExplorerTravelLogHost.IsSpecialFolderNeedsToTravel(string path) => IsSpecialFolderNeedsToTravel(path);
+ITravelLogStg IExplorerTravelHost.TravelLog => TravelLog;
+        bool IExplorerTravelHost.IsSpecialFolderNeedsToTravel(string path) => IsSpecialFolderNeedsToTravel(path);
 
         // --- From QTTabBarClass.ExplorerTravelToolbarHost.cs ---
-QTabItem IExplorerTravelToolbarHost.CurrentTab => CurrentTab;
-        IntPtr IExplorerTravelToolbarHost.TravelToolbarHandle => travelBtnController.Handle;
-        ToolStripDropDownButton IExplorerTravelToolbarHost.HistoryButton => buttonNavHistoryMenu;
-        void IExplorerTravelToolbarHost.PopulateNavigationHistory() => _explorerControllerModule.NavigationButtons_DropDownOpening(buttonNavHistoryMenu, EventArgs.Empty);
-        bool IExplorerTravelToolbarHost.NavigateCurrentTab(bool back) => NavigateCurrentTab(back);
+QTabItem IExplorerTravelHost.CurrentTab => CurrentTab;
+        IntPtr IExplorerTravelHost.TravelToolbarHandle => travelBtnController.Handle;
+        ToolStripDropDownButton IExplorerTravelHost.HistoryButton => buttonNavHistoryMenu;
+        void IExplorerTravelHost.PopulateNavigationHistory() => NavigationButtons_DropDownOpening(buttonNavHistoryMenu, EventArgs.Empty);
+        bool IExplorerTravelHost.NavigateCurrentTab(bool back) => NavigateCurrentTab(back);
 
         // --- From QTTabBarClass.ExplorerWindowMessageHost.cs ---
 int IExplorerWindowMessageHost.SequentialCloseCount { get => iSequential_WM_CLOSE; set => iSequential_WM_CLOSE = value; }
@@ -498,39 +493,9 @@ int IExplorerWindowMessageHost.SequentialCloseCount { get => iSequential_WM_CLOS
                     : IntPtr.Zero;
         }
 
-        private void InitializeInstallation() {
-            _explorerControllerModule.InitializeInstallation();
-        }
-
         private void MinimizeToTray() {
             _windowManagementController.MinimizeToTray();
         }
-
-
-        internal void NavigateBranchCurrent(int index) {
-            _explorerControllerModule.NavigateBranchCurrent(index);
-        }
-
-        private void NavigateBranches(QTabItem tab, int index) {
-            _explorerControllerModule.NavigateBranches(tab, index);
-        }
-
-        private bool NavigateCurrentTab(bool fBack) {
-            return _explorerControllerModule.NavigateCurrentTab(fBack);
-        }
-
-        private void NavigateToFirstOrLast(bool fBack) {
-            _explorerControllerModule.NavigateToFirstOrLast(fBack);
-        }
-
-        internal void NavigateToHistory(string displayPath, bool fBack, int steps) {
-            _explorerControllerModule.NavigateToHistory(displayPath, fBack, steps);
-        }
-
-        private bool NavigateToIndex(bool fBack, int index) {
-            return _explorerControllerModule.NavigateToIndex(fBack, index);
-        }
-
 
 
         // ��ʾĿ¼��

@@ -25,22 +25,21 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerController_Has_TravelLog_Partial() {
-            string travelLog = ReadFile("QTTabBarClass.ExplorerController.TravelLog.cs");
-            Assert.IsTrue(travelLog.Contains("ClearTravelLogs"));
-            Assert.IsTrue(travelLog.Contains("NavigateBackToTheFuture"));
-            Assert.IsTrue(travelLog.Contains("GetCurrentLogEntry"));
-            Assert.IsFalse(travelLog.Contains("public partial class QTTabBarClass"),
-                "Explorer partials should declare top-level ExplorerControllerModule after batch 5v");
-            Assert.LessOrEqual(CountLines("QTTabBarClass.ExplorerController.TravelLog.cs"), 400);
+        public void ExplorerIntegration_Hosts_TravelLog_And_Navigation_Leaf_Controllers() {
+            string integration = ReadFile("QTTabBarClass.ExplorerIntegration.cs");
+            Assert.IsTrue(integration.Contains("ExplorerTravelLogController"));
+            Assert.IsTrue(integration.Contains("ExplorerNavigationController"));
+            Assert.IsFalse(integration.Contains("class ExplorerController"),
+                "ExplorerIntegration must not retain ExplorerController façade");
+            Assert.LessOrEqual(CountLines("QTTabBarClass.ExplorerIntegration.cs"), 400);
         }
 
         [Test]
-        public void ExplorerController_Has_MessageRouting_Partial() {
-            string routing = ReadFile("QTTabBarClass.ExplorerController.MessageRouting.cs");
-            Assert.IsTrue(routing.Contains("RouteExplorerWindowMessage"));
-            Assert.LessOrEqual(CountLines("QTTabBarClass.ExplorerController.WindowMessages.cs"), 350);
-            Assert.LessOrEqual(CountLines("QTTabBarClass.ExplorerController.MessageRouting.cs"), 350);
+        public void ExplorerIntegration_Hosts_MessageRouting_And_WindowMessage_Controllers() {
+            string integration = ReadFile("QTTabBarClass.ExplorerIntegration.cs");
+            Assert.IsTrue(integration.Contains("ExplorerMessageRoutingController"));
+            Assert.IsTrue(integration.Contains("ExplorerWindowMessageController"));
+            Assert.IsTrue(integration.Contains("RouteExplorerWindowMessage"));
         }
 
         [Test]
@@ -57,14 +56,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerControllerSourceTestHelper_Includes_New_Partials() {
+        public void ExplorerControllerSourceTestHelper_Reads_ExplorerIntegration() {
             string helper = File.ReadAllText(Path.Combine(FindRepoRoot(), "Tests", "QTTtabBarTests",
                 "ExplorerControllerSourceTestHelper.cs"));
-            Assert.IsTrue(helper.Contains("ExplorerController.TravelLog.cs"));
-            Assert.IsTrue(helper.Contains("ExplorerController.MessageRouting.cs"));
+            Assert.IsTrue(helper.Contains("QTTabBarClass.ExplorerIntegration.cs"));
             string combined = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
-            Assert.IsTrue(combined.Contains("ClearTravelLogs"));
-            Assert.IsTrue(combined.Contains("RouteExplorerWindowMessage"));
+            Assert.IsTrue(combined.Contains("OnExplorerAttachedCore"));
+            Assert.IsTrue(combined.Contains("TryApplySessionStartup"));
         }
     }
 }

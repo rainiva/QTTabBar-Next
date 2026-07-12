@@ -40,7 +40,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void TabManager_CloneTabButton_Delegates_To_TabBarBase() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ShellHosts.cs"));
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.MenuOperationsHost.cs"));
             Assert.IsTrue(content.Contains("CloneTabButtonCore"));
             Assert.IsFalse(content.Contains("QTTabBarLib.QTTabBarClass.CloneTabButton optionURL"),
                 "TabManager should not duplicate CloneTabButton body");

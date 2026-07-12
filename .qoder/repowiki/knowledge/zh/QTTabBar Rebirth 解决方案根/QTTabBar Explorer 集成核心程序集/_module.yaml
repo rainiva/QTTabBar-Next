@@ -1,8 +1,0 @@
-schema_version: 1
-module_path: qttabbar_core
-title: QTTabBar Explorer 集成核心程序集
-scope:
-    - QTTabBar/
-source_files: []
-depends_on: []
-related_to: []

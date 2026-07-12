@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows.Forms;
 using NUnit.Framework;
 using QTTabBarLib;
+using QTTabBarLib.Ipc;
 
 namespace QTTtabBarTests {
     /// <summary>
@@ -65,16 +66,15 @@ namespace QTTtabBarTests {
                 }
 
                 // 与生产代码一致地构造编码后的委托字节(DelToByte)。
-                MethodInfo delToByte = typeof(InstanceManager).GetMethod(
+                MethodInfo delToByte = typeof(IpcCommandGateway).GetMethod(
                     "DelToByte", BindingFlags.NonPublic | BindingFlags.Static);
                 Assert.IsNotNull(delToByte, "DelToByte 私有方法应当存在");
                 Action callback = RecordExecution;
                 byte[] encoded = (byte[])delToByte.Invoke(null, new object[] { callback });
                 Assert.IsNotNull(encoded, "编码后的委托字节不应为空");
 
-                // 创建 CommClient 实例并取得 Execute 方法。
-                Type commClientType = typeof(InstanceManager).Assembly.GetType(
-                    "QTTabBarLib.InstanceManager+CommClient");
+                Type commClientType = typeof(IpcCommandGateway).Assembly.GetType(
+                    "QTTabBarLib.Ipc.CommClient");
                 Assert.IsNotNull(commClientType, "CommClient 类型应当存在");
                 object commClient = Activator.CreateInstance(commClientType, true);
                 MethodInfo execute = commClientType.GetMethod("Execute");

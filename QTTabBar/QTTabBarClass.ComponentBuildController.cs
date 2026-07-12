@@ -15,15 +15,15 @@ using QTPlugin;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
-    public partial class QTTabBarClass : IShutdownPersistenceHost, IShutdownResourceHost, ITabBarCompositionHost, IComponentBuildHost {
+    public partial class QTTabBarClass : IShutdownHost, ITabBarCompositionHost, IComponentBuildHost {
 
         // BuildTabBarComponents moved to QTTabBarClass.cs (delegates to ComponentBuildController.Build)
 
 
         // --- IComponentBuildHost: controller field setters ---
-        ExplorerController IComponentBuildHost.ExplorerControllerModule { get => _explorerControllerModule; set => _explorerControllerModule = value; }
-        TabManager IComponentBuildHost.TabManager { get => _tabManager; set => _tabManager = value; }
         MenuController IComponentBuildHost.MenuController { get => _menuController; set => _menuController = value; }
+        IMenuContext IComponentBuildHost.MenuContext => _menuContext;
+        IExplorerContext IComponentBuildHost.ExplorerContext => _explorerContext;
         DragDropController IComponentBuildHost.DragDropController { get => _dragDropController; set => _dragDropController = value; }
         HookInputController IComponentBuildHost.HookInputController { get => _hookInputController; set => _hookInputController = value; }
         FileToolsController IComponentBuildHost.FileToolsController { get => _fileToolsController; set => _fileToolsController = value; }
@@ -64,10 +64,13 @@ namespace QTTabBarLib {
         void IComponentBuildHost.ResumeLayout(bool performLayout) => ResumeLayout(performLayout);
         Control.ControlCollection IComponentBuildHost.Controls => Controls;
 
+        // --- IComponentBuildHost: explorer integration ---
+        void IComponentBuildHost.InitializeNavBtns(bool fSync) => InitializeNavBtns(fSync);
+
         // --- IComponentBuildHost: event wiring ---
         void IComponentBuildHost.WireControlEvents() {
-            buttonNavHistoryMenu.DropDown.ItemClicked += _explorerControllerModule.NavigationButton_DropDownMenu_ItemClicked;
-            buttonNavHistoryMenu.DropDownOpening += _explorerControllerModule.NavigationButtons_DropDownOpening;
+            buttonNavHistoryMenu.DropDown.ItemClicked += NavigationButton_DropDownMenu_ItemClicked;
+            buttonNavHistoryMenu.DropDownOpening += NavigationButtons_DropDownOpening;
 
             tabControl1.RowCountChanged += tabControl1_RowCountChanged;
             tabControl1.Deselecting += tabControl1_Deselecting;
@@ -129,11 +132,7 @@ namespace QTTabBarLib {
                     if(payload == null || string.IsNullOrEmpty(payload.Path)) {
                         continue;
                     }
-                    QTabItem tab = new QTabItem(payload.Text ?? payload.Path, payload.Path, tabControl1) {
-                        TabLocked = payload.Locked,
-                        ImageKey = payload.ImageKey,
-                    };
-                    tab.ResetOwner(tabControl1);
+                    TryCreateRestoredTab(payload);
                 }
                 QTabItem.CheckSubTexts(tabControl1);
                 TryCallButtonBar(RefreshButtonsOnButtonBar);
@@ -171,30 +170,30 @@ namespace QTTabBarLib {
         }
 
         // --- From QTTabBarClass.ShutdownAccess.cs ---
-        QTabControl IShutdownResourceHost.TabControl => tabControl1;
-        TreeViewWrapper IShutdownResourceHost.TreeViewWrapper { get => treeViewWrapper; set => treeViewWrapper = value; }
-        ListViewMonitor IShutdownResourceHost.ListViewManager { get => listViewManager; set => listViewManager = value; }
-        SubDirTipForm IShutdownResourceHost.SubDirTip { get => subDirTip_Tab; set => subDirTip_Tab = value; }
-        PluginServer IShutdownResourceHost.PluginServer { get => pluginServer; set => pluginServer = value; }
-        NativeWindowController IShutdownResourceHost.ExplorerController { get => explorerController; set => explorerController = value; }
-        RebarController IShutdownResourceHost.RebarController { get => rebarController; set => rebarController = value; }
-        NativeWindowController IShutdownResourceHost.TravelButtonController { get => travelBtnController; set => travelBtnController = value; }
-        IntPtr IShutdownResourceHost.BandHandle => Handle;
-        IntPtr IShutdownResourceHost.ExplorerHandle => ExplorerHandle;
-        Cursor IShutdownResourceHost.TabDragCursor { get => curTabDrag; set => curTabDrag = value; }
-        Cursor IShutdownResourceHost.TabCloningCursor { get => curTabCloning; set => curTabCloning = value; }
-        DropTargetWrapper IShutdownResourceHost.DropTargetWrapper { get => dropTargetWrapper; set => dropTargetWrapper = value; }
-        TabSwitchForm IShutdownResourceHost.TabSwitcher { get => tabSwitcher; set => tabSwitcher = value; }
-        Cursor IShutdownResourceHost.CurrentCursor { set => Cursor = value; }
-        bool IShutdownPersistenceHost.IsShown => IsShown;
-        void IShutdownPersistenceHost.UninstallHooks() => _hookInputController.Uninstall();
-        void IShutdownPersistenceHost.AddToHistory(QTabItem item) => AddToHistory(item);
-        ITravelLogStg IShutdownPersistenceHost.TravelLog { get => TravelLog; set => TravelLog = value; }
-        ShellContextMenu IShutdownPersistenceHost.ShellContextMenu { get => shellContextMenu; set => shellContextMenu = value; }
-        ShellBrowserEx IShutdownPersistenceHost.ShellBrowser { get => ShellBrowser; set => ShellBrowser = value; }
-        Dictionary<int, ITravelLogEntry> IShutdownPersistenceHost.LogEntryDic => LogEntryDic;
-        void IShutdownPersistenceHost.SetFinalRelease() => fFinalRelease = true;
-        void IShutdownPersistenceHost.CloseDWBase(uint dwReserved) => CloseDWBase(dwReserved);
+        QTabControl IShutdownHost.TabControl => tabControl1;
+        TreeViewWrapper IShutdownHost.TreeViewWrapper { get => treeViewWrapper; set => treeViewWrapper = value; }
+        ListViewMonitor IShutdownHost.ListViewManager { get => listViewManager; set => listViewManager = value; }
+        SubDirTipForm IShutdownHost.SubDirTip { get => subDirTip_Tab; set => subDirTip_Tab = value; }
+        PluginServer IShutdownHost.PluginServer { get => pluginServer; set => pluginServer = value; }
+        NativeWindowController IShutdownHost.ExplorerController { get => explorerController; set => explorerController = value; }
+        RebarController IShutdownHost.RebarController { get => rebarController; set => rebarController = value; }
+        NativeWindowController IShutdownHost.TravelButtonController { get => travelBtnController; set => travelBtnController = value; }
+        IntPtr IShutdownHost.BandHandle => Handle;
+        IntPtr IShutdownHost.ExplorerHandle => ExplorerHandle;
+        Cursor IShutdownHost.TabDragCursor { get => curTabDrag; set => curTabDrag = value; }
+        Cursor IShutdownHost.TabCloningCursor { get => curTabCloning; set => curTabCloning = value; }
+        DropTargetWrapper IShutdownHost.DropTargetWrapper { get => dropTargetWrapper; set => dropTargetWrapper = value; }
+        TabSwitchForm IShutdownHost.TabSwitcher { get => tabSwitcher; set => tabSwitcher = value; }
+        Cursor IShutdownHost.CurrentCursor { set => Cursor = value; }
+        bool IShutdownHost.IsShown => IsShown;
+        void IShutdownHost.UninstallHooks() => _hookInputController.Uninstall();
+        void IShutdownHost.AddToHistory(QTabItem item) => AddToHistory(item);
+        ITravelLogStg IShutdownHost.TravelLog { get => TravelLog; set => TravelLog = value; }
+        ShellContextMenu IShutdownHost.ShellContextMenu { get => shellContextMenu; set => shellContextMenu = value; }
+        ShellBrowserEx IShutdownHost.ShellBrowser { get => ShellBrowser; set => ShellBrowser = value; }
+        Dictionary<int, ITravelLogEntry> IShutdownHost.LogEntryDic => LogEntryDic;
+        void IShutdownHost.SetFinalRelease() => fFinalRelease = true;
+        void IShutdownHost.CloseDWBase(uint dwReserved) => CloseDWBase(dwReserved);
         internal TreeViewWrapper ShutdownTreeViewWrapper {
             get { return treeViewWrapper; }
             set { treeViewWrapper = value; }
@@ -323,10 +322,9 @@ namespace QTTabBarLib {
             _host.ContextMenuTab.SuspendLayout();
             _host.SuspendLayout();
 
-            _host.ExplorerControllerModule = new ExplorerController((IExplorerIntegrationHost)_host);
             bool showNavigationButtons = Config.Tabs.ShowNavButtons;
             if(showNavigationButtons) {
-                _host.ExplorerControllerModule.InitializeNavBtns(false);
+                _host.InitializeNavBtns(false);
             }
 
             _host.ButtonNavHistoryMenu.AutoSize = false;
@@ -342,13 +340,12 @@ namespace QTTabBarLib {
             _host.TabControl1.ContextMenuStrip = _host.ContextMenuTab;
             _host.TabControl1.RefreshOptions(true);
 
-            _host.TabManager = new TabManager((ITabOperationsHost)_host);
-            _host.MenuController = new MenuController((IMenuInteractionHost)_host, (IMenuLifecycleHost)_host);
+            _host.MenuController = new MenuController(_host.MenuContext, (IMenuControllerHost)_host);
             _host.DragDropController = new DragDropController((IDragDropHost)_host);
             _host.HookInputController = new HookInputController((IHookInputHost)_host);
             _host.FileToolsController = new FileToolsController((IFileToolsHost)_host);
-            _host.BindActionController = new BindActionController((IBindActionHost)_host, (IBindActionUiHost)_host, _host.MenuController);
-            _host.ShellCommandController = new ShellCommandController((IShellCommandHost)_host);
+            _host.BindActionController = new BindActionController(_host.MenuContext, (IBindActionHost)_host, _host.MenuController);
+            _host.ShellCommandController = new ShellCommandController(_host.MenuContext, (IShellCommandHost)_host);
             _host.ListViewInputController = new ListViewInputController((IListViewInputHost)_host);
             _host.KeyboardAcceleratorController = new KeyboardAcceleratorController((IQTTabBarBandHost)_host);
             _host.ShellUiController = new ShellUiController((IShellUiHost)_host);
@@ -362,8 +359,8 @@ namespace QTTabBarLib {
             _host.DroppedFilesController = new DroppedFilesController((IDroppedFilesHost)_host);
             _host.FolderTreeController = new FolderTreeController((IFolderTreeHost)_host);
             _host.ViewModeController = new ViewModeController((IViewModeHost)_host);
-            _host.PluginMenuController = new PluginMenuController((IPluginMenuHost)_host);
-            _host.ShutdownController = new ShutdownController((IShutdownResourceHost)_host, (IShutdownPersistenceHost)_host);
+            _host.PluginMenuController = new PluginMenuController(_host.MenuContext, _host.ExplorerContext, (IPluginMenuHost)_host);
+            _host.ShutdownController = new ShutdownController((IShutdownHost)_host);
 
             // Wire up all events (delegated to host)
             _host.WireControlEvents();

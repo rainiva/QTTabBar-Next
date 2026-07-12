@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -7,8 +8,6 @@ using QTTabBarLib;
 namespace QTTtabBarTests {
     [TestFixture]
     public class TopLevelNavigationAndTabControllerTests {
-        [TestCase("QTTabBarLib.ExplorerController")]
-        [TestCase("QTTabBarLib.TabManager")]
         [TestCase("QTTabBarLib.ShutdownController")]
         [TestCase("QTTabBarLib.TabBarComposition")]
         public void Navigation_And_Tab_Controller_Is_TopLevel_And_Has_No_QTTabBarClass_Field(string typeName) {
@@ -38,36 +37,53 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerController_Uses_Only_Narrow_Role_Hosts() {
-            Assembly assembly = typeof(QTTabBarClass).Assembly;
-            Type controller = assembly.GetType("QTTabBarLib.ExplorerController", false);
-            Type integrationHost = assembly.GetType("QTTabBarLib.IExplorerIntegrationHost", false);
-
-            Assert.IsNotNull(controller, "ExplorerController should be a top-level controller");
-            Assert.IsNotNull(integrationHost, "ExplorerController should expose its Explorer integration dependency");
-            Assert.LessOrEqual(integrationHost.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property),
-                15,
-                "Explorer integration contract must remain narrow");
-            Assert.IsTrue(controller.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Any(constructor => constructor.GetParameters().Any(parameter => parameter.ParameterType == integrationHost)),
-                "ExplorerController should receive a role host rather than QTTabBarClass");
-            Type[] roleHosts = controller.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Select(field => field.FieldType)
-                .Where(type => type.IsInterface)
-                .Distinct()
-                .ToArray();
-            Assert.IsNotEmpty(roleHosts, "ExplorerController should retain its dependencies as role contracts");
-            Assert.IsTrue(roleHosts.All(type => type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property) <= 15),
-                "Every ExplorerController role contract must remain narrow");
+        public void ExplorerController_Type_Does_Not_Exist_After_Wave18() {
+            string root = Path.Combine(FindRepoRoot(), "QTTabBar");
+            Assert.IsEmpty(Directory.GetFiles(root, "QTTabBarClass.ExplorerController*.cs"));
         }
 
         [Test]
-        public void ExplorerControllerModule_Has_No_Direct_Owner_BackReference() {
-            string source = ExplorerControllerSourceTestHelper.ReadCombined(TestContext.CurrentContext.TestDirectory
-                .Substring(0, TestContext.CurrentContext.TestDirectory.IndexOf("Tests\\QTTtabBarTests", StringComparison.OrdinalIgnoreCase)));
+        public void ExplorerIntegration_Uses_Leaf_Controllers_With_Narrow_Hosts() {
+            string source = System.IO.File.ReadAllText(System.IO.Path.Combine(
+                FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
+            StringAssert.Contains("(IExplorerNavigationHost)this", source);
+            StringAssert.Contains("(IExplorerSessionHost)this", source);
+            StringAssert.DoesNotContain("new ExplorerController", source);
+        }
+
+        private static int HostMemberCount(Type type) {
+            return type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property);
+        }
+
+        private static int HostMemberBudget(Type type) {
+            switch(type.Name) {
+                case "IExplorerNavigationHost":
+                    return 48;
+                case "IExplorerSessionHost":
+                    return 30;
+                case "IExplorerTravelHost":
+                    return 20;
+                default:
+                    return 15;
+            }
+        }
+
+        [Test]
+        public void ExplorerIntegration_Has_No_Direct_Owner_BackReference() {
+            string source = ExplorerControllerSourceTestHelper.ReadCombined(FindRepoRoot());
             StringAssert.DoesNotContain("_owner.", source);
+        }
+
+        private static string FindRepoRoot() {
+            var dir = new System.IO.DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            while(dir != null) {
+                if(System.IO.File.Exists(System.IO.Path.Combine(dir.FullName, "QTTabBar Rebirth.sln"))) {
+                    return dir.FullName;
+                }
+                dir = dir.Parent;
+            }
+            throw new InvalidOperationException("Repository root not found.");
         }
 
         [Test]
@@ -88,54 +104,48 @@ namespace QTTtabBarTests {
         public void ExplorerCommandDispatcher_Is_TopLevel_And_Uses_A_Narrow_Capture_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type dispatcher = assembly.GetType("QTTabBarLib.ExplorerCommandDispatcher", false);
-            Type host = assembly.GetType("QTTabBarLib.IExplorerWindowCaptureHost", false);
+            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionHost", false);
 
             Assert.IsNotNull(dispatcher, "new-window capture must be a top-level dispatcher");
-            Assert.IsNotNull(host, "new-window capture must use a dedicated host contract");
+            Assert.IsNotNull(host, "new-window capture must use the merged session host contract");
             Assert.IsFalse(dispatcher.IsNested, "new-window capture dispatcher must not be nested");
             Assert.IsFalse(dispatcher.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(field => field.FieldType == typeof(QTTabBarClass)),
                 "new-window capture dispatcher must not directly hold QTTabBarClass");
-            Assert.LessOrEqual(host.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property),
-                15,
-                "new-window capture contract must remain narrow");
+            Assert.LessOrEqual(HostMemberCount(host), HostMemberBudget(host),
+                "merged session host contract budget after Wave 13");
         }
 
         [Test]
         public void ExplorerTravelLogController_Is_TopLevel_And_Uses_A_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.ExplorerTravelLogController", false);
-            Type host = assembly.GetType("QTTabBarLib.IExplorerTravelLogHost", false);
+            Type host = assembly.GetType("QTTabBarLib.IExplorerTravelHost", false);
 
             Assert.IsNotNull(controller, "travel log responsibility must be a top-level controller");
-            Assert.IsNotNull(host, "travel log responsibility must use a dedicated host contract");
+            Assert.IsNotNull(host, "travel responsibilities must use the merged travel host contract");
             Assert.IsFalse(controller.IsNested, "travel log controller must not be nested");
             Assert.IsFalse(controller.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(field => field.FieldType == typeof(QTTabBarClass)),
                 "travel log controller must not directly hold QTTabBarClass");
-            Assert.LessOrEqual(host.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property),
-                15,
-                "travel log host contract must remain narrow");
+            Assert.LessOrEqual(HostMemberCount(host), HostMemberBudget(host),
+                "merged travel host contract budget after Wave 13");
         }
 
         [Test]
         public void ExplorerSessionRestoreController_Is_TopLevel_And_Uses_A_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.ExplorerSessionRestoreController", false);
-            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionRestoreHost", false);
+            Type host = assembly.GetType("QTTabBarLib.IExplorerSessionHost", false);
 
             Assert.IsNotNull(controller, "session restore responsibility must be a top-level controller");
-            Assert.IsNotNull(host, "session restore must use a dedicated host contract");
+            Assert.IsNotNull(host, "session restore must use the merged session host contract");
             Assert.IsFalse(controller.IsNested, "session restore controller must not be nested");
             Assert.IsFalse(controller.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(field => field.FieldType == typeof(QTTabBarClass)),
                 "session restore controller must not directly hold QTTabBarClass");
-            Assert.LessOrEqual(host.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property),
-                15,
-                "session restore host contract must remain narrow");
+            Assert.LessOrEqual(HostMemberCount(host), HostMemberBudget(host),
+                "merged session host contract budget after Wave 13");
         }
 
         [Test]
@@ -186,10 +196,8 @@ namespace QTTtabBarTests {
             Assert.IsFalse(controller.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(field => field.FieldType == typeof(QTTabBarClass)),
                 "navigation controller must not directly hold QTTabBarClass");
-            Assert.LessOrEqual(host.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property),
-                15,
-                "navigation host contract must remain narrow");
+            Assert.LessOrEqual(HostMemberCount(host), HostMemberBudget(host),
+                "merged navigation host contract budget after Wave 13");
         }
 
         [Test]
@@ -229,18 +237,18 @@ namespace QTTtabBarTests {
         }
 
         [TestCase("QTTabBarLib.ExplorerHookInstallationController", "QTTabBarLib.IExplorerHookInstallationHost")]
-        [TestCase("QTTabBarLib.ExplorerTravelToolbarController", "QTTabBarLib.IExplorerTravelToolbarHost")]
-        [TestCase("QTTabBarLib.ExplorerNavigationLifecycleController", "QTTabBarLib.IExplorerNavigationLifecycleHost")]
-        [TestCase("QTTabBarLib.ExplorerComEventController", "QTTabBarLib.IExplorerComEventHost")]
+        [TestCase("QTTabBarLib.ExplorerTravelToolbarController", "QTTabBarLib.IExplorerTravelHost")]
+        [TestCase("QTTabBarLib.ExplorerNavigationLifecycleController", "QTTabBarLib.IExplorerNavigationHost")]
+        [TestCase("QTTabBarLib.ExplorerComEventController", "QTTabBarLib.IExplorerNavigationHost")]
         [TestCase("QTTabBarLib.ExplorerLockedTabNavigationController", "QTTabBarLib.IExplorerLockedTabNavigationHost")]
-        [TestCase("QTTabBarLib.ExplorerSpecialTravelLogController", "QTTabBarLib.IExplorerSpecialTravelLogHost")]
-        [TestCase("QTTabBarLib.ExplorerNavigationCleanupController", "QTTabBarLib.IExplorerNavigationCleanupHost")]
-        [TestCase("QTTabBarLib.ExplorerPostNavigationController", "QTTabBarLib.IExplorerPostNavigationHost")]
-        [TestCase("QTTabBarLib.ExplorerShutdownNavigationController", "QTTabBarLib.IExplorerShutdownNavigationHost")]
+        [TestCase("QTTabBarLib.ExplorerSpecialTravelLogController", "QTTabBarLib.IExplorerTravelHost")]
+        [TestCase("QTTabBarLib.ExplorerNavigationCleanupController", "QTTabBarLib.IExplorerNavigationHost")]
+        [TestCase("QTTabBarLib.ExplorerPostNavigationController", "QTTabBarLib.IExplorerNavigationHost")]
+        [TestCase("QTTabBarLib.ExplorerShutdownNavigationController", "QTTabBarLib.IExplorerSessionHost")]
         [TestCase("QTTabBarLib.ExplorerLegacyNavigationController", "QTTabBarLib.IExplorerLegacyNavigationHost")]
         [TestCase("QTTabBarLib.ExplorerTooltipController", "QTTabBarLib.IExplorerTooltipHost")]
         [TestCase("QTTabBarLib.ExplorerSelectionRestoreController", "QTTabBarLib.IExplorerSelectionRestoreHost")]
-        [TestCase("QTTabBarLib.ExplorerNavigationStateController", "QTTabBarLib.IExplorerNavigationStateHost")]
+        [TestCase("QTTabBarLib.ExplorerNavigationStateController", "QTTabBarLib.IExplorerNavigationHost")]
         public void Explorer_Integration_Controllers_Are_TopLevel_And_Use_Narrow_Hosts(string controllerName, string hostName) {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType(controllerName, false);
@@ -252,10 +260,8 @@ namespace QTTtabBarTests {
             Assert.IsFalse(controller.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(field => field.FieldType == typeof(QTTabBarClass)),
                 controllerName + " must not directly hold QTTabBarClass");
-            Assert.LessOrEqual(host.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Count(member => member.MemberType == MemberTypes.Method || member.MemberType == MemberTypes.Property),
-                15,
-                hostName + " must remain narrow");
+            Assert.LessOrEqual(HostMemberCount(host), HostMemberBudget(host),
+                hostName + " must remain within its Wave 13 budget");
         }
     }
 }

@@ -28,7 +28,7 @@ namespace QTTabBarLib {
                         return true;
 
                     case Commands.CloseCurrentTab:
-                        return _host.CloseTab(_tabHost.CurrentTab);
+                        return _host.CloseTab(_host.CurrentTab);
 
                     case Commands.CloseLeft:
                     case Commands.CloseRight:
@@ -36,7 +36,7 @@ namespace QTTabBarLib {
                         return true;
 
                     case Commands.CloseAllButCurrent:
-                        _host.CloseAllTabsExcept(_tabHost.CurrentTab);
+                        _host.CloseAllTabsExcept(_host.CurrentTab);
                         return true;
 
                     case Commands.CloseAllButOne: {
@@ -58,7 +58,7 @@ namespace QTTabBarLib {
                         return true;
 
                     case Commands.ToggleTopMost:
-                        _tabHost.ToggleTopMost();
+                        _host.ToggleTopMost();
                         QTTabBarClass.TryCallButtonBar(bbar => bbar.RefreshButtons());
                         return true;
 
@@ -75,7 +75,7 @@ namespace QTTabBarLib {
                         return true;
 
                     case Commands.IsFolderTreeVisible:
-                        return _tabHost.ShellBrowser.IsFolderTreeVisible();
+                        return _host.ShellBrowser.IsFolderTreeVisible();
 
                     case Commands.IsButtonBarVisible:
                         return ButtonBarRegistry.TryGetButtonBarHandle(_host.ExplorerHandle, out ptr);
@@ -84,7 +84,7 @@ namespace QTTabBarLib {
                         if(!OSDetector.IsXP || !(arg is bool)) {
                             break;
                         }
-                        _tabHost.ShowFolderTree((bool)arg);
+                        _host.ShowFolderTree((bool)arg);
                         return true;
 
                     case Commands.ShowButtonBar:
@@ -126,9 +126,9 @@ namespace QTTabBarLib {
                     case Commands.ReorderTabsByPath:
                     case Commands.ReorderTabsByActv:
                     case Commands.ReorderTabsRevers:
-                        if(_tabHost.tabControl1.TabCount > 1) {
+                        if(_host.tabControl1.TabCount > 1) {
                             bool fDescending = ((arg != null) && (arg is bool)) && ((bool)arg);
-                            _tabHost.ReorderTab(((int)command) - 0x18, fDescending);
+                            _host.ReorderTab(((int)command) - 0x18, fDescending);
                         }
                         break;
                 }

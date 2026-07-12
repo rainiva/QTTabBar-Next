@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BandObjectLib;
+using QTPlugin;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
@@ -24,12 +25,19 @@ namespace QTTabBarLib {
         }
 
         internal QTabItem CreateNewTabAt(IDLWrapper idlw, TabPos position) {
-            string path = idlw.Path;
-            QTabItem tab = new QTabItem(QTUtility2.MakePathDisplayText(path, false), path, tabControl1);
-            tab.NavigatedTo(path, idlw.IDL, -1, false);
-            tab.ToolTipText = QTUtility2.MakePathDisplayText(path, true);
-            AddInsertTabAt(tab, position);
+            QTabItem tab;
+            TryCreateTabCoreFromWrapper(idlw, position, -1, false, false, true, out tab);
             return tab;
+        }
+
+        internal bool TryCreateTabAtPosition(
+                Address address,
+                TabPos position,
+                bool locked,
+                bool select,
+                bool publishSideEffects) {
+            QTabItem tab;
+            return TryCreateTabCore(address, -1, position, locked, select, publishSideEffects, out tab);
         }
 
         internal bool OpenNewTab(string path, bool blockSelecting = false, bool fForceNew = false) {
@@ -41,9 +49,110 @@ namespace QTTabBarLib {
             return false;
         }
 
+        internal bool TryCreateTab(Address address, int requestedIndex, bool locked, bool select) {
+            QTabItem tab;
+            return TryCreateTabCore(address, requestedIndex, null, locked, select, publishSideEffects: true, out tab);
+        }
+
+        internal bool TryCreateRestoredTab(MergeTabPayload payload) {
+            if(payload == null || string.IsNullOrEmpty(payload.Path)) {
+                return false;
+            }
+            QTabItem tab;
+            if(!TryCreateTabCore(new Address(payload.Path), -1, null, payload.Locked, false, publishSideEffects: false, out tab)) {
+                return false;
+            }
+            tab.ImageKey = payload.ImageKey ?? string.Empty;
+            return true;
+        }
+
+        private bool TryCreateTabCore(
+                Address address,
+                int requestedIndex,
+                TabPos? insertPosition,
+                bool locked,
+                bool select,
+                bool publishSideEffects,
+                out QTabItem tab) {
+            tab = null;
+            using(IDLWrapper initial = new IDLWrapper(address)) {
+                return TryCreateTabCoreFromWrapper(
+                    initial, insertPosition, requestedIndex, locked, select, publishSideEffects, out tab);
+            }
+        }
+
+        private bool TryCreateTabCoreFromWrapper(
+                IDLWrapper idlwGiven,
+                TabPos? insertPosition,
+                int requestedIndex,
+                bool locked,
+                bool select,
+                bool publishSideEffects,
+                out QTabItem tab) {
+            tab = null;
+            if(!IsValidTabTarget(idlwGiven)) {
+                return false;
+            }
+            using(IDLWrapper resolved = idlwGiven.ResolveTargetIfLink()) {
+                IDLWrapper target = resolved ?? idlwGiven;
+                if(!IsValidTabTarget(target) || !target.IsFolder) {
+                    return false;
+                }
+                tab = CreateTabItem(target, locked);
+                InsertCreatedTab(tab, insertPosition, requestedIndex);
+                if(select) {
+                    tabControl1.SelectTab(tab);
+                }
+                if(publishSideEffects) {
+                    PublishTabCreation();
+                }
+                return true;
+            }
+        }
+
+        private void InsertCreatedTab(QTabItem tab, TabPos? insertPosition, int requestedIndex) {
+            if(insertPosition.HasValue) {
+                AddInsertTabAt(tab, insertPosition.Value);
+                return;
+            }
+            InsertTabAtRequestedIndex(tab, requestedIndex);
+        }
+
+        private static bool IsValidTabTarget(IDLWrapper wrapper) {
+            return wrapper != null
+                && wrapper.Available
+                && wrapper.HasPath
+                && wrapper.IsReadyIfDrive
+                && !wrapper.IsLinkToDeadFolder;
+        }
+
+        private QTabItem CreateTabItem(IDLWrapper idlw, bool locked) {
+            string path = idlw.Path;
+            QTabItem item = new QTabItem(QTUtility2.MakePathDisplayText(path, false), path, tabControl1);
+            item.NavigatedTo(path, idlw.IDL, -1, false);
+            item.ToolTipText = QTUtility2.MakePathDisplayText(path, true);
+            item.TabLocked = locked;
+            return item;
+        }
+
+        private void InsertTabAtRequestedIndex(QTabItem tab, int requestedIndex) {
+            if(requestedIndex < 0) {
+                AddInsertTab(tab);
+                return;
+            }
+            if(requestedIndex > tabControl1.TabCount) {
+                requestedIndex = tabControl1.TabCount;
+            }
+            tabControl1.TabPages.Insert(requestedIndex, tab);
+        }
+
+        private void PublishTabCreation() {
+            TryCallButtonBar(bbar => bbar.RefreshButtons());
+            QTabItem.CheckSubTexts(tabControl1);
+        }
+
         internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
-            if(idlwGiven == null || !idlwGiven.Available || !idlwGiven.HasPath || !idlwGiven.IsReadyIfDrive
-                    || idlwGiven.IsLinkToDeadFolder) {
+            if(!IsValidTabTarget(idlwGiven)) {
                 SoundFeedbackService.SoundPlay();
                 return false;
             }
@@ -84,12 +193,16 @@ namespace QTTabBarLib {
                                         if(PInvoke.SHBindToParent(idlw.PIDL, ExplorerGUIDs.IID_IShellFolder, out ppv, out ptr) == 0) {
                                             using(IDLWrapper wrapper2 = new IDLWrapper(PInvoke.ILCombine(wrapper.PIDL, ptr))) {
                                                 if(wrapper2.Available && wrapper2.HasPath) {
+                                                    QTabItem created = CreateNewTabAt(wrapper2, Config.Tabs.NewTabPosition);
+                                                    if(created == null) {
+                                                        SoundFeedbackService.SoundPlay();
+                                                        return false;
+                                                    }
                                                     if(!blockSelecting && Config.Tabs.ActivateNewTab) {
                                                         NowTabCreated = true;
-                                                        tabControl1.SelectTab(CreateNewTab(wrapper2));
+                                                        tabControl1.SelectTab(created);
                                                     }
                                                     else {
-                                                        CreateNewTab(wrapper2);
                                                         TryCallButtonBar(bbar => bbar.RefreshButtons());
                                                         QTabItem.CheckSubTexts(tabControl1);
                                                     }
@@ -113,10 +226,19 @@ namespace QTTabBarLib {
 
                     if(!blockSelecting && Config.Tabs.ActivateNewTab) {
                         NowTabCreated = true;
-                        tabControl1.SelectTab(CreateNewTab(idlw));
+                        QTabItem created = CreateNewTabAt(idlw, Config.Tabs.NewTabPosition);
+                        if(created == null) {
+                            SoundFeedbackService.SoundPlay();
+                            return false;
+                        }
+                        tabControl1.SelectTab(created);
                     }
                     else {
-                        CreateNewTab(idlw);
+                        QTabItem created = CreateNewTabAt(idlw, Config.Tabs.NewTabPosition);
+                        if(created == null) {
+                            SoundFeedbackService.SoundPlay();
+                            return false;
+                        }
                         TryCallButtonBar(bbar => bbar.RefreshButtons());
                         QTabItem.CheckSubTexts(tabControl1);
                     }

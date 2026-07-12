@@ -120,5 +120,34 @@ namespace QTTtabBarTests {
             Assert.IsNotNull(commit, "CommitSnapshot must be public static");
             Assert.AreEqual(typeof(void), commit.ReturnType);
         }
+
+        [Test]
+        public void Partial_Window_Methods_Use_MutateWindowAndCommit() {
+            string content = File.ReadAllText(Path.Combine(RepoRoot(), "QTTabBar", "ConfigManager.cs"));
+            AssertMethodUsesMutateWindowAndCommit(content, "void PersistBreakTabBar(");
+            AssertMethodUsesMutateWindowAndCommit(content, "void PersistWindowAlpha(");
+            AssertMethodUsesMutateWindowAndCommit(content, "void SetNoCapturePathsAndBroadcast(");
+        }
+
+        private static void AssertMethodUsesMutateWindowAndCommit(string content, string signature) {
+            int methodIndex = content.IndexOf(signature, StringComparison.Ordinal);
+            Assert.GreaterOrEqual(methodIndex, 0, "Missing method " + signature);
+            int brace = content.IndexOf('{', methodIndex);
+            int depth = 0;
+            for(int i = brace; i < content.Length; i++) {
+                if(content[i] == '{') depth++;
+                else if(content[i] == '}') {
+                    depth--;
+                    if(depth == 0) {
+                        string body = content.Substring(brace, i - brace + 1);
+                        StringAssert.Contains("MutateWindowAndCommit", body);
+                        Assert.IsFalse(body.Contains("Config.Window."));
+                        Assert.IsFalse(body.Contains("Registry.CurrentUser.CreateSubKey"));
+                        return;
+                    }
+                }
+            }
+            Assert.Fail("Could not extract body for " + signature);
+        }
     }
 }

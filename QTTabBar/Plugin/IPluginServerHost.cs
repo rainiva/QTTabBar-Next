@@ -4,12 +4,9 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     /// <summary>
-    /// Core host interface for the top-level PluginServer.
-    /// Exposes navigation, command, and infrastructure members
-    /// that PluginServer accesses via the former tabBar field.
+    /// Host interface for the top-level PluginServer and TabWrapper.
     /// </summary>
     internal interface IPluginServerHost {
-        // Infrastructure properties
         IntPtr ExplorerHandle { get; }
         bool IsHandleCreated { get; }
         IntPtr Handle { get; }
@@ -17,7 +14,10 @@ namespace QTTabBarLib {
         AbstractListView listView { get; }
         bool NowModalDialogShown { get; set; }
 
-        // Navigation & command methods
+        QTabControl tabControl1 { get; }
+        QTabItem CurrentTab { get; }
+        ShellBrowserEx ShellBrowser { get; }
+
         void OpenGroup(string groupName, bool fForceNewWindow);
         bool NavigateToIndex(bool fBack, int index);
         void UpOneLevel();
@@ -27,5 +27,15 @@ namespace QTTabBarLib {
         void RestoreLastClosed();
         void ChooseNewDirectory();
         void SetTabBarOption(TabBarOption value);
+        void ToggleTopMost();
+        void ShowFolderTree(bool fShow);
+        void ReorderTab(int order, bool fDescending);
+        void AddInsertTab(QTabItem tab);
+        void OpenNewWindow(IDLWrapper idl);
+        bool NavigateCurrentTab(bool fBack);
+        QTabItem CloneTabButton(QTabItem tab, string optionURL, bool fSelect, int index);
+        bool CloseTab(QTabItem tab, bool fCritical);
+        bool TryCreateTab(Address address, int requestedIndex, bool locked, bool select);
+        bool TryCreateRestoredTab(MergeTabPayload payload);
     }
 }

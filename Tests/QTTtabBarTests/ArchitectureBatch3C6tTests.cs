@@ -21,14 +21,16 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void PluginMenuController_Uses_Narrow_Host() {
+        public void PluginMenuController_Uses_Context_And_Narrow_Host() {
             Assembly assembly = typeof(QTTabBarClass).Assembly;
             Type controller = assembly.GetType("QTTabBarLib.PluginMenuController", true);
+            Type menuContext = assembly.GetType("QTTabBarLib.IMenuContext", true);
+            Type explorerContext = assembly.GetType("QTTabBarLib.IExplorerContext", true);
             Type host = assembly.GetType("QTTabBarLib.IPluginMenuHost", true);
             Assert.IsNull(typeof(QTTabBarClass).GetNestedType("PluginMenuController",
                 BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(controller.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                null, new[] { host }, null));
+                null, new[] { menuContext, explorerContext, host }, null));
             Assert.IsNotNull(controller.GetMethod("PluginItemsClick", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         }
 

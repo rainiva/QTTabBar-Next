@@ -10,11 +10,12 @@ namespace QTTtabBarTests {
         [Test]
         public void ShellCommandController_Type_Exists() {
             Type type = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ShellCommandController");
+            Type menuContext = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.IMenuContext");
             Type host = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.IShellCommandHost");
             Assert.IsNotNull(type, "ShellCommandController should be a top-level boundary");
             Assert.IsNull(typeof(QTTabBarClass).GetNestedType("ShellCommandController", BindingFlags.Public | BindingFlags.NonPublic));
             Assert.IsNotNull(type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                null, new[] { host }, null));
+                null, new[] { menuContext, host }, null));
             Assert.IsNotNull(type.GetMethod("CreateNewFile", BindingFlags.Instance | BindingFlags.Public));
             Assert.IsNotNull(type.GetMethod("OpenCmd", BindingFlags.Instance | BindingFlags.Public));
             Assert.IsNotNull(type.GetMethod("Wait4Select", BindingFlags.Instance | BindingFlags.Public));

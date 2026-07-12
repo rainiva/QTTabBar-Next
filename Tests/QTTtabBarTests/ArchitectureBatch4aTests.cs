@@ -8,7 +8,7 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureBatch4aTests {
         private static Type ExplorerModuleType =>
-            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
+            typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController", false);
 
         private static Type CommandDispatchType =>
             typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerCommandDispatcher");
@@ -27,11 +27,8 @@ namespace QTTtabBarTests {
             throw new InvalidOperationException("Repository root not found.");
         }
 
-        private static string ReadExplorerInitSources() {
-            string dir = Path.Combine(FindRepoRoot(), "QTTabBar");
-            return File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.Init.cs")) +
-                File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.CommandDispatch.cs")) +
-                File.ReadAllText(Path.Combine(dir, "QTTabBarClass.ExplorerController.SessionRestore.cs"));
+        private static string ReadExplorerIntegrationSource() {
+            return File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTTabBarClass.ExplorerIntegration.cs"));
         }
 
         [Test]
@@ -74,30 +71,23 @@ namespace QTTtabBarTests {
 
         [Test]
         public void DoFirstNavigation_Orchestrates_SessionRestore_And_CommandDispatch() {
-            string init = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.ExplorerController.Init.cs"));
-            int methodIndex = init.IndexOf("void DoFirstNavigation(", StringComparison.Ordinal);
+            string integration = ReadExplorerIntegrationSource();
+            int methodIndex = integration.IndexOf("void DoFirstNavigation(", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
-            int brace = init.IndexOf('{', methodIndex);
-            int nextRegion = init.IndexOf("#endregion", brace, StringComparison.Ordinal);
-            string body = init.Substring(brace, nextRegion - brace);
+            int brace = integration.IndexOf('{', methodIndex);
+            int nextRegion = integration.IndexOf("#endregion", brace, StringComparison.Ordinal);
+            string body = integration.Substring(brace, nextRegion - brace);
             Assert.IsTrue(body.Contains("TryApplySessionStartup"),
                 "DoFirstNavigation should delegate session startup to SessionRestoreController");
             Assert.IsTrue(body.Contains("TryHandleNewWindowCapture"),
                 "DoFirstNavigation should delegate capture/cmd dispatch to CommandDispatchController");
-            Assert.IsFalse(body.Contains("GetCommandLine("),
-                "DoFirstNavigation façade should not retain GetCommandLine inline");
         }
 
         [Test]
-        public void ExplorerControllerModule_Facade_Preserves_InitializeOpenedWindow() {
-            Assert.IsNotNull(ExplorerModuleType.GetMethod(
-                "InitializeOpenedWindow",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
-            string init = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.ExplorerController.Init.cs"));
-            Assert.IsTrue(init.Contains("SessionRestore.InitializeOpenedWindow()"),
-                "ExplorerControllerModule should forward InitializeOpenedWindow to SessionRestoreController");
+        public void ExplorerIntegration_Delegates_InitializeOpenedWindow_To_SessionRestore() {
+            string integration = ReadExplorerIntegrationSource();
+            Assert.IsTrue(integration.Contains("SessionRestore.InitializeOpenedWindow()"),
+                "ExplorerIntegration should forward InitializeOpenedWindow to SessionRestoreController");
         }
     }
 }

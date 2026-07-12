@@ -56,6 +56,9 @@ namespace QTTtabBarTests {
                 if(name == "InstanceManager.cs" || name == "TabInstanceRegistry.cs") {
                     continue;
                 }
+                if(file.Contains("\\Ipc\\") || file.Contains("/Ipc/")) {
+                    continue;
+                }
                 string content = File.ReadAllText(file);
                 Assert.IsFalse(content.Contains("TabBarBroadcast("), name + " must not call TabBarBroadcast");
                 Assert.IsFalse(content.Contains("ButtonBarBroadcast("), name + " must not call ButtonBarBroadcast");

@@ -12,7 +12,7 @@ namespace QTTtabBarTests {
             "InitializationOrchestrator.cs",
             "QTabControl.cs",
             "QMenuItem.cs",
-            "QTTabBarClass.ShellHosts.cs",
+            "MenuOperations/MenuOperationsController.cs",
         };
 
         [Test]
@@ -21,9 +21,7 @@ namespace QTTtabBarTests {
             foreach(string relative in CoreLayerFiles) {
                 string content = relative == "QTabControl.cs"
                     ? QTabControlSourceTestHelper.ReadCombined(FindRepoRoot())
-                    : relative == "QTTabBarClass.ShellHosts.cs"
-                        ? MenuControllerSourceTestHelper.ReadCombined(FindRepoRoot())
-                        : relative == "SubDirTipForm.cs"
+                    : relative == "SubDirTipForm.cs"
                             ? SubDirTipFormSourceTestHelper.ReadCombined(FindRepoRoot())
                             : File.ReadAllText(Path.Combine(root, relative));
                 Assert.IsTrue(content.Contains("IconManager."),

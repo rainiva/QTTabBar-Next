@@ -3,7 +3,7 @@ schema_version: 1
 locale: zh-CN
 branch: win11-probe-session
 nodes_managed: true
-exported_at: "2026-07-10T04:29:31Z"
+exported_at: "2026-07-11T13:09:55Z"
 modules:
     "":
         dir_name: QTTabBar Rebirth 解决方案根
@@ -33,6 +33,7 @@ modules:
             - image.png
         source_files: []
         children:
+            - agents
             - bandobject_lib
             - docs_design
             - i18n_resources
@@ -46,6 +47,15 @@ modules:
             - tools_build
         depends_on: []
         related_to: []
+    agents:
+        dir_name: 代码重构辅助脚本与审查补丁集
+        title: 代码重构辅助脚本与审查补丁集
+        scope:
+            - .agents/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
     bandobject_lib:
         dir_name: Shell DeskBand 宿主基类库
         title: Shell DeskBand 宿主基类库
@@ -55,7 +65,7 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: qttabbar_core/tabbar_runtime
+            - path: qttabbar_core
     docs_design:
         dir_name: 设计文档与 Superpowers 子代理工件
         title: 设计文档与 Superpowers 子代理工件
@@ -65,7 +75,7 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: tools_build
+            - path: qttabbar_core
     i18n_resources:
         dir_name: QTTabBar 多语言资源文件集
         title: QTTabBar 多语言资源文件集
@@ -74,8 +84,7 @@ modules:
         source_files: []
         children: []
         depends_on: []
-        related_to:
-            - path: qtplugin_api
+        related_to: []
     installer_wix:
         dir_name: QTTabBar Windows MSI 安装包（Wix Toolset）
         title: QTTabBar Windows MSI 安装包（Wix Toolset）
@@ -88,6 +97,7 @@ modules:
         depends_on: []
         related_to:
             - path: register_native
+            - path: tools_build
     minhook:
         dir_name: MinHook API 注入与跳转钩子库
         title: MinHook API 注入与跳转钩子库
@@ -96,8 +106,7 @@ modules:
         source_files: []
         children: []
         depends_on: []
-        related_to:
-            - path: qttabbar_core/ipc_hook_infra
+        related_to: []
     qtplugin_api:
         dir_name: QTTabBar 插件 API 库
         title: QTTabBar 插件 API 库
@@ -107,226 +116,49 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: i18n_resources
-            - path: qttabbar_core/plugin_system
+            - path: tools_build
     qttabbar_core:
-        dir_name: QTTabBar Explorer 集成核心程序集
-        title: QTTabBar Explorer 集成核心程序集
+        dir_name: QTTabBar Explorer Band 主程序集
+        title: QTTabBar Explorer Band 主程序集
         scope:
             - QTTabBar/
         source_files: []
         children:
-            - qttabbar_core/core_services
-            - qttabbar_core/helper_utilities
-            - qttabbar_core/ipc_hook_infra
-            - qttabbar_core/plugin_system
-            - qttabbar_core/tabbar_runtime
-            - qttabbar_core/ui_controls
-        depends_on: []
-        related_to: []
-    qttabbar_core/core_services:
-        dir_name: 核心配置、会话状态与多实例 IPC 协调服务
-        title: 核心配置、会话状态与多实例 IPC 协调服务
-        scope:
-            - QTTabBar/Config.cs
-            - QTTabBar/SessionState.cs
-            - QTTabBar/InstanceManager.cs
-            - QTTabBar/GroupsManager.cs
-            - QTTabBar/AppsManager.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: qttabbar_core/ipc_hook_infra
-            - path: qttabbar_core/plugin_system
-    qttabbar_core/helper_utilities:
-        dir_name: 进程与系统反馈辅助工具
-        title: 进程与系统反馈辅助工具
-        scope:
-            - QTTabBar/ProcessHelper.cs
-            - QTTabBar/SoundFeedbackService.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: qttabbar_core/tabbar_runtime/window_band_lifecycle
-    qttabbar_core/ipc_hook_infra:
-        dir_name: 钩子库加载与 IPC 命令分发基础设施
-        title: 钩子库加载与 IPC 命令分发基础设施
-        scope:
-            - QTTabBar/IpcCommandDispatcher.cs
-            - QTTabBar/HookLibManager.cs
-            - QTTabBar/HookStateManager.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: minhook
-            - path: qttabbar_core/core_services
-    qttabbar_core/plugin_system:
-        dir_name: 插件加载与运行时宿主
-        title: 插件加载与运行时宿主
-        scope:
-            - QTTabBar/PluginManager.cs
-            - QTTabBar/PluginServer.cs
-            - QTTabBar/AutoLoader.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: qtplugin_api
-            - path: qttabbar_core/core_services
-    qttabbar_core/tabbar_runtime:
-        dir_name: QTTabBar Explorer 运行时装配层
-        title: QTTabBar Explorer 运行时装配层
-        scope:
-            - QTTabBar/QTTabBarClass.*
-            - QTTabBar/TabBarBase.*
-            - QTTabBar/QTabControl.cs
-            - QTTabBar/QTabItem.cs
-        source_files: []
-        children:
-            - qttabbar_core/tabbar_runtime/boot_com_registration
-            - qttabbar_core/tabbar_runtime/explorer_view
-            - qttabbar_core/tabbar_runtime/input_handlers
-            - qttabbar_core/tabbar_runtime/plugin_shell_ext
-            - qttabbar_core/tabbar_runtime/shell_integration
-            - qttabbar_core/tabbar_runtime/shutdown_main_class
-            - qttabbar_core/tabbar_runtime/tab_core
-            - qttabbar_core/tabbar_runtime/tab_management
-            - qttabbar_core/tabbar_runtime/ui_interaction
-            - qttabbar_core/tabbar_runtime/window_band_lifecycle
+            - qttabbar_core/core_orchestrator
+            - qttabbar_core/plugin_server
         depends_on: []
         related_to:
             - path: bandobject_lib
-    qttabbar_core/tabbar_runtime/boot_com_registration:
-        dir_name: QTTabBarClass 启动与 COM 注册控制器
-        title: QTTabBarClass 启动与 COM 注册控制器
+            - path: docs_design
+            - path: tests
+    qttabbar_core/core_orchestrator:
+        dir_name: QTTabBar 核心编排器（QTTabBarClass 及其控制器拆分）
+        title: QTTabBar 核心编排器（QTTabBarClass 及其控制器拆分）
         scope:
-            - QTTabBar/QTTabBarClass.InstanceBootstrapController.cs
-            - QTTabBar/QTTabBarClass.ComponentBuildController.cs
-            - QTTabBar/QTTabBarClass.ComRegistrationController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to: []
-    qttabbar_core/tabbar_runtime/explorer_view:
-        dir_name: Explorer 运行时行为控制器（导航_文件夹树_视图模式）
-        title: Explorer 运行时行为控制器（导航/文件夹树/视图模式）
-        scope:
-            - QTTabBar/QTTabBarClass.ExplorerController.cs
-            - QTTabBar/QTTabBarClass.FolderTreeController.cs
-            - QTTabBar/QTTabBarClass.ViewModeController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to: []
-    qttabbar_core/tabbar_runtime/input_handlers:
-        dir_name: 输入钩子与快捷键控制器
-        title: 输入钩子与快捷键控制器
-        scope:
-            - QTTabBar/QTTabBarClass.HookInputController.cs
-            - QTTabBar/QTTabBarClass.ListViewInputController.cs
-            - QTTabBar/QTTabBarClass.KeyboardAcceleratorController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to: []
-    qttabbar_core/tabbar_runtime/plugin_shell_ext:
-        dir_name: 插件菜单与绑定动作控制器（Shell 扩展层）
-        title: 插件菜单与绑定动作控制器（Shell 扩展层）
-        scope:
-            - QTTabBar/QTTabBarClass.PluginMenuController.cs
-            - QTTabBar/QTTabBarClass.BindActionController.cs
-            - QTTabBar/QTTabBarClass.FileToolsController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to: []
-    qttabbar_core/tabbar_runtime/shell_integration:
-        dir_name: Shell 集成控制器（导航_命令_UI）
-        title: Shell 集成控制器（导航/命令/UI）
-        scope:
-            - QTTabBar/QTTabBarClass.ShellNavigationController.cs
-            - QTTabBar/QTTabBarClass.ShellUiController.cs
-            - QTTabBar/QTTabBarClass.ShellCommandController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: qttabbar_core/ui_controls
-    qttabbar_core/tabbar_runtime/shutdown_main_class:
-        dir_name: 关闭与 BandInfo 控制器
-        title: 关闭与 BandInfo 控制器
-        scope:
-            - QTTabBar/QTTabBarClass.ShutdownController.cs
-            - QTTabBar/QTTabBarClass.BandInfoController.cs
             - QTTabBar/QTTabBarClass.cs
+            - QTTabBar/QTTabBarClass.ExplorerController.cs
+            - QTTabBar/QTTabBarClass.ShellHosts.cs
+            - QTTabBar/QTTabBarClass.ComponentBuildController.cs
+            - QTTabBar/QTTabBarClass.BindActionController.cs
+            - QTTabBar/QTTabBarClass.ShutdownController.cs
+            - QTTabBar/QTTabBar1.ruleset
         source_files: []
         children: []
         depends_on: []
         related_to: []
-    qttabbar_core/tabbar_runtime/tab_core:
-        dir_name: 标签控件核心（QTabControl _ QTabItem _ TabBarBase）
-        title: 标签控件核心（QTabControl / QTabItem / TabBarBase）
+    qttabbar_core/plugin_server:
+        dir_name: 插件服务器与插件生命周期管理
+        title: 插件服务器与插件生命周期管理
         scope:
-            - QTTabBar/QTabControl.cs
-            - QTTabBar/QTabItem.cs
-            - QTTabBar/TabBarBase.cs
+            - QTTabBar/PluginServer.cs
+            - QTTabBar/PluginServer.Commands.cs
+            - QTTabBar/PluginServer.Lifetime.cs
+            - QTTabBar/PluginServer.TabAccess.cs
+            - QTTabBar/PluginManager.cs
         source_files: []
         children: []
         depends_on: []
         related_to: []
-    qttabbar_core/tabbar_runtime/tab_management:
-        dir_name: 标签页生命周期与拖放控制器
-        title: 标签页生命周期与拖放控制器
-        scope:
-            - QTTabBar/QTTabBarClass.TabManager.cs
-            - QTTabBar/QTTabBarClass.DragDropController.cs
-            - QTTabBar/QTTabBarClass.DroppedFilesController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to: []
-    qttabbar_core/tabbar_runtime/ui_interaction:
-        dir_name: 标签栏 UI 交互控制器（右键菜单_按钮条_子目录提示）
-        title: 标签栏 UI 交互控制器（右键菜单/按钮条/子目录提示）
-        scope:
-            - QTTabBar/QTTabBarClass.MenuController.cs
-            - QTTabBar/QTTabBarClass.ButtonBarClickController.cs
-            - QTTabBar/QTTabBarClass.TabTooltipController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to: []
-    qttabbar_core/tabbar_runtime/window_band_lifecycle:
-        dir_name: Band 窗口生命周期与窗口管理控制器
-        title: Band 窗口生命周期与窗口管理控制器
-        scope:
-            - QTTabBar/QTTabBarClass.BandLifecycleController.cs
-            - QTTabBar/QTTabBarClass.BandWindowController.cs
-            - QTTabBar/QTTabBarClass.WindowManagementController.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: qttabbar_core/helper_utilities
-    qttabbar_core/ui_controls:
-        dir_name: Shell 列表视图与托盘_右键菜单 UI 控制封装
-        title: Shell 列表视图与托盘/右键菜单 UI 控制封装
-        scope:
-            - QTTabBar/AbstractListView.cs
-            - QTTabBar/ExtendedItemsView.cs
-            - QTTabBar/ExtendedSysListView32.cs
-            - QTTabBar/ShellContextMenu.cs
-            - QTTabBar/TreeViewWrapper.cs
-            - QTTabBar/Toolbar.cs
-            - QTTabBar/TrayIcon.cs
-        source_files: []
-        children: []
-        depends_on: []
-        related_to:
-            - path: qttabbar_core/tabbar_runtime/shell_integration
     register_native:
         dir_name: QTTabBar 安装后注册与 GAC_COM 装配器
         title: QTTabBar 安装后注册与 GAC/COM 装配器
@@ -337,7 +169,6 @@ modules:
         depends_on: []
         related_to:
             - path: installer_wix
-            - path: sethome_tool
             - path: tests
     sethome_tool:
         dir_name: SetHome 环境变量设置工具
@@ -347,11 +178,10 @@ modules:
         source_files: []
         children: []
         depends_on: []
-        related_to:
-            - path: register_native
+        related_to: []
     tests:
-        dir_name: QTTabBar 安全与回归测试套件（NUnit + PowerShell）
-        title: QTTabBar 安全与回归测试套件（NUnit + PowerShell）
+        dir_name: 安全回归与安装脚本验证测试集
+        title: 安全回归与安装脚本验证测试集
         scope:
             - Tests/
             - Test/
@@ -359,16 +189,16 @@ modules:
         children: []
         depends_on: []
         related_to:
+            - path: qttabbar_core
             - path: register_native
-            - path: tools_build
     tools_build:
-        dir_name: 构建与诊断工具集（Build & Diagnostic Tools）
-        title: 构建与诊断工具集（Build & Diagnostic Tools）
+        dir_name: 构建与诊断工具集（MSBuild_WiX 编排、COM Interop 生成、Win11 探针）
+        title: 构建与诊断工具集（MSBuild/WiX 编排、COM Interop 生成、Win11 探针）
         scope:
             - Tools/
         source_files: []
         children: []
         depends_on: []
         related_to:
-            - path: docs_design
-            - path: tests
+            - path: installer_wix
+            - path: qtplugin_api

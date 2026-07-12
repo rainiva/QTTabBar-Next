@@ -11,36 +11,13 @@ using QTTabBarLib.Interop;
 namespace QTTabBarLib {
     public sealed partial class PluginServer {
         public bool CreateTab(Address address, int index, bool fLocked, bool fSelect) {
-            using(IDLWrapper wrapper = new IDLWrapper(address)) {
-                address.ITEMIDLIST = wrapper.IDL;
-                address.Path = wrapper.Path;
-            }
-            if((address.ITEMIDLIST == null) || (address.ITEMIDLIST.Length <= 0)) {
-                return false;
-            }
-            QTabItem tab = new QTabItem(QTUtility2.MakePathDisplayText(address.Path, false), address.Path, _tabHost.tabControl1);
-            tab.NavigatedTo(address.Path, address.ITEMIDLIST, -1, false);
-            tab.ToolTipText = QTUtility2.MakePathDisplayText(address.Path, true);
-            tab.TabLocked = fLocked;
-            if(index < 0) {
-                _tabHost.AddInsertTab(tab);
-            }
-            else {
-                if(index > _tabHost.tabControl1.TabCount) {
-                    index = _tabHost.tabControl1.TabCount;
-                }
-                _tabHost.tabControl1.TabPages.Insert(index, tab);
-            }
-            if(fSelect) {
-                _tabHost.tabControl1.SelectTab(tab);
-            }
-            return true;
+            return _host.TryCreateTab(address, index, fLocked, fSelect);
         }
 
         public bool CreateWindow(Address address) {
             using(IDLWrapper wrapper = new IDLWrapper(address)) {
                 if(wrapper.Available) {
-                    _tabHost.OpenNewWindow(wrapper);
+                    _host.OpenNewWindow(wrapper);
                     return true;
                 }
             }
@@ -48,22 +25,22 @@ namespace QTTabBarLib {
         }
 
         public ITab[] GetTabs() {
-            return (from QTabItem item in _tabHost.tabControl1.TabPages
-                    select (ITab)(new TabWrapper(item, _tabHost))).ToArray();
+            return (from QTabItem item in _host.tabControl1.TabPages
+                    select (ITab)(new TabWrapper(item, _host))).ToArray();
         }
 
         public ITab HitTest(Point pnt) {
-            QTabItem tabMouseOn = _tabHost.tabControl1.GetTabMouseOn();
-            return tabMouseOn != null ? new TabWrapper(tabMouseOn, _tabHost) : null;
+            QTabItem tabMouseOn = _host.tabControl1.GetTabMouseOn();
+            return tabMouseOn != null ? new TabWrapper(tabMouseOn, _host) : null;
         }
 
         public bool TryGetSelection(out Address[] adSelectedItems) {
             string str;
-            return _tabHost.ShellBrowser.TryGetSelection(out adSelectedItems, out str, false);
+            return _host.ShellBrowser.TryGetSelection(out adSelectedItems, out str, false);
         }
 
         public bool TrySetSelection(Address[] itemsToSelect, bool fDeselectOthers) {
-            return _tabHost.ShellBrowser.TrySetSelection(itemsToSelect, null, fDeselectOthers);
+            return _host.ShellBrowser.TrySetSelection(itemsToSelect, null, fDeselectOthers);
         }
 
         public void UpdateItem(IBarButton barItem, bool fEnabled, bool fRefreshImage) {
@@ -75,31 +52,31 @@ namespace QTTabBarLib {
 
         public ITab SelectedTab {
             get {
-                return _tabHost.CurrentTab != null ? new TabWrapper(_tabHost.CurrentTab, _tabHost) : null;
+                return _host.CurrentTab != null ? new TabWrapper(_host.CurrentTab, _host) : null;
             }
             set {
                 TabWrapper wrapper = value as TabWrapper;
-                if((wrapper.Tab != null) && _tabHost.tabControl1.TabPages.Contains(wrapper.Tab)) {
-                    _tabHost.tabControl1.SelectTab(wrapper.Tab);
+                if((wrapper.Tab != null) && _host.tabControl1.TabPages.Contains(wrapper.Tab)) {
+                    _host.tabControl1.SelectTab(wrapper.Tab);
                 }
             }
         }
 
         internal sealed class TabWrapper : ITab {
             private QTabItem tab;
-            private IPluginServerTabHost _tabHost;
+            private IPluginServerHost _host;
 
-            public TabWrapper(QTabItem tab, IPluginServerTabHost tabHost) {
+            public TabWrapper(QTabItem tab, IPluginServerHost tabHost) {
                 this.tab = tab;
-                this._tabHost = tabHost;
+                this._host = tabHost;
                 this.tab.Closed += tab_Closed;
             }
 
             public bool Browse(Address address) {
                 if(tab != null) {
-                    _tabHost.tabControl1.SelectTab(tab);
+                    _host.tabControl1.SelectTab(tab);
                     using(IDLWrapper wrapper = new IDLWrapper(address)) {
-                        return _tabHost.ShellBrowser.Navigate(wrapper) == 0;
+                        return _host.ShellBrowser.Navigate(wrapper) == 0;
                     }
                 }
                 return false;
@@ -107,20 +84,20 @@ namespace QTTabBarLib {
 
             public bool Browse(bool fBack) {
                 if(tab != null) {
-                    _tabHost.tabControl1.SelectTab(tab);
-                    return _tabHost.NavigateCurrentTab(fBack);
+                    _host.tabControl1.SelectTab(tab);
+                    return _host.NavigateCurrentTab(fBack);
                 }
                 return false;
             }
 
             public void Clone(int index, bool fSelect) {
                 if(tab != null) {
-                    _tabHost.CloneTabButton(tab, null, fSelect, index);
+                    _host.CloneTabButton(tab, null, fSelect, index);
                 }
             }
 
             public bool Close() {
-                return (((tab != null) && (_tabHost.tabControl1.TabCount > 1)) && _tabHost.CloseTab(tab, true));
+                return (((tab != null) && (_host.tabControl1.TabCount > 1)) && _host.CloseTab(tab, true));
             }
 
             public Address[] GetBraches() {
@@ -141,10 +118,10 @@ namespace QTTabBarLib {
             }
 
             public bool Insert(int index) {
-                if(((tab != null) && (-1 < index)) && (index < (_tabHost.tabControl1.TabCount + 1))) {
-                    int indexSource = _tabHost.tabControl1.TabPages.IndexOf(tab);
+                if(((tab != null) && (-1 < index)) && (index < (_host.tabControl1.TabCount + 1))) {
+                    int indexSource = _host.tabControl1.TabPages.IndexOf(tab);
                     if(indexSource > -1) {
-                        _tabHost.tabControl1.TabPages.Relocate(indexSource, index);
+                        _host.tabControl1.TabPages.Relocate(indexSource, index);
                         return true;
                     }
                 }
@@ -154,7 +131,7 @@ namespace QTTabBarLib {
             private void tab_Closed(object sender, EventArgs e) {
                 tab.Closed -= tab_Closed;
                 tab = null;
-                _tabHost = null;
+                _host = null;
             }
 
             public Address Address {
@@ -185,7 +162,7 @@ namespace QTTabBarLib {
             public int Index {
                 get {
                     if(tab != null) {
-                        return _tabHost.tabControl1.TabPages.IndexOf(tab);
+                        return _host.tabControl1.TabPages.IndexOf(tab);
                     }
                     return -1;
                 }
@@ -198,18 +175,18 @@ namespace QTTabBarLib {
                 set {
                     if(tab != null) {
                         tab.TabLocked = value;
-                        _tabHost.tabControl1.Refresh();
+                        _host.tabControl1.Refresh();
                     }
                 }
             }
 
             public bool Selected {
                 get {
-                    return ((tab != null) && (_tabHost.CurrentTab == tab));
+                    return ((tab != null) && (_host.CurrentTab == tab));
                 }
                 set {
                     if((tab != null) && value) {
-                        _tabHost.tabControl1.SelectTab(tab);
+                        _host.tabControl1.SelectTab(tab);
                     }
                 }
             }
@@ -225,7 +202,7 @@ namespace QTTabBarLib {
                     if((tab != null) && (value != null)) {
                         tab.Comment = value;
                         tab.RefreshRectangle();
-                        _tabHost.tabControl1.Refresh();
+                        _host.tabControl1.Refresh();
                     }
                 }
             }

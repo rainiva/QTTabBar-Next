@@ -204,7 +204,7 @@ namespace Qwop {
                 lstSelectedItems.AddRange(addresses);
             }*/
 
-            QTTabBarClass.OpenOptionDialog();
+            InstanceManager.ExecuteOnServerProcessOpenOptions();
         }
 
         public string Text {
@@ -242,9 +242,9 @@ namespace Qwop {
 
             if(fFirstMenuDropDown) {
                 menu.Items.Add(new ToolStripMenuItem("??????"));
-                menu.Items.Add(new ToolStripMenuItem("???????\\???§á????????\\??"));
-                menu.Items.Add(new ToolStripMenuItem("???????\\???§á????????\\?????"));   
-                menu.Items.Add(new ToolStripMenuItem("???????\\???§á????????\\????????"));
+                menu.Items.Add(new ToolStripMenuItem("???????\\?????????????\\??"));
+                menu.Items.Add(new ToolStripMenuItem("???????\\?????????????\\?????"));   
+                menu.Items.Add(new ToolStripMenuItem("???????\\?????????????\\????????"));
               //  menu.Items.Add(new ToolStripMenuItem("????????JAVA_HOME"));
               //  menu.Items.Add(new ToolStripMenuItem("????????M2_HOME"));
                 menu.Items.Add(new ToolStripMenuItem("???????"));
@@ -428,7 +428,7 @@ namespace Qwop {
 
                           //  Environment.SetEnvironmentVariable("JAVA_HOME", selectedPath, EnvironmentVariableTarget.Machine);
                            // Environment.SetEnvironmentVariable("CLASSPATH", @".;%JAVA_HOME%\lib\tools.jar;%JAVA_HOME%\lib\dt.jar;", EnvironmentVariableTarget.Machine);
-                            // ???? ?§Ø?????? java home ???
+                            // ???? ????????? java home ???
                             string oldpath = filterEmpty( "java.exe" );
 
 
@@ -725,7 +725,7 @@ namespace Qwop {
                                 }
                                 catch (Exception e)
                                 {
-                                    QTUtility2.MakeErrorLog(e, "Setting Path");
+                                    pluginServer.MakeErrorLog(e, "Setting Path");
                                 }
 
                                 /*new Thread(() =>
@@ -740,7 +740,7 @@ namespace Qwop {
                                 }).Start();*/
                             }
                             else {
-                                MessageBox.Show( "¦Ä???????????SetHome");
+                                MessageBox.Show( "?????????????SetHome");
                             }
                             break;
                         }

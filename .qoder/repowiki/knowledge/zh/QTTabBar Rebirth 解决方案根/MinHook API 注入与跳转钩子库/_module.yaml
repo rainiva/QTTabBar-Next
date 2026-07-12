@@ -5,5 +5,4 @@ scope:
     - MinHook/
 source_files: []
 depends_on: []
-related_to:
-    - path: qttabbar_core/ipc_hook_infra
+related_to: []

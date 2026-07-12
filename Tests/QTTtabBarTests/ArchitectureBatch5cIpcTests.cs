@@ -60,8 +60,6 @@ namespace QTTtabBarTests {
         [Test]
         public void CommandDispatch_Does_Not_Use_BeginInvokeMain() {
             string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar",
-                "QTTabBarClass.ExplorerController.CommandDispatch.cs")) +
-                File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar",
                 "Navigation", "ExplorerCommandDispatcher.cs"));
             Assert.IsFalse(content.Contains("BeginInvokeMain(tabbar"),
                 "CommandDispatch should not use delegate BeginInvokeMain");

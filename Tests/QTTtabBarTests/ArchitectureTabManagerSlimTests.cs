@@ -5,11 +5,9 @@ namespace QTTtabBarTests {
     [TestFixture]
     public class ArchitectureTabManagerSlimTests {
         [Test]
-        public void TabManager_Source_Under_500_Lines() {
+        public void TabManager_Source_File_Does_Not_Exist() {
             string path = Path.Combine(FindRepoRoot(), "QTTabBar", "Tabs", "TabManager.cs");
-            int lines = File.ReadAllLines(path).Length;
-            Assert.LessOrEqual(lines, 500,
-                "TabManager top-level file should be <=500 lines after region lift to TabBarBase");
+            Assert.IsFalse(File.Exists(path), "Wave 18 removes TabManager.cs; tab ops live on TabBarBase / ITabOperationsHost");
         }
 
         [Test]

@@ -35,10 +35,9 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerControllerModule_Is_TopLevel_Type() {
-            Type module = typeof(QTTabBarClass).Assembly.GetType("QTTabBarLib.ExplorerController");
-            Assert.IsNotNull(module, "ExplorerController should be a top-level type in QTTabBarLib");
-            Assert.IsFalse(module.IsNested, "ExplorerController should not be nested in QTTabBarClass");
+        public void ExplorerController_Type_Does_Not_Exist_After_Wave18() {
+            string root = Path.Combine(FindRepoRoot(), "QTTabBar");
+            Assert.IsEmpty(Directory.GetFiles(root, "QTTabBarClass.ExplorerController*.cs"));
         }
 
         [Test]
@@ -50,13 +49,12 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerControllerPartials_Still_Delegate_To_Module() {
+        public void ExplorerIntegration_Replaces_ExplorerController_Module() {
             string main = ReadQtTabBarFile("QTTabBarClass.cs");
-            string explorerHosts = ReadQtTabBarFile("QTTabBarClass.ExplorerHosts.cs");
-            Assert.IsTrue(main.Contains("_explorerControllerModule"),
-                "QTTabBarClass should keep the module field and delegate explorer work to it");
-            Assert.IsTrue(explorerHosts.Contains("_explorerControllerModule.InitializeInstallation"),
-                "QTTabBarClass should forward InitializeInstallation to the module");
+            string integration = ReadQtTabBarFile("QTTabBarClass.ExplorerIntegration.cs");
+            StringAssert.DoesNotContain("_explorerControllerModule", main);
+            StringAssert.Contains("ExplorerNavigationOrchestrator", integration);
+            StringAssert.Contains("OnExplorerAttachedCore", integration);
         }
 
         [Test]
@@ -74,9 +72,10 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void ExplorerControllerModule_Line_Count_Under_Ceiling() {
-            Assert.LessOrEqual(CountExplorerModuleLines(), 1800,
-                "ExplorerController module partials should stay within the post-extract size ceiling");
+        public void ExplorerController_Source_Files_Do_Not_Exist() {
+            string root = Path.Combine(FindRepoRoot(), "QTTabBar");
+            string[] orphans = Directory.GetFiles(root, "QTTabBarClass.ExplorerController*.cs");
+            Assert.IsEmpty(orphans, "ExplorerController partials must be deleted in Wave 18");
         }
     }
 }

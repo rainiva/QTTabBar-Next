@@ -21,14 +21,13 @@ namespace QTTtabBarTests {
         }
 
         [Test]
-        public void MenuController_Uses_Two_Narrow_Host_Ports() {
-            Type interactionHost = Assembly.GetType("QTTabBarLib.IMenuInteractionHost", true);
-            Type lifecycleHost = Assembly.GetType("QTTabBarLib.IMenuLifecycleHost", true);
-            Assert.LessOrEqual(interactionHost.GetMethods().Length, 15);
-            Assert.LessOrEqual(lifecycleHost.GetMethods().Length, 15);
-            Assert.IsNotNull(MenuControllerType.GetConstructor(AnyInstance, null, new[] { interactionHost, lifecycleHost }, null));
-            Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == interactionHost));
-            Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == lifecycleHost));
+        public void MenuController_Uses_MenuContext_And_Single_Menu_Host() {
+            Type menuContext = Assembly.GetType("QTTabBarLib.IMenuContext", true);
+            Type menuHost = Assembly.GetType("QTTabBarLib.IMenuControllerHost", true);
+            Assert.LessOrEqual(menuHost.GetMethods().Length, 20);
+            Assert.IsNotNull(MenuControllerType.GetConstructor(AnyInstance, null, new[] { menuContext, menuHost }, null));
+            Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == menuContext));
+            Assert.IsTrue(MenuControllerType.GetFields(AnyInstance).Any(field => field.FieldType == menuHost));
         }
 
         [TestCase("contextMenuTab_ItemClicked")]
@@ -56,8 +55,8 @@ namespace QTTtabBarTests {
         public void Composition_Routes_Menu_Construction_Events_And_Group_Creation_Through_TopLevel_Controller() {
             string root = FindRepoRoot();
             string composition = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.ComponentBuildController.cs"));
-            string bindAction = File.ReadAllText(Path.Combine(root, "QTTabBar", "QTTabBarClass.BindActionController.cs"));
-            Assert.IsTrue(composition.Contains("new MenuController((IMenuInteractionHost)_host, (IMenuLifecycleHost)_host)"));
+            string bindAction = File.ReadAllText(Path.Combine(root, "QTTabBar", "BindAction", "BindActionController.cs"));
+            Assert.IsTrue(composition.Contains("new MenuController(_host.MenuContext"));
             foreach(string eventHandler in new[] {
                 "contextMenuTab_ItemClicked", "contextMenuTab_Opening",
                 "contextMenuSys_ItemClicked", "contextMenuSys_Opening"

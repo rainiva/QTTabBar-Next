@@ -37,7 +37,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void SessionRestore_Applies_Config_WindowAlpha() {
-            string content = ReadQtTabBarFile("QTTabBarClass.ExplorerController.SessionRestore.cs");
+            string content = ReadQtTabBarFile("QTTabBarClass.ExplorerIntegration.cs");
             Assert.IsTrue(content.Contains("Config.Window.WindowAlpha"),
                 "SessionRestore should apply alpha from Config.Window.WindowAlpha");
             Assert.IsFalse(
@@ -60,7 +60,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void Shutdown_SampleAlpha_Then_Persist_Uses_Unified_API() {
-            string content = ReadQtTabBarFile("QTTabBarClass.ShutdownController.cs");
+            string content = ReadQtTabBarFile("Shutdown/ShutdownController.cs");
             Assert.IsTrue(content.Contains("ConfigManager.PersistWindowAlpha"),
                 "Shutdown should persist sampled alpha through ConfigManager.PersistWindowAlpha");
             Assert.IsFalse(

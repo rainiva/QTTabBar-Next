@@ -52,28 +52,19 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     # Build the test project
-    - name: Build tests
-      run: msbuild Tests\QTTtabBarTests\QTTtabBarTests.csproj /p:Configuration=Debug /restore /v:minimal /m
+    - name: Build tests with Visual Studio MSBuild
+      run: msbuild Tests\QTTtabBarTests\QTTtabBarTests.csproj /t:Rebuild /p:Configuration=Debug /m /v:minimal
 
     # Run tests with TRX logging
-    - name: Run tests
-      run: |
-        $vstest = "${{ env.VSTEST_PATH }}"
-        if (-not $vstest) {
-          $vstest = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Recurse -Filter "vstest.console.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-        }
-        if (-not $vstest) {
-          Write-Error "vstest.console.exe not found"
-          exit 1
-        }
-        & $vstest "Tests\QTTtabBarTests\bin\Debug\net48\QTTtabBarTests.dll" --logger:"trx;LogFileName=test-results.trx"
+    - name: Run architecture and behavior tests
+      run: dotnet test Tests\QTTtabBarTests\QTTtabBarTests.csproj --no-build --no-restore --configuration Debug --logger "trx;LogFileName=qt-tabbar-tests.trx"
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
-        path: '**/test-results.trx'
+        path: '**/qt-tabbar-tests.trx'
         
 #     - name: Zip the release dir   
 #     - uses: montudor/action-zip@v0.1.1

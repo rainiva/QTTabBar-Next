@@ -103,6 +103,7 @@ namespace QTTabBarLib {
 
         private static void ThreadEntry() {
             QTUtility.Initialize();
+            OptionsDialogWpfBootstrap.Ensure();
             instance = new OptionsDialog();
             lock(instanceThread) {
                 Monitor.Pulse(instanceThread);
@@ -128,6 +129,7 @@ namespace QTTabBarLib {
 
         private OptionsDialog() {
             try {
+                OptionsDialogWpfBootstrap.Ensure();
                 Initialized += (sender, args) => Topmost = true;
                 ContentRendered += (sender, args) => Topmost = false;
                 PInvoke.SetProcessDPIAware();

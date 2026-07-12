@@ -28,7 +28,6 @@ namespace QTTabBarLib {
         private Dictionary<string, string[]> dicLocalizingStrings;
         private QTPlugin.Interop.IShellBrowser shellBrowser;
         private IPluginServerHost _host;
-        private IPluginServerTabHost _tabHost;
         private Dictionary<string, Plugin> dicPluginInstances = new Dictionary<string, Plugin>();
 
         internal Dictionary<string, string> dicFullNamesMenuRegistered_Sys = new Dictionary<string, string>();
@@ -46,10 +45,9 @@ namespace QTTabBarLib {
         public event PluginEventHandler TabChanged;
         public event PluginEventHandler TabRemoved;
 
-        internal PluginServer(IPluginServerHost host, IPluginServerTabHost tabHost) {
+        internal PluginServer(IPluginServerHost host) {
             _host = host;
-            _tabHost = tabHost;
-            shellBrowser = (QTPlugin.Interop.IShellBrowser)_tabHost.ShellBrowser.GetIShellBrowser();
+            shellBrowser = (QTPlugin.Interop.IShellBrowser)_host.ShellBrowser.GetIShellBrowser();
             dicLocalizingStrings = new Dictionary<string, string[]>();
             foreach(string file in Config.Lang.PluginLangFiles) {
                 if(file.Length <= 0 || !File.Exists(file)) continue;
@@ -251,22 +249,6 @@ namespace QTTabBarLib {
             set {
                 _host.SetTabBarOption(value);
             }
-        }
-    }
-
-    public sealed partial class QTTabBarClass {
-        private bool isTabSubFolderMenuVisible = false;
-
-        public static Dictionary<String,String[]> testQTUtilityReadLanguageFile(string path) {
-            return QTResourceManager.ReadLanguageFile(path);
-        }
-
-        protected override bool IsTabSubFolderMenuVisible {
-            get { return isTabSubFolderMenuVisible; }
-        }
-
-        protected override int CalcBandHeight(int count) {
-            return -1;
         }
     }
 }

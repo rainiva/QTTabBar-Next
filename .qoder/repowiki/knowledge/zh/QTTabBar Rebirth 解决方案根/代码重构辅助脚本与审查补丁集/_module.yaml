@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: agents
+title: 代码重构辅助脚本与审查补丁集
+scope:
+    - .agents/
+source_files: []
+depends_on: []
+related_to: []

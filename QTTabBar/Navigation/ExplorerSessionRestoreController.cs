@@ -4,12 +4,12 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal sealed class ExplorerSessionRestoreController {
-        private readonly IExplorerSessionRestoreHost _host;
+        private readonly IExplorerSessionHost _host;
         private readonly Action _installHooks;
         private readonly Action<object> _navigateCompleted;
 
         internal ExplorerSessionRestoreController(
-            IExplorerSessionRestoreHost host,
+            IExplorerSessionHost host,
             Action installHooks,
             Action<object> navigateCompleted) {
             _host = host;
@@ -35,10 +35,8 @@ namespace QTTabBarLib {
                 ensureOpenedWindow = true;
                 return true;
             }
-            if(StaticReg.CreateWindowGroup.Length != 0) {
-                QTLogger.log("DoFirstNavigation StaticReg.CreateWindowGroup.Length " + StaticReg.CreateWindowGroup.Length);
-                string group = StaticReg.CreateWindowGroup;
-                StaticReg.CreateWindowGroup = string.Empty;
+            if(WindowCaptureSession.TryDequeueGroup(out string group)) {
+                QTLogger.log("DoFirstNavigation StaticReg.CreateWindowGroup.Length " + group.Length);
                 _host.CurrentTab.CurrentPath = path;
                 _host.OpenStartupGroup(group);
                 _host.AddStartupTabs(group, path);

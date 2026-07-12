@@ -18,6 +18,7 @@ namespace QTTabBarLib {
         private static string[] _lastPluginEnabledSnapshot;
 
         private static IConfigWriter _writer = new RegistryConfigWriter();
+        private static IConfigWindowWriter _windowWriter = new RegistryConfigWindowWriter();
         private static readonly object CommitSync = new object();
 
         internal static void ResetForInitRetry() {
@@ -114,48 +115,38 @@ namespace QTTabBarLib {
             }
         }
 
-        /// <summary>
-        /// Writes Window registry keys and broadcasts a config reload. Does not rewrite unrelated categories.
-        /// </summary>
-        public static void PersistPartialWindowSetting(Action<RegistryKey> write, bool incrementVersion = true) {
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + RegConst.Config + "Window")) {
-                if(key != null) {
-                    write(key);
-                }
+        private static void MutateWindowAndCommit(
+                Action<Config._Window> mutation,
+                ConfigWindowField fields,
+                bool broadcast = true) {
+            if(mutation == null) {
+                throw new ArgumentNullException(nameof(mutation));
             }
-            if(incrementVersion) {
-                ConfigVersionTracker.Increment();
+            lock(CommitSync) {
+                Config candidate = CreateSnapshot();
+                mutation(candidate.window);
+                Config published = SerializationHelper.DeepClone(candidate);
+                _windowWriter.Write(published.window, fields);
+                LoadedConfig = published;
+                UpdateConfig(broadcast);
             }
-            UpdateConfig(false);
-            InstanceManager.StaticBroadcastCommand(IpcCommandMessage.EncodeReloadConfig(ConfigVersionTracker.Current));
         }
 
         public static void SetNoCapturePathsAndBroadcast(IEnumerable<string> paths) {
-            List<string> list = paths == null ? new List<string>() : paths.ToList();
-            UpdateNoCapturePaths(list);
-            PersistPartialWindowSetting(key => {
-                key.SetValue("NoCaptureAt", Config.Window.NoCaptureAt ?? string.Empty);
-            });
+            string serialized = string.Join(";", (paths ?? Array.Empty<string>()).ToArray());
+            MutateWindowAndCommit(window => window.NoCaptureAt = serialized, ConfigWindowField.NoCaptureAt);
         }
 
         public static void PersistBreakTabBar(bool breakTabBar) {
-            Config.Window.BreakTabBar = breakTabBar;
-            PersistPartialWindowSetting(key => {
-                key.SetValue("BreakTabBar", breakTabBar ? 1 : 0);
-            });
+            MutateWindowAndCommit(window => window.BreakTabBar = breakTabBar, ConfigWindowField.BreakTabBar);
         }
 
         public static void PersistWindowAlpha(byte alpha) {
-            Config.Window.WindowAlpha = alpha;
-            SessionState.WindowAlpha = alpha;
-            PersistPartialWindowSetting(key => {
-                key.SetValue("WindowAlpha", (int)alpha);
-            });
+            MutateWindowAndCommit(window => window.WindowAlpha = alpha, ConfigWindowField.WindowAlpha);
         }
 
         private static void UpdateNoCapturePaths(IEnumerable<string> paths) {
             List<string> list = paths == null ? new List<string>() : paths.ToList();
-            Config.Window.NoCaptureAt = string.Join(";", list.ToArray());
             lock(SessionState.SyncRoot) {
                 SessionState.NoCapturePathsList = new List<string>(list);
             }

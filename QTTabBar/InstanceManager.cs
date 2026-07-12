@@ -16,798 +16,144 @@
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
 using System.Security.Principal;
-using System.Threading;
-using QTTabBarLib.Interop;
+using System.ServiceModel;
+using QTTabBarLib.Ipc;
 
 namespace QTTabBarLib {
     internal static class InstanceManager {
-                                                        
-
-
-        private static DuplexClient commClient;
-        private static bool isServer;
-
-        // P0-5: main UI control used to marshal IPC callback delegates onto the UI
-        // thread. Registered by QTTabBarClass via SetMainUIControl.
-        private static System.Windows.Forms.Control mainUIControl;
-
-        // Register the primary UI control that owns the message loop. IPC callbacks
-        // deserialized in CommClient.Execute are marshaled onto this control's thread.
         public static void SetMainUIControl(System.Windows.Forms.Control control) {
-            mainUIControl = control;
+            IpcCommandGateway.SetMainUIControl(control);
         }
 
-        // Server-only stuff
-        private static volatile bool _initialized;
-        private static ServiceHost serviceHost;
-        private static List<ICommClient> callbacks = new List<ICommClient>();
-        private static StackDictionary<IntPtr, ICommClient> sdInstances = new StackDictionary<IntPtr, ICommClient>();
-        private static TrayIcon trayIcon;
-
-
-
-        #region Comm Classes and Interfaces
-
-        private class DuplexClient : DuplexClientBase<ICommService> {
-            public DuplexClient(InstanceContext callbackInstance, Binding binding, EndpointAddress remoteAddress)
-                : base(callbackInstance, binding, remoteAddress) {
-            }
-            public new ICommService Channel { get { return base.Channel; } }
-        }
-
-        [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICommClient))]
-        private interface ICommService {
-            [OperationContract]
-            void Subscribe();
-
-            [OperationContract]
-            void PushInstance(IntPtr hwnd);
-
-            [OperationContract]
-            void DeleteInstance(IntPtr hwnd);
-
-            [OperationContract]
-            bool IsMainProcess();
-
-            [OperationContract]
-            int GetTotalInstanceCount();
-
-            [OperationContract]
-            void AddToTrayIcon(IntPtr tabBarHandle, IntPtr explorerHandle, string currentPath, string[] tabNames, string[] tabPaths);
-
-            [OperationContract]
-            void RemoveFromTrayIcon(IntPtr tabBarHandle);
-
-            [OperationContract]
-            void SelectTabOnOtherTabBar(IntPtr tabBarHandle, int index);
-
-            [OperationContract]
-            bool ExecuteOnMainProcess(byte[] encodedAction, bool doAsync);
-
-            [OperationContract]
-            void ExecuteOnServerProcess(byte[] encodedAction, bool doAsync);
-
-            [OperationContract]
-            object GetFromServerProcess(byte[] encodedAction);
-
-            [OperationContract]
-            void Broadcast(byte[] encodedAction);
-        }
-
-        [ServiceBehavior(
-                ConcurrencyMode = ConcurrencyMode.Reentrant,
-                InstanceContextMode = InstanceContextMode.PerSession)]
-        private class CommService : ICommService {
-
-            private static bool IsDead(ICommClient client) {
-                ICommunicationObject ico = client as ICommunicationObject;
-                return ico != null && ico.State != CommunicationState.Opened;                
-            }
-
-            private static void CheckConnections() {
-                callbacks.RemoveAll(IsDead);
-                sdInstances.RemoveAllValues(c => !callbacks.Contains(c));
-                PruneDeadWindowHandles();
-            }
-
-            private static void PruneDeadWindowHandles() {
-                foreach(IntPtr hwnd in sdInstances.Keys.ToList()) {
-                    if(hwnd == IntPtr.Zero || !PInvoke.IsWindow(hwnd)) {
-                        sdInstances.Remove(hwnd);
-                    }
-                }
-            }
-
-            private static ICommClient GetCallback() {
-                return OperationContext.Current.GetCallbackChannel<ICommClient>();
-            }
-
-            public int GetTotalInstanceCount() {
-                CheckConnections();
-                return sdInstances.Count;
-            }
-
-            public void AddToTrayIcon(IntPtr tabBarHandle, IntPtr explorerHandle, string currentPath, string[] tabNames, string[] tabPaths) {
-                if(trayIcon == null) trayIcon = new TrayIcon();
-                trayIcon.AddToTrayIcon(tabBarHandle, explorerHandle, currentPath, tabNames, tabPaths);
-            }
-
-            public void RemoveFromTrayIcon(IntPtr tabBarHandle) {
-                if(trayIcon == null) trayIcon = new TrayIcon();
-                trayIcon.RestoreWindow(tabBarHandle);
-            }
-
-            public void SelectTabOnOtherTabBar(IntPtr tabBarHandle, int index) {
-                ICommClient comm;
-                if(sdInstances.TryGetValue(tabBarHandle, out comm)) {
-                    QTLogger.log("SelectTabOnOtherTabBar comm.Execute");
-                    comm.Execute(IpcCommandMessage.EncodeSelectTab(tabBarHandle, index));
-                }
-            }
-
-            public bool ExecuteOnMainProcess(byte[] encodedAction, bool doAsync) {
-                CheckConnections();
-                if(IsMainProcess()) {
-                    return true;
-                }
-                else if(sdInstances.Count == 0) {
-                    return false;
-                }
-                ICommClient callback = sdInstances.Peek();
-                if(doAsync) {
-                    QTLogger.log("ExecuteOnMainProcess callback.Execute doAsync");
-                    // if (!IsDead( callback ))
-                    // {
-                        AsyncHelper.BeginInvoke(new Action(() => {
-                            try {
-                                if (!IsDead(callback))
-                                {
-                                    callback.Execute(encodedAction);
-                                }
-                            }
-                            catch(Exception e) {
-                                QTLogger.MakeErrorLog(e, "AsyncHelper.BeginInvoke");
-                            }
-                        }));
-                    // }
-                }
-                else {
-                    QTLogger.log("ExecuteOnMainProcess callback.Execute");
-                    callback.Execute(encodedAction);
-                }
-                return false;
-            }
-
-            public void ExecuteOnServerProcess(byte[] encodedAction, bool doAsync) {
-                try {
-                    if(IpcCommandDispatcher.TryExecuteOnServer(encodedAction, doAsync)) {
-                        return;
-                    }
-                    Delegate action = ByteToDel(encodedAction);
-                    if(action != null) {
-                        if(doAsync) {
-                            AsyncHelper.BeginInvoke(action);
-                        }
-                        else {
-                            action.DynamicInvoke();
-                        }
-                    }
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex);
-                }
-            }
-
-            public object GetFromServerProcess(byte[] encodedAction) {
-                try {
-                    Delegate action = ByteToDel(encodedAction);
-                    if ( action != null)
-                    { return action.DynamicInvoke(); }
-                    return null;
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex);
-                    return null;
-                }
-            }
-
-            /**
-             *
-             */
-            public void Broadcast(byte[] encodedAction) {
-                // TimeSpan start = new TimeSpan(DateTime.Now.Ticks);
-                ICommClient sender = GetCallback();
-                CheckConnections();
-                List<ICommClient> targets = callbacks.Where(c => c != sender).ToList();
-                AsyncHelper.BeginInvoke(new Action(() => {
-                    int i = 0;
-                    foreach(ICommClient target in targets) {
-                        try {
-                            i++;
-                            // QTLogger.log("CommService Broadcast count : " + targets.Count + " handle index: " + i);
-                            if (!IsDead(target)) {
-                                target.Execute(encodedAction);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            QTLogger.MakeErrorLog(ex);
-                        }
-                    }
-
-                    // TimeSpan abs2 = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                    // QTLogger.log(string.Format("Broadcast async cost {0} ", abs2.TotalMilliseconds));
-                }));
-
-                // TimeSpan abs = new TimeSpan(DateTime.Now.Ticks).Subtract(start).Duration();
-                // QTLogger.log(string.Format("Broadcast sync cost {0} ", abs.TotalMilliseconds));
-            }
-
-            public void DeleteInstance(IntPtr hwnd) {
-                CheckConnections();
-                sdInstances.Remove(hwnd);
-            }
-
-            public bool IsMainProcess() {
-                CheckConnections();
-                return sdInstances.Count > 0 && GetCallback() == sdInstances.Peek();
-            }
-
-            public void Subscribe() {
-                ICommClient callback = GetCallback();
-                if(!callbacks.Contains(callback)) {
-                    callbacks.Add(callback);
-                }
-            }
-
-            public void PushInstance(IntPtr hwnd) {
-                CheckConnections();
-                if(!callbacks.Contains(GetCallback())) return; // hmmm....
-                sdInstances.Push(hwnd, GetCallback());
-            }
-        }
-
-        private interface ICommClient {
-            [OperationContract]
-            void Execute(byte[] encodedAction);
-        }
-
-        [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, UseSynchronizationContext = false)]
-        private class CommClient : ICommClient {
-            public void Execute(byte[] encodedAction) {
-                Delegate thedel = null;
-                try {
-                    QTLogger.log("InstanceManager CommClient Execute : ");
-                    if(encodedAction == null || encodedAction.Length == 0) {
-                        return;
-                    }
-
-                    Action typedAction;
-                    if(IpcCommandDispatcher.TryCreateClientAction(encodedAction, out typedAction) && typedAction != null) {
-                        MarshalActionToUi(typedAction);
-                        return;
-                    }
-
-                    thedel = ByteToDel(encodedAction);
-                    if(thedel != null && thedel.Method != null) {
-                        QTLogger.log("InstanceManager CommClient DynamicInvoke action: " + thedel + " method:" + thedel.Method);
-                        MarshalDelegateToUi(thedel);
-                    }
-                }
-                catch(NullReferenceException ex) {
-                    QTLogger.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "NullReferenceException"));
-                    SafeReinitialize();
-                }
-                catch(ObjectDisposedException ex) {
-                    QTLogger.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "ObjectDisposedException"));
-                    SafeReinitialize();
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex, BuildExecuteErrorContext(thedel, "Exception"));
-                    SafeReinitialize();
-                }
-            }
-
-            private static void MarshalActionToUi(Action action) {
-                System.Windows.Forms.Control ui = mainUIControl;
-                if(ui != null && ui.IsHandleCreated && ui.InvokeRequired) {
-                    ui.BeginInvoke(action);
-                }
-                else {
-                    if(ui == null) {
-                        QTLogger.log("CommClient.Execute: no main UI control registered, executing on current thread");
-                    }
-                    action();
-                }
-            }
-
-            private static void MarshalDelegateToUi(Delegate thedel) {
-                System.Windows.Forms.Control ui = mainUIControl;
-                if(ui != null && ui.IsHandleCreated && ui.InvokeRequired) {
-                    Delegate toInvoke = thedel;
-                    ui.BeginInvoke(new Action(() => {
-                        try {
-                            toInvoke.DynamicInvoke();
-                        }
-                        catch(Exception marshaledEx) {
-                            QTLogger.MakeErrorLog(marshaledEx, BuildExecuteErrorContext(toInvoke, "MarshaledException"));
-                        }
-                    }));
-                }
-                else {
-                    if(ui == null) {
-                        QTLogger.log("CommClient.Execute: no main UI control registered, executing on current thread");
-                    }
-                    thedel.DynamicInvoke();
-                }
-            }
-
-            // Builds contextual diagnostics for a failed delegate invocation.
-            private static string BuildExecuteErrorContext(Delegate thedel, string kind) {
-                string errStr = "CommClient.Execute " + kind + ". ";
-                if (thedel != null && thedel.Method != null) {
-                    errStr += "delegate name:" + thedel.GetType() + " ";
-                    errStr += "method name:" + thedel.Method.Name + " dynamic invoke error";
-                }
-                return errStr;
-            }
-
-            // Re-initialize the comm client for recovery, but never allow the
-            // recovery attempt itself to propagate an exception to the caller.
-            private static void SafeReinitialize() {
-                InstanceManager.SafeReinitialize();
-            }
-        }
-
-        // P0-2: unified server-side authorization check point. WCF invokes
-        // CheckAccessCore before dispatching every ICommService operation, so this
-        // single gate covers Subscribe/Broadcast/Execute*/tray/etc. without touching
-        // any individual operation body (notably CommClient.Execute stays intact).
-        // Callers whose Windows SID differs from the server user's SID are rejected.
-        private class SameUserAuthorizationManager : ServiceAuthorizationManager {
-            protected override bool CheckAccessCore(OperationContext operationContext) {
-                SecurityIdentifier callerSid = null;
-                try {
-                    ServiceSecurityContext ctx = operationContext != null
-                            ? operationContext.ServiceSecurityContext : null;
-                    WindowsIdentity id = ctx != null ? ctx.WindowsIdentity : null;
-                    if (id != null) callerSid = id.User;
-                }
-                catch (Exception ex) {
-                    QTLogger.MakeErrorLog(ex, "InstanceManager.SameUserAuthorizationManager");
-                }
-                if (IsAuthorizedCaller(callerSid)) {
-                    return true;
-                }
-                QTLogger.MakeErrorLog("InstanceManager: rejected unauthorized IPC caller, sid="
-                        + (callerSid == null ? "<unknown>" : callerSid.Value));
-                return false;
-            }
-        }
-
-        #endregion
-
-        #region Utility Methods
-
-        // IPC delegate serialization (BinaryFormatter + SerializeDelegate) is a
-        // same-user RCE surface: any in-process caller that can reach the pipe can
-        // ship arbitrary captured delegates. Transport + SameUserAuthorizationManager
-        // blocks other users but not the owning user or compromised same-user code.
-        //
-        // Recommended replacement (incremental):
-        // 1) Introduce IpcCommand enum + small DTO payloads (tab handle, index, flags).
-        // 2) Replace DelToByte/ByteToDel with typed Execute(IpcCommand, byte[] payload).
-        // 3) Dispatch through a static whitelist map; drop BinaryFormatter entirely.
-        // 4) Keep PreMergeToMergedDeserializationBinder only until migration completes.
-        //
-        // Current call sites still on delegates: TabBarBroadcast, ButtonBarBroadcast,
-        // ExecuteOnMainProcess, GetFromServerProcess. Migrated to typed QTIP messages:
-        // SelectTabOnOtherTabBar, OpenOptions, StaticBroadcast ReloadConfig/Groups/Apps.
-
-        private static byte[] DelToByte(Delegate del) {
-            return SerializationHelper.ObjectToByteArray(new SerializeDelegate(del));
-        }
-
-        private static Delegate ByteToDel(byte[] buf) {
-            if(buf == null || buf.Length == 0) {
-                return null;
-            }
-            object v = SerializationHelper.ByteArrayToObject(buf);
-            if(v == null) {
-                return null;
-            }
-            Delegate del;
-            if(!IpcDelegateGuard.TryUnwrapDelegate(v, out del)) {
-                return null;
-            }
-            return del;
-        }
-
-        // P0-2: single factory for the IPC pipe binding, shared by the service host
-        // and the duplex client. Uses transport security (Windows identity carried on
-        // the named pipe) instead of the previous wide-open SecurityMode.None, while
-        // preserving the original large-message quotas used to carry serialized
-        // delegates between explorer instances.
-        internal const int MaxIpcMessageBytes = 4 * 1024 * 1024;
+        internal const int MaxIpcMessageBytes = NamedPipeTransport.MaxIpcMessageBytes;
 
         internal static NetNamedPipeBinding CreatePipeBinding() {
-            return new NetNamedPipeBinding(NetNamedPipeSecurityMode.Transport) {
-                ReceiveTimeout = TimeSpan.MaxValue,
-                ReaderQuotas = { MaxArrayLength = MaxIpcMessageBytes },
-                MaxBufferSize = MaxIpcMessageBytes,
-                MaxReceivedMessageSize = MaxIpcMessageBytes,
-            };
+            return NamedPipeTransport.CreatePipeBinding();
         }
 
-        // P0-2: authorize an IPC caller by comparing its Windows SID with the SID of
-        // the user that owns this process. Only same-user callers pass; a null or
-        // otherwise indeterminate identity is treated as unauthorized.
         internal static bool IsAuthorizedCaller(SecurityIdentifier callerSid) {
-            if (callerSid == null) return false;
-            try {
-                using (WindowsIdentity self = WindowsIdentity.GetCurrent()) {
-                    return self != null && self.User != null && self.User.Equals(callerSid);
-                }
-            }
-            catch (Exception ex) {
-                QTLogger.MakeErrorLog(ex, "InstanceManager.IsAuthorizedCaller");
-                return false;
-            }
+            return NamedPipeTransport.IsAuthorizedCaller(callerSid);
         }
-
-        #endregion
 
         public static void Initialize(bool skipServer = false) {
-            if(_initialized) return;
-
-            uint desktopPID;
-            PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out desktopPID);
-            isServer = desktopPID == PInvoke.GetCurrentProcessId();
-
-            const string PipeName = "QTTabBarPipe";
-            string address = "net.pipe://localhost/" + PipeName + desktopPID;
-            Thread thread = null;
-
-            // WFC channels should never be opened on any thread that has a message loop!
-            // Otherwise reentrant calls will deadlock, for some reason.
-            // So, create a new thread and open the channels there.
-            thread = new Thread(() => {
-                CloseCommResources();
-                if(isServer && !skipServer) {
-                    serviceHost = new ServiceHost(
-                            typeof(CommService),
-                            new Uri[] { new Uri(address) });
-                    serviceHost.AddServiceEndpoint(
-                            typeof(ICommService),
-                            CreatePipeBinding(),
-                            new Uri(address));
-                    // P0-2: install the unified same-user authorization gate so that
-                    // only IPC callers running as the same Windows user as this server
-                    // are allowed to invoke any service operation.
-                    serviceHost.Authorization.ServiceAuthorizationManager =
-                            new SameUserAuthorizationManager();
-                    serviceHost.Open();
-                }
-                
-
-                commClient = new DuplexClient(new InstanceContext(new CommClient()),
-                        CreatePipeBinding(),
-                        new EndpointAddress(address));
-                try {
-                    commClient.Open();
-                    commClient.Channel.Subscribe();
-                    using(new Keychain(TabInstanceRegistry.Lock, false)) {
-                        foreach(IntPtr handle in TabInstanceRegistry.GetAllHandles()) {
-                            commClient.Channel.PushInstance(handle);
-                        }
-                    }
-                }
-                catch(EndpointNotFoundException) {
-                }
-                lock(thread) {
-                    Monitor.Pulse(thread);
-                }
-                // Yes, we can just let the thread die here.
-            });
-            thread.Start();
-            lock(thread) {
-                Monitor.Wait(thread);
-            }
-            _initialized = true;
-        }
-
-        private static void CloseCommResources() {
-            if(serviceHost != null) {
-                try {
-                    if(serviceHost.State != CommunicationState.Closed) {
-                        serviceHost.Close();
-                    }
-                }
-                catch {
-                    serviceHost.Abort();
-                }
-                serviceHost = null;
-            }
-            if(commClient != null) {
-                try {
-                    if(commClient.State != CommunicationState.Closed) {
-                        commClient.Close();
-                    }
-                }
-                catch {
-                    commClient.Abort();
-                }
-                commClient = null;
-            }
+            IpcServerLifecycle.Initialize(skipServer);
         }
 
         internal static void ResetForInitRetry() {
-            CloseCommResources();
-            _initialized = false;
+            IpcServerLifecycle.ResetForInitRetry();
         }
 
         private static void SafeReinitialize() {
-            try {
-                QTLogger.log("InstanceManager.SafeReinitialize: resetting comm channels");
-                CloseCommResources();
-                _initialized = false;
-                Initialize();
-            }
-            catch(Exception reinitEx) {
-                QTLogger.MakeErrorLog(reinitEx, "InstanceManager.SafeReinitialize: re-initialize failed");
-            }
-        }
-
-        private static ICommService GetChannel() {
-            if(commClient != null && commClient.State == CommunicationState.Opened) {
-                return commClient.Channel;
-            }
-            Initialize(true);
-            return commClient != null && commClient.State == CommunicationState.Opened ? commClient.Channel : null;
+            IpcServerLifecycle.SafeReinitialize();
         }
 
         public static void StaticBroadcast(Action action) {
-            ICommService service = GetChannel();
-            if(service != null) service.Broadcast(DelToByte(action));
+            IpcCommandGateway.StaticBroadcast(action);
         }
 
         public static void StaticBroadcastCommand(IpcCommand command) {
-            ICommService service = GetChannel();
-            if(service != null) service.Broadcast(IpcCommandMessage.Encode(command));
+            IpcCommandGateway.StaticBroadcastCommand(command);
         }
 
-        // Overload for commands whose payload is pre-encoded by the caller (e.g.
-        // ReloadConfig carrying a configuration version). Keeps the existing
-        // no-payload overload untouched for all other broadcast call sites.
         public static void StaticBroadcastCommand(byte[] encodedCommand) {
-            ICommService service = GetChannel();
-            if(service != null) service.Broadcast(encodedCommand);
+            IpcCommandGateway.StaticBroadcastCommand(encodedCommand);
         }
 
         public static void TabBarBroadcast(Action<QTTabBarClass> action, bool includeCurrent) {
-            TabInstanceRegistry.LocalTabBroadcast(action, Thread.CurrentThread);
-            if(includeCurrent) {
-                var tabbar = TabInstanceRegistry.GetThreadTabBar();
-                if(tabbar != null) action(tabbar);
-            }
-            StaticBroadcast(() => TabInstanceRegistry.LocalTabBroadcast(action));
+            IpcCommandGateway.TabBarBroadcast(action, includeCurrent);
         }
 
         public static void ButtonBarBroadcast(Action<QTButtonBar> action, bool includeCurrent) {
-            ButtonBarRegistry.LocalBBarBroadcast(action, Thread.CurrentThread);
-            if(includeCurrent) {
-                var bbar = ButtonBarRegistry.GetThreadButtonBar();
-                if(bbar != null) action(bbar);
-            }
-            StaticBroadcast(() => ButtonBarRegistry.LocalBBarBroadcast(action));
+            IpcCommandGateway.ButtonBarBroadcast(action, includeCurrent);
         }
 
-        /// <summary>
-        /// Typed QTIP broadcast to refresh all button bars (replaces delegate broadcast for RefreshButtons).
-        /// </summary>
         public static void BroadcastRefreshButtonBars(bool includeCurrent = true) {
-            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.RefreshButtons(), Thread.CurrentThread);
-            if(includeCurrent) {
-                QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
-                if(bbar != null) {
-                    bbar.RefreshButtons();
-                }
-            }
-            StaticBroadcastCommand(IpcCommandMessage.EncodeRefreshButtonBars());
+            IpcCommandGateway.BroadcastRefreshButtonBars(includeCurrent);
         }
 
         public static void BroadcastSyncSearchBoxWidth(int width, bool includeCurrent = false) {
-            ButtonBarRegistry.LocalBBarBroadcast(bbar => bbar.ApplySearchBoxWidth(width), Thread.CurrentThread);
-            if(includeCurrent) {
-                QTButtonBar bbar = ButtonBarRegistry.GetThreadButtonBar();
-                if(bbar != null) {
-                    bbar.ApplySearchBoxWidth(width);
-                }
-            }
-            StaticBroadcastCommand(IpcCommandMessage.EncodeSyncSearchBoxWidth(width));
+            IpcCommandGateway.BroadcastSyncSearchBoxWidth(width, includeCurrent);
         }
 
         public static void BeginInvokeMainRestoreWindow() {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeRestoreMainWindow(), true);
+            IpcCommandGateway.BeginInvokeMainRestoreWindow();
         }
 
         public static void BeginInvokeMainOpenGroup(string group) {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenGroup(group), true);
+            IpcCommandGateway.BeginInvokeMainOpenGroup(group);
         }
 
         public static void BeginInvokeMainOpenNewTabOrWindowFromIdl(byte[] idl) {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenNewTabOrWindowFromIdl(idl), true);
+            IpcCommandGateway.BeginInvokeMainOpenNewTabOrWindowFromIdl(idl);
         }
 
         public static void BeginInvokeMainOpenNewTabSequence(byte[][] idls) {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenNewTabSequence(idls), true);
+            IpcCommandGateway.BeginInvokeMainOpenNewTabSequence(idls);
         }
 
         public static void BeginInvokeMainCaptureNewWindow(string path, int cmdType, string selectName) {
-            ExecuteOnMainProcessCommand(
-                IpcCommandMessage.EncodeCaptureNewWindow(path, cmdType, selectName),
-                true);
+            IpcCommandGateway.BeginInvokeMainCaptureNewWindow(path, cmdType, selectName);
         }
 
         public static void BeginInvokeMainMergeTabs(MergeTabPayload[] tabs) {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeMergeTabs(tabs), false);
+            IpcCommandGateway.BeginInvokeMainMergeTabs(tabs);
         }
 
         public static void InvokeMainOpenNewTabOrWindowFromPath(string path) {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenNewTabOrWindowFromPath(path), false);
+            IpcCommandGateway.InvokeMainOpenNewTabOrWindowFromPath(path);
         }
 
         public static void InvokeMainOpenPluginOptions(string pluginId) {
-            ExecuteOnMainProcessCommand(IpcCommandMessage.EncodeOpenPluginOptions(pluginId), false);
-        }
-
-        private static void ExecuteOnMainProcessCommand(byte[] encodedCommand, bool doAsync) {
-            ICommService service = GetChannel();
-            if(service == null || service.ExecuteOnMainProcess(encodedCommand, doAsync)) {
-                Action work;
-                if(IpcCommandDispatcher.TryCreateClientAction(encodedCommand, out work) && work != null) {
-                    if(doAsync) {
-                        AsyncHelper.BeginInvoke(work);
-                    }
-                    else {
-                        work();
-                    }
-                }
-            }
-        }
-
-        private static void ExecuteOnMainProcess(Action action, bool doAsync) {
-            ICommService service = GetChannel();
-            if(service == null || service.ExecuteOnMainProcess(DelToByte(action), doAsync)) {
-                action();
-            }
+            IpcCommandGateway.InvokeMainOpenPluginOptions(pluginId);
         }
 
         public static bool EnsureMainProcess(Action action) {
-            ICommService service = GetChannel();
-            if(service != null && service.IsMainProcess()) return true;
-            QTLogger.log("InstanceManager EnsureMainProcess");
-            ExecuteOnMainProcess(action, false);
-            return false;
+            return IpcCommandGateway.EnsureMainProcess(action);
         }
 
         public static void InvokeMain(Action<QTTabBarClass> action) {
-            // QTLogger.log("InstanceManager InvokeMain");
-            ExecuteOnMainProcess(() => TabInstanceRegistry.LocalInvokeMain(action), false);
+            IpcCommandGateway.InvokeMain(action);
         }
 
         public static void BeginInvokeMain(Action<QTTabBarClass> action) {
-            // QTLogger.log("InstanceManager BeginInvokeMain");
-            ExecuteOnMainProcess(() => TabInstanceRegistry.LocalInvokeMain(action, true), true);
+            IpcCommandGateway.BeginInvokeMain(action);
         }
 
-        public static void PushTabBarInstance(QTTabBarClass tabbar) { TabInstanceRegistry.PushTabBarInstance(tabbar); ICommService service = GetChannel(); if(service != null) service.PushInstance(tabbar.Handle); }
+        public static void PushTabBarInstance(QTTabBarClass tabbar) {
+            IpcCommandGateway.PushTabBarInstance(tabbar);
+        }
 
         public static bool UnregisterTabBar() {
-            IntPtr handle;
-            TabInstanceRegistry.UnregisterTabBar(out handle);
-            ICommService service = GetChannel();
-            if(service != null && handle != IntPtr.Zero) {
-                for(int attempt = 0; attempt < 2; attempt++) {
-                    try {
-                        service.DeleteInstance(handle);
-                        break;
-                    }
-                    catch {
-                        if(attempt == 1) {
-                            // WCF channel unavailable — rely on CheckConnections passive cleanup.
-                        }
-                    }
-                }
-            }
-            return false;
+            return IpcCommandGateway.UnregisterTabBar();
         }
 
         public static int GetTotalInstanceCount() {
-            int local = TabInstanceRegistry.Count;
-            ICommService service = GetChannel();
-            if(service == null) {
-                return local;
-            }
-            try {
-                return Math.Max(local, service.GetTotalInstanceCount());
-            }
-            catch {
-                return local;
-            }
+            return IpcCommandGateway.GetTotalInstanceCount();
         }
 
         public static void ExecuteOnServerProcess(Action action, bool doAsync) {
-            ExecuteOnServerProcessBytes(DelToByte(action), doAsync, action);
+            IpcCommandGateway.ExecuteOnServerProcess(action, doAsync);
         }
 
         public static void ExecuteOnServerProcessOpenOptions() {
-            ExecuteOnServerProcessBytes(IpcCommandMessage.EncodeOpenOptions(), false, OptionsDialog.OpenOnServer);
-        }
-
-        private static void ExecuteOnServerProcessBytes(byte[] encodedAction, bool doAsync, Action legacyFallback = null) {
-            ICommService service;
-            if(isServer || (service = GetChannel()) == null) {
-                try {
-                    if(IpcCommandDispatcher.TryExecuteOnServer(encodedAction, doAsync)) {
-                        return;
-                    }
-                    if(legacyFallback != null) {
-                        if(doAsync) {
-                            AsyncHelper.BeginInvoke(legacyFallback);
-                        }
-                        else {
-                            legacyFallback();
-                        }
-                    }
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex);
-                }
-            }
-            else {
-                service.ExecuteOnServerProcess(encodedAction, doAsync);
-            }
+            IpcCommandGateway.ExecuteOnServerProcessOpenOptions();
         }
 
         public static T GetFromServerProcess<T>(Func<T> func) {
-            ICommService service;
-            if(isServer || (service = GetChannel()) == null) {
-                try {
-                    return func();
-                }
-                catch(Exception ex) {
-                    QTLogger.MakeErrorLog(ex);
-                    return default(T);
-                }
-            }
-            else {
-                object obj = service.GetFromServerProcess(DelToByte(func));
-                return obj == null ? default(T) : (T)obj;
-            }
+            return IpcCommandGateway.GetFromServerProcess(func);
         }
 
         public static void AddToTrayIcon(IntPtr tabBarHandle, IntPtr explorerHandle, string currentPath, string[] tabNames, string[] tabPaths) {
-            ICommService service = GetChannel();
-            if(service != null) service.AddToTrayIcon(tabBarHandle, explorerHandle, currentPath, tabNames, tabPaths);
+            IpcCommandGateway.AddToTrayIcon(tabBarHandle, explorerHandle, currentPath, tabNames, tabPaths);
         }
 
         public static void RemoveFromTrayIcon(IntPtr tabBarHandle) {
-            ICommService service = GetChannel();
-            if (service != null)
-            {
-                service.RemoveFromTrayIcon(tabBarHandle);
-            }
+            IpcCommandGateway.RemoveFromTrayIcon(tabBarHandle);
         }
 
         public static void SelectTabOnOtherTabBar(IntPtr tabBarHandle, int index) {
-            ICommService service = GetChannel();
-            if(service != null) service.SelectTabOnOtherTabBar(tabBarHandle, index);
+            IpcCommandGateway.SelectTabOnOtherTabBar(tabBarHandle, index);
         }
     }
 }

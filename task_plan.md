@@ -1,65 +1,61 @@
-# Task Plan: Structural Governance Remediation Planning
+# Task Plan: Structural Governance Wave 16+ Root Cure
 
 ## Goal
-Produce a complete, executable remediation plan for duplicate entry paths, competing writable configuration authorities, and god-module growth, with TDD sequencing and measurable acceptance gates.
+**彻底根治** 多入口、多真源、上帝模块、换壳 Host — Grill 1–9 已冻结。详见 `docs/superpowers/plans/2026-07-12-structural-remediation-wave16-root-cure.md`。
 
 ## Current Phase
-Complete
+**Phase 0** — 部署/Options 阻塞解除（D→B 第一步）
 
-## Phases
+### Phase 0: 部署真源（immediate）
+- [ ] 管理员安装 MSI 或 `Register/Register.bat Release`
+- [ ] `restart explorer.bat`；验证 Options 无 XAML 错误
+- **Status:** pending（registry 仍指向 GAC 1.0.0.0 时需管理员）
 
-### Phase 1: Requirements and Evidence Baseline
-- [x] Capture findings from the completed strict structural review
-- [x] Reconfirm current repository state and CodeGraph freshness
-- [x] Identify existing architecture plans and test conventions to reuse
-- **Status:** complete
+### Phase 1: Wave 16 — 门禁可信化（∥ Wave 15 7/7 可选）
+- [ ] Task 16.1: `BandOrchestrationClusterBudgetTests`（7550 + TabBarBase 1928）
+- [ ] Task 16.2: Hotspot 测试去矛盾
+- [ ] Task 16.3: 治理文档 + AcceptanceMatrix
+- **Status:** pending
 
-### Phase 2: Remediation Architecture
-- [x] Define canonical entry and canonical configuration write boundaries
-- [x] Define hotspot boundaries and no-growth controls
-- [x] Order changes into independently testable waves
-- **Status:** complete
+### Phase 2: Wave 17 — 单入口 / 单真源
+- [ ] 17.1: Options + Plugins 白名单；**删除 OpenOptionDialog**；修 QTQuick
+- [ ] 17.2: `virtual SetContextMenuedTab` + 写路径扫描
+- [ ] 17.3: CurrentTab UI 不变量
+- [ ] 17.4: `ExplorerNavigationOrchestrator`
+- **Status:** pending
 
-### Phase 3: Detailed Execution Checklist
-- [x] Write file-specific TDD tasks with exact commands and expected results
-- [x] Define rollback points and commit boundaries
-- [x] Define quantitative acceptance criteria
-- **Status:** complete
+### Phase 3: Wave 18 — 删 ExplorerController + 自动化 Z
+- [ ] 18.1: SubDirTip 迁出；ShellHosts ≤900
+- [ ] 18.2: **删除 ExplorerController**；ComponentBuild 直配 leaf
+- [ ] 18.3: SingleHost + SameInstance + ComponentBuild 扫描；合并 BindAction Host
+- [ ] 18.4: 删 TabManager；IPluginServerHost ≤20；Host ≤40
+- **Status:** pending
 
-### Phase 4: Plan Verification
-- [x] Verify all review findings map to implementation tasks
-- [x] Scan for placeholders and inconsistent interfaces
-- [x] Confirm referenced files and commands exist
-- **Status:** complete
+### Phase 4: Wave 19 — 扫描 + Options UI
+- [ ] Session/Config bypass 扫描；Options UI 测试
+- **Status:** pending
 
-### Phase 5: Delivery
-- [x] Save the final plan under docs/superpowers/plans
-- [x] Report the deliverable path and execution options
-- **Status:** complete
+### Phase 5: Wave 20 — 根治验收
+- [ ] 人工 **10/10** signed（7+2+3 导航）
+- [ ] Band Cluster **≤6800**；全量回归 + CI
+- **Status:** pending
 
-## Key Questions
-1. Which existing architectural extractions are stable enough to preserve rather than rewrite?
-2. What is the smallest sequence that fixes user-visible state bugs before structural convergence?
-3. Which static and runtime gates can prevent entry, source, and hotspot regression?
+### Completed: Wave 10–15
+- [x] 1075 tests；MenuOperations 迁出；Context 注入；OptionsDialogWpfBootstrap
 
-## Decisions Made
-| Decision | Rationale |
-|----------|-----------|
-| Plan only; no production-code changes | The user requested a repair plan and acceptance checklist, not implementation |
-| User-visible configuration and race defects precede broad module extraction | Correctness must stabilize before structural refactoring |
-| Use the repository's documented MSBuild plus dotnet test workflow | The project is .NET Framework/WPF and direct dotnet build does not run the supported XAML pipeline |
-| Reopen W10 and C6 instead of trusting their completed labels | Current source and tests contradict the old completion evidence |
-| Preserve behavior through top-level controllers and narrow host interfaces | Physical partial/nested splits alone did not reduce coupling |
-| Add CI structural/test gates as part of remediation | Existing CI rebuilds Release only and does not run tests |
-
-## Errors Encountered
-| Error | Attempt | Resolution |
-|-------|---------|------------|
-| Combined template/existence inspection returned exit 1 because absent files made Get-Item fail | 1 | Read templates and verify absence in separate read-only commands |
-| Final plan add-file patch was rejected because one command line lacked a patch prefix | 1 | Confirmed target still absent; retry by generating every add-file line prefix programmatically before apply_patch |
-| First path-verification call was sent as JavaScript instead of a shell command | 1 | Reissued the same read-only check through shell_command and used its results to expand vague paths |
+## Grill 决策（冻结 2026-07-12）
+| Q | 决策 |
+|---|------|
+| Q1 | Band Orchestration Cluster ~7550 |
+| Q2 | 7550 → Wave20 ≤6800 |
+| Q3 | TabBarBase ≤1928 并行 |
+| Q4 | 禁止 >1 Host；删 ExplorerController；自动化 Z |
+| Q5 | 人工 10 项（7+2+3） |
+| Q6 | ExplorerNavigationOrchestrator |
+| Q7 | virtual SetContextMenuedTab |
+| Q8 | 删 OpenOptionDialog + Plugins 白名单 |
+| Q9 | D→B |
 
 ## Notes
-- Preserve existing user changes in .qoder and _tr.
-- All future source edits must be patch-based and encoding-safe.
-- Production implementation must follow repository-mandated RED, GREEN, REFACTOR order.
+- 不 stage `.qoder/`、`_tr/`、`.codegraph/`
+- Wave15 7/7 不阻塞 Wave16；Wave20 需 10/10

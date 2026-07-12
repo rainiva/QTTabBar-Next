@@ -8,15 +8,16 @@ namespace QTTtabBarTests {
         [Test]
         public void SecondViewBar_InitializeOpenedWindow_Is_Idempotent() {
             string content = SecondViewBarSourceTestHelper.ReadCombined(FindRepoRoot());
-            Assert.IsTrue(content.Contains("fOpenedWindowInitialized"),
-                "SecondViewBar InitializeOpenedWindow should guard with fOpenedWindowInitialized");
-            Assert.IsTrue(content.Contains("InitializeOpenedWindow();") &&
+            Assert.IsTrue(content.Contains("_openedWindowInitialized") || content.Contains("fOpenedWindowInitialized"),
+                "SecondView InitializeOpenedWindow should guard with an idempotent flag");
+            Assert.IsTrue(content.Contains("InitializeOpenedWindow") &&
                           content.Contains("FinishExplorerAttached"),
-                "OnExplorerAttached should call InitializeOpenedWindow");
+                "SecondView attach flow should call InitializeOpenedWindow and FinishExplorerAttached");
+            string mainBar = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "QTSecondViewBar.cs"));
             Assert.IsFalse(System.Text.RegularExpressions.Regex.IsMatch(
-                content,
+                mainBar,
                 @"OnExplorerAttached\s*\(\s*\)[\s\S]*?InstallHooks\s*\(\s*\)\s*;\s*FinishExplorerAttached"),
-                "OnExplorerAttached should not call InstallHooks directly before FinishExplorerAttached");
+                "QTSecondViewBar.OnExplorerAttached should not call InstallHooks directly");
         }
 
         [Test]
@@ -44,7 +45,7 @@ namespace QTTtabBarTests {
 
         [Test]
         public void InstanceManager_GetTotalInstanceCount_Prunes_Dead_Window_Handles() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceManager.cs"));
+            string content = IpcSourceTestHelper.ReadCombined(FindRepoRoot());
             Assert.IsTrue(content.Contains("PruneDeadWindowHandles"),
                 "CommService should prune IPC instance entries whose hwnd is no longer valid");
             Assert.IsTrue(content.Contains("PInvoke.IsWindow"),

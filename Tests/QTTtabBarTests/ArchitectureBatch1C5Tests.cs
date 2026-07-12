@@ -41,11 +41,11 @@ namespace QTTtabBarTests {
 
         [Test]
         public void UnregisterTabBar_Source_Invokes_DeleteInstance() {
-            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "InstanceManager.cs"));
+            string content = File.ReadAllText(Path.Combine(FindRepoRoot(), "QTTabBar", "Ipc", "IpcCommandGateway.cs"));
             int methodIndex = content.IndexOf("bool UnregisterTabBar()", StringComparison.Ordinal);
             Assert.GreaterOrEqual(methodIndex, 0);
             int brace = content.IndexOf('{', methodIndex);
-            int nextMethod = content.IndexOf("\n        public static ", brace + 1, StringComparison.Ordinal);
+            int nextMethod = content.IndexOf("\n        internal static ", brace + 1, StringComparison.Ordinal);
             string body = nextMethod > 0
                 ? content.Substring(brace, nextMethod - brace)
                 : content.Substring(brace, Math.Min(500, content.Length - brace));

@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: qttabbar_core/plugin_server
+title: 插件服务器与插件生命周期管理
+scope:
+    - QTTabBar/PluginServer.cs
+    - QTTabBar/PluginServer.Commands.cs
+    - QTTabBar/PluginServer.Lifetime.cs
+    - QTTabBar/PluginServer.TabAccess.cs
+    - QTTabBar/PluginManager.cs
+source_files: []
+depends_on: []
+related_to: []

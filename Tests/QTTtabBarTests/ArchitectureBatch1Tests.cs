@@ -5,11 +5,9 @@ using System.Reflection;
 using System.ServiceModel;
 using NUnit.Framework;
 using QTTabBarLib;
+using QTTabBarLib.Ipc;
 
 namespace QTTtabBarTests {
-    /// <summary>
-    /// Batch 1: idempotent guards + implicit entry convergence (architecture fix plan).
-    /// </summary>
     [TestFixture]
     public class ArchitectureBatch1Tests {
 
@@ -34,8 +32,8 @@ namespace QTTtabBarTests {
 
         [Test]
         public void InstanceManager_Has_Volatile_Bool_Initialized_Guard() {
-            Assert.IsTrue(HasVolatileBoolGuard(typeof(InstanceManager)),
-                "InstanceManager should have a private static volatile bool _initialized guard field");
+            Assert.IsTrue(HasVolatileBoolGuard(typeof(IpcServerLifecycle)),
+                "IpcServerLifecycle should have a private static volatile bool _initialized guard field");
         }
 
         [Test]
@@ -51,9 +49,9 @@ namespace QTTtabBarTests {
                 null, new[] { typeof(bool) }, null);
             Assert.IsNotNull(initMethod, "InstanceManager.Initialize(bool) should exist");
 
-            var serviceHostField = typeof(InstanceManager).GetField("serviceHost",
+            var serviceHostField = typeof(IpcServerLifecycle).GetField("serviceHost",
                 BindingFlags.NonPublic | BindingFlags.Static);
-            Assert.IsNotNull(serviceHostField, "InstanceManager.serviceHost field should exist");
+            Assert.IsNotNull(serviceHostField, "IpcServerLifecycle.serviceHost field should exist");
 
             initMethod.Invoke(null, new object[] { true });
             object firstHost = serviceHostField.GetValue(null);
@@ -67,20 +65,20 @@ namespace QTTtabBarTests {
 
         [Test]
         public void InstanceManager_SafeReinitialize_Closes_Old_ServiceHost() {
-            var safeReinitMethod = typeof(InstanceManager).GetMethod("SafeReinitialize",
+            var safeReinitMethod = typeof(IpcServerLifecycle).GetMethod("SafeReinitialize",
                 BindingFlags.NonPublic | BindingFlags.Static);
-            var serviceHostField = typeof(InstanceManager).GetField("serviceHost",
+            var serviceHostField = typeof(IpcServerLifecycle).GetField("serviceHost",
                 BindingFlags.NonPublic | BindingFlags.Static);
-            var initializedField = typeof(InstanceManager).GetField("_initialized",
+            var initializedField = typeof(IpcServerLifecycle).GetField("_initialized",
                 BindingFlags.NonPublic | BindingFlags.Static);
 
             Assert.IsNotNull(safeReinitMethod);
             Assert.IsNotNull(serviceHostField);
             Assert.IsNotNull(initializedField);
 
-            Type commServiceType = typeof(InstanceManager).GetNestedType("CommService",
-                BindingFlags.NonPublic);
-            Assert.IsNotNull(commServiceType, "CommService nested type should exist for host injection");
+            Type commServiceType = typeof(IpcCommandGateway).Assembly.GetType(
+                "QTTabBarLib.Ipc.CommService");
+            Assert.IsNotNull(commServiceType, "CommService type should exist for host injection");
 
             string address = "net.pipe://localhost/QTTabBarBatch1Test" + Guid.NewGuid().ToString("N");
             ServiceHost oldHost = new ServiceHost(commServiceType, new Uri[] { new Uri(address) });

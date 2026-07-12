@@ -9,3 +9,4 @@ source_files: []
 depends_on: []
 related_to:
     - path: register_native
+    - path: tools_build

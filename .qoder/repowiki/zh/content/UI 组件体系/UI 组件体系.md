@@ -23,15 +23,15 @@
 - [QTTabBarClass.MenuController.cs](file://QTTabBar/QTTabBarClass.MenuController.cs)
 - [QTTabBarClass.TabManager.cs](file://QTTabBar/QTTabBarClass.TabManager.cs)
 - [QTTabBarClass.cs](file://QTTabBar/QTTabBarClass.cs)
+- [OptionsDialog.xaml.cs](file://QTTabBar/OptionsDialog/OptionsDialog.xaml.cs)
 </cite>
 
 ## 更新摘要
 **所做更改**
-- 新增控制器架构模式章节，详细说明基于控制器的UI组件设计模式
-- 更新ShellUiController和BandLifecycleController的集成方式
-- 增强架构总览图，反映新的控制器层次结构
-- 更新详细组件分析，包含专用控制器的实现细节
-- 更新依赖关系分析，展示控制器模式的解耦优势
+- 移除了Fluent UI预览功能相关文档，包括FluentOptionsPoCLauncher、OptionsFluentPoCWindow等实验性组件的说明
+- 简化了OptionsDialog架构描述，移除了ShowStandalonePreview()方法相关内容
+- 更新了测试验证机制，反映生产代码中不再包含预览入口点
+- 保持了核心UI组件体系的完整性，仅移除了已删除的实验性功能
 
 ## 目录
 1. [简介](#简介)
@@ -49,7 +49,7 @@
 ## 简介
 本文件面向 QTTabBar-Next 的 UI 组件体系，聚焦以下方面：
 - 自定义控件实现：QTabControl（标签控件）、按钮栏组件、上下文菜单系统
-- **新增** 控制器架构模式：基于控制器的UI组件设计，包括ShellUiController、BandLifecycleController等专用控制器
+- 控制器架构模式：基于控制器的UI组件设计，包括ShellUiController、BandLifecycleController等专用控制器
 - Fluent Design 主题集成：主题切换机制、深色/浅色模式支持、自定义样式注入
 - WPF 与 WinForms 混合编程：交互边界、资源与消息传递、最佳实践
 - 高 DPI 适配与多显示器支持：DPI 感知、缩放因子计算、窗口重排
@@ -60,7 +60,7 @@
 ## 项目结构
 UI 相关代码主要分布在以下模块：
 - WinForms 自定义控件与工具栏：QTabControl、QTButtonBar
-- **新增** 控制器层：ShellUiController、BandLifecycleController、ExplorerControllerModule等专用控制器
+- 控制器层：ShellUiController、BandLifecycleController、ExplorerControllerModule等专用控制器
 - 工具提示控制器：QTDesktopTool.TooltipController、TabTooltipController
 - Fluent 主题与外观配置：FluentThemeManager、FluentThemeTokens、Options06_Appearance
 - Shell 上下文菜单：ShellContextMenu
@@ -91,6 +91,7 @@ subgraph "WPF 层"
 FTm["FluentThemeManager<br/>主题应用与同步"]
 FTT["FluentThemeTokens<br/>系统主题检测"]
 Opt6["Options06_Appearance<br/>外观设置页"]
+OptDlg["OptionsDialog<br/>主设置对话框"]
 end
 subgraph "共享/互操作"
 WPFU["WPFUtils<br/>WPF 辅助方法"]
@@ -110,6 +111,7 @@ TTCC --> QTC
 FTm --> FTT
 FTm --> Opt6
 Opt6 --> FTm
+OptDlg --> FTm
 DPIA --> DPIA
 ```
 
@@ -120,20 +122,22 @@ DPIA --> DPIA
 - [QTTabBarClass.WindowManagementController.cs:8-57](file://QTTabBar/QTTabBarClass.WindowManagementController.cs#L8-L57)
 - [QTTabBarClass.MenuController.cs:58-200](file://QTTabBar/QTTabBarClass.MenuController.cs#L58-L200)
 - [QTTabBarClass.TabManager.cs:58-200](file://QTTabBar/QTTabBarClass.TabManager.cs#L58-L200)
+- [OptionsDialog.xaml.cs:60-240](file://QTTabBar/OptionsDialog/OptionsDialog.xaml.cs#L60-L240)
 
 ## 核心组件
 - QTabControl：自绘标签控件，支持多行布局、关闭按钮、图标、阴影、视觉样式渲染器、夜间模式配色等。提供丰富的选择变更事件与滚动控制。
 - QTButtonBar：基于 BandObject 的工具栏，承载内置按钮、分组、最近关闭、应用启动器、搜索框、透明度滑块、插件扩展项等，并维护下拉菜单与拖拽排序。
-- **新增** DesktopTooltipController：从 QTDesktopTool 中提取的专用工具提示控制器，负责子目录提示的显示、隐藏和矩形计算逻辑。
-- **新增** TabTooltipController：标签工具提示控制器，处理标签相关的工具提示交互逻辑。
-- **新增** ShellUiController：Windows Shell UI交互控制器，封装了刷新选项、显示文件夹树、搜索栏、置顶切换等Shell相关UI操作。
-- **新增** BandLifecycleController：Band生命周期控制器，处理Band显示/隐藏、激活状态、DPI变化时的高度刷新等生命周期管理。
-- **新增** ExplorerControllerModule：Explorer交互控制器，处理导航、事件处理、消息捕获等与Explorer外壳的交互逻辑。
-- **新增** WindowManagementController：窗口管理控制器，负责窗口合并、最小化到托盘、恢复窗口等窗口管理功能。
-- **新增** MenuController：菜单分发控制器，处理右键菜单的点击事件和动态内容生成。
-- **新增** TabManager：标签管理控制器，封装标签创建、打开、克隆、关闭等标签管理操作。
+- DesktopTooltipController：从 QTDesktopTool 中提取的专用工具提示控制器，负责子目录提示的显示、隐藏和矩形计算逻辑。
+- TabTooltipController：标签工具提示控制器，处理标签相关的工具提示交互逻辑。
+- ShellUiController：Windows Shell UI交互控制器，封装了刷新选项、显示文件夹树、搜索栏、置顶切换等Shell相关UI操作。
+- BandLifecycleController：Band生命周期控制器，处理Band显示/隐藏、激活状态、DPI变化时的高度刷新等生命周期管理。
+- ExplorerControllerModule：Explorer交互控制器，处理导航、事件处理、消息捕获等与Explorer外壳的交互逻辑。
+- WindowManagementController：窗口管理控制器，负责窗口合并、最小化到托盘、恢复窗口等窗口管理功能。
+- MenuController：菜单分发控制器，处理右键菜单的点击事件和动态内容生成。
+- TabManager：标签管理控制器，封装标签创建、打开、克隆、关闭等标签管理操作。
 - FluentThemeManager：在 WPF 侧统一应用 Fluent 主题，依据系统深浅色自动切换，动态插入主题资源字典。
 - Options06_Appearance：外观设置页，负责皮肤颜色、Rebar 背景色、导入导出注册表皮肤等。
+- OptionsDialog：主设置对话框，采用Fluent UI框架，提供统一的设置界面管理。
 - ShellContextMenu：封装 IContextMenu2，显示系统级右键菜单，处理"打开父文件夹"和"从菜单移除"等命令。
 - DpiAwareControl/DpiManager：为 WinForms 控件提供 DPI 变化通知与缩放因子计算，支撑多显示器与高 DPI 场景。
 
@@ -144,9 +148,10 @@ DPIA --> DPIA
 - [QTTabBarClass.WindowManagementController.cs:8-57](file://QTTabBar/QTTabBarClass.WindowManagementController.cs#L8-L57)
 - [QTTabBarClass.MenuController.cs:58-200](file://QTTabBar/QTTabBarClass.MenuController.cs#L58-L200)
 - [QTTabBarClass.TabManager.cs:58-200](file://QTTabBar/QTTabBarClass.TabManager.cs#L58-L200)
+- [OptionsDialog.xaml.cs:60-240](file://QTTabBar/OptionsDialog/OptionsDialog.xaml.cs#L60-L240)
 
 ## 控制器架构模式
-**新增** QTTabBar-Next 采用了基于控制器的UI组件架构模式，将复杂的UI逻辑从主类中解耦到专门的控制器类中。这种设计模式具有以下优势：
+QTTabBar-Next 采用了基于控制器的UI组件架构模式，将复杂的UI逻辑从主类中解耦到专门的控制器类中。这种设计模式具有以下优势：
 
 ### 控制器分类
 - **Shell交互控制器**：ShellUiController、ExplorerControllerModule - 处理与Windows Shell的交互
@@ -190,7 +195,7 @@ Note over Main,WMC : 通过委托调用控制器方法
 - [QTTabBarClass.BandLifecycleController.cs:11-16](file://QTTabBar/QTTabBarClass.BandLifecycleController.cs#L11-L16)
 
 ## 架构总览
-整体采用 WinForms 作为宿主与主交互面，WPF 用于 Fluent 主题与高级外观设置；通过主题管理器将系统主题映射到 WPF 资源字典，并在运行时替换；**新增** 控制器架构模式实现了职责分离，将复杂的UI逻辑从主类中解耦到专用控制器；WinForms 控件通过配置与系统色常量进行外观适配；DPI 感知贯穿控件生命周期，确保在不同缩放比例下正确布局与绘制。
+整体采用 WinForms 作为宿主与主交互面，WPF 用于 Fluent 主题与高级外观设置；通过主题管理器将系统主题映射到 WPF 资源字典，并在运行时替换；控制器架构模式实现了职责分离，将复杂的UI逻辑从主类中解耦到专用控制器；WinForms 控件通过配置与系统色常量进行外观适配；DPI 感知贯穿控件生命周期，确保在不同缩放比例下正确布局与绘制。
 
 ```mermaid
 sequenceDiagram
@@ -225,7 +230,6 @@ Theme-->>Tabs : 通过配置/系统色间接影响 WinForms 外观
 ## 详细组件分析
 
 ### ShellUiController 分析
-**新增功能要点**
 - Windows Shell UI交互的核心控制器，封装了所有与Shell相关的UI操作
 - RefreshOptions 方法处理选项刷新，包括导航按钮、标签行类型、背景刷新等
 - ShowFolderTree/ShowSearchBar 方法控制Explorer的文件夹树和搜索栏显示
@@ -264,7 +268,6 @@ UpdateView --> End(["完成"])
 - [QTTabBarClass.ShellUiController.cs:9-96](file://QTTabBar/QTTabBarClass.ShellUiController.cs#L9-L96)
 
 ### BandLifecycleController 分析
-**新增功能要点**
 - 专门处理Band对象的生命周期管理
 - ShowDW 方法控制Band的显示/隐藏，包含首次导航完成检查和配置持久化
 - UIActivateIO 方法处理UI激活状态，自动聚焦到标签控件
@@ -284,7 +287,6 @@ UpdateView --> End(["完成"])
 - [QTTabBarClass.BandLifecycleController.cs:11-47](file://QTTabBar/QTTabBarClass.BandLifecycleController.cs#L11-L47)
 
 ### ExplorerControllerModule 分析
-**新增功能要点**
 - 处理与Explorer外壳的所有交互逻辑
 - BeforeNavigate 方法拦截导航请求，处理特殊文件夹和锁定标签
 - Explorer_NavigateComplete2 方法处理导航完成事件，更新标签状态和历史记录
@@ -304,7 +306,6 @@ UpdateView --> End(["完成"])
 - [QTTabBarClass.ExplorerController.cs:58-800](file://QTTabBar/QTTabBarClass.ExplorerController.cs#L58-L800)
 
 ### WindowManagementController 分析
-**新增功能要点**
 - 窗口管理的专用控制器
 - MergeAllWindows 方法实现多窗口标签合并到主窗口
 - MinimizeToTray 方法将窗口最小化到系统托盘
@@ -323,7 +324,6 @@ UpdateView --> End(["完成"])
 - [QTTabBarClass.WindowManagementController.cs:8-57](file://QTTabBar/QTTabBarClass.WindowManagementController.cs#L8-L57)
 
 ### MenuController 分析
-**新增功能要点**
 - 右键菜单的分发控制器
 - contextMenuSys_ItemClicked 处理方法级菜单项点击
 - contextMenuSys_Opening 方法动态生成菜单内容
@@ -339,10 +339,9 @@ UpdateView --> End(["完成"])
 - 按需创建和销毁菜单项
 
 **章节来源**
-- [QTTabBarClass.MenuController.cs:58-200](file://QTTabBar/QTTabBarClass.MenuController.cs#L58-L200)
+- [QTTabBarClass.MenuController.cs:58-200](file://QTTabBar/QTTabBarClass.MenuController.cs#L58-200)
 
 ### TabManager 分析
-**新增功能要点**
 - 标签管理的核心控制器
 - AddStartUpTabs 方法处理启动标签的加载
 - OpenNewTabOrWindow 方法根据修饰键决定新建标签还是新窗口
@@ -361,21 +360,22 @@ UpdateView --> End(["完成"])
 - [QTTabBarClass.TabManager.cs:58-200](file://QTTabBar/QTTabBarClass.TabManager.cs#L58-L200)
 
 ### DesktopTooltipController 分析
-- **新增功能要点**
-  - 独立的工具提示控制器类，封装了子目录提示的所有逻辑
-  - ShowSubDirTip 方法处理提示显示，包括路径解析、位置计算和表单创建
-  - HideSubDirTip 方法处理提示隐藏和状态清理
-  - GetLVITEMRECT 静态方法提供 ListView 项矩形计算的复杂算法
-  - 支持多种视图模式（图标、列表、详细信息、平铺）的矩形计算
-  - 错误处理和日志记录机制
-- **关键流程**
-  - 初始化时检查焦点状态和配置选项
-  - 根据视图模式动态调整矩形计算逻辑
-  - 处理 Vista 特定版本的兼容性差异
-  - 管理 SubDirTipForm 实例的生命周期
-- **复杂度**
-  - 矩形计算算法 O(1)，但涉及多个 Windows API 调用
-  - 视图模式判断分支逻辑，时间复杂度 O(1)
+- 独立的工具提示控制器类，封装了子目录提示的所有逻辑
+- ShowSubDirTip 方法处理提示显示，包括路径解析、位置计算和表单创建
+- HideSubDirTip 方法处理提示隐藏和状态清理
+- GetLVITEMRECT 静态方法提供 ListView 项矩形计算的复杂算法
+- 支持多种视图模式（图标、列表、详细信息、平铺）的矩形计算
+- 错误处理和日志记录机制
+
+**关键流程**
+- 初始化时检查焦点状态和配置选项
+- 根据视图模式动态调整矩形计算逻辑
+- 处理 Vista 特定版本的兼容性差异
+- 管理 SubDirTipForm 实例的生命周期
+
+**复杂度**
+- 矩形计算算法 O(1)，但涉及多个 Windows API 调用
+- 视图模式判断分支逻辑，时间复杂度 O(1)
 
 ```mermaid
 flowchart TD
@@ -403,37 +403,39 @@ ShowTip --> End(["返回成功状态"])
 - [QTDesktopTool.TooltipController.cs:12-152](file://QTTabBar/QTDesktopTool.TooltipController.cs#L12-L152)
 
 ### TabTooltipController 分析
-- **新增功能要点**
-  - 专门处理标签相关的工具提示交互逻辑
-  - 支持多种键盘修饰键组合（Ctrl、Shift）的不同行为
-  - 处理锁定标签的特殊克隆逻辑
-  - 集成 ShellBrowser 导航和进程启动功能
-  - 支持多选操作的批量处理
-- **关键流程**
-  - 根据点击类型（单个或多个）分发不同的处理逻辑
-  - 处理链接目标解析和死链接检测
-  - 管理工作目录和最近文件记录
-- **线程安全**
-  - 正确处理跨线程的 UI 操作
-  - 安全的 COM 对象释放
+- 专门处理标签相关的工具提示交互逻辑
+- 支持多种键盘修饰键组合（Ctrl、Shift）的不同行为
+- 处理锁定标签的特殊克隆逻辑
+- 集成 ShellBrowser 导航和进程启动功能
+- 支持多选操作的批量处理
+
+**关键流程**
+- 根据点击类型（单个或多个）分发不同的处理逻辑
+- 处理链接目标解析和死链接检测
+- 管理工作目录和最近文件记录
+
+**线程安全**
+- 正确处理跨线程的 UI 操作
+- 安全的 COM 对象释放
 
 **章节来源**
 - [QTTabBarClass.TabTooltipController.cs:13-128](file://QTTabBar/QTTabBarClass.TabTooltipController.cs#L13-L128)
 
 ### QTabControl 分析
-- 功能要点
-  - 自绘背景与边框，支持九宫格拉伸贴图与 VisualStyleRenderer 回退
-  - 多行布局算法，支持固定宽度与自适应宽度，限制最大/最小宽度
-  - 关闭按钮、锁定图标、驱动器字母阴影绘制、子文本与超链接样式
-  - 选择变更事件链：Deselecting -> Selecting -> SelectedIndexChanged
-  - 夜间模式配色与透明背景，支持 RTL 文本方向
-- 关键流程
-  - 初始化时启用双缓冲与透明背景，加载视觉样式渲染器
-  - 计算每个标签矩形与行号，必要时触发 RowCountChanged
-  - 选择变更时根据可见区域调整滚动偏移
-- 复杂度
-  - 单行布局 O(n)，多行布局 O(n)
-  - 绘制复杂度与标签数量、是否启用贴图/阴影相关
+- 自绘背景与边框，支持九宫格拉伸贴图与 VisualStyleRenderer 回退
+- 多行布局算法，支持固定宽度与自适应宽度，限制最大/最小宽度
+- 关闭按钮、锁定图标、驱动器字母阴影绘制、子文本与超链接样式
+- 选择变更事件链：Deselecting -> Selecting -> SelectedIndexChanged
+- 夜间模式配色与透明背景，支持 RTL 文本方向
+
+**关键流程**
+- 初始化时启用双缓冲与透明背景，加载视觉样式渲染器
+- 计算每个标签矩形与行号，必要时触发 RowCountChanged
+- 选择变更时根据可见区域调整滚动偏移
+
+**复杂度**
+- 单行布局 O(n)，多行布局 O(n)
+- 绘制复杂度与标签数量、是否启用贴图/阴影相关
 
 ```mermaid
 flowchart TD
@@ -459,19 +461,20 @@ DrawContent --> End(["结束"])
 - [QTabControl.cs:573-750](file://QTTabBar/QTabControl.cs#L573-L750)
 
 ### 按钮栏组件（QTButtonBar）分析
-- 功能要点
-  - 基于 BandObject 嵌入 Explorer 顶部，提供导航、分组、最近关闭、应用启动器、置顶、透明度滑块、搜索框等
-  - 支持插件扩展：IBarButton、IBarDropButton、IBarCustomItem、IBarMultipleCustomItems
-  - 下拉菜单支持拖拽排序与右键菜单，结合 ShellContextMenu 打开系统菜单
-  - 图片资源线程安全克隆，避免跨线程使用异常
-- 关键流程
-  - CreateItems 遍历配置生成 ToolStripItem，按需创建下拉菜单与搜索框
-  - DropDownOpening 动态填充历史/分组/应用列表
-  - ClickItem 程序化触发按钮或下拉
-- 性能考虑
-  - 批量添加前 SuspendLayout/ResumeLayout
-  - 图像克隆加锁，避免并发访问 ImageStrip
-  - 延迟搜索与重新排列定时器，减少频繁刷新
+- 基于 BandObject 嵌入 Explorer 顶部，提供导航、分组、最近关闭、应用启动器、置顶、透明度滑块、搜索框等
+- 支持插件扩展：IBarButton、IBarDropButton、IBarCustomItem、IBarMultipleCustomItems
+- 下拉菜单支持拖拽排序与右键菜单，结合 ShellContextMenu 打开系统菜单
+- 图片资源线程安全克隆，避免跨线程使用异常
+
+**关键流程**
+- CreateItems 遍历配置生成 ToolStripItem，按需创建下拉菜单与搜索框
+- DropDownOpening 动态填充历史/分组/应用列表
+- ClickItem 程序化触发按钮或下拉
+
+**性能考虑**
+- 批量添加前 SuspendLayout/ResumeLayout
+- 图像克隆加锁，避免并发访问 ImageStrip
+- 延迟搜索与重新排列定时器，减少频繁刷新
 
 ```mermaid
 classDiagram
@@ -507,11 +510,11 @@ QTButtonBar --> ToolStripTrackBar : "透明度滑块"
 - [QTButtonBar.cs:541-656](file://QTTabBar/QTButtonBar.cs#L541-L656)
 
 ### 上下文菜单系统（ShellContextMenu）分析
-- 功能要点
-  - 基于 IContextMenu2.QueryContextMenu/InvokeCommand 显示系统右键菜单
-  - 支持 Shift 扩展动词、追加"打开父文件夹"、"从菜单移除"等自定义项
-  - 返回特殊命令码以区分用户取消、打开父文件夹、移除菜单项
-- 调用序列
+- 基于 IContextMenu2.QueryContextMenu/InvokeCommand 显示系统右键菜单
+- 支持 Shift 扩展动词、追加"打开父文件夹"、"从菜单移除"等自定义项
+- 返回特殊命令码以区分用户取消、打开父文件夹、移除菜单项
+
+**调用序列**
 
 ```mermaid
 sequenceDiagram
@@ -544,6 +547,9 @@ end
 - 外观设置页
   - Options06_Appearance 提供颜色选择、Rebar 背景色选择、导入/导出皮肤注册表
   - 重置配置时强制关闭自动颜色切换以避免暗黑模式混乱
+- 主设置对话框
+  - OptionsDialog 采用 FluentWindow 框架，提供统一的设置界面管理
+  - 支持多标签页组织和主题同步应用
 
 ```mermaid
 flowchart TD
@@ -563,11 +569,12 @@ InsertDict --> UI["WPF 设置界面即时生效"]
 **章节来源**
 - [FluentThemeManager.cs:10-46](file://QTTabBar/FluentThemeManager.cs#L10-L46)
 - [Options06_Appearance.xaml.cs:30-151](file://QTTabBar/OptionsDialog/Options06_Appearance.xaml.cs#L30-L151)
+- [OptionsDialog.xaml.cs:60-240](file://QTTabBar/OptionsDialog/OptionsDialog.xaml.cs#L60-L240)
 
 ### 高 DPI 适配与多显示器支持
 - DpiAwareControl 暴露 Dpi 与 Scaling 属性，在控件首次可见时查询当前窗口的 DPI，若发生变化则触发 OnDpiChanged 供派生类重算布局
 - DpiManager 提供底层 DPI 获取能力，配合控件生命周期完成多显示器切换时的自适应
-- **新增** BandLifecycleController 中的 RefreshBandHeightForCurrentDpi 方法专门处理DPI变化时的高度重新计算
+- BandLifecycleController 中的 RefreshBandHeightForCurrentDpi 方法专门处理DPI变化时的高度重新计算
 
 ```mermaid
 sequenceDiagram
@@ -593,7 +600,7 @@ Note over App,BLC : BandLifecycleController.RefreshBandHeightForCurrentDpi
 - 主题与外观：WPF 侧通过 FluentThemeManager 应用主题，WinForms 侧通过配置与系统色常量（如 ShellColors）保持外观一致
 - 资源与数据：外观设置页使用 WPF 绑定与对话框，修改后的配置被 WinForms 控件消费
 - 消息与交互：WinForms 工具栏与标签控件通过 InstanceManager 与 QTTabBarClass 协调，WPF 仅负责设置界面与主题资源
-- **新增** 控制器分离：通过专用控制器类解耦复杂逻辑，提高代码可维护性和测试性
+- 控制器分离：通过专用控制器类解耦复杂逻辑，提高代码可维护性和测试性
 
 **章节来源**
 - [FluentThemeManager.cs:10-46](file://QTTabBar/FluentThemeManager.cs#L10-L46)
@@ -605,9 +612,9 @@ Note over App,BLC : BandLifecycleController.RefreshBandHeightForCurrentDpi
 - 组件耦合
   - QTButtonBar 依赖 ShellContextMenu 与各类下拉菜单，同时与 QTTabBarClass 协作完成导航与分组操作
   - QTabControl 依赖配置与系统色常量，受主题与夜间模式影响
-  - **新增** DesktopTooltipController 依赖 QTDesktopTool 和 SubDirTipForm，封装复杂的工具提示逻辑
-  - **新增** TabTooltipController 依赖 QTTabBarClass，处理标签特定的工具提示交互
-  - **新增** 各控制器都依赖QTTabBarClass的_owner引用，形成松耦合的控制器架构
+  - DesktopTooltipController 依赖 QTDesktopTool 和 SubDirTipForm，封装复杂的工具提示逻辑
+  - TabTooltipController 依赖 QTTabBarClass，处理标签特定的工具提示交互
+  - 各控制器都依赖QTTabBarClass的_owner引用，形成松耦合的控制器架构
   - FluentThemeManager 依赖 FluentThemeTokens 与 WPF 主题管理器
 - 外部依赖
   - COM 接口：IShellFolder、IContextMenu2、SHBindToParent 等
@@ -658,16 +665,16 @@ FTm --> WPF["WPF 主题库"]
 - 对象生命周期
   - Dispose 中释放画笔、位图、字体等资源
   - ShellContextMenu 在 finally 块释放 COM 对象，防止泄漏
-  - **新增** DesktopTooltipController 中的 SubDirTipForm 实例管理，确保正确的创建和销毁
-  - **新增** 控制器模式提高了对象管理的清晰度，便于资源清理
+  - DesktopTooltipController 中的 SubDirTipForm 实例管理，确保正确的创建和销毁
+  - 控制器模式提高了对象管理的清晰度，便于资源清理
 - 并发与线程安全
   - 图像克隆加锁，避免跨线程访问 ImageStrip 导致异常
-  - **新增** TabTooltipController 中的跨线程 UI 操作处理
-  - **新增** 控制器间的通信通过_owner引用，避免了直接的线程竞争
+  - TabTooltipController 中的跨线程 UI 操作处理
+  - 控制器间的通信通过_owner引用，避免了直接的线程竞争
 - 延迟与节流
   - 搜索框输入与重新排列使用定时器节流，降低频繁刷新带来的性能损耗
-  - **新增** MenuController 使用SuspendLayout/ResumeLayout优化菜单构建性能
-- **新增** 控制器分离优势
+  - MenuController 使用SuspendLayout/ResumeLayout优化菜单构建性能
+- 控制器分离优势
   - 各控制器职责单一，便于单元测试和性能监控
   - 减少了主类的复杂性，提高代码可读性和可维护性
   - 控制器可以独立优化和替换，不影响其他组件
@@ -693,12 +700,12 @@ FTm --> WPF["WPF 主题库"]
 - DPI 切换后布局错乱
   - 验证 OnDpiChanged 是否被触发并重算布局
   - 检查 Scaling 因子是否应用到字体与间距
-  - **新增** 检查 BandLifecycleController.RefreshBandHeightForCurrentDpi 是否正确调用
-- **新增** 控制器相关问题
+  - 检查 BandLifecycleController.RefreshBandHeightForCurrentDpi 是否正确调用
+- 控制器相关问题
   - 检查各控制器的初始化顺序和_owner引用是否正确
   - 验证控制器方法的委托调用是否正常
   - 确认控制器间的通信没有循环依赖
-- **新增** 工具提示相关问题
+- 工具提示相关问题
   - 检查 DesktopTooltipController 的 ShowSubDirTip 方法是否正确调用
   - 验证 GetLVITEMRECT 方法的矩形计算逻辑
   - 确认 SubDirTipForm 实例的生命周期管理
@@ -715,7 +722,7 @@ FTm --> WPF["WPF 主题库"]
 - [QTTabBarClass.TabTooltipController.cs:20-91](file://QTTabBar/QTTabBarClass.TabTooltipController.cs#L20-L91)
 
 ## 结论
-QTTabBar-Next 的 UI 体系以 WinForms 为核心，结合 WPF 的 Fluent 主题与外观设置，实现了高度可定制的标签与工具栏体验。**新增** 的控制器架构模式通过职责分离显著提高了代码的可维护性和可扩展性。通过完善的 DPI 感知、上下文菜单集成与性能优化策略，系统在复杂环境下仍能提供稳定流畅的交互。建议后续继续完善可访问性与响应式布局，进一步提升用户体验。
+QTTabBar-Next 的 UI 体系以 WinForms 为核心，结合 WPF 的 Fluent 主题与外观设置，实现了高度可定制的标签与工具栏体验。通过控制器架构模式实现了职责分离，显著提高了代码的可维护性和可扩展性。通过完善的 DPI 感知、上下文菜单集成与性能优化策略，系统在复杂环境下仍能提供稳定流畅的交互。移除了实验性的Fluent UI预览功能后，架构更加简洁稳定，建议后续继续完善可访问性与响应式布局，进一步提升用户体验。
 
 ## 附录：使用示例与自定义指南
 - 使用 QTabControl
@@ -726,11 +733,11 @@ QTTabBar-Next 的 UI 体系以 WinForms 为核心，结合 WPF 的 Fluent 主题
   - 通过配置 ButtonIndexes 决定显示哪些内置按钮
   - 实现 IBarButton/IBarDropButton/IBarCustomItem/IBarMultipleCustomItems 扩展插件按钮
   - 使用 DropDownMenuReorderable 实现可拖拽排序的下拉菜单
-- **新增** 控制器自定义
+- 控制器自定义
   - 继承现有控制器类并重写特定方法实现自定义逻辑
   - 创建新的专用控制器处理特定业务逻辑
   - 通过委托模式与QTTabBarClass进行通信
-- **新增** 工具提示控制器自定义
+- 工具提示控制器自定义
   - 继承 DesktopTooltipController 并重写 ShowSubDirTip 方法实现自定义提示逻辑
   - 扩展 TabTooltipController 添加新的键盘快捷键处理
   - 使用 GetLVITEMRECT 方法实现自定义的矩形计算逻辑
@@ -740,7 +747,7 @@ QTTabBar-Next 的 UI 体系以 WinForms 为核心，结合 WPF 的 Fluent 主题
 - 高 DPI 与多显示器
   - 继承 DpiAwareControl 并重写 OnDpiChanged 以响应 DPI 变化
   - 使用 Scaling 因子调整字体大小与边距
-  - **新增** 在Band生命周期控制器中处理DPI变化时的高度重新计算
+  - 在Band生命周期控制器中处理DPI变化时的高度重新计算
 - 可访问性与响应式设计
   - 为关键控件提供 ToolTip 与快捷键提示
   - 在布局计算中考虑不同 DPI 下的文本测量与截断策略
