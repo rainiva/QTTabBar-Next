@@ -16,6 +16,8 @@
 
 **DoD：** R-1～R-12 全部满足 → **结构根治 CLOSED 2026-07-12**
 
+**维护策略（§14）：结构 Wave 已停止。** 新功能仅 `*Controller` + `I*Context`；禁止无 §9 证据的结构 PR。
+
 ---
 
 ## Session: 2026-07-12 (M4 Ratchet + §9 + CLOSED)
